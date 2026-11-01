@@ -1,13 +1,5 @@
-import {
-  BUSINESS_KEYS,
-  PAGES,
-  RESOURCE_TYPE,
-  SETTINGS_ACTIONS,
-  SETTINGS_KEYS,
-  levelActionsOf,
-  type ActionLevel,
-  type BusinessKey,
-} from '@nocobase/app-plugin-projects/shared/access';
+import * as agentsAccess from '@nocobase/app-plugin-agents/shared/access';
+import * as projectsAccess from '@nocobase/app-plugin-projects/shared/access';
 import type {
   AuthorizationTitle,
   PermissionGrant,
@@ -21,7 +13,63 @@ import {
 } from './roles.js';
 
 /** How far a role reaches with one business action. */
-export type AbilityLevel = ActionLevel | 'none';
+export type AbilityLevel = 'related' | 'all' | 'none';
+
+/**
+ * What a plugin offers to be granted, in the shape every plugin's `shared/access` declares: pages, settings items with
+ * their actions, and business actions registered under one resource type, one authorization action per level.
+ */
+interface AccessSource {
+  readonly PAGES: readonly string[];
+  readonly SETTINGS_ACTIONS: Readonly<Record<string, readonly string[]>>;
+  readonly RESOURCE_TYPE: string;
+  readonly BUSINESS_KEYS: readonly {
+    readonly business: string;
+    readonly key: string;
+  }[];
+  levelActionsOf(key: never): readonly {
+    readonly level: string;
+    readonly name: string;
+  }[];
+}
+
+/**
+ * The plugins whose capabilities make up a Studio role. Releases and knowledge join in the stages that use them; the
+ * order is the catalog's.
+ */
+const SOURCES: readonly AccessSource[] = [projectsAccess, agentsAccess];
+
+interface BusinessEntry {
+  readonly type: string;
+  readonly business: string;
+  readonly key: string;
+  readonly levels: readonly { readonly level: string; readonly name: string }[];
+}
+
+const businesses: readonly BusinessEntry[] = SOURCES.flatMap((source) =>
+  source.BUSINESS_KEYS.map(({ business, key }) => ({
+    type: source.RESOURCE_TYPE,
+    business,
+    key,
+    levels: source.levelActionsOf(key as never),
+  })),
+);
+
+const settingsEntries: readonly {
+  readonly item: string;
+  readonly action: string;
+  readonly key: string;
+}[] = SOURCES.flatMap((source) =>
+  Object.entries(source.SETTINGS_ACTIONS).flatMap(([item, actions]) =>
+    actions.map((action) => ({ item, action, key: `${item}/${action}` })),
+  ),
+);
+
+const pageIds = new Set<string>(SOURCES.flatMap((source) => source.PAGES));
+const settingsItems = new Set(settingsEntries.map(({ item }) => item));
+const businessResources = new Set(
+  businesses.map(({ type, business }) => `${type}:${business}`),
+);
 
 /** A Studio role as the access API answers it (`StudioRole` of the Studio demo). */
 export interface StudioRole {
@@ -54,37 +102,24 @@ export interface RoleGrantsInput {
   readonly abilities?: Readonly<Record<string, AbilityLevel>>;
 }
 
-/**
- * The catalog is built from what the registered plugins declare. Today that is the projects plugin; the agents,
- * releases and knowledge plugins join it in the stages that use them.
- */
+/** The catalog, built from what the registered plugins declare. */
 export function accessCatalog(): AccessCatalog {
   return {
-    pages: [...PAGES],
-    settings: SETTINGS_KEYS.map(({ key }) => key),
-    abilities: BUSINESS_KEYS.map(({ key }) => ({
+    pages: [...pageIds],
+    settings: settingsEntries.map(({ key }) => key),
+    abilities: businesses.map(({ key, levels }) => ({
       key,
-      levels: [
-        'none',
-        ...levelActionsOf(key).map(({ level }) => level),
-      ] as AbilityLevel[],
+      levels: ['none', ...levels.map(({ level }) => level as AbilityLevel)],
     })),
   };
 }
 
-const businessIds = new Set<string>(
-  BUSINESS_KEYS.map(({ business }) => business),
-);
-const settingsItems = new Set(Object.keys(SETTINGS_ACTIONS));
-const pageIds = new Set<string>(PAGES);
-
 /** Whether a grant belongs to the catalog this API edits; any other is kept as it is when a role is updated. */
 function inCatalog(grant: PermissionGrant): boolean {
   const { type, id } = grant.resource;
-  if (type === RESOURCE_TYPE) return businessIds.has(id);
   if (type === 'settings') return settingsItems.has(id);
   if (type === 'page') return pageIds.has(id);
-  return false;
+  return businessResources.has(`${type}:${id}`);
 }
 
 function heldActions(
@@ -108,19 +143,18 @@ export function toStudioRole(
   const role = roleOfSetKey(set.key) ?? set.key;
   const owner = role === OWNER_ROLE;
   const settings: Record<string, boolean> = {};
-  for (const { item, action, key } of SETTINGS_KEYS) {
+  for (const { item, action, key } of settingsEntries) {
     settings[key] = owner || heldActions(set, 'settings', item).has(action);
   }
   const abilities: Record<string, AbilityLevel> = {};
-  for (const { business, key } of BUSINESS_KEYS) {
-    const held = heldActions(set, RESOURCE_TYPE, business);
-    const levels = levelActionsOf(key);
+  for (const { type, business, key, levels } of businesses) {
+    const held = heldActions(set, type, business);
     const highest = [...levels]
       .reverse()
       .find(({ name }) => owner || held.has(name));
-    abilities[key] = highest ? highest.level : 'none';
+    abilities[key] = highest ? (highest.level as AbilityLevel) : 'none';
   }
-  const pages = PAGES.filter(
+  const pages = [...pageIds].filter(
     (page) => owner || heldActions(set, 'page', page).has('access'),
   );
   return {
@@ -150,7 +184,7 @@ export function grantsOf(
     });
   }
   const settingsByItem = new Map<string, { action: string }[]>();
-  for (const { item, action, key } of SETTINGS_KEYS) {
+  for (const { item, action, key } of settingsEntries) {
     if (!input.settings?.[key]) continue;
     const actions = settingsByItem.get(item) ?? [];
     actions.push({ action });
@@ -159,18 +193,26 @@ export function grantsOf(
   for (const [id, actions] of settingsByItem) {
     grants.push({ resource: { type: 'settings', id }, actions });
   }
-  const abilitiesByBusiness = new Map<string, { action: string }[]>();
-  for (const { business, key } of BUSINESS_KEYS) {
+  const abilitiesByResource = new Map<
+    string,
+    { type: string; id: string; actions: { action: string }[] }
+  >();
+  for (const { type, business, key, levels } of businesses) {
     const level = input.abilities?.[key] ?? 'none';
     if (level === 'none') continue;
-    const chosen = levelActionsOf(key).find((entry) => entry.level === level);
+    const chosen = levels.find((entry) => entry.level === level);
     if (!chosen) continue;
-    const actions = abilitiesByBusiness.get(business) ?? [];
-    actions.push({ action: chosen.name });
-    abilitiesByBusiness.set(business, actions);
+    const resource = `${type}:${business}`;
+    const entry = abilitiesByResource.get(resource) ?? {
+      type,
+      id: business,
+      actions: [],
+    };
+    entry.actions.push({ action: chosen.name });
+    abilitiesByResource.set(resource, entry);
   }
-  for (const [id, actions] of abilitiesByBusiness) {
-    grants.push({ resource: { type: RESOURCE_TYPE, id }, actions });
+  for (const { type, id, actions } of abilitiesByResource.values()) {
+    grants.push({ resource: { type, id }, actions });
   }
   return grants;
 }
@@ -189,7 +231,7 @@ export function invalidParts(input: RoleGrantsInput): string[] {
     const entry = catalog.abilities.find((ability) => ability.key === key);
     if (!entry) problems.push(`abilities: ${key}`);
     else if (!entry.levels.includes(level))
-      problems.push(`abilities.${key as BusinessKey}: ${level}`);
+      problems.push(`abilities.${key}: ${level}`);
   }
   return problems;
 }

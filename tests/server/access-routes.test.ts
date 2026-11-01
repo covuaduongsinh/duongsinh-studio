@@ -86,7 +86,24 @@ test('the access API manages Studio roles, members and the default role', async 
   expect(byKey.get('owner')?.abilities['pm.issues/delete']).toBe('all');
   expect(byKey.get('contributor')?.holderIds).toContain(contributorUser.id);
   expect(byKey.get('contributor')?.abilities['pm.issues/view']).toBe('related');
-  expect((await owner.fetch('/access/catalog')).status).toBe(200);
+  const catalog = (await (await owner.fetch('/access/catalog')).json())
+    .data as { pages: string[]; abilities: { key: string }[] };
+  expect(catalog.pages).toEqual(
+    expect.arrayContaining(['pm-issues', 'agents', 'runtimes', 'skills']),
+  );
+  expect(catalog.abilities.map(({ key }) => key)).toContain(
+    'agents.agents/edit',
+  );
+
+  // Stage S2 roles: the agent pages and skills editing (their own for Contributor, every one for Admin).
+  expect(byKey.get('contributor')?.pages).toEqual(
+    expect.arrayContaining(['agents', 'runtimes', 'skills', 'usage']),
+  );
+  expect(byKey.get('contributor')?.abilities['agents.agents/edit']).toBe(
+    'related',
+  );
+  expect(byKey.get('admin')?.abilities['agents.agents/edit']).toBe('all');
+  expect((await contributor.fetch('/agents/runners')).status).toBe(200);
 
   // A contributor may read the roles but neither define nor assign them.
   expect((await contributor.fetch('/access/roles')).status).toBe(200);

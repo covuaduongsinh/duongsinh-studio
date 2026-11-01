@@ -25,6 +25,7 @@ import snowflake from './snowflake.js';
 import users from './users.js';
 import knowledge from './knowledge.js';
 import releases from './releases.js';
+import agents from './agents.js';
 
 const defaultConfigs: AppConfigFactory<{
   auth: ReturnType<typeof auth>;
@@ -50,6 +51,7 @@ const defaultConfigs: AppConfigFactory<{
   users: ReturnType<typeof users>;
   knowledge: ReturnType<typeof knowledge>;
   releases: ReturnType<typeof releases>;
+  agents: ReturnType<typeof agents>;
 }> = defaultAppConfigs({
   auth,
   authorization,
@@ -74,6 +76,7 @@ const defaultConfigs: AppConfigFactory<{
   users,
   knowledge,
   releases,
+  agents,
 });
 
 export default defaultConfigs;
