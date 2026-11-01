@@ -93,6 +93,10 @@ test('an invitation link brings a person into a members-only project', async ({
   };
 
   // No default role: the invitee joins the project but holds no ability to read its issues.
+  expect(
+    (await owner.fetch('/access/settings', json({ defaultRole: null }, 'PUT')))
+      .status,
+  ).toBe(200);
   const first = await accept(await invite('invitee1@example.test'), 'invitee1');
   expect((await first.fetch('/projects/me')).status).toBe(200);
   expect((await first.fetch(`/projects/issues/${issue.id}`)).status).not.toBe(

@@ -198,7 +198,12 @@ test('projects permissions follow the Admin and Contributor permission sets', as
   }
   expect(after).toBeGreaterThan(before);
 
-  // A person with no Studio role cannot create issues.
+  // A person with no Studio role cannot create issues. Clear the default role first, or becoming a member on this very
+  // request would give them Contributor.
+  expect(
+    (await admin.fetch('/access/settings', json({ defaultRole: null }, 'PUT')))
+      .status,
+  ).toBe(200);
   expect(
     (await plainMember.fetch('/projects/issues', json({ title: 'Denied' })))
       .status,

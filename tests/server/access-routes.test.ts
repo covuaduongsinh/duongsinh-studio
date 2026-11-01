@@ -182,14 +182,20 @@ test('the access API manages Studio roles, members and the default role', async 
     (await owner.fetch('/access/roles/contributor', remove())).status,
   ).toBe(403);
 
-  // The default role: none until an administrator chooses one, never the owner, then given once to a new member.
-  expect(
+  // The default role: Contributor on a fresh install (the owner's choice, seed 202611010004), clearable, never the
+  // owner, and given once to a new member.
+  const defaultRole = async () =>
     (
       (await (await owner.fetch('/access/settings')).json()).data as {
         defaultRole: string | null;
       }
-    ).defaultRole,
-  ).toBeNull();
+    ).defaultRole;
+  expect(await defaultRole()).toBe('contributor');
+  expect(
+    (await owner.fetch('/access/settings', json({ defaultRole: null }, 'PUT')))
+      .status,
+  ).toBe(200);
+  expect(await defaultRole()).toBeNull();
   expect(
     (
       await owner.fetch(
