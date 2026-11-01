@@ -36,6 +36,7 @@ import {
   strings,
   type Row,
 } from './rows.js';
+import { ISSUE_BRANCH_PREFIX } from '../agents/ids.js';
 
 /** The status event a linked pull request's merge fires (`projectsStatusEventsToken`). */
 export const PR_MERGED_EVENT = 'ds.pr.merged';
@@ -917,6 +918,8 @@ export function createGitService(deps: GitServiceDeps) {
       readonly forcedReason: string | null;
       readonly sha: string | null;
     },
+    /** The issue Studio opened the pull request for; kept over what branch and title name. */
+    opened?: { readonly id: string; readonly by: string },
   ): Promise<PullRecord> {
     const existingRow: Row | undefined = await conn()
       .query.selectFrom(PULL_REQUESTS)
@@ -927,7 +930,7 @@ export function createGitService(deps: GitServiceDeps) {
     const existing = existingRow ? pullOf(existingRow) : null;
     const link = existing?.issueId
       ? { id: existing.issueId, by: existing.linkedBy ?? 'branch' }
-      : await issueFor(repository, hosted);
+      : (opened ?? (await issueFor(repository, hosted)));
     const merged = hosted.merged || merge !== undefined;
     const state: PullState = merged ? 'merged' : hosted.state;
     const now = new Date();
@@ -1033,13 +1036,119 @@ export function createGitService(deps: GitServiceDeps) {
     repository: RepositoryRecord,
     client: GitHubClient,
     number: number,
+    opened?: { readonly id: string; readonly by: string },
   ): Promise<PullRecord> {
     const hosted = await client.pull(repository.fullName, number);
     const checks =
       hosted.state === 'open' && hosted.headSha
         ? await client.checks(repository.fullName, hosted.headSha)
         : undefined;
-    return store(repository, hosted, checks);
+    return store(repository, hosted, checks, undefined, opened);
+  }
+
+  /** The repository a project's runs start in: the one attached as primary, else the first attached. */
+  async function primaryRepositoryOf(
+    projectId: string,
+  ): Promise<RepositoryRecord | null> {
+    const rows: Row[] = await conn()
+      .query.selectFrom(PROJECT_REPOSITORIES)
+      .select(['repositoryId', 'isPrimary', 'createdAt'])
+      .where('projectId', '=', projectId)
+      .orderBy('createdAt', 'asc')
+      .execute();
+    const chosen = rows.find((row) => bool(row.isPrimary)) ?? rows[0];
+    return chosen ? repositoryRecord(str(chosen.repositoryId)) : null;
+  }
+
+  /**
+   * Opens a pull request for an issue on the code host: from `head` (the issue's branch, `agent/<IDENTIFIER>`, as runs
+   * check it out) to `base` (the repository's default branch) of the project's primary repository, or of
+   * `repositoryId` when it serves the project too. An open pull request from that head is answered instead of a new
+   * one, so a repeated call opens nothing. The pull request is stored and linked to the issue at once; nothing is
+   * posted on the issue.
+   */
+  async function openPullRequest(input: {
+    readonly issue: {
+      readonly id: string;
+      readonly identifier: string;
+      readonly projectId: string | null;
+    };
+    readonly title: string;
+    readonly body: string;
+    readonly base?: string;
+    readonly head?: string;
+    readonly draft: boolean;
+    readonly repositoryId?: string;
+  }): Promise<GitPullRequestView & { readonly created: boolean }> {
+    const { issue } = input;
+    if (!issue.projectId)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'ISSUE_HAS_NO_REPOSITORY',
+        `Issue ${issue.identifier} belongs to no project, so it has no repository.`,
+        { issue: issue.identifier },
+      );
+    let repository: RepositoryRecord | null;
+    if (input.repositoryId) {
+      if (!(await projectsOf(input.repositoryId)).includes(issue.projectId))
+        throw new GitError(
+          'FAILED_PRECONDITION',
+          'GIT_REPOSITORY_NOT_IN_PROJECT',
+          `Repository ${input.repositoryId} does not serve the project of ${issue.identifier}.`,
+          { issue: issue.identifier },
+        );
+      repository = await repositoryRecord(input.repositoryId);
+    } else repository = await primaryRepositoryOf(issue.projectId);
+    if (!repository)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'ISSUE_HAS_NO_REPOSITORY',
+        `The project of ${issue.identifier} has no repository.`,
+        { issue: issue.identifier },
+      );
+    const head = input.head ?? `${ISSUE_BRANCH_PREFIX}${issue.identifier}`;
+    const opened = { id: issue.id, by: 'opened' };
+    const fullName = repository.fullName;
+    try {
+      const client = clientOf(await connectionRecord(repository.connectionId));
+      const [already] = await client.openPullsFrom(fullName, head);
+      if (already)
+        return {
+          ...pullView(
+            await refreshPull(repository, client, already.number, opened),
+            repository,
+          ),
+          created: false,
+        };
+      let created: GitHubPull;
+      try {
+        created = await client.createPull(fullName, {
+          title: input.title,
+          head,
+          base: input.base ?? repository.defaultBranch,
+          body: input.body,
+          draft: input.draft,
+        });
+      } catch (error) {
+        if (error instanceof GitHubError && error.status === 422)
+          throw new GitError(
+            'FAILED_PRECONDITION',
+            'PULL_REQUEST_REFUSED_BY_HOST',
+            error.message,
+            { repo: fullName, head },
+          );
+        throw error;
+      }
+      return {
+        ...pullView(
+          await refreshPull(repository, client, created.number, opened),
+          repository,
+        ),
+        created: true,
+      };
+    } catch (error) {
+      throw hostError(error, { repo: fullName });
+    }
   }
 
   async function refreshPullRequest(id: string): Promise<GitPullRequestView> {
@@ -1278,6 +1387,7 @@ export function createGitService(deps: GitServiceDeps) {
     syncRepository,
     syncDue,
     mergePullRequest,
+    openPullRequest,
     credentialsFor,
     credentialTtlMs: CREDENTIAL_TTL_MS,
   };

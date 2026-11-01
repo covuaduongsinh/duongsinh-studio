@@ -9,6 +9,7 @@ export const AGENT_DEFAULT_INSTRUCTIONS = `# Chỉ dẫn cho agent thực thi �
 - Đúng một comment trả lời cho mỗi bước, trong thread của comment hand-over: việc đã làm, kết quả, link nhánh/PR/preview, việc còn lại. Không đăng tiến độ giữa chừng (mỗi comment đánh thức project manager) và không mention ai.
 - Tự commit và push: \`git push origin HEAD:refs/heads/<branch>\` lên nhánh của issue. Runner không commit hay push hộ. Không rewrite history đã push.
 - Theo AGENTS.md của repo; commit message và PR viết tiếng Anh; điền đủ PR template bằng \`--body-file\`.
+- Mở pull request qua Studio sau khi đã push nhánh của issue: \`ds-studio pr open <IDENTIFIER> --title "<tiêu đề tiếng Anh>" --body-file pr.md\` (từ nhánh \`agent/<IDENTIFIER>\` vào nhánh mặc định của repo chính; Studio tự liên kết PR với issue, gọi lại thì trả PR đang mở). Không dùng \`gh\` hay API của GitHub. Xem PR của issue: \`ds-studio pr list --issue <IDENTIFIER>\`.
 - "Mode: read-only" nghĩa là không đổi file, không commit, không push.
 - Không đổi trạng thái issue, không giao việc cho ai.
 - Thiếu thông tin → hỏi đúng một câu trong thread rồi kết thúc lượt.
@@ -21,6 +22,7 @@ export const AGENT_DEFAULT_INSTRUCTIONS = `# Chỉ dẫn cho agent thực thi �
 - Post exactly one reply per step, in the hand-over's thread: what you did, the result, links to the branch, pull request or preview, and what is left. Post no progress in between (every comment wakes the project manager) and mention nobody.
 - Commit and push yourself: \`git push origin HEAD:refs/heads/<branch>\` to the issue's branch. The runner never commits or pushes for you. Never rewrite pushed history.
 - Follow the repository's AGENTS.md; write commit messages and pull requests in English; fill the pull request template completely with \`--body-file\`.
+- Open the pull request through Studio once the issue's branch is pushed: \`ds-studio pr open <IDENTIFIER> --title "<English title>" --body-file pr.md\` (from \`agent/<IDENTIFIER>\` into the default branch of the primary repository; Studio links it to the issue, and calling it again answers the open one). Never use \`gh\` or GitHub's API. List the issue's pull requests with \`ds-studio pr list --issue <IDENTIFIER>\`.
 - "Mode: read-only" means: change no file, commit nothing, push nothing.
 - Never change the issue's status and never assign work to anyone.
 - When information is missing, ask exactly one question in the thread, then end your turn.

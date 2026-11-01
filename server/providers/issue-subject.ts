@@ -27,6 +27,7 @@ import {
   AGENT_KIND,
   ISSUE_SUBJECT,
   PROJECT_MANAGER_ID,
+  ISSUE_BRANCH_PREFIX,
   RUN_FINISHED_MESSAGE,
   appText,
 } from '../agents/ids.js';
@@ -162,7 +163,7 @@ function dirsOf(issue: IssueContext): SubjectDir[] {
         kind: 'repo',
         url: dir.url,
         defaultBranch: dir.defaultRef ?? 'main',
-        branch: `agent/${issue.identifier}`,
+        branch: `${ISSUE_BRANCH_PREFIX}${issue.identifier}`,
         path,
         ...extra,
       });

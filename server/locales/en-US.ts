@@ -57,6 +57,21 @@ const enUS = {
       PULL_REQUEST_NOT_FOUND: 'The pull request does not exist.',
       MERGE_BLOCKED: 'The pull request cannot be merged yet ({{blocker}}).',
       MERGE_REFUSED_BY_HOST: 'GitHub refused to merge the pull request.',
+      ISSUE_HAS_NO_REPOSITORY:
+        'The issue {{issue}} has no repository: add one to its project first.',
+      GIT_REPOSITORY_NOT_IN_PROJECT:
+        'That repository does not serve the project of {{issue}}.',
+      PULL_REQUEST_REFUSED_BY_HOST:
+        'GitHub refused to open a pull request from {{head}}: push the branch with at least one commit first.',
+    },
+    // The business action of an agent's Capabilities tab.
+    actions: {
+      groupTitle: 'Code hosting',
+      openPr: {
+        title: 'Open pull requests',
+        description:
+          'Open the pull request of an issue’s branch through Studio. Whoever may edit issues holds it.',
+      },
     },
   },
 };

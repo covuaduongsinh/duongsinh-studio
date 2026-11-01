@@ -48,6 +48,19 @@ const zhCN: AppServerResource = {
       PULL_REQUEST_NOT_FOUND: '拉取请求不存在。',
       MERGE_BLOCKED: '拉取请求暂不能合并（{{blocker}}）。',
       MERGE_REFUSED_BY_HOST: 'GitHub 拒绝合并该拉取请求。',
+      ISSUE_HAS_NO_REPOSITORY:
+        '任务 {{issue}} 没有仓库，请先为其项目添加仓库。',
+      GIT_REPOSITORY_NOT_IN_PROJECT: '该仓库不属于任务 {{issue}} 所在的项目。',
+      PULL_REQUEST_REFUSED_BY_HOST:
+        'GitHub 拒绝从 {{head}} 创建拉取请求：请先推送至少包含一个提交的分支。',
+    },
+    actions: {
+      groupTitle: '代码托管',
+      openPr: {
+        title: '创建拉取请求',
+        description:
+          '通过 Studio 为任务分支创建拉取请求。可编辑任务的人都拥有此权限。',
+      },
     },
   },
 };

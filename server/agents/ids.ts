@@ -6,6 +6,8 @@ export const ISSUE_SUBJECT = 'issue';
 export const AGENT_KIND = 'agent';
 /** The application's own agent that coordinates every issue it executes; new issues get it as their executor. */
 export const PROJECT_MANAGER_ID = 'ds-project-manager';
+/** An issue's branch is this prefix and its identifier (`agent/PM-9`): runs check it out, pull requests come from it. */
+export const ISSUE_BRANCH_PREFIX = 'agent/';
 /** The application message a run's closing comment carries (`projects.comments.post` `message.type`). */
 export const RUN_FINISHED_MESSAGE = 'ds.run.finished';
 

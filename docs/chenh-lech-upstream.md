@@ -176,6 +176,28 @@ Lắp ở `server/git/{github,pull-state,rows,service}.ts`, `server/providers/gi
 - Poll: `ScheduleExecutor` scope `duongsinh-studio`, job `git-poll` mỗi 30 s, mỗi repo theo `pollSeconds`; bỏ qua khi
   chạy lệnh CLI và khi app chưa có bảng `dsRepositories`. Jobs đang ở memory (mục 3): nhiều tiến trình sẽ poll trùng.
 
+## 12. Visibility của project: `everyone`, không phải `workspace` (02/11/2026)
+
+README của `@nocobase/app-plugin-projects` 0.1.0-beta.23 ghi project có visibility `workspace` hoặc `members`. API thật
+từ chối `workspace`: `400 INVALID_INPUT … expected one of "everyone"|"members"`. Dùng `everyone` cho project ai trong
+workspace cũng thấy. Phát hiện khi tạo project Sandbox cho ca thật S3.
+
+## 13. S3 — agent mở PR qua Studio (02/11/2026)
+
+Ca thật PM-9: agent push được `agent/PM-9` nhưng không mở được PR (runner không có `gh`, CLI chưa có lệnh). Thêm
+`POST /api/git/pullRequests` (`studioGitOpenPullRequest`), lệnh CLI `ds-studio pr open <issue> --title … --body-file
+pr.md`, `GET` thành lệnh `pr list --issue <issue>` (nhận cả identifier `PM-9`); `pr get|refresh|merge` cũng có tên.
+Test: `tests/server/git-open-pr.test.ts`.
+
+- **Lệch phụ lục demo:** demo có `POST /git/pullRequests` = `pr:link` (liên kết PR có sẵn); ở đây nó **mở** PR trên
+  GitHub (`pr:open`) và liên kết ngay (`linkedBy: 'opened'`). Gọi lại khi đã có PR mở từ head đó → trả PR cũ (200).
+- **Action `studio.git/open-pr` là của Studio, plugin authorization không cấp nó.** Trong `STUDIO_ACTIONS` nó "mượn"
+  resource/levels của `pm.issues/edit` (`borrowed: true`): người giữ edit thì giữ open-pr; `runKeyScope` bỏ qua action
+  mượn nên run cần cả `pm.issues/edit` lẫn `studio.git/open-pr`. App kiểm `cliRoute({ action })` cho run trước khi route
+  chạy; route tự kiểm lại qua `agents.gate.allowed` cho cả người lẫn run, và đòi scope `pm.issues/edit` khác `none`.
+- Agent có sẵn nhận action mặc định mới qua `applyDefaults()` lúc boot (`project-manager.ts`): server đang chạy phải
+  khởi động lại thì agent hiện có mới có `studio.git/open-pr` và chỉ dẫn mới.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

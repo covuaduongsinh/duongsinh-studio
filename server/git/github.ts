@@ -67,6 +67,18 @@ export interface GitHubClient {
     perPage: number,
   ): Promise<GitHubPull[]>;
   pull(fullName: string, number: number): Promise<GitHubPull>;
+  /** The open pull requests whose head is `branch` of the repository itself (not of a fork). */
+  openPullsFrom(fullName: string, branch: string): Promise<GitHubPull[]>;
+  createPull(
+    fullName: string,
+    input: {
+      readonly title: string;
+      readonly head: string;
+      readonly base: string;
+      readonly body: string;
+      readonly draft: boolean;
+    },
+  ): Promise<GitHubPull>;
   checks(fullName: string, sha: string): Promise<GitHubCheck[]>;
   merge(
     fullName: string,
@@ -232,6 +244,27 @@ export function createGitHubClient(options: {
     },
     async pull(fullName, number) {
       return pullOf(await call('GET', `${repoPath(fullName)}/pulls/${number}`));
+    },
+    async openPullsFrom(fullName, branch) {
+      const query = new URLSearchParams({
+        state: 'open',
+        head: `${fullName.split('/')[0]}:${branch}`,
+        per_page: '10',
+      });
+      return items(
+        await call('GET', `${repoPath(fullName)}/pulls?${query.toString()}`),
+      ).map(pullOf);
+    },
+    async createPull(fullName, input) {
+      return pullOf(
+        await call('POST', `${repoPath(fullName)}/pulls`, {
+          title: input.title,
+          head: input.head,
+          base: input.base,
+          body: input.body,
+          draft: input.draft,
+        }),
+      );
     },
     async checks(fullName, sha) {
       const ref = encodeURIComponent(sha);

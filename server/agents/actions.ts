@@ -14,6 +14,11 @@ export interface StudioAction {
   readonly option: AgentActionOption;
   readonly resource: { readonly type: string; readonly id: string };
   readonly names: readonly string[];
+  /**
+   * Held through another action's grant (`resource` and `names` are that action's): a person holds it with that
+   * action, and it adds nothing to what a run may do over the API (`runKeyScope`), so a run needs both.
+   */
+  readonly borrowed?: boolean;
 }
 
 interface Flags {
@@ -117,6 +122,31 @@ function agentsEdit(): StudioAction {
   };
 }
 
+/** The business action `POST /api/git/pullRequests` performs. */
+export const OPEN_PR_ACTION = 'studio.git/open-pr';
+
+/**
+ * `studio.git/open-pr`: opening an issue's pull request through Studio. Studio's own action, which the authorization
+ * plugin does not grant: whoever may edit issues holds it.
+ */
+function gitOpenPr(flags: Flags): StudioAction {
+  return {
+    option: option(
+      OPEN_PR_ACTION,
+      'studio.git',
+      {
+        title: appText('studioGit.actions.openPr.title'),
+        description: appText('studioGit.actions.openPr.description'),
+        groupTitle: appText('studioGit.actions.groupTitle'),
+      },
+      flags,
+    ),
+    resource: { type: pmAccess.RESOURCE_TYPE, id: 'pm.issues' },
+    names: pmAccess.levelActionsOf('pm.issues/edit').map((level) => level.name),
+    borrowed: true,
+  };
+}
+
 /**
  * Every business action Studio knows, in the order the Capabilities tab lists them (the Studio demo's set, §S2 of the
  * plan). An executing agent starts with what working an issue needs: reading projects and issues, editing and
@@ -136,6 +166,7 @@ export const STUDIO_ACTIONS: readonly StudioAction[] = [
   pm('pm.issues', 'delete'),
   pm('pm.issues', 'moderate-comments', { peopleOnly: true }),
   pm('pm.attachments', 'upload', { defaultOn: true }),
+  gitOpenPr({ defaultOn: true }),
   rel('view'),
   rel('read-logs'),
   rel('deploy'),

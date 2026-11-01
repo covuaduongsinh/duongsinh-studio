@@ -23,6 +23,7 @@ import {
   apiErrorResponse,
   apiErrorResponses,
   apiValidator,
+  cliRoute,
   dataResponse,
   defineApiRoutes,
   describeRoute,
@@ -34,6 +35,13 @@ import { APP_NS } from '@nocobase/i18n';
 import { getRequestLocale } from '@nocobase/i18n/server';
 import { Hono, type Context } from 'hono';
 import { z } from 'zod';
+import {
+  agentsToken,
+  runIdentityOf,
+  type CallerIdentity,
+} from '@nocobase/app-plugin-agents/server/tokens';
+import { OPEN_PR_ACTION } from '../agents/actions.js';
+import { ISSUE_BRANCH_PREFIX } from '../agents/ids.js';
 import { gitServiceToken } from '../providers/git.js';
 import {
   GitError,
@@ -197,9 +205,47 @@ const CodeLocationBody = z
   .strict();
 
 const PullListQuery = z.object({
-  issueId: z.string().optional(),
+  issueId: z
+    .string()
+    .optional()
+    .meta({ description: 'The issue, by id or identifier (`PM-9`).' }),
   repositoryId: z.string().optional(),
 });
+
+/** A branch name GitHub takes as a pull request's head or base. */
+const BranchName = z
+  .string()
+  .min(1)
+  .max(255)
+  .regex(/^[\w./-]+$/u)
+  .refine((name) => !name.includes('..') && !name.startsWith('-'), {
+    message: 'Not a branch name.',
+  });
+
+const OpenPullBody = z
+  .object({
+    issueId: z.string().min(1).meta({
+      description: 'The issue, by id or identifier (`PM-9`).',
+    }),
+    title: z.string().trim().min(1).max(256),
+    body: z.string().max(65_536).default('').meta({
+      description:
+        'Markdown; on the command line `--body-file <path>` reads it from a file.',
+    }),
+    base: BranchName.optional().meta({
+      description:
+        'The branch to merge into; the repository’s default branch when left out.',
+    }),
+    head: BranchName.optional().meta({
+      description: `The branch with the changes; the issue’s branch (\`${ISSUE_BRANCH_PREFIX}<IDENTIFIER>\`) when left out.`,
+    }),
+    draft: z.boolean().default(false),
+    repositoryId: z.string().optional().meta({
+      description:
+        'One of the repositories of the issue’s project; its primary repository when left out.',
+    }),
+  })
+  .strict();
 
 const MergeBody = z
   .object({
@@ -416,6 +462,23 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
       return pull;
     };
 
+    /** Whether the caller holds `studio.git/open-pr` through the agents' gate: a person's own, a run's agent's. */
+    const holdsOpenPr = async (context: Context<Env>): Promise<boolean> => {
+      if (!container.has(agentsToken)) return true;
+      const session = context.get('auth');
+      if (!session) return false;
+      const keyScope = context.get('authz').identity.keyScope;
+      const identity: CallerIdentity = runIdentityOf(session) ?? {
+        kind: 'user',
+        userId: session.user.id,
+        displayName: session.user.name,
+        ...(keyScope ? { keyScope } : {}),
+      };
+      return (await container.resolve(agentsToken).gate.allowed(identity)).has(
+        OPEN_PR_ACTION,
+      );
+    };
+
     // Connections are for people only; repositories and pull requests also take a run's token (each handler still
     // refuses what only a person does), which `required()` accepts only when the route opts in to scoped credentials.
     for (const path of ['/connections', '/connections/*'])
@@ -599,6 +662,24 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
           'Of an issue (`issueId`) or of a repository (`repositoryId`), those the caller may read.',
         operationId: 'studioGitListPullRequests',
         security: PERSON_OR_RUN,
+        ...cliRoute({
+          command: 'pr list',
+          flags: {
+            issueId: { name: 'issue' },
+            repositoryId: { name: 'repository' },
+          },
+          columns: [
+            'repo',
+            'number',
+            'state',
+            'ciState',
+            'mergeBlocker',
+            'headRef',
+            'url',
+          ],
+          examples: ['pr list --issue PM-9'],
+          action: 'pm.issues/view',
+        }),
         responses: {
           '200': listResponse(PullRequestSchema),
           ...apiErrorResponses,
@@ -606,12 +687,89 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
       }),
       apiValidator('query', PullListQuery),
       async (context) => {
-        const filter = context.req.valid('query');
-        const { seesPull } = await reader(context);
+        const query = context.req.valid('query');
+        const { viewer, seesPull } = await reader(context);
+        let issueId = query.issueId;
+        // An identifier such as `PM-9` names the issue too; one the caller cannot see has no pull request to list.
+        if (issueId) {
+          const issue = await visibleIssue(viewer, issueId);
+          if (!issue) return context.json({ data: [] });
+          issueId = issue.id;
+        }
         const visible: GitPullRequestView[] = [];
-        for (const pull of await service().listPullRequests(filter))
+        for (const pull of await service().listPullRequests({
+          ...(issueId ? { issueId } : {}),
+          ...(query.repositoryId ? { repositoryId: query.repositoryId } : {}),
+        }))
           if (await seesPull(pull)) visible.push(pull);
         return context.json({ data: visible });
+      },
+    );
+
+    git.post(
+      '/pullRequests',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Open an issue’s pull request',
+        description: `Opens a pull request on the code host from the issue’s branch (\`${ISSUE_BRANCH_PREFIX}<IDENTIFIER>\`, which runs check out and push) into the default branch of the issue project’s primary repository, and links it to the issue at once. When a pull request from that branch is open already it is answered (200) instead of a new one (201). Needs \`${OPEN_PR_ACTION}\`, which whoever may edit the issue holds; a run holds it when its agent is given it. Posts nothing on the issue. The branch must be pushed first.`,
+        operationId: 'studioGitOpenPullRequest',
+        security: PERSON_OR_RUN,
+        ...cliRoute({
+          command: 'pr open',
+          args: ['issueId'],
+          flags: {
+            issueId: { name: 'issue' },
+            title: { alias: 't' },
+            body: { contentFile: true, contentFileNonEmpty: true },
+            repositoryId: { name: 'repository' },
+          },
+          examples: [
+            'pr open PM-9 --title "Add the dark mode toggle" --body-file pr.md',
+          ],
+          action: OPEN_PR_ACTION,
+        }),
+        responses: {
+          '200': dataResponse(PullRequestSchema),
+          '201': dataResponse(PullRequestSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+          '503': apiErrorResponse(503, 'When GitHub is unavailable.'),
+        },
+      }),
+      apiValidator('json', OpenPullBody),
+      async (context) => {
+        const body = context.req.valid('json');
+        const viewer = await viewerOf(context);
+        const issue = await visibleIssue(viewer, body.issueId);
+        if (!issue)
+          throw new ApiError({
+            status: 'NOT_FOUND',
+            reason: 'ISSUE_NOT_FOUND',
+            domain: DOMAIN,
+            message: `Issue ${body.issueId} does not exist.`,
+          });
+        const editScope = viewer.permissions.scopes['pm.issues/edit'];
+        if (!editScope || editScope === 'none' || !(await holdsOpenPr(context)))
+          throw denied(
+            'Only someone who may edit the issue opens its pull request.',
+          );
+        const opened = await guarded(context, () =>
+          service().openPullRequest({
+            issue: {
+              id: issue.id,
+              identifier: issue.identifier,
+              projectId: issue.projectId,
+            },
+            title: body.title,
+            body: body.body,
+            draft: body.draft,
+            ...(body.base ? { base: body.base } : {}),
+            ...(body.head ? { head: body.head } : {}),
+            ...(body.repositoryId ? { repositoryId: body.repositoryId } : {}),
+          }),
+        );
+        const { created, ...pull } = opened;
+        return context.json({ data: pull }, created ? 201 : 200);
       },
     );
 
@@ -622,6 +780,7 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
         summary: 'Get a pull request',
         operationId: 'studioGitGetPullRequest',
         security: PERSON_OR_RUN,
+        ...cliRoute({ command: 'pr get', action: 'pm.issues/view' }),
         responses: {
           '200': dataResponse(PullRequestSchema),
           ...apiErrorResponses,
@@ -643,6 +802,7 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
         tags: ['Studio'],
         summary: 'Read a pull request from the code host now',
         operationId: 'studioGitRefreshPullRequest',
+        ...cliRoute({ command: 'pr refresh' }),
         responses: {
           '200': dataResponse(PullRequestSchema),
           ...apiErrorResponses,
@@ -671,6 +831,7 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
         description:
           'Squash-merges on GitHub after reading the pull request again. Refused (400 `MERGE_BLOCKED`, `metadata.mergeBlocker`) when it is merged, closed, a draft, in conflict or its checks are missing, pending or failed; `force` with a `reason` merges anyway past the checks. People only: the linked issue’s owner, its project lead or an administrator.',
         operationId: 'studioGitMergePullRequest',
+        ...cliRoute({ command: 'pr merge' }),
         responses: {
           '200': dataResponse(PullRequestSchema),
           ...apiErrorResponses,

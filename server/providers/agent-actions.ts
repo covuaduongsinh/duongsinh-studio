@@ -87,8 +87,8 @@ export function runKeyScope(
   runId: string,
   actions: ReadonlySet<string>,
 ): KeyScope {
-  const permitted = STUDIO_ACTIONS.filter((action) =>
-    actions.has(action.option.key),
+  const permitted = STUDIO_ACTIONS.filter(
+    (action) => !action.borrowed && actions.has(action.option.key),
   );
   return {
     keyId: `run:${runId}`,

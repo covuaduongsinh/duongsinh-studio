@@ -82,6 +82,8 @@ test('the gate gives people their own actions and runs their agent’s within th
       'pm.issues/edit',
       'pm.issues/view',
       'pm.projects/view',
+      // S3: executing agents open their issue's pull request through Studio.
+      'studio.git/open-pr',
     ].sort(),
   );
   expect((await agents.agents.get(PROJECT_MANAGER_ID)).actions).toEqual(
