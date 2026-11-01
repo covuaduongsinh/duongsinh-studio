@@ -23,9 +23,12 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
   `server/config/releases.ts`. Its App Hosts stay disabled until release environments are built.
 - `@nocobase/app-plugin-projects` gets its roles from `server/providers/projects-access.ts`, which reads the
   authorization plugin's permission sets: `owner` is the protected `root` set, `ds-admin` and `ds-contributor` are
-  editable sets seeded by `database/main/seeds/202611010001_ds_roles.ts` (keys in `server/access/roles.ts`). New
-  members get no role automatically (`admit` does nothing); administrators assign one per person. Never bind a
-  placeholder that grants everyone every permission. `tests/server/projects-access.test.ts` guards the boundaries.
+  editable sets seeded by `database/main/seeds/202611010001_ds_roles.ts` (keys in `server/access/roles.ts`). Roles
+  are managed through the Studio access API (`server/routes/access.ts`, `/api/access/*`, the Studio demo's
+  contract) over those same permission sets: a role `<key>` is the set `ds-<key>`, `owner` is `root`. New members
+  get no role unless an administrator sets `defaultRole` (`PUT /api/access/settings`, null by default); `admit` then
+  gives it once, and `/api/access/members` shows every holder. Never bind a placeholder that grants everyone every
+  permission. `tests/server/projects-access.test.ts` and `tests/server/access-routes.test.ts` guard the boundaries.
 - Seeds cannot import the application's own relative modules (the seed loader resolves only packages), so a seed
   spells out its data the way a migration does.
 - For a contributor, "related" issues include every issue without a project. Private work belongs in a project with

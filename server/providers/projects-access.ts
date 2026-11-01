@@ -20,7 +20,12 @@ import type {
 } from '@nocobase/authorization/core';
 import type { DatabaseConnection } from '@nocobase/db';
 import { ServiceProvider } from '@nocobase/service-provider';
-import { ADMINISTRATOR_SET_KEYS } from '../access/roles.js';
+import { readAccessSettings } from '../access/access-settings.js';
+import {
+  ADMINISTRATOR_SET_KEYS,
+  roleOfSetKey,
+  setKeyOfRole,
+} from '../access/roles.js';
 
 /**
  * Tells the projects plugin what each person may do, read from the permission sets the authorization plugin stores
@@ -76,8 +81,27 @@ export default class ProjectsAccessProvider extends ServiceProvider<Application>
           permissionsFrom(authz().for(identity), identity.principal.id),
         permissionsOfUser: (userId) =>
           permissionsFrom(authz().for(userIdentity(userId)), userId),
-        // New members get no role on their own: an administrator assigns Admin or Contributor to each person.
-        admit: async () => undefined,
+        // A new member gets the default role only when an administrator has chosen one (`PUT /api/access/settings`,
+        // none by default), and only if they hold no Studio role yet. The members list shows who holds it.
+        admit: async (conn: DatabaseConnection, userId: string) => {
+          const { defaultRole } = await readAccessSettings(conn);
+          if (!defaultRole) return;
+          const sets = authz().permissionSets.withTransaction(conn);
+          const held = (await sets.listAssignments()).some(
+            (assignment) =>
+              assignment.subject.type === 'user' &&
+              assignment.subject.id === userId &&
+              roleOfSetKey(assignment.permissionSet) !== undefined,
+          );
+          if (held) return;
+          const permissionSet = setKeyOfRole(defaultRole);
+          if (!(await sets.get(permissionSet))) return;
+          await sets.assign({
+            permissionSet,
+            subject: { type: 'user', id: userId },
+          });
+          await sets.notifyAssignmentsChanged({ type: 'user', id: userId });
+        },
         changed: (userId) =>
           authz().permissionSets.notifyAssignmentsChanged({
             type: 'user',
