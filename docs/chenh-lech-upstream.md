@@ -198,6 +198,16 @@ Test: `tests/server/git-open-pr.test.ts`.
 - Agent có sẵn nhận action mặc định mới qua `applyDefaults()` lúc boot (`project-manager.ts`): server đang chạy phải
   khởi động lại thì agent hiện có mới có `studio.git/open-pr` và chỉ dẫn mới.
 
+## 14. PAT fine-grained không có quyền Checks (02/11/2026)
+
+Danh sách quyền của fine-grained personal access token **không có mục "Checks"**: chỉ GitHub App hoặc PAT classic đọc
+được check runs của một commit. Gọi bằng PAT fine-grained trả `403 Resource not accessible by personal access token`.
+Hướng dẫn tạo PAT trước đó (bảo bật "Checks: Read-only") là sai. Studio chuyển sang đọc `actions/runs?head_sha=…`
+(cần **Actions: Read**, PAT đã có), lấy lần chạy mới nhất của mỗi workflow (`server/git/github.ts`, `checks()`); không
+đọc được cả hai thì PR vẫn được lưu và liên kết, CI để `missing` và merge bị chặn `ciMissing` (`refreshPull`). Đã thử chỉ
+đọc trên GitHub thật với PR #1 của sandbox: check runs 403, actions runs `ci completed/success`. GitHub App (S5) sẽ đọc
+check runs trực tiếp.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

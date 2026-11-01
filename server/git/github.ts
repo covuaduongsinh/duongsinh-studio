@@ -268,14 +268,35 @@ export function createGitHubClient(options: {
     },
     async checks(fullName, sha) {
       const ref = encodeURIComponent(sha);
-      const runs = items(
-        record(
-          await call(
-            'GET',
-            `${repoPath(fullName)}/commits/${ref}/check-runs?per_page=100`,
-          ),
-        ).check_runs,
-      ).map(checkRunOf);
+      let runs: GitHubCheck[];
+      try {
+        runs = items(
+          record(
+            await call(
+              'GET',
+              `${repoPath(fullName)}/commits/${ref}/check-runs?per_page=100`,
+            ),
+          ).check_runs,
+        ).map(checkRunOf);
+      } catch (error) {
+        // Fine-grained personal access tokens cannot be granted "Checks" at all, so check runs answer 403. The GitHub
+        // Actions runs of the same commit carry the same name, status and conclusion and need only "Actions: Read".
+        if (!(error instanceof GitHubError) || error.status !== 403)
+          throw error;
+        const latest = new Map<string, GitHubCheck>();
+        for (const run of items(
+          record(
+            await call(
+              'GET',
+              `${repoPath(fullName)}/actions/runs?head_sha=${ref}&per_page=100`,
+            ),
+          ).workflow_runs,
+        ).map(checkRunOf)) {
+          // Newest first: keep each workflow's latest attempt.
+          if (!latest.has(run.name)) latest.set(run.name, run);
+        }
+        runs = [...latest.values()];
+      }
       const statuses = items(
         record(await call('GET', `${repoPath(fullName)}/commits/${ref}/status`))
           .statuses,

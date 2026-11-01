@@ -59,7 +59,7 @@ function fakeGitHub() {
   const pulls: FakePull[] = [];
   const created: unknown[] = [];
   // A token without "Checks: Read" gets 403 on check runs (seen live on the sandbox, 02/11/2026).
-  const state = { checksForbidden: false };
+  const state = { checksForbidden: false, actionsForbidden: false };
   const original = globalThis.fetch;
   const answer = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {
@@ -134,6 +134,29 @@ function fakeGitHub() {
               403,
             )
           : answer({ check_runs: [] });
+      if (method === 'GET' && path === `${repo}/actions/runs`)
+        return state.actionsForbidden
+          ? answer(
+              { message: 'Resource not accessible by personal access token' },
+              403,
+            )
+          : answer({
+              // Newest first, as GitHub lists them: the re-run passed after the first attempt failed.
+              workflow_runs: [
+                {
+                  name: 'ci',
+                  status: 'completed',
+                  conclusion: 'success',
+                  html_url: 'https://github.test/acme/sandbox/actions/runs/2',
+                },
+                {
+                  name: 'ci',
+                  status: 'completed',
+                  conclusion: 'failure',
+                  html_url: 'https://github.test/acme/sandbox/actions/runs/1',
+                },
+              ],
+            });
       if (method === 'GET' && /\/commits\/[^/]+\/status$/u.test(path))
         return answer({ state: 'pending', statuses: [] });
       return answer({ message: 'Not Found' }, 404);
@@ -372,8 +395,23 @@ test('an issue’s agent opens its pull request through Studio', async ({
     draft: true,
   });
 
-  // A token that cannot read checks still opens and links the pull request; its CI reads as missing.
+  // A fine-grained token cannot read check runs (no "Checks" permission exists for it): the CI comes from the commit's
+  // GitHub Actions runs instead, each workflow's latest attempt.
   github.state.checksForbidden = true;
+  const viaActions = await admin.fetch(
+    '/git/pullRequests',
+    json({ issueId: issue.id, title: 'Via Actions', head: 'feature/actions' }),
+  );
+  expect(viaActions.status).toBe(201);
+  const actionsPull = (await viaActions.json()).data as {
+    ciState: string | null;
+    checks: { name: string }[];
+  };
+  expect(actionsPull.ciState).toBe('success');
+  expect(actionsPull.checks.map((check) => check.name)).toEqual(['ci']);
+
+  // A token that can read neither still opens and links the pull request; its CI reads as missing.
+  github.state.actionsForbidden = true;
   const unreadable = await admin.fetch(
     '/git/pullRequests',
     json({ issueId: issue.id, title: 'No checks', head: 'feature/no-checks' }),
