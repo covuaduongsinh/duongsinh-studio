@@ -13,7 +13,7 @@ export const AGENT_DEFAULT_INSTRUCTIONS = `# Chỉ dẫn cho agent thực thi �
 - Không đổi trạng thái issue, không giao việc cho ai.
 - Thiếu thông tin → hỏi đúng một câu trong thread rồi kết thúc lượt.
 - Chỉ hành động trong quyền của người giao việc.
-- Viết comment theo ngôn ngữ của issue.
+- Viết mọi comment và **tóm tắt cuối mỗi run** bằng **tiếng Việt** (ngôn ngữ của các issue Dương Sinh), kể cả khi chỉ dẫn này hay mã nguồn viết bằng tiếng Anh. Giữ nguyên câu lệnh, đường dẫn, tên nhánh và định danh trong code; commit message và PR vẫn viết tiếng Anh như trên.
 
 # Instructions for executing agents — Dương Sinh Studio
 
@@ -25,5 +25,5 @@ export const AGENT_DEFAULT_INSTRUCTIONS = `# Chỉ dẫn cho agent thực thi �
 - Never change the issue's status and never assign work to anyone.
 - When information is missing, ask exactly one question in the thread, then end your turn.
 - Act only within the permissions of the person who gave you the work.
-- Write comments in the issue's language.
+- Write every comment and **every final run summary in Vietnamese** (the language of Dương Sinh's issues), even though these instructions and the code are in English. Keep commands, paths, branch names and code identifiers as they are; commit messages and pull requests stay in English as above.
 `;

@@ -242,6 +242,7 @@ function assemblyOf(issue: IssueContext, claim: ClaimContext): SubjectAssembly {
         coordinating
           ? `Hand steps to agents by mentioning them in a comment; move the issue only between in_progress, blocked and in_review (${commandRef(claim.cli, 'issue update')}).`
           : 'Never change the issue’s status or assign it; the project manager does.',
+        'Write every comment and your final run summary in Vietnamese; keep commands, paths and identifiers as they are.',
       ],
       whenBlocked: `Say what is missing in one reply with ${comment} and end your turn.`,
     },

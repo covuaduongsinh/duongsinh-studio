@@ -12,9 +12,29 @@ import type {
   AuthorizationContext,
   KeyScope,
 } from '@nocobase/authorization/core';
+import {
+  projectsRequestActorToken,
+  type Actor,
+} from '@nocobase/app-plugin-projects/server/tokens';
 import { ServiceProvider } from '@nocobase/service-provider';
 import { STUDIO_ACTIONS, type StudioAction } from '../agents/actions.js';
+import { AGENT_KIND } from '../agents/ids.js';
 import { userIdentity } from './projects-access.js';
+
+/**
+ * Who acts in a projects request (`projectsRequestActorToken`): with a run token, the run's agent as itself, so its
+ * comments are the agent's and its status moves are held to the `agent` kind's moves. What it may see and do stays the
+ * gate-scoped permissions of the person the run acts for. Undefined (the person) for everything else.
+ */
+export function requestActorOf(context: Context<AuthEnv>): Actor | undefined {
+  const run = runIdentityOf(context.get('auth'));
+  if (!run?.run || !run.agent) return undefined;
+  return {
+    type: AGENT_KIND,
+    id: run.agent.id,
+    trace: { agentId: run.agent.id, runId: run.run.run.id },
+  };
+}
 
 async function holds(
   context: AuthorizationContext,
@@ -91,6 +111,14 @@ export function runKeyScope(
 export default class AgentActionsProvider extends ServiceProvider<Application> {
   readonly name = 'app/agent-actions';
   private readonly releases: (() => void)[] = [];
+
+  override register(): void {
+    this.app.container.singleton(
+      projectsRequestActorToken,
+      () => (context) =>
+        Promise.resolve(requestActorOf(context as Context<AuthEnv>)),
+    );
+  }
 
   override async boot(): Promise<void> {
     const { container } = this.app;

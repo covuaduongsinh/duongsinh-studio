@@ -126,6 +126,23 @@ Lắp ở `server/agents/actions.ts`, `server/providers/agent-actions.ts`, `serv
   `commentRunLimit` thì được handler của kind `agent` dùng.
 - `Authorization.use` không có hàm gỡ: bước gắn scope cho run sống tới khi tiến trình dừng.
 
+## 10. S2 — agent hành động như chính nó (01/11/2026)
+
+`projectsRequestActorToken` được bind trong `server/providers/agent-actions.ts` (`requestActorOf`): request mang run
+token hành động như principal `{ type: 'agent', id: <agent của run>, trace: { agentId, runId } }`; quyền xem/sửa vẫn là
+quyền của người mà run đại diện, đã bị gate thu hẹp (mục 9). Test: `tests/server/run-actor.test.ts`, lấy run token thật
+qua `agents.runners.createRegistrationToken` → `register` → `authenticate` → `agents.claims.claim`.
+
+- **Giá trị trust của registration token là `team` | `ownerOnly`** (`RUNNER_TRUST` trong `shared/runners.d.ts`), dù chú
+  thích của `RegistrationTokenInput` và README nói "personal runner". Gửi `personal` bị `RepositoryError: Field "trust"
+requires an allowed enum member.`
+- **Agent đóng issue bị từ chối trước cả kiểm tra `moves`:** `in_progress → done` qua run token trả 403 "Only the owner,
+  the project lead or an administrator may close an issue." (`issue.access.js` `requireCloser` xét actor, mà actor giờ là
+  agent). Một bước ngoài `moves` không cần quyền khác (`in_progress → backlog`) trả 400 `TRANSITION_NOT_ALLOWED`;
+  `in_progress → in_review` kèm `needsYou` được phép.
+- Chưa có helper công khai nào để đúc run token trong test; phải đi đường đăng ký runner như trên. `PROTOCOL_VERSION` (14)
+  của `@nocobase/agent-protocol` được lặp lại trong test vì gói đó không phải phụ thuộc trực tiếp của app.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

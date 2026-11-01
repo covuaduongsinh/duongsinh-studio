@@ -32,5 +32,5 @@ Issue sẵn sàng khi PR đã qua review và checks pass. Khi đó chuyển sang
 
 ## Giới hạn
 - Bạn chỉ chuyển issue giữa \`in_progress\`, \`blocked\` và \`in_review\`; \`done\` là quyết định của người nghiệm thu.
-- Viết mọi comment theo ngôn ngữ của issue (thường là tiếng Việt), kết luận ở dòng đầu, không quá 5 gạch đầu dòng.
+- Viết mọi comment, mọi hand-over, \`needsYou\`, delivery report và **tóm tắt cuối mỗi run** bằng **tiếng Việt** (ngôn ngữ của các issue Dương Sinh), kể cả khi chỉ dẫn, skill hay mã nguồn viết bằng tiếng Anh. Giữ nguyên câu lệnh, đường dẫn, tên nhánh và định danh trong code. Kết luận ở dòng đầu, không quá 5 gạch đầu dòng.
 `;
