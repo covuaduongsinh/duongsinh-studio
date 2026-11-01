@@ -170,6 +170,34 @@ test('projects permissions follow the Admin and Contributor permission sets', as
     (await contributor.fetch(`/projects/issues/${hidden.id}`)).status,
   ).toBe(200);
 
+  // Assigning an issue to someone reaches their in-app inbox (the `inbox` channel the projects plugin uses).
+  const unread = async () =>
+    (
+      (
+        await (
+          await contributor.fetch('/notificationInApp/messages/unreadCount')
+        ).json()
+      ).data as { count: number }
+    ).count;
+  const before = await unread();
+  expect(
+    (
+      await secondAdmin.fetch(
+        '/projects/issues',
+        json({
+          title: 'Assigned to contributor',
+          ownerUserId: contributorUser.id,
+        }),
+      )
+    ).status,
+  ).toBe(201);
+  let after = before;
+  for (let attempt = 0; attempt < 40 && after === before; attempt++) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    after = await unread();
+  }
+  expect(after).toBeGreaterThan(before);
+
   // A person with no Studio role cannot create issues.
   expect(
     (await plainMember.fetch('/projects/issues', json({ title: 'Denied' })))
