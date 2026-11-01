@@ -115,7 +115,17 @@ test('projects permissions follow the Admin and Contributor permission sets', as
     json({ title: 'Contributor issue' }),
   );
   expect(created.status).toBe(201);
-  const own = (await created.json()).data as { id: string };
+  const own = (await created.json()).data as {
+    id: string;
+    identifier: string;
+  };
+  // The Dương Sinh seed numbers issues DS-n on a fresh install and creates the workflow labels.
+  expect(own.identifier).toMatch(/^DS-\d+$/);
+  const labels = (await (await admin.fetch('/projects/labels')).json())
+    .data as { name: string }[];
+  expect(labels.map((label) => label.name)).toEqual(
+    expect.arrayContaining(['v2', 'plugin', 'docs', 'bug', 'no-preview']),
+  );
   expect((await contributor.fetch(`/projects/issues/${own.id}`)).status).toBe(
     200,
   );
