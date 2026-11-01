@@ -28,7 +28,9 @@ describe('app client routes', () => {
     );
   });
 
-  it('loads every page component', async () => {
+  // Every page module is transformed on first load, the issue, project and settings pages included, which takes longer
+  // than the default timeout on a slow machine.
+  it('loads every page component', { timeout: 180_000 }, async () => {
     const resolved = resolveRoutes();
     const loaders = componentLoadersIn(resolved.routes);
     // The tree above is filtered by loader, so an empty list would make the loop below pass without loading
@@ -52,57 +54,57 @@ describe('app client routes', () => {
     const resolved = resolveRoutes();
 
     // The landing page and the inbox opted out of page authorization, so they are reachable by every signed-in user.
+    // The issue and project pages check the projects plugin's page grants; the plugin's own overlays (`pm-*`) and the
+    // application's issue and project pages under them inherit them.
     expect(pageAuthorizations(resolved.routes)).toEqual([
       { name: 'home', authorizedAs: null },
       { name: 'inbox', authorizedAs: null },
+      { name: 'my-issues', authorizedAs: 'pm-my-issues' },
+      ...[
+        'issues',
+        'pm-issue-new',
+        'pm-plan',
+        'issue-detail',
+        'pm-subtask-new',
+      ].map((name) => ({ name, authorizedAs: 'pm-issues' })),
+      ...['pm-projects', 'pm-project-new', 'project-detail'].map((name) => ({
+        name,
+        authorizedAs: 'pm-projects',
+      })),
+      ...settingsAuthorizations,
     ]);
   });
 
-  it('keeps a bare application home-only and supports settings registration as business capabilities are developed', async () => {
-    expect(
-      pagePaths(resolveRoutes().routes).some((path) =>
-        path.startsWith('/settings'),
-      ),
-    ).toBe(false);
-    const built = resolveAppClientContributions([
-      {
-        packageName: '@nocobase/app-template-default',
-        routes: [...applicationRoutes, systemSettingsRoutes],
-        source: 'application',
-      },
-    ]);
-    expect(pageAuthorizations(built.routes)).toEqual([
-      { name: 'home', authorizedAs: null },
-      { name: 'inbox', authorizedAs: null },
-      { name: 'settingsUsers', authorizedAs: 'user:*' },
-      { name: 'settingsUserCreate', authorizedAs: 'user:*' },
-      { name: 'settingsUser', authorizedAs: 'user:*' },
-      { name: 'settingsUserEdit', authorizedAs: 'user:*' },
-      {
-        name: 'settingsRoles',
-        authorizedAs: 'settings:authorization.permission-sets',
-      },
-      {
-        name: 'settingsRoleCreate',
-        authorizedAs: 'settings:authorization.permission-sets',
-      },
-      {
-        name: 'settingsRoleEdit',
-        authorizedAs: 'settings:authorization.permission-sets',
-      },
-      ...[
-        'settingsDefaultAccess',
-        'settingsDefaultAccessCreate',
-        'settingsDefaultAccessEdit',
-      ].map((name) => ({
-        name,
-        authorizedAs: 'settings:authorization.default-access',
-      })),
-    ]);
-    for (const loader of componentLoadersIn(built.routes))
-      await expect(loader()).resolves.toMatchObject({
-        default: expect.any(Function),
-      });
+  it('registers the prepared settings and the projects settings once the application has business capabilities', () => {
+    const paths = pagePaths(resolveRoutes().routes);
+    expect(paths).toEqual(
+      expect.arrayContaining([
+        '/settings/users',
+        '/settings/roles',
+        '/settings/default-access',
+        '/settings/issue-prefix',
+        '/settings/issue-labels',
+      ]),
+    );
+    // The prepared contribution is registered as it ships, not copied.
+    expect(applicationRoutes).toContain(systemSettingsRoutes);
+  });
+
+  it('routes the projects plugin pages under the application issue and project pages', () => {
+    const paths = pagePaths(resolveRoutes().routes);
+    expect(paths).toEqual(
+      expect.arrayContaining([
+        '/my-issues',
+        '/issues',
+        '/issues/new',
+        '/issues/plans/:planId',
+        '/issues/:issueId',
+        '/issues/:issueId/new-subtask',
+        '/projects',
+        '/projects/new',
+        '/projects/:projectId',
+      ]),
+    );
   });
 
   it('keeps the inbox out of the application navigation', () => {
@@ -112,6 +114,36 @@ describe('app client routes', () => {
     ).not.toHaveProperty('navigation');
   });
 });
+
+/** The prepared Users and Roles settings, then the projects plugin's settings appended to the same group. */
+const settingsAuthorizations = [
+  { name: 'settingsUsers', authorizedAs: 'user:*' },
+  { name: 'settingsUserCreate', authorizedAs: 'user:*' },
+  { name: 'settingsUser', authorizedAs: 'user:*' },
+  { name: 'settingsUserEdit', authorizedAs: 'user:*' },
+  {
+    name: 'settingsRoles',
+    authorizedAs: 'settings:authorization.permission-sets',
+  },
+  {
+    name: 'settingsRoleCreate',
+    authorizedAs: 'settings:authorization.permission-sets',
+  },
+  {
+    name: 'settingsRoleEdit',
+    authorizedAs: 'settings:authorization.permission-sets',
+  },
+  ...[
+    'settingsDefaultAccess',
+    'settingsDefaultAccessCreate',
+    'settingsDefaultAccessEdit',
+  ].map((name) => ({
+    name,
+    authorizedAs: 'settings:authorization.default-access',
+  })),
+  { name: 'settingsIssuePrefix', authorizedAs: 'settings:pm.general' },
+  { name: 'settingsIssueLabels', authorizedAs: 'settings:pm.labels' },
+];
 
 /** This application's own contribution, registered the way the client runtime registers it. */
 function resolveRoutes() {

@@ -46,7 +46,9 @@ const clientPlugins: AppClientPlugins = defineClientPlugins([
   agentSessions({ cli: 'ds-studio' }),
   knowledge(),
   releases(),
-  projects(),
+  // The application routes the plugin's pages itself (`client/routes.ts`): its `/projects` gains the application's
+  // project page as a child, and `/issues` hosts the plugin's New issue dialog and plan page.
+  projects({ routes: false }),
 ]);
 
 export default clientPlugins;

@@ -12,6 +12,11 @@ Vietnamese operating notes live in `docs/`.
 - The development server listens on port 13100 (`APP_SERVER_PORT` in the untracked `.env`) to stay clear of the
   NocoBase 2 instances on 13000/13001.
 
+- After every `pnpm exec shadcn add @nocobase/<item>`, run `git diff package.json`: registry items have downgraded
+  `@nocobase/app-client` and `@nocobase/i18n` (breaking the authorization client with `watchReadiness is not a
+function`) and put client-only libraries in `dependencies`. Restore the core ranges and move client libraries to
+  `devDependencies` before continuing.
+
 ## Plugin assembly
 
 - `@nocobase/app-plugin-releases` ships no configuration factory; the application declares the `releases` section in

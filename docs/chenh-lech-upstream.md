@@ -58,6 +58,17 @@ import vào seed. Thực tế với `@nocobase/db` hiện tại, trình nạp se
 lại được, nên phải có test mới lộ ra. Cách làm: seed tự chứa như migration, chỉ import từ package
 (`@nocobase/app-plugin-projects/shared/access`); key vai trò lặp lại ở `server/access/roles.ts`.
 
+## 7. `shadcn add` hạ cấp gói lõi và đặt sai nhóm phụ thuộc
+
+Cài các mục `@nocobase/issue-table|issue-card|issue-detail|project-detail|kanban|comment-thread` bằng
+`pnpm exec shadcn add` đã ghi đè `@nocobase/app-client` từ `^4.0.0-beta.6` về `4.0.0-beta.5` và `@nocobase/i18n` từ
+`^2.0.0-beta.1` về `1.0.0-beta.7` (theo phụ thuộc mà mục registry khai báo). Hậu quả:
+`TypeError: watchReadiness is not a function` trong `@nocobase/app-plugin-authorization/client`, làm
+`tests/client/client-runtime.test.ts` fail. Lỗi này dễ bị nhầm là "lỗi có sẵn". Ngoài ra, các thư viện chỉ dùng ở
+client (dnd-kit, tiptap, date-fns, react-day-picker, react-virtuoso) bị thêm vào `dependencies`, trái luật
+`AGENTS.md`. Sau mỗi lần `shadcn add`, phải `git diff package.json` và khôi phục dải phiên bản lõi
+(`~/code/fix-deps.mjs` là script đã dùng).
+
 ## 6. Ngữ nghĩa "related" của issue
 
 Với mức `related`, plugin coi **mọi issue không thuộc project** là liên quan tới mọi người có quyền đó (bảng trong
