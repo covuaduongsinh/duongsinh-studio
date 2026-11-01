@@ -26,6 +26,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.0.1",
     "@noble/hashes": "2.3.0",
+    "@nocobase/agent-runner": "0.1.0-beta.22",
     "@nocobase/app-cli-client": "0.1.0-beta.17",
     "@nocobase/app-client": "^4.0.0-beta.6",
     "@nocobase/app-plugin-template-print": "0.0.2-beta.2",

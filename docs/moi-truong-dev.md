@@ -26,6 +26,25 @@ pnpm dev            # http://127.0.0.1:13100/main/ (cổng đặt trong .env: AP
 - Tài khoản đầu tiên lấy từ `users.initialAdmin` trong `config.yml`. **Đổi mật khẩu mặc định** trước khi mở ra ngoài máy.
 - Truy cập từ trình duyệt Windows: `http://127.0.0.1:13100/main/` (WSL2 chuyển tiếp localhost).
 
+## Runner cá nhân trong WSL (S2, 01/11/2026)
+
+- Coding tool cài vào `~/.local` (không sudo): `npm install -g @anthropic-ai/claude-code @openai/codex --prefix ~/.local`.
+  Chủ dự án tự đăng nhập trong terminal Ubuntu: `claude auth login --claudeai` (gói Max) và `codex login --device-auth`
+  (ChatGPT). Kiểm tra: `claude auth status`, `codex login status`. Thông tin đăng nhập nằm ở `~/.claude/`, `~/.codex/`.
+- Tarball do app tự build, đặt ở `storage/runners/dist` (gitignored, không commit):
+  `pnpm nocobase cli build --universal` (CLI `ds-studio`) và `pnpm nocobase cli build --runner --universal`
+  (`nocobase-runner`, cần devDependency `@nocobase/agent-runner`). Bản universal chạy bằng Node 24 có sẵn.
+- Cài runner: giải nén tarball runner vào `~/.local/opt/nocobase-runner`, symlink `~/.local/bin/nocobase-runner`.
+- Đăng ký (token một lần, 10 phút, không in ra chat, ghi vào file `*.secret` rồi xoá):
+  `pnpm nocobase agents runner-token --trust ownerOnly --owner <userId> --tools claude,codex --json` →
+  `nocobase-runner register --server http://127.0.0.1:13100/main --token <token> --name may-dev-duongsinh`.
+- Chạy: `nocobase-runner start` (tự thành daemon; log ở `~/.nocobase-runner/logs/runner.log`), xem `nocobase-runner status`.
+  Runner là **cá nhân** (`ownerOnly`): chỉ nhận việc do chủ của nó khởi động. Agent có toàn quyền trên home WSL: runner
+  không phải sandbox.
+- Agent đã bật (chủ dự án chọn): Claude Opus 5.5 (approach, review, điều tra khó) và Claude Sonnet 5.5 (dev chính), tạo bằng
+  `POST /api/agents/runnerAgents` kèm mô tả "giỏi việc gì" tiếng Việt. Chưa bật Codex, nên review chéo khác nhà cung cấp
+  chưa có.
+
 ## Bẫy đã gặp
 
 1. **Rollup native chết vì `SIGILL`.** `@rollup/rollup-linux-x64-gnu@4.67.3` dùng lệnh AVX, CPU dev không có, làm Vite thoát
