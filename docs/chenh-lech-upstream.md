@@ -75,6 +75,32 @@ Với mức `related`, plugin coi **mọi issue không thuộc project** là li�
 `shared/access.d.ts`). Muốn giữ riêng thì đặt issue vào project `visibility: 'members'`. Đây là thiết kế của plugin,
 không phải lỗi; đã kiểm bằng test.
 
+## 8. S2 — subject `issue`, kind `agent`, project manager (01/11/2026)
+
+Lắp ở `server/providers/{project-manager,agent-executor,issue-subject}.ts`, văn bản nguyên tắc ở `server/agents/`. Test:
+`tests/server/studio-agents.test.ts`.
+
+- **`mayMove` không kiểm được `needsYou`.** Kế hoạch muốn `mayMove` đòi `needsYou` khi agent đưa issue vào
+  `blocked`/`in_review`. Trong `@nocobase/app-plugin-projects` 0.1.0-beta.23, `dist/server/domains/issues/issue.service.js`
+  gọi `moveIssue(…, { issue: before, … })`, nên `mayMove` nhận issue **trước** khi PATCH áp dụng: `needsYou` gửi kèm
+  cùng PATCH không thấy được, còn `needsYou` cũ luôn rỗng khi rời `in_progress` (`issue.fields.js` xoá nó ngoài
+  `blocked`/`in_review`). Quyết định: `mayMove` chỉ cho agent di chuyển issue mà chính nó là executor; yêu cầu `needsYou`
+  nằm trong nguyên tắc của project manager. Hiện agent cũng chưa tự đổi trạng thái được vì app chưa bind
+  `projectsRequestActorToken` (run token vẫn hành động như người).
+- **Hai plugin có hai kiểu `Tx` khác nhau, README không có cầu nối.** Agents: `{ conn, emit(AgentsEvent) }`; projects:
+  `{ conn, emit(DomainEvent), rehearsal? }`. README agents chỉ nói "publish the collected events after it commits".
+  Cách làm: dựng `Tx` của plugin kia trên **cùng connection** và phát sự kiện bằng `conn.afterCommit(...)` của
+  `@nocobase/db` (handler của kind `agent` gọi `runs.enqueue`/`withdrawQueued`; sink gọi `comments.post` trong một
+  savepoint). Giới hạn: hook `beforeCommit` của projects (lập thông báo) không chạy cho comment do sink viết, nên comment
+  `ds.run.finished` không sinh notice "commented" cho người theo dõi.
+- **Nội suy i18n phía server là `{{name}}`.** `@nocobase/i18n` 2.0.0-beta.1 chỉ đặt `interpolation.escapeValue: false`,
+  giữ cú pháp mặc định của i18next; khoá `studioAgents.runFinished.*` trong `server/locales/` dùng `{{runId}}`. Một chuỗi
+  viết `{runId}` được dịch nhưng không thay tham số (test đã bắt được).
+- **Agent của app không có tool/model thì không nhận việc.** `ensureSystem` với `modelEntries: []` tạo agent `enabled`
+  nhưng `findWorkable` trả null và `runs.enqueue` sẽ từ chối. Handler kiểm `findWorkable` trước và trả
+  `skipped: 'unavailable'`, nên issue mặc định giao project manager vẫn tạo/chuyển trạng thái được; project manager chỉ
+  chạy thật khi có route `projectManager` đặt "first choice" (mỗi lần boot giữ nguyên `modelEntries` đã có).
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

@@ -1,0 +1,429 @@
+import type { Application } from '@nocobase/app-server/application';
+import {
+  agentsToken,
+  type Agents,
+  type NewInput,
+  type Tx as AgentsTx,
+} from '@nocobase/app-plugin-agents/server/tokens';
+import type { Agent } from '@nocobase/app-plugin-agents/shared/agents';
+import type { Run } from '@nocobase/app-plugin-agents/shared/runs';
+import {
+  DomainError,
+  projectsKindsToken,
+  projectsToken,
+  type Actor,
+  type IssueWorkHandler,
+  type PrincipalKind,
+  type Projects,
+  type ProjectsTx,
+  type RunAttempt,
+  type WorkWithdrawal,
+} from '@nocobase/app-plugin-projects/server/tokens';
+import type { Issue } from '@nocobase/app-plugin-projects/shared/issues';
+import {
+  BACKLOG_STATUS,
+  BLOCKED_STATUS,
+  CANCELLED_STATUS,
+  DONE_STATUS,
+  IN_PROGRESS_STATUS,
+  IN_REVIEW_STATUS,
+} from '@nocobase/app-plugin-projects/shared/statuses';
+import type { DatabaseConnection } from '@nocobase/db';
+import { ServiceProvider } from '@nocobase/service-provider';
+import {
+  AGENT_KIND,
+  ISSUE_SUBJECT,
+  PROJECT_MANAGER_ID,
+  appText,
+} from '../agents/ids.js';
+
+/** Runs principals' comments may start on one issue in a day (the demo's `commentRunLimit`). */
+export const COMMENT_RUN_LIMIT = 20;
+const COMMENT_RUN_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+/** The moves an agent may make: between working, waiting for a person and waiting for acceptance. */
+const AGENT_MOVES = [
+  { from: IN_PROGRESS_STATUS, to: BLOCKED_STATUS },
+  { from: IN_PROGRESS_STATUS, to: IN_REVIEW_STATUS },
+  { from: BLOCKED_STATUS, to: IN_PROGRESS_STATUS },
+  { from: BLOCKED_STATUS, to: IN_REVIEW_STATUS },
+  { from: IN_REVIEW_STATUS, to: IN_PROGRESS_STATUS },
+  { from: IN_REVIEW_STATUS, to: BLOCKED_STATUS },
+] as const;
+
+function agentOf(issue: Issue | null): string | null {
+  return issue?.executor?.type === AGENT_KIND ? issue.executor.id : null;
+}
+
+/** What wakes an agent, as `RunAttempt.triggerType` and the run input's `payload.trigger`. */
+type Trigger =
+  'statusChange' | 'assigned' | 'comment' | 'mention' | 'unblocked';
+
+interface Wake {
+  readonly issue: Issue;
+  readonly agentId: string;
+  readonly trigger: Trigger;
+  readonly type: NewInput['type'];
+  readonly actor: Actor;
+  /** The person whose action woke the agent; left out for the system, so the issue's owner is the source. */
+  readonly requestedByUserId?: string;
+  readonly text: string;
+  readonly commentId?: string;
+}
+
+/**
+ * The `agent` executor kind: an issue's executor may be an enabled agent, and its work handler wakes that agent (and
+ * the agents a comment mentions or answers) through `agents.runs.enqueue`, inside the projects change's transaction.
+ */
+export function createAgentKind(deps: {
+  readonly agents: Agents;
+  readonly projects: Projects;
+}): PrincipalKind {
+  const { agents, projects } = deps;
+
+  /** The agents plugin's unit of work on the projects change's connection; its events wait for the commit. */
+  const unitOf = (tx: ProjectsTx): AgentsTx => ({
+    conn: tx.conn,
+    emit: (event) => tx.conn.afterCommit(() => agents.events.emit(event)),
+  });
+
+  const enabled = async (
+    conn: DatabaseConnection,
+    id: string,
+  ): Promise<Agent | null> => {
+    const agent = await agents.agents.find(conn, id);
+    return agent?.status === 'enabled' ? agent : null;
+  };
+
+  /** The agents people may give work to: those that take work now, and the project manager even before it does. */
+  const offered = async (conn: DatabaseConnection): Promise<Agent[]> => {
+    const active = await agents.agents.listActive(conn);
+    const manager = await enabled(conn, PROJECT_MANAGER_ID);
+    return manager && !active.some((agent) => agent.id === manager.id)
+      ? [manager, ...active]
+      : active;
+  };
+
+  const actorRef = async (
+    conn: DatabaseConnection,
+    actor: Actor,
+  ): Promise<NewInput['actor']> => {
+    if (actor.id && actor.type === 'user') {
+      const names = await projects.kinds.names(conn, 'user', [actor.id]);
+      return {
+        kind: 'user',
+        id: actor.id,
+        name: names.get(actor.id) ?? actor.id,
+      };
+    }
+    if (actor.id && actor.type === AGENT_KIND) {
+      const names = await agents.agents.names(conn, [actor.id]);
+      return {
+        kind: 'agent',
+        id: actor.id,
+        name: names.get(actor.id) ?? actor.id,
+      };
+    }
+    return { kind: 'system', id: 'system', name: 'System' };
+  };
+
+  /** Runs principals' comments started on the issue in the last day. */
+  const principalRuns = async (
+    conn: DatabaseConnection,
+    issueId: string,
+  ): Promise<number> => {
+    const since = new Date(Date.now() - COMMENT_RUN_WINDOW_MS);
+    const inputs = await agents.runs.inputsSince(
+      conn,
+      { kind: ISSUE_SUBJECT, id: issueId },
+      since,
+    );
+    return inputs.filter((input) => input.payload.byPrincipal === true).length;
+  };
+
+  async function wake(tx: ProjectsTx, work: Wake): Promise<RunAttempt> {
+    const { issue, agentId, trigger } = work;
+    const attempt = (
+      outcome: Pick<RunAttempt, 'started' | 'skipped' | 'runId'>,
+    ): RunAttempt => ({
+      kind: AGENT_KIND,
+      principalId: agentId,
+      subjectId: issue.id,
+      triggerType: trigger,
+      ...outcome,
+    });
+    const finished =
+      issue.statusKey === DONE_STATUS || issue.statusKey === CANCELLED_STATUS;
+    if (issue.statusKey === BACKLOG_STATUS || finished)
+      return attempt({ started: false, skipped: 'dormant' });
+    if ((await projects.subtasks.blockersOf(tx.conn, issue)).length > 0)
+      return attempt({ started: false, skipped: 'blocked' });
+    if (!(await agents.agents.findWorkable(tx.conn, agentId)))
+      return attempt({ started: false, skipped: 'unavailable' });
+    const byPrincipal = work.actor.type !== 'user';
+    if (
+      byPrincipal &&
+      (work.type === 'comment' || trigger === 'mention') &&
+      (await principalRuns(tx.conn, issue.id)) >= COMMENT_RUN_LIMIT
+    )
+      return attempt({ started: false, skipped: 'limited' });
+    if (tx.rehearsal) return attempt({ started: true });
+    const causedByRunId =
+      work.actor.type === AGENT_KIND ? work.actor.trace?.runId : undefined;
+    const result = await agents.runs.enqueue(
+      {
+        agentId,
+        subject: { kind: ISSUE_SUBJECT, id: issue.id },
+        responsibleUserId: issue.ownerUserId,
+        ...(causedByRunId
+          ? { causedByRunId }
+          : work.requestedByUserId
+            ? { requestedByUserId: work.requestedByUserId }
+            : {}),
+        input: {
+          type: work.type,
+          actor: await actorRef(tx.conn, work.actor),
+          text: work.text,
+          payload: {
+            trigger,
+            issueId: issue.id,
+            identifier: issue.identifier,
+            byPrincipal,
+            ...(work.commentId ? { commentId: work.commentId } : {}),
+          },
+        },
+      },
+      unitOf(tx),
+    );
+    return result.outcome === 'pending'
+      ? attempt({ started: false, skipped: 'waitingOwner' })
+      : attempt({ started: true, runId: result.runId });
+  }
+
+  /** Takes back the issue's queued work, of one agent or of every one; work a runner holds goes on. */
+  const withdraw = (
+    tx: ProjectsTx,
+    issue: Issue,
+    detail: string,
+    agentId?: string,
+  ): Promise<Run[]> =>
+    agents.runs.withdrawQueued(
+      {
+        subject: { kind: ISSUE_SUBJECT, id: issue.id },
+        ...(agentId ? { agentId } : {}),
+        byUserId: null,
+        detail,
+      },
+      unitOf(tx),
+    );
+
+  const userOf = (actor: Actor): string | undefined =>
+    actor.type === 'user' && actor.id ? actor.id : undefined;
+
+  const work: IssueWorkHandler = {
+    async onIssueChanged(tx, { before, after, actor }) {
+      const previous = agentOf(before);
+      const next = agentOf(after);
+      if (!tx.rehearsal) {
+        if (previous && previous !== next)
+          await withdraw(
+            tx,
+            after,
+            'The issue has another executor now.',
+            previous,
+          );
+        if (
+          before?.statusKey === IN_PROGRESS_STATUS &&
+          after.statusKey !== IN_PROGRESS_STATUS
+        )
+          await withdraw(tx, after, `The issue moved to ${after.statusKey}.`);
+      }
+      if (!next) return [];
+      const assigned = next !== previous;
+      const entered =
+        after.statusKey === IN_PROGRESS_STATUS &&
+        before?.statusKey !== IN_PROGRESS_STATUS;
+      const requestedByUserId = userOf(actor);
+      if (entered || (assigned && after.statusKey === IN_PROGRESS_STATUS))
+        return [
+          await wake(tx, {
+            issue: after,
+            agentId: next,
+            trigger: entered ? 'statusChange' : 'assigned',
+            type: 'statusChange',
+            actor,
+            ...(requestedByUserId ? { requestedByUserId } : {}),
+            text: entered
+              ? `${after.identifier} is in progress: work on it.`
+              : `${after.identifier} was handed to you while in progress: work on it.`,
+          }),
+        ];
+      if (assigned && after.statusKey === BACKLOG_STATUS)
+        return [
+          {
+            kind: AGENT_KIND,
+            principalId: next,
+            subjectId: after.id,
+            triggerType: 'assigned',
+            started: false,
+            skipped: 'dormant',
+          },
+        ];
+      return [];
+    },
+
+    async onCommentCreated(
+      tx,
+      { comment, issue, parent, actor, userId, mentions },
+    ) {
+      // Each agent the comment concerns, once: those it mentions, the agent whose comment it answers, the executor.
+      const targets = new Map<string, Trigger>();
+      for (const mention of mentions)
+        if (mention.kind === AGENT_KIND) targets.set(mention.id, 'mention');
+      if (
+        parent?.authorType === AGENT_KIND &&
+        parent.authorId &&
+        !targets.has(parent.authorId)
+      )
+        targets.set(parent.authorId, 'comment');
+      const executor = agentOf(issue);
+      if (executor && !targets.has(executor)) targets.set(executor, 'comment');
+      const author = actor.type === AGENT_KIND ? actor.id : null;
+      const attempts: RunAttempt[] = [];
+      for (const [agentId, trigger] of targets) {
+        if (agentId === author) continue;
+        attempts.push(
+          await wake(tx, {
+            issue,
+            agentId,
+            trigger,
+            type: 'comment',
+            actor,
+            ...(userId ? { requestedByUserId: userId } : {}),
+            text: `${trigger === 'mention' ? 'You were mentioned in' : 'New comment on'} ${issue.identifier} (${comment.id}).`,
+            commentId: comment.id,
+          }),
+        );
+      }
+      return attempts;
+    },
+
+    async onUnblocked(tx, { issue, actor }) {
+      const agentId = agentOf(issue);
+      if (!agentId || issue.statusKey !== IN_PROGRESS_STATUS) return [];
+      const requestedByUserId = actor ? userOf(actor) : undefined;
+      return [
+        await wake(tx, {
+          issue,
+          agentId,
+          trigger: 'unblocked',
+          type: 'signal',
+          actor: actor ?? { type: 'system', id: null },
+          ...(requestedByUserId ? { requestedByUserId } : {}),
+          text: `Nothing holds ${issue.identifier} any more: work on it.`,
+        }),
+      ];
+    },
+
+    async onBlocked(tx, { issue }) {
+      const withdrawal = (run: Run): WorkWithdrawal => ({
+        kind: AGENT_KIND,
+        principalId: run.agentId,
+        subjectId: issue.id,
+        runId: run.id,
+        reason: 'blocked',
+      });
+      if (tx.rehearsal)
+        return (
+          await agents.runs.openOn(tx.conn, {
+            kind: ISSUE_SUBJECT,
+            id: issue.id,
+          })
+        )
+          .filter((run) => run.status === 'queued')
+          .map(withdrawal);
+      return (
+        await withdraw(tx, issue, 'The issue waits for unfinished issues.')
+      ).map(withdrawal);
+    },
+  };
+
+  return {
+    key: AGENT_KIND,
+    title: appText('studioAgents.kinds.agent'),
+    names: (conn, ids) => agents.agents.names(conn, ids),
+    executor: {
+      async require(conn, id) {
+        if (!(await enabled(conn, id)))
+          throw new DomainError(
+            'invalid',
+            'INVALID_EXECUTOR',
+            'The executor is not an enabled agent.',
+          );
+      },
+      canKeep: async (conn, id) => (await enabled(conn, id)) !== null,
+      candidates: async (conn) =>
+        (await offered(conn)).map((agent) => agent.id),
+      describe: async (conn, ids) => {
+        const described = [];
+        for (const id of ids) {
+          const agent = await agents.agents.find(conn, id);
+          if (agent)
+            described.push({
+              id,
+              name: agent.name,
+              ...(agent.nameText ? { nameText: agent.nameText } : {}),
+            });
+        }
+        return described;
+      },
+    },
+    mention: {
+      async candidates(conn, { q, limit }) {
+        const query = q.trim().toLowerCase();
+        return (await offered(conn))
+          .filter((agent) => !query || agent.name.toLowerCase().includes(query))
+          .slice(0, limit)
+          .map((agent) => ({
+            kind: AGENT_KIND,
+            id: agent.id,
+            name: agent.name,
+            ...(agent.nameText ? { nameText: agent.nameText } : {}),
+          }));
+      },
+      mayMention: async (conn, id) => (await enabled(conn, id)) !== null,
+    },
+    moves: AGENT_MOVES,
+    // An agent moves only the issues it executes. Whether `needsYou` is filled cannot be checked here: the plugin passes
+    // the issue as it was before the update (`docs/chenh-lech-upstream.md`, section 8).
+    mayMove: (_conn, actor, move) =>
+      actor.type !== AGENT_KIND ||
+      (move.issue.executor?.type === AGENT_KIND &&
+        move.issue.executor.id === actor.id),
+    defaultExecutor: async (conn) =>
+      (await enabled(conn, PROJECT_MANAGER_ID)) ? PROJECT_MANAGER_ID : null,
+    work,
+  };
+}
+
+/** Registers the `agent` kind with the projects plugin. */
+export default class AgentExecutorProvider extends ServiceProvider<Application> {
+  readonly name = 'app/agent-executor';
+  private release?: () => void;
+
+  override async boot(): Promise<void> {
+    const { container } = this.app;
+    if (!container.has(agentsToken) || !container.has(projectsToken)) return;
+    this.release = container.resolve(projectsKindsToken).add(
+      createAgentKind({
+        agents: container.resolve(agentsToken),
+        projects: container.resolve(projectsToken),
+      }),
+    );
+  }
+
+  override async shutdown(): Promise<void> {
+    this.release?.();
+    this.release = undefined;
+  }
+}

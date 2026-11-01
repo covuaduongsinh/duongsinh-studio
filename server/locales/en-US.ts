@@ -1,9 +1,33 @@
 import type { LocaleResource } from '@nocobase/i18n';
 
-// The application's own server-side wording. It is empty because every string the server produces today belongs to a
-// plugin's namespace; add keys here as the application starts producing its own, and use `overrides` to reword a
-// plugin's.
-const enUS = {};
+// The application's own server-side wording, in the application's namespace: the labels the agents and projects plugins
+// show for what the application contributes to them (`server/agents/ids.ts` `appText`), and the comment a run leaves
+// on its issue. Use `overrides` to reword a plugin's.
+const enUS = {
+  studioAgents: {
+    subjects: {
+      issue: 'Issue',
+    },
+    triggers: {
+      statusChange: 'Issue started',
+      assigned: 'Assigned',
+      comment: 'Comment',
+      mention: 'Mention',
+      unblocked: 'Unblocked',
+    },
+    kinds: {
+      agent: 'Agent',
+    },
+    projectManager: {
+      name: 'Project manager',
+    },
+    runFinished: {
+      completed: 'Run {{runId}} finished.',
+      failed: 'Run {{runId}} failed ({{reason}}).',
+      cancelled: 'Run {{runId}} was stopped.',
+    },
+  },
+};
 
 export type AppServerResource = LocaleResource<typeof enUS>;
 
