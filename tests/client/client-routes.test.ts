@@ -93,6 +93,7 @@ describe('app client routes', () => {
         '/settings/default-access',
         '/settings/issue-prefix',
         '/settings/issue-labels',
+        '/settings/git',
       ]),
     );
     // The prepared contribution is registered as it ships, not copied.
@@ -152,6 +153,7 @@ const settingsAuthorizations = [
   })),
   { name: 'settingsIssuePrefix', authorizedAs: 'settings:pm.general' },
   { name: 'settingsIssueLabels', authorizedAs: 'settings:pm.labels' },
+  { name: 'settingsGit', authorizedAs: 'settings:pm.members' },
 ];
 
 /** This application's own contribution, registered the way the client runtime registers it. */

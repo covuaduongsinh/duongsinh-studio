@@ -7,6 +7,7 @@
 import { ApiClientError } from '@nocobase/app-client';
 import {
   ATTACHMENT_SIZE_MB,
+  canCloseIssue,
   canCreateIssues,
   canDeleteIssues,
   canEditIssues,
@@ -28,7 +29,7 @@ import type {
   StatusDefinition,
 } from '@nocobase/app-plugin-projects/shared/issues';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
-import type { QueryKey } from '@tanstack/react-query';
+import { useQueryClient, type QueryKey } from '@tanstack/react-query';
 import {
   CircleAlertIcon,
   ClipboardCheckIcon,
@@ -72,6 +73,7 @@ import {
 import { RouterAnchor } from '../router-anchor.js';
 import { IssueActivity } from './issue-activity.js';
 import { IssueAside } from './issue-aside.js';
+import { IssuePullRequests } from './issue-pull-requests.js';
 
 /** A link between two issues, as the issue detail carries it (`shared/subtasks` is not a public entry). */
 type IssueDependency = IssueDetail['blockedBy'][number];
@@ -140,6 +142,7 @@ function IssueDetailView({
   const richTextLabels = useRichTextLabels();
   const [addingDependency, setAddingDependency] = useState(false);
   const [uploading, setUploading] = useState<readonly string[]>([]);
+  const queryClient = useQueryClient();
 
   const save = async (changes: IssueChanges): Promise<void> => {
     await update.mutateAsync(changes);
@@ -153,6 +156,15 @@ function IssueDetailView({
   const remove = async (): Promise<void> => {
     await actions.deleteIssue();
     await navigate('/issues', { replace: true });
+  };
+  // A merge moves the issue to Done on the server (`ds.pr.merged`): read it, and the lists showing it, again.
+  const refetchAfterMerge = (): void => {
+    queryClient
+      .invalidateQueries({ queryKey: detailKey })
+      .catch(() => undefined);
+    queryClient
+      .invalidateQueries({ queryKey: pmKeys.issues })
+      .catch(() => undefined);
   };
   const toDependency = (dependency: IssueDependency): DependencyItem => ({
     id: dependency.dependencyId,
@@ -321,6 +333,11 @@ function IssueDetailView({
               onRemove={(file) => actions.removeFile(file.id)}
               locale={locale}
               labels={fileLabels}
+            />
+            <IssuePullRequests
+              issueId={detail.id}
+              canMerge={canCloseIssue(viewer, detail)}
+              onMerged={refetchAfterMerge}
             />
             {detail.acceptance ? (
               <IssueSection

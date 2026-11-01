@@ -159,6 +159,8 @@ const api = vi.fn((call: ApiCall): unknown => {
       'projects/executors',
       'projects/apiKeyActors',
       'projects/mentionCandidates',
+      // The issue page's pull request panel (`git-pages.test.tsx` covers it); none is linked here.
+      'git/pullRequests',
     ].includes(path)
   )
     return { data: [] };

@@ -66,6 +66,7 @@ import {
   useRichTextLabels,
   useStatusPresenter,
 } from '../issues/presentation.js';
+import { ProjectCode } from './project-code.js';
 
 /** A project status's colour, the same hues as the issue statuses. */
 const PROJECT_STATUS_COLOR: Readonly<Record<ProjectStatus, IssueTableColor>> = {
@@ -320,6 +321,7 @@ function ProjectDetailView({
               richTextLabels={richTextLabels}
               labels={labels}
             />
+            <ProjectCode projectId={project.id} />
             <ProjectMembersEditor
               visibility={project.visibility}
               members={project.members.map((member) => ({

@@ -5,6 +5,7 @@ import {
   CircleUserRound,
   Cpu,
   FolderKanban,
+  GitBranch,
   Hash,
   Home,
   ListTodo,
@@ -169,6 +170,20 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
     authz: { resource: { type: 'settings', id: 'pm.labels' }, action: 'read' },
     navigation: { title: 'navigation.issueLabels', icon: Tags },
     componentLoader: () => import('./pages/settings/projects-labels.js'),
+  },
+  {
+    // GitHub connections and linked repositories. Every endpoint of `server/routes/git.ts` the page calls requires an
+    // administrator: the `pm.members` `define-roles` settings item, which the page checks too.
+    name: 'settingsGit',
+    parent: 'settings',
+    path: '/git',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'pm.members' },
+      action: 'define-roles',
+    },
+    navigation: { title: 'navigation.git', icon: GitBranch },
+    componentLoader: () => import('./pages/settings/git.js'),
   },
 ]);
 
