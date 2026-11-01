@@ -21,6 +21,7 @@ import agents from '@nocobase/app-plugin-agents/client';
 import agentSessions from '@nocobase/app-plugin-agent-sessions/client';
 import knowledge from '@nocobase/app-plugin-knowledge/client';
 import releases from '@nocobase/app-plugin-releases/client';
+import projects from '@nocobase/app-plugin-projects/client';
 
 // Array order is contribution order. A plugin is enabled by appearing in this
 // list; removing its entry and its import disables it.
@@ -45,6 +46,7 @@ const clientPlugins: AppClientPlugins = defineClientPlugins([
   agentSessions({ cli: 'ds-studio' }),
   knowledge(),
   releases(),
+  projects(),
 ]);
 
 export default clientPlugins;

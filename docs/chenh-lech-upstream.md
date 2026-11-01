@@ -30,6 +30,10 @@ Quyết định: không viết bản tạm cấp mọi quyền (vi phạm luật
 Projects bật ở **đầu S1**, cùng `server/providers/projects-access.ts` ánh xạ Permission Sets (seed `pm-*`) sang
 `Permissions` và 3 vai trò owner/admin/contributor.
 
+**Cập nhật S1 (01/11/2026):** đã bật projects. `server/providers/projects-access.ts` đọc quyền qua `authorizationToken`
+(`can` theo từng mức `all` → `related`), `related` = `{ users: [người gọi] }`; `administrators` = người được gán set
+`root` hoặc `ds-admin`; `admit` không gán gì. Test bảo vệ: `tests/server/projects-access.test.ts`.
+
 ## 2. Releases không xuất factory cấu hình
 
 README yêu cầu section `releases` (`artifact`, `dataDir`), nhưng gói không có `defineReleasesConfig` như knowledge, nên
@@ -45,6 +49,20 @@ gì": an toàn cho tới S5.
   chỉ là cảnh báo. Theo dõi khi nâng phiên bản.
 - `better-auth` chưa có `baseURL`: đặt `app.publicOrigin` khi triển khai thật.
 - Jobs chạy cấu hình memory: cần `jobs.default` redis khi chạy nhiều tiến trình (production).
+
+## 5. Seed không import được module tương đối của app
+
+Skill authorization (`references/code-and-seeds.md`) hướng dẫn đặt dữ liệu permission set ở `database/seed-data/*.ts` rồi
+import vào seed. Thực tế với `@nocobase/db` hiện tại, trình nạp seed (khi chạy test trên DB mới) báo
+`ERR_MODULE_NOT_FOUND` cho mọi import tương đối, dù trỏ vào `server/` hay `database/seed-data/`. Khi chạy `pnpm dev` thì
+lại được, nên phải có test mới lộ ra. Cách làm: seed tự chứa như migration, chỉ import từ package
+(`@nocobase/app-plugin-projects/shared/access`); key vai trò lặp lại ở `server/access/roles.ts`.
+
+## 6. Ngữ nghĩa "related" của issue
+
+Với mức `related`, plugin coi **mọi issue không thuộc project** là liên quan tới mọi người có quyền đó (bảng trong
+`shared/access.d.ts`). Muốn giữ riêng thì đặt issue vào project `visibility: 'members'`. Đây là thiết kế của plugin,
+không phải lỗi; đã kiểm bằng test.
 
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 

@@ -16,8 +16,15 @@ Vietnamese operating notes live in `docs/`.
 
 - `@nocobase/app-plugin-releases` ships no configuration factory; the application declares the `releases` section in
   `server/config/releases.ts`. Its App Hosts stay disabled until release environments are built.
-- `@nocobase/app-plugin-projects` is installed but not registered until the application binds `projectsAccessToken`
-  from its own provider. Never bind a placeholder that grants everyone every permission to make it boot.
+- `@nocobase/app-plugin-projects` gets its roles from `server/providers/projects-access.ts`, which reads the
+  authorization plugin's permission sets: `owner` is the protected `root` set, `ds-admin` and `ds-contributor` are
+  editable sets seeded by `database/main/seeds/202611010001_ds_roles.ts` (keys in `server/access/roles.ts`). New
+  members get no role automatically (`admit` does nothing); administrators assign one per person. Never bind a
+  placeholder that grants everyone every permission. `tests/server/projects-access.test.ts` guards the boundaries.
+- Seeds cannot import the application's own relative modules (the seed loader resolves only packages), so a seed
+  spells out its data the way a migration does.
+- For a contributor, "related" issues include every issue without a project. Private work belongs in a project with
+  `visibility: 'members'`.
 - Record every mismatch between a published `@nocobase/*@beta` package and its README in `docs/chenh-lech-upstream.md`.
 
 ## Language

@@ -23,6 +23,7 @@ import agents from '@nocobase/app-plugin-agents/server';
 import agentSessions from '@nocobase/app-plugin-agent-sessions/server';
 import knowledge from '@nocobase/app-plugin-knowledge/server';
 import releases from '@nocobase/app-plugin-releases/server';
+import projects from '@nocobase/app-plugin-projects/server';
 
 const serverPlugins: AppServerPlugins = defineServerPlugins([
   concurrency,
@@ -46,6 +47,7 @@ const serverPlugins: AppServerPlugins = defineServerPlugins([
   agentSessions,
   knowledge,
   releases,
+  projects,
 ]);
 
 export default serverPlugins;
