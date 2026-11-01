@@ -58,6 +58,8 @@ interface FakePull {
 function fakeGitHub() {
   const pulls: FakePull[] = [];
   const created: unknown[] = [];
+  // A token without "Checks: Read" gets 403 on check runs (seen live on the sandbox, 02/11/2026).
+  const state = { checksForbidden: false };
   const original = globalThis.fetch;
   const answer = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {
@@ -126,13 +128,18 @@ function fakeGitHub() {
         : undefined;
       if (method === 'GET' && found) return answer(pullJson(found));
       if (method === 'GET' && /\/commits\/[^/]+\/check-runs$/u.test(path))
-        return answer({ check_runs: [] });
+        return state.checksForbidden
+          ? answer(
+              { message: 'Resource not accessible by personal access token' },
+              403,
+            )
+          : answer({ check_runs: [] });
       if (method === 'GET' && /\/commits\/[^/]+\/status$/u.test(path))
         return answer({ state: 'pending', statuses: [] });
       return answer({ message: 'Not Found' }, 404);
     },
   );
-  return { pulls, created };
+  return { pulls, created, state };
 }
 
 afterEach(() => {
@@ -363,6 +370,19 @@ test('an issue’s agent opens its pull request through Studio', async ({
     issueId: issue.id,
     headRef: 'feature/follow-up',
     draft: true,
+  });
+
+  // A token that cannot read checks still opens and links the pull request; its CI reads as missing.
+  github.state.checksForbidden = true;
+  const unreadable = await admin.fetch(
+    '/git/pullRequests',
+    json({ issueId: issue.id, title: 'No checks', head: 'feature/no-checks' }),
+  );
+  expect(unreadable.status).toBe(201);
+  expect((await unreadable.json()).data).toMatchObject({
+    issueId: issue.id,
+    headRef: 'feature/no-checks',
+    ciState: null,
   });
   // Booting a fresh application on SQLite takes most of a minute on the development machine.
 }, 240_000);

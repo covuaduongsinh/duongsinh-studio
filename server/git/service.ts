@@ -1039,10 +1039,24 @@ export function createGitService(deps: GitServiceDeps) {
     opened?: { readonly id: string; readonly by: string },
   ): Promise<PullRecord> {
     const hosted = await client.pull(repository.fullName, number);
-    const checks =
-      hosted.state === 'open' && hosted.headSha
-        ? await client.checks(repository.fullName, hosted.headSha)
-        : undefined;
+    let checks: readonly GitHubCheck[] | undefined;
+    if (hosted.state === 'open' && hosted.headSha) {
+      try {
+        checks = await client.checks(repository.fullName, hosted.headSha);
+      } catch (error) {
+        // A token without "Checks: Read" (or "Commit statuses: Read") gets 403 here. The pull request is still stored
+        // and linked; its CI reads as missing, so merging is blocked with `ciMissing` until the token can read checks.
+        if (
+          !(error instanceof GitHubError) ||
+          (error.status !== 403 && error.status !== 404)
+        )
+          throw error;
+        report(
+          `Checks of ${repository.fullName}#${number} are unreadable with this connection's token; grant it Checks and Commit statuses read access.`,
+          error,
+        );
+      }
+    }
     return store(repository, hosted, checks, undefined, opened);
   }
 
