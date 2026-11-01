@@ -78,3 +78,7 @@ minimumReleaseAgeExclude:
   - prosemirror-view@1.42.9
   - react-resizable-panels@4.16.0
   - ws@8.22.1
+
+# Dương Sinh: vite build of the client outgrew Node default ~2 GB heap ("JavaScript heap out of memory", SIGABRT),
+# with Rollup as WebAssembly on the non-AVX dev CPU. pnpm passes this to every script through NODE_OPTIONS.
+nodeOptions: --max-old-space-size=4096

@@ -47,6 +47,11 @@ pnpm dev            # http://127.0.0.1:13100/main/ (cổng đặt trong .env: AP
 
 ## Bẫy đã gặp
 
+0. **`vite build` hết heap (SIGABRT).** Sau S2, bundle client vượt trần heap mặc định ~2 GB của Node (`FATAL ERROR:
+Ineffective mark-compacts near heap limit`), nặng thêm vì Rollup chạy bản WebAssembly. Cách xử lý:
+   `nodeOptions: --max-old-space-size=4096` trong `pnpm-workspace.yaml`. Lưu ý: pnpm 11 **không** đọc `node-options` từ
+   `.npmrc` (`pnpm config get node-options` ra `undefined`). Máy chạy build (dev, CI, Docker) cần ≥ 6 GB RAM.
+
 1. **Rollup native chết vì `SIGILL`.** `@rollup/rollup-linux-x64-gnu@4.67.3` dùng lệnh AVX, CPU dev không có, làm Vite thoát
    (`[client] exited unexpectedly; code=null signal=SIGILL`). Cách xử lý: `overrides.rollup: npm:@rollup/wasm-node@^4.67.3`
    trong `pnpm-workspace.yaml`. Bản WebAssembly cùng API, chậm hơn một chút khi build. Chỉ bỏ override khi mọi máy
