@@ -18,6 +18,11 @@ const enUS = {
     projects: 'Projects',
     issuePrefix: 'Issue prefix',
     issueLabels: 'Issue labels',
+    agents: 'Agents',
+    runtimes: 'Runtimes',
+    skills: 'Skills',
+    usage: 'Usage',
+    models: 'Models',
   },
   // The words of the UI Library's issue card (`#components/issue-card`), which looks them up under this group.
   issueCard: {
@@ -353,6 +358,9 @@ const enUS = {
     plan: 'Operation plan',
     newSubIssue: 'New sub-issue',
     newProject: 'New project',
+    addRuntime: 'Add runtime',
+    newSkill: 'New skill',
+    skillDetail: 'Skill',
   },
   projectSettings: {
     generalTitle: 'Issue prefix',

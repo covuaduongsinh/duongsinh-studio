@@ -71,6 +71,15 @@ describe('app client routes', () => {
         name,
         authorizedAs: 'pm-projects',
       })),
+      // The agents plugin's pages (stage S2) check its own page grants; Models stands behind `agents.services`.
+      { name: 'agents', authorizedAs: 'agents' },
+      { name: 'runtimes', authorizedAs: 'runtimes' },
+      { name: 'runtimes-connect', authorizedAs: 'runtimes' },
+      { name: 'skills', authorizedAs: 'skills' },
+      { name: 'skills-new', authorizedAs: 'skills' },
+      { name: 'skills-detail', authorizedAs: 'skills' },
+      { name: 'usage', authorizedAs: 'usage' },
+      { name: 'models', authorizedAs: 'settings:agents.services' },
       ...settingsAuthorizations,
     ]);
   });

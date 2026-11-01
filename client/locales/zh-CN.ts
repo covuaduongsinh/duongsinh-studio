@@ -13,6 +13,11 @@ const zhCN: AppResource = {
     projects: '项目',
     issuePrefix: '任务编号前缀',
     issueLabels: '任务标签',
+    agents: '智能体',
+    runtimes: '运行时',
+    skills: '技能',
+    usage: '用量',
+    models: '模型',
   },
   issueCard: {
     priority: {
@@ -344,6 +349,9 @@ const zhCN: AppResource = {
     plan: '操作计划',
     newSubIssue: '新建子任务',
     newProject: '新建项目',
+    addRuntime: '添加运行时',
+    newSkill: '新建技能',
+    skillDetail: '技能',
   },
   projectSettings: {
     generalTitle: '任务编号前缀',

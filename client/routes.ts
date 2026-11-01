@@ -1,11 +1,23 @@
 import {
+  BookOpen,
+  Bot,
+  ChartColumn,
   CircleUserRound,
+  Cpu,
   FolderKanban,
   Hash,
   Home,
   ListTodo,
+  Server,
   Tags,
 } from 'lucide-react';
+import {
+  agentsRoute,
+  modelsRoute,
+  runtimesRoute,
+  skillsRoute,
+  usageRoute,
+} from '@nocobase/app-plugin-agents/client/routes';
 import {
   defineAppRoutes,
   type AppClientRouteContribution,
@@ -160,10 +172,39 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
   },
 ]);
 
+/**
+ * The agents plugin's pages (it routes none itself): agents found on runtimes, the runtimes, the skill library, usage,
+ * and the model services. Each keeps the plugin's path and grant (a page grant named like the route; Models stands
+ * behind `agents.services` read); the application adds the menu entries.
+ */
+const agentRoutes: AppClientRouteContribution = defineAppRoutes([
+  {
+    ...agentsRoute,
+    navigation: { title: 'navigation.agents', icon: Bot },
+  },
+  {
+    ...runtimesRoute,
+    navigation: { title: 'navigation.runtimes', icon: Server },
+  },
+  {
+    ...skillsRoute,
+    navigation: { title: 'navigation.skills', icon: BookOpen },
+  },
+  {
+    ...usageRoute,
+    navigation: { title: 'navigation.usage', icon: ChartColumn },
+  },
+  {
+    ...modelsRoute,
+    navigation: { title: 'navigation.models', icon: Cpu },
+  },
+]);
+
 // The application has business capabilities (projects and issues), so the prepared Users and Roles settings are
 // registered, and the projects plugin's settings join them.
 const routes: readonly AppClientRouteContribution[] = [
   appRoutes,
+  agentRoutes,
   systemSettingsRoutes,
   projectSettingsRoutes,
 ];
