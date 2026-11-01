@@ -30,6 +30,35 @@ const enUS = {
       cancelled: 'Run {{runId}} was stopped.',
     },
   },
+  studioGit: {
+    // The `ds.pr.merged` / `ds.pr.closed` comment messages, for a page that words them in the reader's language.
+    comments: {
+      merged: 'Pull request {{repo}}#{{number}} was merged.',
+      closed: 'Pull request {{repo}}#{{number}} was closed without merging.',
+    },
+    errors: {
+      GIT_CONNECTION_NOT_FOUND: 'The git connection does not exist.',
+      GIT_CONNECTION_NO_TOKEN: 'The git connection has no token.',
+      GIT_CONNECTION_IN_USE:
+        'The git connection still links repositories; remove them first.',
+      GIT_TOKEN_REJECTED: 'GitHub refused the token.',
+      GIT_REPOSITORY_UNREACHABLE:
+        'The connection’s token cannot reach the repository {{repo}}.',
+      GIT_REPOSITORY_READ_ONLY:
+        'The connection’s token may not push to {{repo}}.',
+      GIT_REPOSITORY_LINKED: 'The repository {{repo}} is linked already.',
+      GIT_REPOSITORY_ATTACHED:
+        'The repository {{repo}} serves this project already.',
+      GIT_REPOSITORY_NOT_FOUND: 'The repository is not linked.',
+      GIT_HOST_UNAVAILABLE: 'GitHub cannot be reached now; try again later.',
+      SECRETS_NOT_CONFIGURED:
+        'The secrets keys are not configured, so the token cannot be kept.',
+      PROJECTS_UNAVAILABLE: 'Projects are not available.',
+      PULL_REQUEST_NOT_FOUND: 'The pull request does not exist.',
+      MERGE_BLOCKED: 'The pull request cannot be merged yet ({{blocker}}).',
+      MERGE_REFUSED_BY_HOST: 'GitHub refused to merge the pull request.',
+    },
+  },
 };
 
 export type AppServerResource = LocaleResource<typeof enUS>;

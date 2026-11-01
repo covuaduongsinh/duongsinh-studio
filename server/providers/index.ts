@@ -5,6 +5,7 @@ import AgentActionsProvider from './agent-actions.js';
 import ProjectManagerProvider from './project-manager.js';
 import AgentExecutorProvider from './agent-executor.js';
 import IssueSubjectProvider from './issue-subject.js';
+import GitProvider from './git.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -17,6 +18,7 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   ProjectManagerProvider,
   AgentExecutorProvider,
   IssueSubjectProvider,
+  GitProvider,
 ];
 
 export default serviceProviders;

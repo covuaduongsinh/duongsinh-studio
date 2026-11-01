@@ -27,6 +27,29 @@ const zhCN: AppServerResource = {
       cancelled: '运行 {{runId}} 已停止。',
     },
   },
+  studioGit: {
+    comments: {
+      merged: '拉取请求 {{repo}}#{{number}} 已合并。',
+      closed: '拉取请求 {{repo}}#{{number}} 已关闭，未合并。',
+    },
+    errors: {
+      GIT_CONNECTION_NOT_FOUND: 'Git 连接不存在。',
+      GIT_CONNECTION_NO_TOKEN: '该 Git 连接没有令牌。',
+      GIT_CONNECTION_IN_USE: '该 Git 连接仍关联着仓库，请先移除这些仓库。',
+      GIT_TOKEN_REJECTED: 'GitHub 拒绝了该令牌。',
+      GIT_REPOSITORY_UNREACHABLE: '该连接的令牌无法访问仓库 {{repo}}。',
+      GIT_REPOSITORY_READ_ONLY: '该连接的令牌不能推送到 {{repo}}。',
+      GIT_REPOSITORY_LINKED: '仓库 {{repo}} 已关联。',
+      GIT_REPOSITORY_ATTACHED: '仓库 {{repo}} 已属于该项目。',
+      GIT_REPOSITORY_NOT_FOUND: '仓库未关联。',
+      GIT_HOST_UNAVAILABLE: '暂时无法访问 GitHub，请稍后重试。',
+      SECRETS_NOT_CONFIGURED: '未配置密钥，无法保存令牌。',
+      PROJECTS_UNAVAILABLE: '项目功能不可用。',
+      PULL_REQUEST_NOT_FOUND: '拉取请求不存在。',
+      MERGE_BLOCKED: '拉取请求暂不能合并（{{blocker}}）。',
+      MERGE_REFUSED_BY_HOST: 'GitHub 拒绝合并该拉取请求。',
+    },
+  },
 };
 
 export default zhCN;

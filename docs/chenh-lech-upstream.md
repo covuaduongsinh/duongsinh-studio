@@ -143,6 +143,39 @@ requires an allowed enum member.`
 - Chưa có helper công khai nào để đúc run token trong test; phải đi đường đăng ký runner như trên. `PROTOCOL_VERSION` (14)
   của `@nocobase/agent-protocol` được lặp lại trong test vì gói đó không phải phụ thuộc trực tiếp của app.
 
+## 11. S3 phần 1 — Git, PR, checks, merge (03/11/2026)
+
+Lắp ở `server/git/{github,pull-state,rows,service}.ts`, `server/providers/git.ts`, `server/routes/git.ts`, bảng
+`dsGitConnections`/`dsRepositories`/`dsProjectRepositories`/`dsPullRequests` (migration `202611030001_ds_git`). Test:
+`tests/server/git.test.ts` (GitHub giả bằng `vi.stubGlobal('fetch')`), `tests/server/git-pull-state.test.ts`,
+`tests/database/ds-git-migration.test.ts`.
+
+- **`auth.required()` từ chối run token dù route khai `runToken` trong `security`.** Lỗi 403
+  `SCOPED_KEY_FORBIDDEN` ("This endpoint does not accept scoped API keys…"). Route phải opt-in
+  `auth.required({ scopedKeys: true })` **và** liệt kê `runToken` trong `security`; README agents chỉ nói vế sau.
+  Route git cho run đọc (`GET git/repositories`, `git/pullRequests*`) dùng cách này; merge/refresh vẫn chỉ người.
+- **`repoAccess` với PAT: không thu hồi được theo run.** Hợp đồng muốn `discard` khi `prepare` đúc credential. Studio
+  không dùng `prepare`: `forRun` đọc DB và mở token đã seal (đồng bộ, không gọi mạng), trả `credentials` (hoặc
+  `onDemand` + `issue()` cho runner có `gitCredentials`), username `x-access-token`, `expiresAt` danh nghĩa +1 giờ. Token
+  fine-grained sống tới khi người quản trị đổi; phạm vi giới hạn ở các repo token đó với tới. GitHub App (token
+  installation 1 giờ) ở S5 mới cho credential ngắn hạn thật.
+- **`RunGit` không có trường branch.** Nhánh `agent/<IDENTIFIER>` đến từ `SubjectDir.branch` do subject `issue` dựng
+  (`server/providers/issue-subject.ts`, vẫn cứng `agent/`); `branchPrefix` của repo chỉ dùng để liên kết PR ↔ issue.
+- **Resource của project có `binding`.** `projects.projects.addResource` nhận
+  `binding: { provider, connectionId, repoId, fullName }`; `codeLocations` tạo resource `gitRepo` (URL clone) kèm
+  binding rồi ghi `dsProjectRepositories`. Repo đầu tiên của project là primary.
+- **Status event phải có `to`.** `ds.pr.merged` (`in_progress|in_review|blocked → done`) đã đăng ký; `ds.pr.closed`
+  không di chuyển issue nên không thể là status event: chỉ là comment (message `ds.pr.closed`).
+- **`UpdateQuery.execute()` trả `updatedCount`** (không phải `numUpdatedRows` của Kysely). Cập nhật sang `merged` được
+  chặn `state != 'merged'` để `ds.pr.merged` chỉ bắn một lần dù merge trong Studio hay poll thấy trên GitHub.
+- **Lệch với phụ lục demo:** `ciState` trả theo phụ lục (`success|failure|pending|null`), bảng lưu
+  `passed|failed|pending|missing`. Route `git/repositories` (GET/POST) là của Studio Dương Sinh; demo dùng
+  `git/resources/{id}` + `git/connections/{id}/repositories`. Comment trên issue viết tiếng Việt (app chưa có locale
+  server `vi-VN`), kèm `message` `ds.pr.merged`/`ds.pr.closed` để trang hiển thị theo ngôn ngữ người đọc
+  (`studioGit.comments.*` trong `server/locales/`).
+- Poll: `ScheduleExecutor` scope `duongsinh-studio`, job `git-poll` mỗi 30 s, mỗi repo theo `pollSeconds`; bỏ qua khi
+  chạy lệnh CLI và khi app chưa có bảng `dsRepositories`. Jobs đang ở memory (mục 3): nhiều tiến trình sẽ poll trùng.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném
