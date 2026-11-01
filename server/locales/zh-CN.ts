@@ -18,6 +18,9 @@ const zhCN: AppServerResource = {
     projectManager: {
       name: '项目经理',
     },
+    actions: {
+      peopleOnly: '只能由人执行，从不授予智能体。',
+    },
     runFinished: {
       completed: '运行 {{runId}} 已完成。',
       failed: '运行 {{runId}} 失败（{{reason}}）。',

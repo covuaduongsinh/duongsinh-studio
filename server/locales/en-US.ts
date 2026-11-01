@@ -21,6 +21,9 @@ const enUS = {
     projectManager: {
       name: 'Project manager',
     },
+    actions: {
+      peopleOnly: 'Only people do this; it is never given to an agent.',
+    },
     runFinished: {
       completed: 'Run {{runId}} finished.',
       failed: 'Run {{runId}} failed ({{reason}}).',

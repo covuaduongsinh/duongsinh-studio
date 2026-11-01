@@ -101,6 +101,31 @@ Lắp ở `server/providers/{project-manager,agent-executor,issue-subject}.ts`, 
   `skipped: 'unavailable'`, nên issue mặc định giao project manager vẫn tạo/chuyển trạng thái được; project manager chỉ
   chạy thật khi có route `projectManager` đặt "first choice" (mỗi lần boot giữ nguyên `modelEntries` đã có).
 
+## 9. S2 — gate, business actions của agent, cấu hình project manager (01/11/2026)
+
+Lắp ở `server/agents/actions.ts`, `server/providers/agent-actions.ts`, `server/routes/project-manager.ts`, bảng
+`dsProjectManager` (migration `202611020003_ds_project_manager`). Test: `tests/server/agent-gate.test.ts`,
+`tests/database/ds-project-manager-migration.test.ts`.
+
+- **Gate chỉ lọc manifest, không chặn request của run.** `@nocobase/app-plugin-agents` 2.0.0-beta.1 dùng
+  `gate.allowed` ở `dist/server/cli/surface.js` (manifest CLI) và không nơi nào khác; run token
+  (`dist/server/cli/run-credential.js`) là "scoped session for the person who woke the agent" không kèm `keyScope`, và
+  `@nocobase/app-plugin-projects` (`dist/server/access/request.js`) tính quyền bằng `permissionsOf(authz.identity)`. Tức
+  là một run gọi thẳng API (không qua manifest) có toàn quyền của người. README chỉ ghi "the application bounds a run's
+  requests by the same answer". Cách làm: một bước `authorization.use(...)` gắn `keyScope` cho request mang run token,
+  chỉ cho các hành động gate cho phép (`runKeyScope`); `AuthorizationContext.can` đã tôn trọng `keyScope`, nên quyền
+  projects của run co lại theo.
+- **Knowledge không có `kb.knowledge/offer`.** Gói 0.1.0-beta.16 có `read`, `propose`, `edit`, `manage`; Studio đưa
+  `read` và `propose` (tương đương "offer" trong kế hoạch).
+- **Releases:** `releasesAccessToken` chưa bind (mục 2), nên `rel.apps/*` được liệt kê cho agent nhưng plugin releases
+  vẫn từ chối mọi người cho tới S5.
+- **Id lệnh CLI trong manifest dùng dấu hai chấm** (`issue:comment:add`), còn `describeRoute` khai báo `issue comment add`.
+- **`fallbackAfterSeconds`, `delegationQueueTimeoutSeconds` mới chỉ được lưu.** Project manager chạy bằng danh sách
+  model của agent "first choice" rồi "fallback" (`ensureSystem`, theo thứ tự); việc chờ bao lâu mới chuyển sang fallback
+  do plugin agents quyết định (`ModelSelectionWait.fallbackAfterSeconds`), app chưa nối hai số này vào đó.
+  `commentRunLimit` thì được handler của kind `agent` dùng.
+- `Authorization.use` không có hàm gỡ: bước gắn scope cho run sống tới khi tiến trình dừng.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

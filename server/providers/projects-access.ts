@@ -17,6 +17,7 @@ import {
 import type {
   AuthorizationContext,
   AuthorizationIdentity,
+  KeyScope,
 } from '@nocobase/authorization/core';
 import type { DatabaseConnection } from '@nocobase/db';
 import { ServiceProvider } from '@nocobase/service-provider';
@@ -63,6 +64,20 @@ export async function permissionsFrom(
   return { scopes, settings };
 }
 
+/** A person's authorization identity outside a request, optionally kept to an API key's scope. */
+export function userIdentity(
+  userId: string,
+  keyScope?: KeyScope,
+): AuthorizationIdentity {
+  return {
+    principal: { type: 'user', id: userId },
+    // Every signed-in person also matches grants given to the authenticated audience. This app registers no team
+    // subject types; add their memberships here if it ever does.
+    subjects: [{ type: 'authenticated', id: '*' }],
+    ...(keyScope ? { keyScope } : {}),
+  };
+}
+
 /** Binds `projectsAccessToken` so the projects plugin can boot with real roles. */
 export default class ProjectsAccessProvider extends ServiceProvider<Application> {
   readonly name = 'app/projects-access';
@@ -70,12 +85,6 @@ export default class ProjectsAccessProvider extends ServiceProvider<Application>
   override register(): void {
     this.app.container.singleton(projectsAccessToken, (): ProjectsAccess => {
       const authz = () => this.app.container.resolve(authorizationToken);
-      const userIdentity = (userId: string): AuthorizationIdentity => ({
-        principal: { type: 'user', id: userId },
-        // Every signed-in person also matches grants given to the authenticated audience. This app registers no team
-        // subject types; add their memberships here if it ever does.
-        subjects: [{ type: 'authenticated', id: '*' }],
-      });
       return {
         permissionsOf: (identity) =>
           permissionsFrom(authz().for(identity), identity.principal.id),

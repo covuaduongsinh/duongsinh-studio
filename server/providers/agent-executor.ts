@@ -36,9 +36,9 @@ import {
   PROJECT_MANAGER_ID,
   appText,
 } from '../agents/ids.js';
+import { readProjectManagerSettings } from '../agents/project-manager-settings.js';
 
-/** Runs principals' comments may start on one issue in a day (the demo's `commentRunLimit`). */
-export const COMMENT_RUN_LIMIT = 20;
+/** The window the project manager's `commentRunLimit` counts in. */
 const COMMENT_RUN_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 /** The moves an agent may make: between working, waiting for a person and waiting for acceptance. */
@@ -164,7 +164,8 @@ export function createAgentKind(deps: {
     if (
       byPrincipal &&
       (work.type === 'comment' || trigger === 'mention') &&
-      (await principalRuns(tx.conn, issue.id)) >= COMMENT_RUN_LIMIT
+      (await principalRuns(tx.conn, issue.id)) >=
+        (await readProjectManagerSettings(tx.conn)).commentRunLimit
     )
       return attempt({ started: false, skipped: 'limited' });
     if (tx.rehearsal) return attempt({ started: true });
