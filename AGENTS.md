@@ -132,6 +132,7 @@ Standard Repository writes require an operation key through the registered submi
 | [.agents/rules/components.md](.agents/rules/components.md)             | Adding or changing a component, a shadcn primitive, a UI Library item, or the visual design                  |
 | [.agents/rules/shell.md](.agents/rules/shell.md)                       | Changing layouts, the header, sidebar, breadcrumbs, the account menu or loading indicators                   |
 | [.agents/rules/build-and-deploy.md](.agents/rules/build-and-deploy.md) | Changing the build, packing a deployment, the Docker image, `CDN_BASE_URL`, or building for another platform |
+| [.agents/rules/duongsinh-studio.md](.agents/rules/duongsinh-studio.md) | Before any change: Dương Sinh toolchain constraints, plugin assembly decisions and language                  |
 
 ## Visible and manageable role assignments
 

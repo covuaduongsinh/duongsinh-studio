@@ -17,6 +17,10 @@ import notification from '@nocobase/app-plugin-notification/client';
 import scheduler from '@nocobase/app-plugin-scheduler/client';
 import file from '@nocobase/app-plugin-file/client';
 import mail from '@nocobase/app-plugin-mail/client';
+import agents from '@nocobase/app-plugin-agents/client';
+import agentSessions from '@nocobase/app-plugin-agent-sessions/client';
+import knowledge from '@nocobase/app-plugin-knowledge/client';
+import releases from '@nocobase/app-plugin-releases/client';
 
 // Array order is contribution order. A plugin is enabled by appearing in this
 // list; removing its entry and its import disables it.
@@ -36,6 +40,11 @@ const clientPlugins: AppClientPlugins = defineClientPlugins([
   scheduler(),
   mail(),
   foundation({ settingsGroup: true }),
+  agents(),
+  // The page tells people to connect a computer with this application's own CLI (`nocobase.cli.bin` in package.json).
+  agentSessions({ cli: 'ds-studio' }),
+  knowledge(),
+  releases(),
 ]);
 
 export default clientPlugins;

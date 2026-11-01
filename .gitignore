@@ -7,6 +7,9 @@ coverage/
 /config.toml
 /.env
 /.env.local
+# Dương Sinh: secrets kept beside the app (GitHub App key, runner tokens, SMTP) never enter git.
+*.secret
+*.pem
 
 # Local application state.
 /storage/

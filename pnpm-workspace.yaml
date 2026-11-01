@@ -30,3 +30,10 @@ trustLockfile: true
 # dependency from stopping the install with a red error before anything is even running.
 # See https://pnpm.io/settings/build#strictdepbuilds.
 strictDepBuilds: false
+
+# Dương Sinh: the dev machine (Intel Pentium Gold G6405) has no AVX/AVX2, and the native
+# @rollup/rollup-linux-x64-gnu binary dies with SIGILL there, killing Vite. The WebAssembly
+# build has the same API and runs on any x86-64 CPU. Keep it until every machine that installs
+# this app (dev PC, VPS runner, CI) is known to support AVX2. See docs/moi-truong-dev.md.
+overrides:
+  rollup: npm:@rollup/wasm-node@^4.67.3
