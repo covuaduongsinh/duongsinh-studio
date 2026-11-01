@@ -70,11 +70,13 @@ export default class ProjectManagerProvider extends ServiceProvider<Application>
     // Command hosts (`pnpm nocobase …`, which log to stderr) also boot providers, possibly before the tables exist; only
     // the serving process writes the agents, as the agents plugin does for its own startup work.
     if (this.app.consoleLogStream === 'stderr') return;
+    const database = container.resolve(databaseManagerToken);
+    // An application started without this application's migrations (an embedded or scoped app, such as the template's
+    // runtime tests) has the plugins' tables but not `dsProjectManager`; its project manager is synced once migrated.
+    if (!(await database.collections().getPhysical('dsProjectManager'))) return;
     await syncProjectManager(
       agents,
-      await readProjectManagerSettings(
-        container.resolve(databaseManagerToken).connection(),
-      ),
+      await readProjectManagerSettings(database.connection()),
     );
     await agents.agents.applyDefaults();
   }
