@@ -37,6 +37,13 @@ const zhCN: AppServerResource = {
       GIT_CONNECTION_NO_TOKEN: '该 Git 连接没有令牌。',
       GIT_CONNECTION_IN_USE: '该 Git 连接仍关联着仓库，请先移除这些仓库。',
       GIT_TOKEN_REJECTED: 'GitHub 拒绝了该令牌。',
+      GIT_PUBLIC_URL_MISSING: 'Studio 未配置公开地址，GitHub 无法回调。',
+      GIT_APP_MANIFEST_EXPIRED:
+        '该 GitHub App 请求未知、已使用或已过期；请从“设置 → Git”重新开始。',
+      GIT_APP_NOT_FOUND: '该 Git 连接没有 GitHub App。',
+      GIT_APP_NOT_INSTALLED: '{{name}} 的 GitHub App 尚未安装。',
+      GIT_APP_INSTALLATION_AMBIGUOUS:
+        '{{name}} 的 GitHub App 安装在多个账号上；请从其链接重新安装。',
       GIT_REPOSITORY_UNREACHABLE: '该连接的令牌无法访问仓库 {{repo}}。',
       GIT_REPOSITORY_READ_ONLY: '该连接的令牌不能推送到 {{repo}}。',
       GIT_REPOSITORY_LINKED: '仓库 {{repo}} 已关联。',

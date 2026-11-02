@@ -59,28 +59,107 @@ const PERSON_OR_RUN: Record<string, string[]>[] = [
   { runToken: [] },
 ];
 
+const AppSchema = z
+  .object({
+    appId: z.string(),
+    slug: z.string(),
+    htmlUrl: z.string(),
+    ownerLogin: z.string().nullable(),
+    installUrl: z.string().meta({
+      description:
+        'Where a person installs the App and picks its repositories.',
+    }),
+    installationId: z.string().nullable(),
+    installationAccount: z.string().nullable(),
+    permissionsUrl: z.string().nullable(),
+    missingPermissions: z.array(z.string()).meta({
+      description:
+        'What Studio needs that the installation does not grant, as `name:level`.',
+    }),
+    webhookUrl: z.string().nullable(),
+    lastDeliveryAt: z.string().nullable(),
+    lastEvent: z.string().nullable(),
+    lastError: z.string().nullable(),
+  })
+  .meta({ ref: 'StudioGitApp' });
+
 const ConnectionSchema = z
   .object({
     id: z.string(),
     provider: z.enum(['github']),
-    kind: z.enum(['token']),
+    kind: z.enum(['token', 'app']),
     name: z.string(),
     account: z.string().nullable(),
     webUrl: z.string(),
     apiBaseUrl: z.string(),
     hasToken: z.boolean().meta({
       description:
-        'Whether a token is kept (sealed); the token itself is never returned.',
+        'Whether a token is kept (sealed), or for an App whether it is installed; a token or key is never returned.',
     }),
     webhooks: z.boolean(),
     personalMethods: z.array(z.string()),
     allowPersonalTokens: z.boolean(),
     problems: z.array(z.string()),
     usedBy: z.number().int(),
+    app: AppSchema.nullable().meta({
+      description:
+        'The GitHub App of a connection of kind `app`; never its key or webhook secret.',
+    }),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
   .meta({ ref: 'StudioGitConnection' });
+
+const AppManifestStartSchema = z
+  .object({
+    connectionId: z.string(),
+    postUrl: z.string().meta({
+      description:
+        'Where the browser posts the form field `manifest` (the JSON below) to create the App on GitHub.',
+    }),
+    manifest: z.record(z.string(), z.unknown()),
+    expiresAt: z.string(),
+  })
+  .meta({ ref: 'StudioGitAppManifestStart' });
+
+const StartAppManifestBody = z
+  .object({
+    name: z.string().trim().min(1).max(34).default('Duong Sinh Studio').meta({
+      description:
+        'The App’s name on GitHub (unique there, at most 34 characters).',
+    }),
+    organization: z
+      .string()
+      .regex(/^[\w-]+$/u)
+      .max(100)
+      .optional()
+      .meta({
+        description:
+          'Create it in this organization; the person’s own account when left out.',
+      }),
+    apiBaseUrl: z.url().optional(),
+  })
+  .strict();
+
+const CompleteAppManifestBody = z
+  .object({
+    code: z.string().min(1).max(200),
+    state: z.string().regex(/^[0-9a-f]{48}$/u),
+  })
+  .strict();
+
+const InstallationBody = z
+  .object({
+    installationId: z
+      .string()
+      .regex(/^\d{1,20}$/u)
+      .optional()
+      .meta({
+        description:
+          'GitHub’s `installation_id`; the App’s only installation when left out.',
+      }),
+  })
+  .strict();
 
 const ChecksSource = z.enum(['host', 'external', 'agent']);
 
@@ -544,6 +623,104 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
           }),
         );
         return context.json({ data: created }, 201);
+      },
+    );
+
+    git.post(
+      '/connections/startAppManifest',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Start making a GitHub App for Studio',
+        description:
+          'Answers the manifest the browser posts to GitHub (form field `manifest`) and where to post it. GitHub sends the person back to Settings → Git with a one-time code, valid for an hour.',
+        operationId: 'studioGitStartAppManifest',
+        ...cliRoute(false),
+        responses: {
+          '201': dataResponse(AppManifestStartSchema),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('json', StartAppManifestBody),
+      async (context) => {
+        const createdById = await requireAdmin(context);
+        const body = context.req.valid('json');
+        const started = await guarded(context, () =>
+          service().startAppManifest({
+            name: body.name,
+            organization: body.organization ?? null,
+            ...(body.apiBaseUrl ? { apiBaseUrl: body.apiBaseUrl } : {}),
+            createdById,
+          }),
+        );
+        return context.json(
+          {
+            data: {
+              connectionId: started.connectionId,
+              postUrl: started.postUrl,
+              manifest: started.manifest,
+              expiresAt: started.expiresAt,
+            },
+          },
+          201,
+        );
+      },
+    );
+
+    git.post(
+      '/connections/appManifest/complete',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Finish making a GitHub App for Studio',
+        description:
+          'Trades the code GitHub sent back for the App’s id, private key and webhook secret (sealed, never returned) and adds the App connection. Only the person who started it, once.',
+        operationId: 'studioGitCompleteAppManifest',
+        ...cliRoute(false),
+        responses: {
+          '201': dataResponse(ConnectionSchema),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('json', CompleteAppManifestBody),
+      async (context) => {
+        const userId = await requireAdmin(context);
+        const body = context.req.valid('json');
+        const created = await guarded(context, () =>
+          service().completeAppManifest({
+            code: body.code,
+            state: body.state,
+            userId,
+          }),
+        );
+        return context.json({ data: created }, 201);
+      },
+    );
+
+    git.post(
+      '/connections/:connectionId/installation',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Record where a GitHub App is installed',
+        description:
+          'The installation the App connection acts through (GitHub’s `installation_id`, else the App’s only one), with its permissions read again.',
+        operationId: 'studioGitSetAppInstallation',
+        ...cliRoute(false),
+        responses: {
+          '200': dataResponse(ConnectionSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ConnectionParams),
+      apiValidator('json', InstallationBody),
+      async (context) => {
+        await requireAdmin(context);
+        const { connectionId } = context.req.valid('param');
+        const body = context.req.valid('json');
+        return context.json({
+          data: await guarded(context, () =>
+            service().setInstallation(connectionId, body.installationId),
+          ),
+        });
       },
     );
 

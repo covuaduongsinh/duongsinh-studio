@@ -458,12 +458,47 @@ const enUS = {
       PULL_REQUEST_NOT_FOUND: 'The pull request does not exist.',
       MERGE_REFUSED_BY_HOST: 'GitHub refused to merge the pull request.',
       ACCESS_DENIED: 'You may not do this.',
+      GIT_PUBLIC_URL_MISSING:
+        'Studio has no public address configured, so GitHub could not call it back.',
+      GIT_APP_MANIFEST_EXPIRED:
+        'This GitHub App request is unknown, used or expired; start again.',
+      GIT_APP_NOT_FOUND: 'The connection has no GitHub App.',
+      GIT_APP_NOT_INSTALLED: 'The GitHub App is not installed yet.',
+      GIT_APP_INSTALLATION_AMBIGUOUS:
+        'The GitHub App is installed on several accounts; install it from its link again.',
     },
     settings: {
       title: 'Git',
       description:
         'Connections to GitHub, and the repositories Studio works in through them.',
       loadFailed: 'The git settings could not be loaded.',
+      app: {
+        title: 'GitHub App',
+        description:
+          'Studio as a GitHub App: GitHub tells Studio at once when a pull request or a check changes, and every run gets a token for its own repository that lasts an hour.',
+        organization: 'Organization',
+        organizationHint:
+          'Leave it empty to create the App in your own GitHub account.',
+        create: 'Create GitHub App',
+        creating: 'Opening GitHub…',
+        completing: 'Saving the GitHub App…',
+        completed: 'GitHub App {{name}} created. Install it on your repositories next.',
+        installing: 'Checking the installation…',
+        installed: 'GitHub App installed on {{account}}.',
+        empty: 'No GitHub App yet.',
+        owner: 'Owner',
+        installation: 'Installation',
+        notInstalled: 'Not installed',
+        installedOn: 'Installed on {{account}}',
+        install: 'Install on repositories',
+        permissions: 'Permissions on GitHub',
+        missing: 'Missing permissions: {{list}}. Accept them on GitHub.',
+        recheck: 'Check the installation',
+        webhook: 'Webhook',
+        lastDelivery: 'Last delivery {{time}} ({{event}})',
+        noDelivery: 'No delivery yet',
+        lastError: 'Last delivery failed: {{error}}',
+      },
       connections: {
         title: 'Connections',
         description:

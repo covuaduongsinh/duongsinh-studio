@@ -42,6 +42,14 @@ const enUS = {
       GIT_CONNECTION_IN_USE:
         'The git connection still links repositories; remove them first.',
       GIT_TOKEN_REJECTED: 'GitHub refused the token.',
+      GIT_PUBLIC_URL_MISSING:
+        'Studio has no public address configured, so GitHub could not call it back.',
+      GIT_APP_MANIFEST_EXPIRED:
+        'This GitHub App request is unknown, used or expired; start again from Settings → Git.',
+      GIT_APP_NOT_FOUND: 'The git connection has no GitHub App.',
+      GIT_APP_NOT_INSTALLED: 'The GitHub App of {{name}} is not installed yet.',
+      GIT_APP_INSTALLATION_AMBIGUOUS:
+        'The GitHub App of {{name}} is installed on several accounts; install it from its link again.',
       GIT_REPOSITORY_UNREACHABLE:
         'The connection’s token cannot reach the repository {{repo}}.',
       GIT_REPOSITORY_READ_ONLY:

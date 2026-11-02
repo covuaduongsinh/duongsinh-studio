@@ -87,6 +87,28 @@ Trên WSL không có keychain nên khoá nằm ở `~/.ds-studio/config.json` (0
 `curl -fsSL https://studio.dsc.edu.vn/main/api/agents/dist/installScript | sh -s -- --token <download token>` (token lấy
 khi bấm cài CLI trong ứng dụng).
 
+## GitHub App (S5.2)
+
+Studio kết nối GitHub bằng một GitHub App riêng (PR và checks cập nhật ngay qua webhook, mỗi run nhận token chỉ cho repo
+của nó, hết hạn trong 1 giờ). Kết nối PAT cũ vẫn chạy song song; khi App đã cài và chạy ổn thì gỡ PAT. Chủ dự án tự làm,
+đăng nhập GitHub bằng tài khoản `covuaduongsinh`:
+
+1. Mở `https://studio.dsc.edu.vn/main/settings/git` → thẻ **GitHub App** → (để trống "Organization" nếu App thuộc tài
+   khoản cá nhân `covuaduongsinh`) → **Create GitHub App**.
+2. Trang GitHub "Create GitHub App for covuaduongsinh" mở ra, tên và quyền đã điền sẵn → **Create GitHub App**. GitHub đưa
+   về Studio; thẻ hiện App mới với "Not installed". (Tên phải chưa ai dùng trên GitHub; nếu bị trùng, sửa tên ngay trên
+   trang GitHub.)
+3. Bấm **Install on repositories** → chọn **Only select repositories** → `duongsinh-studio-sandbox` và `duongsinh-nocobase`
+   → **Install**. GitHub đưa về Studio; thẻ hiện "Installed on covuaduongsinh", không có dòng "Missing permissions".
+4. Ở thẻ **Repositories**, liên kết các repo qua kết nối App (chọn kết nối App, gõ `owner/name`), rồi ở trang từng
+   project gắn repo đó (mục Code). Production chưa có kết nối PAT nào, nên **không cần** tạo PAT ở đây. (Studio chưa có
+   thao tác chuyển một repo đã liên kết qua PAT sang App; trên máy dev, repo cũ qua PAT cứ để nguyên.)
+5. Kiểm: mở hoặc cập nhật một PR thử trên sandbox → dòng "Webhook: Last delivery …" trong thẻ App đổi trong vài giây.
+
+Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng nằm trong DB, niêm phong bằng `SECRETS_KEYS`. Mất
+`SECRETS_KEYS` thì phải tạo App mới. Địa chỉ webhook là `https://studio.dsc.edu.vn/main/api/webhooks/github/connections/<id>`
+(lấy từ `APP_PUBLIC_ORIGIN`); đổi tên miền thì phải sửa Webhook URL trong cài đặt App trên GitHub.
+
 ## Runner
 
 Không có runner trên VPS (S5.3 hoãn vì VPS thiếu RAM). Runner cá nhân trên máy dev đăng ký vào server này bằng token

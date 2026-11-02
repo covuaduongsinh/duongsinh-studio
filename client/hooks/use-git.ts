@@ -12,20 +12,48 @@ import {
   type UseQueryResult,
 } from '@tanstack/react-query';
 
+/** A GitHub App connection's App: never its key or webhook secret. */
+export interface GitApp {
+  readonly appId: string;
+  readonly slug: string;
+  readonly htmlUrl: string;
+  readonly ownerLogin: string | null;
+  readonly installUrl: string;
+  readonly installationId: string | null;
+  readonly installationAccount: string | null;
+  readonly permissionsUrl: string | null;
+  /** `name:level` Studio needs and the installation does not grant. */
+  readonly missingPermissions: readonly string[];
+  readonly webhookUrl: string | null;
+  readonly lastDeliveryAt: string | null;
+  readonly lastEvent: string | null;
+  readonly lastError: string | null;
+}
+
 export interface GitConnection {
   readonly id: string;
   readonly provider: 'github';
-  readonly kind: 'token';
+  readonly kind: 'token' | 'app';
   readonly name: string;
   readonly account: string | null;
   readonly webUrl: string;
   readonly apiBaseUrl: string;
-  /** A token is kept (sealed); the token itself never comes back. */
+  /** A token is kept (sealed), or an App is installed; a token or key never comes back. */
   readonly hasToken: boolean;
+  readonly webhooks?: boolean;
   readonly problems: readonly string[];
   readonly usedBy: number;
+  readonly app?: GitApp | null;
   readonly createdAt: string;
   readonly updatedAt: string;
+}
+
+/** Where the browser posts the GitHub App manifest (form field `manifest`). */
+export interface GitAppManifestStart {
+  readonly connectionId: string;
+  readonly postUrl: string;
+  readonly manifest: Readonly<Record<string, unknown>>;
+  readonly expiresAt: string;
 }
 
 export interface GitRepository {
@@ -213,6 +241,92 @@ export function useCreateGitConnection(): UseMutationResult<
           path: 'git/connections',
           method: 'POST',
           json: { name: input.name, token: input.token },
+        })
+      ).data,
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: gitKeys.connections }),
+  });
+}
+
+/** Starts making a GitHub App: Studio answers the manifest; `submitAppManifest` sends the browser to GitHub with it. */
+export function useStartGitApp(): UseMutationResult<
+  GitAppManifestStart,
+  unknown,
+  { readonly organization?: string }
+> {
+  const api = useApiClient();
+  return useMutation({
+    mutationFn: async (input: { readonly organization?: string }) =>
+      (
+        await api.request<{ data: GitAppManifestStart }>({
+          path: 'git/connections/startAppManifest',
+          method: 'POST',
+          json: input.organization ? { organization: input.organization } : {},
+        })
+      ).data,
+  });
+}
+
+/** Posts the manifest to GitHub as a form, as GitHub's manifest flow requires; the page leaves for github.com. */
+export function submitAppManifest(start: GitAppManifestStart): void {
+  const form = document.createElement('form');
+  form.method = 'post';
+  form.action = start.postUrl;
+  form.hidden = true;
+  const field = document.createElement('input');
+  field.type = 'hidden';
+  field.name = 'manifest';
+  field.value = JSON.stringify(start.manifest);
+  form.append(field);
+  document.body.append(form);
+  form.submit();
+}
+
+/** Finishes making a GitHub App with the one-time `code` and `state` GitHub sent back. */
+export function useCompleteGitApp(): UseMutationResult<
+  GitConnection,
+  unknown,
+  { readonly code: string; readonly state: string }
+> {
+  const api = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      readonly code: string;
+      readonly state: string;
+    }) =>
+      (
+        await api.request<{ data: GitConnection }>({
+          path: 'git/connections/appManifest/complete',
+          method: 'POST',
+          json: { code: input.code, state: input.state },
+        })
+      ).data,
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: gitKeys.connections }),
+  });
+}
+
+/** Records the App's installation (`installationId` from GitHub, else its only one) and reads its permissions again. */
+export function useSetGitAppInstallation(): UseMutationResult<
+  GitConnection,
+  unknown,
+  { readonly connectionId: string; readonly installationId?: string }
+> {
+  const api = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      readonly connectionId: string;
+      readonly installationId?: string;
+    }) =>
+      (
+        await api.request<{ data: GitConnection }>({
+          path: `git/connections/${encodeURIComponent(input.connectionId)}/installation`,
+          method: 'POST',
+          json: input.installationId
+            ? { installationId: input.installationId }
+            : {},
         })
       ).data,
     onSettled: () =>

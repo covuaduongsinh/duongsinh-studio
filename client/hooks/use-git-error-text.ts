@@ -18,6 +18,11 @@ const KNOWN_REASONS = new Set([
   'PULL_REQUEST_NOT_FOUND',
   'MERGE_REFUSED_BY_HOST',
   'ACCESS_DENIED',
+  'GIT_PUBLIC_URL_MISSING',
+  'GIT_APP_MANIFEST_EXPIRED',
+  'GIT_APP_NOT_FOUND',
+  'GIT_APP_NOT_INSTALLED',
+  'GIT_APP_INSTALLATION_AMBIGUOUS',
 ]);
 
 /** A git API failure in the reader's language, by the error's `reason`. */

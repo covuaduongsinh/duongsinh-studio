@@ -317,6 +317,45 @@ dụng lắp ráp" (lớp Studio đóng). README của `projectsPlanHooksToken` 
   của session và được gắn vào session). Trang "My agents" (`/agent-sessions` của plugin) đã có từ S0. **Chưa cài bridge
   ACP trên máy nào** — xem `docs/moi-truong-dev.md`.
 
+## 18. S5.2 — GitHub App và webhook (02/11/2026)
+
+Lắp ở `server/git/github-app.ts` (manifest, JWT RS256 bằng `node:crypto`, chữ ký webhook, API App), `server/git/service.ts`
+(kết nối `kind: 'app'`, token installation, xử lý webhook, poll giãn), `server/providers/git.ts` (`repoAccess.prepare`),
+`server/routes/git.ts` (3 route mới), `server/routes/webhooks.ts`, bảng `dsGitApps`/`dsGitAppManifests`/
+`dsGitWebhookDeliveries` (migration `202611050001_ds_git_apps`). Test: `tests/server/git-app.test.ts` (GitHub giả kiểm JWT
+bằng khoá RSA sinh trong test), `tests/database/ds-git-apps-migration.test.ts`, `tests/client/git-pages.test.tsx`.
+
+- **Kết nối App song song với PAT.** Kết nối `kind: 'token'` giữ nguyên; kết nối `kind: 'app'` không có `tokenSealed`; khoá
+  riêng và webhook secret niêm phong bằng secrets (purpose `duongsinh-studio/github-app-private-key` và
+  `…-webhook-secret`, aad = id kết nối, có store để xoay khoá). Không thêm thư viện (không cần `@octokit/auth-app`).
+- **Luồng manifest như GitHub quy định**: `POST /api/git/connections/startAppManifest` (chỉ quản trị, ngoài CLI) trả
+  `postUrl` + `manifest`; trình duyệt POST form `manifest` lên GitHub; GitHub quay về `…/settings/git?code&state`; trang gọi
+  `POST /api/git/connections/appManifest/complete` (state dùng một lần, hết hạn 1 giờ, đúng người đã bắt đầu) → Studio đổi
+  `code` lấy App id, khoá, secret. Cài App xong GitHub về `…/settings/git?githubApp=<id>&installation_id=…` → `POST
+  /api/git/connections/{id}/installation`. Địa chỉ webhook/redirect lấy từ `app.publicOrigin` (`APP_PUBLIC_ORIGIN`) +
+  base path, **không** đoán theo request; thiếu thì từ chối `GIT_PUBLIC_URL_MISSING`.
+- **Credential cho run (đóng vế PAT của mục 11 đối với kết nối App).** `forRun` chạy trong transaction claim nên không gọi
+  được GitHub: token installation được đúc ở `prepare` (trước transaction) cho mọi repo App của project, mỗi token **giới
+  hạn đúng một repo** (`repositories: [name]`), hết hạn theo GitHub (1 giờ); `expiresAt` thật thay cho +1 giờ danh nghĩa.
+  Cache dùng chung tới khi còn < 5 phút, nên `discard` không thu hồi (token tự hết hạn). Runner `gitCredentials`
+  (`onDemand`) lấy qua `issue()`, `refresh` đúc token mới. Đọc/ghi phía server (poll, merge, mở PR) dùng token installation
+  của mọi repo trong installation.
+- **Liên kết repo qua App không kiểm `permissions.push`**: câu trả lời repo với token installation không có trường đó;
+  quyền ghi là quyền của installation, Settings → Git liệt kê `missingPermissions` (so với contents/pull_requests/checks
+  write, statuses/actions/metadata read).
+- **Webhook** `POST /api/webhooks/github/connections/{id}`: không session, chỉ kiểm `X-Hub-Signature-256` (HMAC-SHA256 thân
+  thô, `timingSafeEqual`); sai chữ ký, kết nối lạ hay kết nối PAT đều 401 như nhau; giới hạn thân 5 MB; id delivery lưu 7
+  ngày để không xử lý lại lần gửi lại (trả 200 `duplicate`). `pull_request`, `check_run`, `check_suite`, `workflow_run`,
+  `status` → đọc lại PR liên quan ngay (theo số PR, hoặc theo `head_sha` của PR đang mở); `installation` cập nhật/xoá
+  installation; **`push` (tag) bỏ qua**, để S5.5 (release lines) dùng. Lỗi khi xử lý ghi vào `lastError` của kết nối, vẫn
+  trả 202 (poll là lưới an toàn).
+- **Poll giãn khi webhook chạy**: kết nối App đã cài và nhận delivery trong 24 giờ qua → repo của nó poll mỗi
+  `max(pollSeconds, 600)` giây; không nhận gì → về `pollSeconds` (60 s).
+- **Checks**: token installation đọc được check runs thật (App có quyền Checks); đường vòng `actions/runs` của mục 14 chỉ
+  còn cho PAT.
+- **Lệch với demo**: demo có `git/connections/{id}/authorize|startDeviceFlow|useToken` (token cá nhân), `repairWebhook`,
+  webhook theo repo (`webhookMode repository`); Studio Dương Sinh chưa làm, chỉ một webhook mức App.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

@@ -8,11 +8,20 @@ import { useLocale, useTranslation } from '@nocobase/i18n/client';
 import {
   CircleAlertIcon,
   ExternalLinkIcon,
+  GithubIcon,
   LoaderCircle,
   PlusIcon,
+  RefreshCwIcon,
   Trash2Icon,
 } from 'lucide-react';
-import { useState, type FormEvent, type ReactElement } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactElement,
+} from 'react';
+import { useSearchParams } from 'react-router';
 
 import { Loading } from '#components/loading';
 import { PageContainer } from '#components/page-container';
@@ -61,11 +70,16 @@ import {
 } from '#components/ui/table';
 import {
   REPOSITORY_NAME,
+  submitAppManifest,
+  useCompleteGitApp,
   useCreateGitConnection,
   useDeleteGitConnection,
   useGitConnections,
   useGitRepositories,
   useLinkGitRepository,
+  useSetGitAppInstallation,
+  useStartGitApp,
+  type GitApp,
   type GitConnection,
 } from '#hooks/use-git';
 import { useGitErrorText } from '#hooks/use-git-error-text';
@@ -77,6 +91,287 @@ function LoadFailed(): ReactElement {
       <CircleAlertIcon />
       <AlertDescription>{t('git.settings.loadFailed')}</AlertDescription>
     </Alert>
+  );
+}
+
+/**
+ * Finishes what GitHub sends the person back with: `?code&state` after creating the App from its manifest, and
+ * `?githubApp=<connection>&installation_id` after installing it. Each is handled once, then taken out of the address.
+ */
+function useGitHubReturn(): { readonly busy: boolean } {
+  const { t } = useTranslation();
+  const toaster = useToaster();
+  const errorText = useGitErrorText();
+  const [params, setParams] = useSearchParams();
+  const complete = useCompleteGitApp();
+  const install = useSetGitAppInstallation();
+  const handledRef = useRef<string | null>(null);
+  const code = params.get('code');
+  const state = params.get('state');
+  const connectionId = params.get('githubApp');
+  const installationId = params.get('installation_id');
+
+  useEffect(() => {
+    const key = code && state ? `code:${state}` : connectionId ? `app:${connectionId}` : null;
+    if (!key || handledRef.current === key) return;
+    handledRef.current = key;
+    setParams({}, { replace: true });
+    if (code && state)
+      complete.mutate(
+        { code, state },
+        {
+          onSuccess: (connection) =>
+            toaster.show({
+              type: 'success',
+              title: t('git.settings.app.completed', { name: connection.name }),
+            }),
+          onError: (error) =>
+            toaster.show({ type: 'error', title: errorText(error) }),
+        },
+      );
+    else if (connectionId)
+      install.mutate(
+        {
+          connectionId,
+          ...(installationId && /^\d+$/u.test(installationId)
+            ? { installationId }
+            : {}),
+        },
+        {
+          onSuccess: (connection) =>
+            toaster.show({
+              type: 'success',
+              title: t('git.settings.app.installed', {
+                account: connection.app?.installationAccount ?? '',
+              }),
+            }),
+          onError: (error) =>
+            toaster.show({ type: 'error', title: errorText(error) }),
+        },
+      );
+  }, [
+    code,
+    state,
+    connectionId,
+    installationId,
+    complete,
+    install,
+    setParams,
+    t,
+    toaster,
+    errorText,
+  ]);
+
+  return { busy: complete.isPending || install.isPending };
+}
+
+function AppDetails({
+  connection,
+  app,
+}: {
+  readonly connection: GitConnection;
+  readonly app: GitApp;
+}): ReactElement {
+  const { t } = useTranslation();
+  const { locale } = useLocale();
+  const toaster = useToaster();
+  const errorText = useGitErrorText();
+  const recheck = useSetGitAppInstallation();
+  const dateFormat = new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+  const link = (href: string, label: string) => (
+    <a
+      href={href}
+      target='_blank'
+      rel='noreferrer'
+      className='inline-flex items-center gap-1 text-sm hover:underline'
+    >
+      {label}
+      <ExternalLinkIcon
+        aria-hidden='true'
+        className='size-3.5 text-muted-foreground'
+      />
+    </a>
+  );
+
+  return (
+    <li className='flex flex-col gap-3 rounded-lg border p-4'>
+      <div className='flex flex-wrap items-center gap-2'>
+        <GithubIcon aria-hidden='true' className='size-4' />
+        <a
+          href={app.htmlUrl}
+          target='_blank'
+          rel='noreferrer'
+          className='font-medium hover:underline'
+        >
+          {connection.name}
+        </a>
+        <Badge variant={app.installationId ? 'secondary' : 'outline'}>
+          {app.installationId
+            ? t('git.settings.app.installedOn', {
+                account: app.installationAccount ?? '—',
+              })
+            : t('git.settings.app.notInstalled')}
+        </Badge>
+        {app.ownerLogin ? (
+          <span className='text-sm text-muted-foreground'>
+            {t('git.settings.app.owner')}: {app.ownerLogin}
+          </span>
+        ) : null}
+      </div>
+      {app.missingPermissions.length > 0 ? (
+        <Alert variant='destructive' role='alert'>
+          <CircleAlertIcon />
+          <AlertDescription>
+            {t('git.settings.app.missing', {
+              list: app.missingPermissions.join(', '),
+            })}
+          </AlertDescription>
+        </Alert>
+      ) : null}
+      <p className='text-sm text-muted-foreground'>
+        <span className='font-medium text-foreground'>
+          {t('git.settings.app.webhook')}:
+        </span>{' '}
+        {app.lastError
+          ? t('git.settings.app.lastError', { error: app.lastError })
+          : app.lastDeliveryAt
+            ? t('git.settings.app.lastDelivery', {
+                time: dateFormat.format(new Date(app.lastDeliveryAt)),
+                event: app.lastEvent ?? '—',
+              })
+            : t('git.settings.app.noDelivery')}
+      </p>
+      <div className='flex flex-wrap items-center gap-4'>
+        {link(app.installUrl, t('git.settings.app.install'))}
+        {app.permissionsUrl
+          ? link(app.permissionsUrl, t('git.settings.app.permissions'))
+          : null}
+        <Button
+          variant='outline'
+          size='sm'
+          disabled={recheck.isPending}
+          onClick={() =>
+            recheck.mutate(
+              {
+                connectionId: connection.id,
+                ...(app.installationId
+                  ? { installationId: app.installationId }
+                  : {}),
+              },
+              {
+                onError: (error) =>
+                  toaster.show({ type: 'error', title: errorText(error) }),
+              },
+            )
+          }
+        >
+          {recheck.isPending ? (
+            <LoaderCircle data-icon='inline-start' className='animate-spin' />
+          ) : (
+            <RefreshCwIcon data-icon='inline-start' />
+          )}
+          {recheck.isPending
+            ? t('git.settings.app.installing')
+            : t('git.settings.app.recheck')}
+        </Button>
+      </div>
+    </li>
+  );
+}
+
+function GitHubAppCard(): ReactElement {
+  const { t } = useTranslation();
+  const toaster = useToaster();
+  const errorText = useGitErrorText();
+  const connections = useGitConnections();
+  const start = useStartGitApp();
+  const { busy } = useGitHubReturn();
+  const [organization, setOrganization] = useState('');
+  const apps = (connections.data ?? []).filter(
+    (connection): connection is GitConnection & { app: GitApp } =>
+      connection.kind === 'app' && connection.app != null,
+  );
+
+  const create = (event: FormEvent): void => {
+    event.preventDefault();
+    const org = organization.trim();
+    start.mutate(org ? { organization: org } : {}, {
+      onSuccess: (started) => submitAppManifest(started),
+      onError: (error) =>
+        toaster.show({ type: 'error', title: errorText(error) }),
+    });
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t('git.settings.app.title')}</CardTitle>
+        <CardDescription>{t('git.settings.app.description')}</CardDescription>
+      </CardHeader>
+      <CardContent className='flex flex-col gap-6'>
+        {busy ? (
+          <p className='flex items-center gap-2 text-sm text-muted-foreground'>
+            <LoaderCircle aria-hidden='true' className='size-4 animate-spin' />
+            {t('git.settings.app.completing')}
+          </p>
+        ) : null}
+        {connections.error ? (
+          <LoadFailed />
+        ) : !connections.data ? (
+          <Loading />
+        ) : apps.length === 0 ? (
+          <p className='text-sm text-muted-foreground'>
+            {t('git.settings.app.empty')}
+          </p>
+        ) : (
+          <ul className='flex flex-col gap-3' aria-label={t('git.settings.app.title')}>
+            {apps.map((connection) => (
+              <AppDetails
+                key={connection.id}
+                connection={connection}
+                app={connection.app}
+              />
+            ))}
+          </ul>
+        )}
+        <form
+          onSubmit={create}
+          noValidate
+          className='grid gap-4 md:grid-cols-[1.5fr_auto] md:items-start'
+          aria-label={t('git.settings.app.create')}
+        >
+          <Field>
+            <FieldLabel htmlFor='git-app-organization'>
+              {t('git.settings.app.organization')}
+            </FieldLabel>
+            <Input
+              id='git-app-organization'
+              value={organization}
+              maxLength={100}
+              spellCheck={false}
+              disabled={start.isPending}
+              onChange={(event) => setOrganization(event.target.value)}
+            />
+            <FieldDescription>
+              {t('git.settings.app.organizationHint')}
+            </FieldDescription>
+          </Field>
+          <Button type='submit' className='md:mt-6' disabled={start.isPending}>
+            {start.isPending ? (
+              <LoaderCircle data-icon='inline-start' className='animate-spin' />
+            ) : (
+              <GithubIcon data-icon='inline-start' />
+            )}
+            {start.isPending
+              ? t('git.settings.app.creating')
+              : t('git.settings.app.create')}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -219,9 +514,11 @@ function ConnectionsCard(): ReactElement {
               </TableCell>
               <TableCell>
                 <Badge variant={connection.hasToken ? 'secondary' : 'outline'}>
-                  {connection.hasToken
-                    ? t('git.settings.connections.tokenKept')
-                    : t('git.settings.connections.noToken')}
+                  {connection.kind === 'app'
+                    ? t('git.settings.app.title')
+                    : connection.hasToken
+                      ? t('git.settings.connections.tokenKept')
+                      : t('git.settings.connections.noToken')}
                 </Badge>
               </TableCell>
               <TableCell className='tabular-nums'>
@@ -530,6 +827,7 @@ export default function GitSettingsPage(): ReactElement {
         title={t('git.settings.title')}
         description={t('git.settings.description')}
       />
+      <GitHubAppCard />
       <ConnectionsCard />
       <RepositoriesCard />
     </PageContainer>

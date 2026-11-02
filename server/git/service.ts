@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import type { SecretsService } from '@nocobase/app-server/secrets';
 import type {
   Actor,
@@ -14,6 +14,17 @@ import {
   type GitHubClient,
   type GitHubPull,
 } from './github.js';
+import {
+  appJwt,
+  appManifest,
+  createGitHubAppApi,
+  installationOf,
+  manifestPostUrl,
+  missingPermissions,
+  verifySignature,
+  webhookUrlOf,
+  type AppInstallation,
+} from './github-app.js';
 import {
   FORCEABLE_BLOCKERS,
   ciStateOf,
@@ -50,6 +61,23 @@ export const CONNECTIONS = 'dsGitConnections';
 export const REPOSITORIES = 'dsRepositories';
 export const PROJECT_REPOSITORIES = 'dsProjectRepositories';
 export const PULL_REQUESTS = 'dsPullRequests';
+export const APPS = 'dsGitApps';
+export const APP_MANIFESTS = 'dsGitAppManifests';
+export const WEBHOOK_DELIVERIES = 'dsGitWebhookDeliveries';
+/** What seals a GitHub App's private key and its webhook secret; `aad` is the connection id. */
+export const APP_KEY_SECRET_PURPOSE = 'duongsinh-studio/github-app-private-key';
+export const APP_WEBHOOK_SECRET_PURPOSE =
+  'duongsinh-studio/github-app-webhook-secret';
+
+/** How long a manifest sent to GitHub waits for the person to come back with its code. */
+const MANIFEST_TTL_MS = 60 * 60 * 1000;
+/** An installation token is minted again when less than this is left of it. */
+const TOKEN_MARGIN_MS = 5 * 60 * 1000;
+/** A connection whose webhook delivered within this long is pushed to: its repositories are polled only as a net. */
+const WEBHOOK_FRESH_MS = 24 * 60 * 60 * 1000;
+const WEBHOOK_POLL_SECONDS = 600;
+/** How long a delivery id is remembered against GitHub redelivering it. */
+const DELIVERY_RETENTION_MS = 7 * 24 * 60 * 60 * 1000;
 
 const OPEN_PULLS = 50;
 const CLOSED_PULLS = 20;
@@ -75,10 +103,30 @@ export class GitError extends Error {
   }
 }
 
+/** A GitHub App connection's App, installation and webhook, as Settings → Git shows them. Never a key or a secret. */
+export interface GitAppView {
+  readonly appId: string;
+  readonly slug: string;
+  readonly htmlUrl: string;
+  readonly ownerLogin: string | null;
+  /** Where a person installs the App on an account and picks its repositories. */
+  readonly installUrl: string;
+  readonly installationId: string | null;
+  readonly installationAccount: string | null;
+  /** The installation's settings on GitHub, where its repositories and permissions change; null until installed. */
+  readonly permissionsUrl: string | null;
+  /** What Studio needs that the installation (else the App) does not grant, as `name:level`. */
+  readonly missingPermissions: string[];
+  readonly webhookUrl: string | null;
+  readonly lastDeliveryAt: string | null;
+  readonly lastEvent: string | null;
+  readonly lastError: string | null;
+}
+
 export interface GitConnectionView {
   readonly id: string;
   readonly provider: 'github';
-  readonly kind: 'token';
+  readonly kind: 'token' | 'app';
   readonly name: string;
   readonly account: string | null;
   readonly webUrl: string;
@@ -89,8 +137,23 @@ export interface GitConnectionView {
   readonly allowPersonalTokens: boolean;
   readonly problems: string[];
   readonly usedBy: number;
+  readonly app: GitAppView | null;
   readonly createdAt: string;
   readonly updatedAt: string;
+}
+
+/** What Studio answers when it starts making a GitHub App: where the browser posts `manifest` (a form field). */
+export interface GitAppManifestStart {
+  readonly connectionId: string;
+  readonly postUrl: string;
+  readonly manifest: Record<string, unknown>;
+  readonly expiresAt: string;
+}
+
+export interface GitWebhookOutcome {
+  readonly status: 202 | 200 | 400 | 401;
+  readonly handled?: string;
+  readonly duplicate?: boolean;
 }
 
 export interface GitRepositoryView {
@@ -157,6 +220,7 @@ export interface GitPullRequestView {
 
 interface ConnectionRecord {
   readonly id: string;
+  readonly kind: 'token' | 'app';
   readonly name: string;
   readonly account: string | null;
   readonly apiBaseUrl: string;
@@ -240,8 +304,54 @@ function checksOf(value: unknown): StoredCheck[] {
   });
 }
 
+interface AppRecord {
+  readonly connectionId: string;
+  readonly appId: string;
+  readonly slug: string;
+  readonly htmlUrl: string;
+  readonly ownerLogin: string | null;
+  readonly privateKeySealed: string;
+  readonly webhookSecretSealed: string;
+  readonly installationId: string | null;
+  readonly installationAccount: string | null;
+  readonly installationTargetType: string | null;
+  readonly permissions: Record<string, string>;
+  readonly lastDeliveryAt: string | null;
+  readonly lastEvent: string | null;
+  readonly lastError: string | null;
+}
+
+const permissionsValue = (value: unknown): Record<string, string> => {
+  const parsed = json(value);
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
+    return {};
+  return Object.fromEntries(
+    Object.entries(parsed).filter(
+      (entry): entry is [string, string] => typeof entry[1] === 'string',
+    ),
+  );
+};
+
+const appOf = (row: Row): AppRecord => ({
+  connectionId: str(row.connectionId),
+  appId: str(row.appId),
+  slug: str(row.slug),
+  htmlUrl: str(row.htmlUrl),
+  ownerLogin: strOrNull(row.ownerLogin),
+  privateKeySealed: str(row.privateKeySealed),
+  webhookSecretSealed: str(row.webhookSecretSealed),
+  installationId: strOrNull(row.installationId),
+  installationAccount: strOrNull(row.installationAccount),
+  installationTargetType: strOrNull(row.installationTargetType),
+  permissions: permissionsValue(row.permissions),
+  lastDeliveryAt: iso(row.lastDeliveryAt),
+  lastEvent: strOrNull(row.lastEvent),
+  lastError: strOrNull(row.lastError),
+});
+
 const connectionOf = (row: Row): ConnectionRecord => ({
   id: str(row.id),
+  kind: row.kind === 'app' ? 'app' : 'token',
   name: str(row.name),
   account: strOrNull(row.account),
   apiBaseUrl: str(row.apiBaseUrl) || GITHUB_API_URL,
@@ -318,6 +428,11 @@ export interface GitServiceDeps {
   readonly secrets: () => SecretsService;
   /** Null when the projects plugin is not assembled. */
   readonly projects: () => Projects | null;
+  /**
+   * Studio's public base (`https://studio.dsc.edu.vn/main`), from the application's configured public origin, never
+   * from a request: GitHub App manifests point their webhook and redirects at it. Null when none is configured.
+   */
+  readonly publicBaseUrl?: () => string | null;
   readonly onError?: (message: string, error: unknown) => void;
 }
 
@@ -365,26 +480,154 @@ export function createGitService(deps: GitServiceDeps) {
     return counts;
   };
 
+  const appRecord = async (
+    connectionId: string,
+    connection: DatabaseConnection = conn(),
+  ): Promise<AppRecord | null> => {
+    const row: Row | undefined = await connection.query
+      .selectFrom(APPS)
+      .selectAll()
+      .where('connectionId', '=', connectionId)
+      .executeTakeFirst();
+    return row ? appOf(row) : null;
+  };
+
+  const appView = (
+    record: ConnectionRecord,
+    app: AppRecord,
+  ): GitAppView => {
+    const web = webUrlOf(record.apiBaseUrl);
+    const base = deps.publicBaseUrl?.() ?? null;
+    return {
+      appId: app.appId,
+      slug: app.slug,
+      htmlUrl: app.htmlUrl,
+      ownerLogin: app.ownerLogin,
+      installUrl: `${app.htmlUrl.replace(/\/+$/u, '')}/installations/new`,
+      installationId: app.installationId,
+      installationAccount: app.installationAccount,
+      permissionsUrl: app.installationId
+        ? app.installationTargetType === 'Organization' &&
+          app.installationAccount
+          ? `${web}/organizations/${encodeURIComponent(app.installationAccount)}/settings/installations/${app.installationId}`
+          : `${web}/settings/installations/${app.installationId}`
+        : null,
+      missingPermissions: missingPermissions(app.permissions),
+      webhookUrl: base ? webhookUrlOf(base, record.id) : null,
+      lastDeliveryAt: app.lastDeliveryAt,
+      lastEvent: app.lastEvent,
+      lastError: app.lastError,
+    };
+  };
+
   const connectionView = (
     record: ConnectionRecord,
     usedBy: number,
-  ): GitConnectionView => ({
-    id: record.id,
-    provider: 'github',
-    kind: 'token',
-    name: record.name,
-    account: record.account,
-    webUrl: webUrlOf(record.apiBaseUrl),
-    apiBaseUrl: record.apiBaseUrl,
-    hasToken: record.tokenSealed !== null,
-    webhooks: false,
-    personalMethods: [],
-    allowPersonalTokens: false,
-    problems: [],
-    usedBy,
-    createdAt: record.createdAt,
-    updatedAt: record.updatedAt,
-  });
+    app: AppRecord | null,
+  ): GitConnectionView => {
+    const appInfo = record.kind === 'app' && app ? appView(record, app) : null;
+    const problems: string[] = [];
+    if (appInfo) {
+      if (!appInfo.installationId) problems.push('appNotInstalled');
+      if (appInfo.missingPermissions.length > 0)
+        problems.push('appMissingPermissions');
+      if (appInfo.lastError) problems.push('webhookFailing');
+    }
+    return {
+      id: record.id,
+      provider: 'github',
+      kind: record.kind,
+      name: record.name,
+      account: record.account,
+      webUrl: webUrlOf(record.apiBaseUrl),
+      apiBaseUrl: record.apiBaseUrl,
+      hasToken:
+        record.kind === 'app'
+          ? appInfo?.installationId != null
+          : record.tokenSealed !== null,
+      webhooks: appInfo?.installationId != null,
+      personalMethods: [],
+      allowPersonalTokens: false,
+      problems,
+      usedBy,
+      app: appInfo,
+      createdAt: record.createdAt,
+      updatedAt: record.updatedAt,
+    };
+  };
+
+  const secretsReady = () => {
+    const secrets = deps.secrets();
+    if (!secrets.ready)
+      throw new GitError(
+        'UNAVAILABLE',
+        'SECRETS_NOT_CONFIGURED',
+        'The secrets keys are not configured.',
+      );
+    return secrets;
+  };
+
+  const openSealed = (
+    sealed: string,
+    purpose: string,
+    connectionId: string,
+  ): string => secretsReady().open(sealed, { purpose, aad: [connectionId] });
+
+  /** Installation tokens by connection and repository (`*` for every repository of the installation). */
+  const tokenCache = new Map<string, { token: string; expiresAt: number }>();
+  const forgetTokens = (connectionId: string) => {
+    for (const key of [...tokenCache.keys()])
+      if (key.startsWith(`${connectionId}:`)) tokenCache.delete(key);
+  };
+
+  /**
+   * An installation token of the App connection, limited to `fullName` when given: from the cache while more than five
+   * minutes are left of it, else minted with the App's JWT. `refresh` mints a new one.
+   */
+  async function installationToken(
+    record: ConnectionRecord,
+    fullName: string | null,
+    refresh = false,
+  ): Promise<{ token: string; expiresAt: string }> {
+    const key = `${record.id}:${fullName ?? '*'}`;
+    const cached = tokenCache.get(key);
+    if (!refresh && cached && cached.expiresAt - Date.now() > TOKEN_MARGIN_MS)
+      return {
+        token: cached.token,
+        expiresAt: new Date(cached.expiresAt).toISOString(),
+      };
+    const app = await appRecord(record.id);
+    if (!app)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'GIT_APP_NOT_FOUND',
+        `Git connection ${record.id} has no GitHub App.`,
+        { id: record.id },
+      );
+    if (!app.installationId)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'GIT_APP_NOT_INSTALLED',
+        `The GitHub App of ${record.name} is not installed on any account yet.`,
+        { name: record.name },
+      );
+    const jwt = appJwt(
+      app.appId,
+      openSealed(app.privateKeySealed, APP_KEY_SECRET_PURPOSE, record.id),
+    );
+    const minted = await createGitHubAppApi(
+      record.apiBaseUrl,
+    ).installationToken(
+      jwt,
+      app.installationId,
+      fullName ? [fullName.split('/').pop() ?? fullName] : undefined,
+    );
+    tokenCache.set(key, {
+      token: minted.token,
+      expiresAt: Date.parse(minted.expiresAt),
+    });
+    return minted;
+  }
 
   const tokenOf = (record: ConnectionRecord): string => {
     if (!record.tokenSealed)
@@ -406,9 +649,13 @@ export function createGitService(deps: GitServiceDeps) {
     });
   };
 
-  const clientOf = (record: ConnectionRecord): GitHubClient =>
+  /** A GitHub client of the connection: its token, or for an App an installation token of every repository it reaches. */
+  const clientOf = async (record: ConnectionRecord): Promise<GitHubClient> =>
     createGitHubClient({
-      token: tokenOf(record),
+      token:
+        record.kind === 'app'
+          ? (await installationToken(record, null)).token
+          : tokenOf(record),
       apiBaseUrl: record.apiBaseUrl,
     });
 
@@ -447,14 +694,27 @@ export function createGitService(deps: GitServiceDeps) {
       .selectAll()
       .orderBy('createdAt', 'asc')
       .execute();
+    const apps = new Map<string, AppRecord>();
+    const appRows: Row[] = await conn().query.selectFrom(APPS).selectAll().execute();
+    for (const row of appRows) apps.set(str(row.connectionId), appOf(row));
     return rows
       .map(connectionOf)
-      .map((record) => connectionView(record, counts.get(record.id) ?? 0));
+      .map((record) =>
+        connectionView(
+          record,
+          counts.get(record.id) ?? 0,
+          apps.get(record.id) ?? null,
+        ),
+      );
   }
 
   async function getConnection(id: string): Promise<GitConnectionView> {
     const record = await connectionRecord(id);
-    return connectionView(record, (await usage()).get(id) ?? 0);
+    return connectionView(
+      record,
+      (await usage()).get(id) ?? 0,
+      await appRecord(id),
+    );
   }
 
   async function createConnection(input: {
@@ -511,7 +771,415 @@ export function createGitService(deps: GitServiceDeps) {
         `Git connection ${id} still links repositories.`,
         { id },
       );
-    await conn().query.deleteFrom(CONNECTIONS).where('id', '=', id).execute();
+    await deps.database.transaction(async (tx) => {
+      await tx.query.deleteFrom(APPS).where('connectionId', '=', id).execute();
+      await tx.query.deleteFrom(CONNECTIONS).where('id', '=', id).execute();
+    });
+    forgetTokens(id);
+  }
+
+  // GitHub Apps: made from a manifest, installed on an account, pushing webhooks.
+
+  const apiBaseOf = (apiBaseUrl?: string) =>
+    (apiBaseUrl ?? GITHUB_API_URL).replace(/\/+$/u, '');
+
+  /**
+   * Starts making a GitHub App: keeps a one-time `state` for an hour and answers the manifest the browser posts to
+   * GitHub, its webhook and redirects at Studio's public base. The connection's id is chosen now, as the webhook URL
+   * names it.
+   */
+  async function startAppManifest(input: {
+    readonly name: string;
+    readonly organization?: string | null;
+    readonly apiBaseUrl?: string;
+    readonly createdById: string;
+  }): Promise<GitAppManifestStart & { readonly state: string }> {
+    const base = deps.publicBaseUrl?.() ?? null;
+    if (!base)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'GIT_PUBLIC_URL_MISSING',
+        'Studio has no public origin configured (APP_PUBLIC_ORIGIN), so GitHub could not call it back.',
+      );
+    secretsReady();
+    const apiBaseUrl = apiBaseOf(input.apiBaseUrl);
+    const connectionId = randomUUID();
+    const state = randomBytes(24).toString('hex');
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + MANIFEST_TTL_MS);
+    await conn()
+      .query.deleteFrom(APP_MANIFESTS)
+      .where('expiresAt', '<', now)
+      .execute();
+    await conn()
+      .query.insertInto(APP_MANIFESTS)
+      .values({
+        state,
+        connectionId,
+        name: input.name,
+        organization: input.organization ?? null,
+        apiBaseUrl,
+        createdById: input.createdById,
+        expiresAt,
+        createdAt: now,
+      })
+      .execute();
+    return {
+      connectionId,
+      state,
+      postUrl: manifestPostUrl(
+        webUrlOf(apiBaseUrl),
+        state,
+        input.organization ?? null,
+      ),
+      manifest: appManifest({ name: input.name, baseUrl: base, connectionId }),
+      expiresAt: expiresAt.toISOString(),
+    };
+  }
+
+  /**
+   * Finishes making a GitHub App: the person who started it comes back from GitHub with `code` and `state`. The state
+   * is used once; GitHub trades the code for the App's id, private key and webhook secret, which are sealed.
+   */
+  async function completeAppManifest(input: {
+    readonly code: string;
+    readonly state: string;
+    readonly userId: string;
+  }): Promise<GitConnectionView> {
+    const secrets = secretsReady();
+    const row: Row | undefined = await conn()
+      .query.selectFrom(APP_MANIFESTS)
+      .selectAll()
+      .where('state', '=', input.state)
+      .executeTakeFirst();
+    const expired = (): GitError =>
+      new GitError(
+        'INVALID_ARGUMENT',
+        'GIT_APP_MANIFEST_EXPIRED',
+        'This GitHub App request is unknown, used or expired; start again from Settings → Git.',
+      );
+    if (!row) throw expired();
+    const taken = await conn()
+      .query.deleteFrom(APP_MANIFESTS)
+      .where('state', '=', input.state)
+      .execute();
+    if ((taken.deletedCount ?? 1) === 0) throw expired();
+    const expiresAt = iso(row.expiresAt);
+    if (
+      str(row.createdById) !== input.userId ||
+      !expiresAt ||
+      Date.parse(expiresAt) < Date.now()
+    )
+      throw expired();
+    const connectionId = str(row.connectionId);
+    const apiBaseUrl = str(row.apiBaseUrl) || GITHUB_API_URL;
+    let converted;
+    try {
+      converted = await createGitHubAppApi(apiBaseUrl).convertManifest(
+        input.code,
+      );
+    } catch (error) {
+      throw hostError(error, { name: str(row.name) });
+    }
+    const now = new Date();
+    await deps.database.transaction(async (tx) => {
+      await tx.query
+        .insertInto(CONNECTIONS)
+        .values({
+          id: connectionId,
+          provider: 'github',
+          kind: 'app',
+          name: converted.name || str(row.name),
+          account: converted.ownerLogin,
+          apiBaseUrl,
+          tokenSealed: null,
+          createdById: input.userId,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .execute();
+      await tx.query
+        .insertInto(APPS)
+        .values({
+          connectionId,
+          appId: converted.appId,
+          slug: converted.slug,
+          htmlUrl: converted.htmlUrl,
+          ownerLogin: converted.ownerLogin,
+          privateKeySealed: secrets.seal(converted.privateKey, {
+            purpose: APP_KEY_SECRET_PURPOSE,
+            aad: [connectionId],
+          }),
+          webhookSecretSealed: secrets.seal(converted.webhookSecret, {
+            purpose: APP_WEBHOOK_SECRET_PURPOSE,
+            aad: [connectionId],
+          }),
+          installationId: null,
+          installationAccount: null,
+          installationTargetType: null,
+          permissions: JSON.stringify(converted.permissions),
+          events: JSON.stringify(converted.events),
+          lastDeliveryAt: null,
+          lastEvent: null,
+          lastError: null,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .execute();
+    });
+    return getConnection(connectionId);
+  }
+
+  const writeInstallation = async (
+    connectionId: string,
+    installation: AppInstallation | null,
+  ) => {
+    await conn()
+      .query.updateTable(APPS)
+      .set({
+        installationId: installation?.id ?? null,
+        installationAccount: installation?.account ?? null,
+        installationTargetType: installation?.targetType ?? null,
+        ...(installation
+          ? {
+              permissions: JSON.stringify(installation.permissions),
+              events: JSON.stringify(installation.events),
+            }
+          : {}),
+        updatedAt: new Date(),
+      })
+      .where('connectionId', '=', connectionId)
+      .execute();
+    forgetTokens(connectionId);
+  };
+
+  /**
+   * Records which installation the App connection acts through: `installationId` (GitHub's `installation_id` after a
+   * person installed it), else the App's only installation. Reads its permissions again either way.
+   */
+  async function setInstallation(
+    connectionId: string,
+    installationId?: string,
+  ): Promise<GitConnectionView> {
+    const record = await connectionRecord(connectionId);
+    const app = await appRecord(connectionId);
+    if (record.kind !== 'app' || !app)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'GIT_APP_NOT_FOUND',
+        `Git connection ${connectionId} has no GitHub App.`,
+        { id: connectionId },
+      );
+    const api = createGitHubAppApi(record.apiBaseUrl);
+    const jwt = appJwt(
+      app.appId,
+      openSealed(app.privateKeySealed, APP_KEY_SECRET_PURPOSE, connectionId),
+    );
+    let installation: AppInstallation;
+    try {
+      if (installationId) installation = await api.installation(jwt, installationId);
+      else {
+        const all = await api.installations(jwt);
+        if (all.length === 0)
+          throw new GitError(
+            'FAILED_PRECONDITION',
+            'GIT_APP_NOT_INSTALLED',
+            `The GitHub App of ${record.name} is not installed on any account yet.`,
+            { name: record.name },
+          );
+        if (all.length > 1)
+          throw new GitError(
+            'INVALID_ARGUMENT',
+            'GIT_APP_INSTALLATION_AMBIGUOUS',
+            `The GitHub App of ${record.name} is installed on several accounts; name the installation.`,
+            { name: record.name },
+          );
+        installation = all[0];
+      }
+    } catch (error) {
+      throw hostError(error, { name: record.name });
+    }
+    await writeInstallation(connectionId, installation);
+    await conn()
+      .query.updateTable(CONNECTIONS)
+      .set({ account: installation.account ?? record.account, updatedAt: new Date() })
+      .where('id', '=', connectionId)
+      .execute();
+    return getConnection(connectionId);
+  }
+
+  /** The stored open pull requests of `repositoryId` whose head is `sha`. */
+  const pullNumbersAt = async (
+    repositoryId: string,
+    sha: string,
+  ): Promise<number[]> => {
+    const rows: Row[] = await conn()
+      .query.selectFrom(PULL_REQUESTS)
+      .select(['number'])
+      .where('repositoryId', '=', repositoryId)
+      .where('headSha', '=', sha)
+      .where('state', '=', 'open')
+      .execute();
+    return rows.map((row) => num(row.number));
+  };
+
+  const numbersOf = (value: unknown): number[] =>
+    Array.isArray(value)
+      ? value
+          .map((item) =>
+            typeof item === 'object' && item !== null
+              ? (item as Row).number
+              : undefined,
+          )
+          .filter((number): number is number => typeof number === 'number')
+      : [];
+
+  /** What one delivery asks Studio to read again: the repository and its pull requests by number. */
+  async function dispatchWebhook(
+    record: ConnectionRecord,
+    event: string,
+    payload: Row,
+  ): Promise<string> {
+    const object = (key: string): Row => {
+      const value = payload[key];
+      return typeof value === 'object' && value !== null ? (value as Row) : {};
+    };
+    if (event === 'ping') return 'ping';
+    if (event === 'installation') {
+      const action = str(payload.action);
+      if (action === 'deleted') await writeInstallation(record.id, null);
+      else if (action !== 'suspend')
+        await writeInstallation(record.id, installationOf(payload.installation));
+      return `installation.${action}`;
+    }
+    if (event === 'installation_repositories') {
+      forgetTokens(record.id);
+      return event;
+    }
+    // Tags and other pushes are for releases (S5.5); nothing reads them yet.
+    if (event === 'push') return 'push.ignored';
+    const fullName = str(object('repository').full_name);
+    const repositoryRow: Row | undefined = await conn()
+      .query.selectFrom(REPOSITORIES)
+      .selectAll()
+      .where('connectionId', '=', record.id)
+      .where('fullName', '=', fullName)
+      .executeTakeFirst();
+    if (!repositoryRow) return `${event}.unlinked`;
+    const repository = repositoryOf(repositoryRow);
+    const numbers = new Set<number>();
+    if (event === 'pull_request') {
+      const number = num(object('pull_request').number, num(payload.number));
+      if (number > 0) numbers.add(number);
+    } else if (
+      event === 'check_run' ||
+      event === 'check_suite' ||
+      event === 'workflow_run'
+    ) {
+      const subject = object(event);
+      for (const number of numbersOf(subject.pull_requests)) numbers.add(number);
+      const sha = str(subject.head_sha);
+      if (sha)
+        for (const number of await pullNumbersAt(repository.id, sha))
+          numbers.add(number);
+    } else if (event === 'status') {
+      const sha = str(payload.sha);
+      if (sha)
+        for (const number of await pullNumbersAt(repository.id, sha))
+          numbers.add(number);
+    } else return `${event}.ignored`;
+    if (numbers.size === 0) return `${event}.nothing`;
+    const client = await clientOf(record);
+    for (const number of numbers) await refreshPull(repository, client, number);
+    return `${event}.refreshed`;
+  }
+
+  /**
+   * One webhook delivery of an App connection: refused (401) unless `X-Hub-Signature-256` is the HMAC of the raw body
+   * with the App's webhook secret; a delivery id seen before is answered without being handled again. What it names is
+   * read again from GitHub now; a failure is recorded on the connection (the poll is the net) and still answered 202, as
+   * GitHub would only deliver the same again.
+   */
+  async function handleWebhook(input: {
+    readonly connectionId: string;
+    readonly event: string | null;
+    readonly deliveryId: string | null;
+    readonly signature: string | null;
+    readonly body: Uint8Array;
+  }): Promise<GitWebhookOutcome> {
+    const row: Row | undefined = await conn()
+      .query.selectFrom(CONNECTIONS)
+      .selectAll()
+      .where('id', '=', input.connectionId)
+      .executeTakeFirst();
+    const app = row ? await appRecord(input.connectionId) : null;
+    if (!row || !app) return { status: 401 };
+    const secret = openSealed(
+      app.webhookSecretSealed,
+      APP_WEBHOOK_SECRET_PURPOSE,
+      input.connectionId,
+    );
+    if (!verifySignature(secret, input.body, input.signature))
+      return { status: 401 };
+    if (!input.deliveryId || !input.event) return { status: 400 };
+    const seen: Row | undefined = await conn()
+      .query.selectFrom(WEBHOOK_DELIVERIES)
+      .select(['id'])
+      .where('id', '=', input.deliveryId)
+      .executeTakeFirst();
+    if (seen) return { status: 200, duplicate: true };
+    try {
+      await conn()
+        .query.insertInto(WEBHOOK_DELIVERIES)
+        .values({
+          id: input.deliveryId,
+          connectionId: input.connectionId,
+          event: input.event,
+          receivedAt: new Date(),
+        })
+        .execute();
+    } catch {
+      // Two copies of one delivery at once: the other is handling it.
+      return { status: 200, duplicate: true };
+    }
+    let payload: Row;
+    try {
+      const parsed: unknown = JSON.parse(Buffer.from(input.body).toString('utf8'));
+      payload =
+        typeof parsed === 'object' && parsed !== null ? (parsed as Row) : {};
+    } catch {
+      return { status: 400 };
+    }
+    let handled = input.event;
+    let lastError: string | null = null;
+    try {
+      handled = await dispatchWebhook(connectionOf(row), input.event, payload);
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+      report(
+        `Dương Sinh Studio could not handle the ${input.event} delivery ${input.deliveryId}.`,
+        error,
+      );
+    }
+    await conn()
+      .query.updateTable(APPS)
+      .set({
+        lastDeliveryAt: new Date(),
+        lastEvent: input.event,
+        lastError,
+        updatedAt: new Date(),
+      })
+      .where('connectionId', '=', input.connectionId)
+      .execute();
+    return { status: 202, handled };
+  }
+
+  /** Forgets delivery ids older than a week. */
+  async function pruneDeliveries(now: Date = new Date()): Promise<void> {
+    await conn()
+      .query.deleteFrom(WEBHOOK_DELIVERIES)
+      .where('receivedAt', '<', new Date(now.getTime() - DELIVERY_RETENTION_MS))
+      .execute();
   }
 
   // Repositories.
@@ -628,11 +1296,13 @@ export function createGitService(deps: GitServiceDeps) {
       );
     let hosted;
     try {
-      hosted = await clientOf(connection).repository(input.fullName);
+      hosted = await (await clientOf(connection)).repository(input.fullName);
     } catch (error) {
       throw hostError(error, { repo: input.fullName });
     }
-    if (!hosted.canPush)
+    // An installation token's repository answer carries no `permissions`: what an App may do is its installation's
+    // permissions, which Settings → Git lists as missing ones.
+    if (connection.kind === 'token' && !hosted.canPush)
       throw new GitError(
         'FAILED_PRECONDITION',
         'GIT_REPOSITORY_READ_ONLY',
@@ -1130,7 +1800,9 @@ export function createGitService(deps: GitServiceDeps) {
     const opened = { id: issue.id, by: 'opened' };
     const fullName = repository.fullName;
     try {
-      const client = clientOf(await connectionRecord(repository.connectionId));
+      const client = await clientOf(
+        await connectionRecord(repository.connectionId),
+      );
       const [already] = await client.openPullsFrom(fullName, head);
       if (already)
         return {
@@ -1175,7 +1847,9 @@ export function createGitService(deps: GitServiceDeps) {
     const pull = await pullRecord(id);
     const repository = await repositoryRecord(pull.repositoryId);
     try {
-      const client = clientOf(await connectionRecord(repository.connectionId));
+      const client = await clientOf(
+        await connectionRecord(repository.connectionId),
+      );
       return pullView(
         await refreshPull(repository, client, pull.number),
         repository,
@@ -1193,7 +1867,9 @@ export function createGitService(deps: GitServiceDeps) {
     const repository = await repositoryRecord(id);
     let pollError: string | null = null;
     try {
-      const client = clientOf(await connectionRecord(repository.connectionId));
+      const client = await clientOf(
+        await connectionRecord(repository.connectionId),
+      );
       for (const hosted of await client.pulls(
         repository.fullName,
         'open',
@@ -1225,26 +1901,56 @@ export function createGitService(deps: GitServiceDeps) {
       .execute();
   }
 
-  /** Polls every repository whose `pollSeconds` have passed since it was last polled. */
-  async function syncDue(now: Date = new Date()): Promise<void> {
+  /**
+   * The seconds between two polls of a repository: its own `pollSeconds`, or at least ten minutes while its connection
+   * is an installed App whose webhook delivered within a day, the poll then being only a net for missed deliveries.
+   */
+  async function pollIntervals(
+    now: Date,
+  ): Promise<Map<string, { seconds: number; polledAt: string | null }>> {
+    const pushed = new Set<string>();
+    const appRows: Row[] = await conn()
+      .query.selectFrom(APPS)
+      .select(['connectionId', 'installationId', 'lastDeliveryAt'])
+      .execute();
+    for (const row of appRows) {
+      const delivered = iso(row.lastDeliveryAt);
+      if (
+        strOrNull(row.installationId) &&
+        delivered &&
+        now.getTime() - Date.parse(delivered) < WEBHOOK_FRESH_MS
+      )
+        pushed.add(str(row.connectionId));
+    }
     const rows: Row[] = await conn()
       .query.selectFrom(REPOSITORIES)
-      .select(['id', 'pollSeconds', 'polledAt'])
+      .select(['id', 'connectionId', 'pollSeconds', 'polledAt'])
       .execute();
+    const intervals = new Map<
+      string,
+      { seconds: number; polledAt: string | null }
+    >();
     for (const row of rows) {
-      const polledAt = iso(row.polledAt);
-      if (
-        polledAt &&
-        Date.parse(polledAt) + num(row.pollSeconds, 60) * 1000 > now.getTime()
-      )
+      const own = num(row.pollSeconds, 60);
+      intervals.set(str(row.id), {
+        seconds: pushed.has(str(row.connectionId))
+          ? Math.max(own, WEBHOOK_POLL_SECONDS)
+          : own,
+        polledAt: iso(row.polledAt),
+      });
+    }
+    return intervals;
+  }
+
+  /** Polls every repository whose interval (`pollIntervals`) has passed since it was last polled. */
+  async function syncDue(now: Date = new Date()): Promise<void> {
+    for (const [id, { seconds, polledAt }] of await pollIntervals(now)) {
+      if (polledAt && Date.parse(polledAt) + seconds * 1000 > now.getTime())
         continue;
       try {
-        await syncRepository(str(row.id));
+        await syncRepository(id);
       } catch (error) {
-        report(
-          `Dương Sinh Studio could not poll repository ${str(row.id)}.`,
-          error,
-        );
+        report(`Dương Sinh Studio could not poll repository ${id}.`, error);
       }
     }
   }
@@ -1266,7 +1972,9 @@ export function createGitService(deps: GitServiceDeps) {
     let client: GitHubClient;
     let pull: PullRecord;
     try {
-      client = clientOf(await connectionRecord(repository.connectionId));
+      client = await clientOf(
+        await connectionRecord(repository.connectionId),
+      );
       pull = await refreshPull(repository, client, before.number);
     } catch (error) {
       throw hostError(error, { repo: repository.fullName });
@@ -1349,12 +2057,63 @@ export function createGitService(deps: GitServiceDeps) {
 
   // Runs: the repositories of an issue's project a run checks out, and the token they push with.
 
-  /** The linked repositories of `projectId` among `urls`, each with its connection's token. */
+  /**
+   * Installation tokens for the linked repositories of `projectId` among `urls` that an App connection serves, each
+   * limited to its repository, keyed by the normalized URL. Outside any transaction: it may call GitHub.
+   */
+  async function appCredentialsFor(
+    projectId: string,
+    /** Null: every repository of the project an App serves (a claim's preparation does not know its checkouts yet). */
+    urls: readonly string[] | null,
+    refresh = false,
+  ): Promise<Map<string, { token: string; expiresAt: string }>> {
+    const minted = new Map<string, { token: string; expiresAt: string }>();
+    const rows: Row[] = await conn()
+      .query.selectFrom(PROJECT_REPOSITORIES)
+      .innerJoin(
+        REPOSITORIES,
+        `${REPOSITORIES}.id`,
+        `${PROJECT_REPOSITORIES}.repositoryId`,
+      )
+      .innerJoin(CONNECTIONS, `${CONNECTIONS}.id`, `${REPOSITORIES}.connectionId`)
+      .select([
+        `${REPOSITORIES}.cloneUrl as cloneUrl`,
+        `${REPOSITORIES}.fullName as fullName`,
+        `${REPOSITORIES}.connectionId as connectionId`,
+      ])
+      .where(`${PROJECT_REPOSITORIES}.projectId`, '=', projectId)
+      .where(`${CONNECTIONS}.kind`, '=', 'app')
+      .execute();
+    for (const url of urls ?? rows.map((row) => str(row.cloneUrl))) {
+      const row = rows.find(
+        (candidate) =>
+          normalizeUrl(str(candidate.cloneUrl)) === normalizeUrl(url),
+      );
+      if (!row) continue;
+      const record = await connectionRecord(str(row.connectionId));
+      minted.set(
+        normalizeUrl(url),
+        await installationToken(record, str(row.fullName), refresh),
+      );
+    }
+    return minted;
+  }
+
+  /**
+   * The linked repositories of `projectId` among `urls`, each with what it pushes with: a token connection's own
+   * token, or for an App connection the installation token `prepared` holds for it (from `appCredentialsFor`, minted
+   * before the claim's transaction); a repository of an App connection with none prepared is left out.
+   */
   async function credentialsFor(
     connection: DatabaseConnection,
     projectId: string,
     urls: readonly string[],
-  ): Promise<{ url: string; token: string; fullName: string }[]> {
+    prepared?: ReadonlyMap<string, { token: string; expiresAt: string }>,
+    /** List App repositories without a prepared token too (their token empty): a runner asks for it on demand. */
+    listUnprepared = false,
+  ): Promise<
+    { url: string; token: string; fullName: string; expiresAt?: string }[]
+  > {
     const rows: Row[] = await connection.query
       .selectFrom(PROJECT_REPOSITORIES)
       .innerJoin(
@@ -1369,7 +2128,12 @@ export function createGitService(deps: GitServiceDeps) {
       ])
       .where(`${PROJECT_REPOSITORIES}.projectId`, '=', projectId)
       .execute();
-    const found: { url: string; token: string; fullName: string }[] = [];
+    const found: {
+      url: string;
+      token: string;
+      fullName: string;
+      expiresAt?: string;
+    }[] = [];
     for (const url of urls) {
       const row = rows.find(
         (candidate) =>
@@ -1382,10 +2146,24 @@ export function createGitService(deps: GitServiceDeps) {
         .where('id', '=', str(row.connectionId))
         .executeTakeFirst();
       if (!record) continue;
+      const connectionRow = connectionOf(record);
+      if (connectionRow.kind === 'app') {
+        const token = prepared?.get(normalizeUrl(url));
+        if (token)
+          found.push({
+            url,
+            fullName: str(row.fullName),
+            token: token.token,
+            expiresAt: token.expiresAt,
+          });
+        else if (listUnprepared)
+          found.push({ url, fullName: str(row.fullName), token: '' });
+        continue;
+      }
       found.push({
         url,
         fullName: str(row.fullName),
-        token: tokenOf(connectionOf(record)),
+        token: tokenOf(connectionRow),
       });
     }
     return found;
@@ -1407,9 +2185,16 @@ export function createGitService(deps: GitServiceDeps) {
     refreshPullRequest,
     syncRepository,
     syncDue,
+    pollIntervals,
     mergePullRequest,
     openPullRequest,
     credentialsFor,
+    appCredentialsFor,
+    startAppManifest,
+    completeAppManifest,
+    setInstallation,
+    handleWebhook,
+    pruneDeliveries,
     credentialTtlMs: CREDENTIAL_TTL_MS,
   };
 }

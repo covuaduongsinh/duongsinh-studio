@@ -101,6 +101,47 @@ function apiError(
   );
 }
 
+function appConnection(
+  options: { installed?: boolean; missing?: string[] } = {},
+) {
+  return {
+    id: 'app1',
+    provider: 'github',
+    kind: 'app',
+    name: 'Duong Sinh Studio',
+    account: 'covuaduongsinh',
+    webUrl: 'https://github.com',
+    apiBaseUrl: 'https://api.github.com',
+    hasToken: options.installed === true,
+    webhooks: options.installed === true,
+    personalMethods: [],
+    allowPersonalTokens: false,
+    problems: options.installed ? [] : ['appNotInstalled'],
+    usedBy: 0,
+    app: {
+      appId: '99',
+      slug: 'duong-sinh-studio',
+      htmlUrl: 'https://github.com/apps/duong-sinh-studio',
+      ownerLogin: 'covuaduongsinh',
+      installUrl:
+        'https://github.com/apps/duong-sinh-studio/installations/new',
+      installationId: options.installed ? '7' : null,
+      installationAccount: options.installed ? 'covuaduongsinh' : null,
+      permissionsUrl: options.installed
+        ? 'https://github.com/settings/installations/7'
+        : null,
+      missingPermissions: options.missing ?? [],
+      webhookUrl:
+        'https://studio.example.test/main/api/webhooks/github/connections/app1',
+      lastDeliveryAt: options.installed ? AT : null,
+      lastEvent: options.installed ? 'pull_request' : null,
+      lastError: null,
+    },
+    createdAt: AT,
+    updatedAt: AT,
+  };
+}
+
 let pulls: unknown[];
 let mergeAnswer: (call: ApiCall) => unknown;
 let connections: unknown[];
@@ -137,11 +178,32 @@ const api = vi.fn((call: ApiCall): unknown => {
     return Response.json({ data: created }, { status: 201 });
   }
   if (method === 'GET' && path === 'git/repositories') return { data: [] };
+  if (method === 'POST' && path === 'git/connections/startAppManifest')
+    return Response.json(
+      {
+        data: {
+          connectionId: 'app1',
+          postUrl: 'https://github.com/settings/apps/new?state=s1',
+          manifest: { name: 'Duong Sinh Studio', public: false },
+          expiresAt: AT,
+        },
+      },
+      { status: 201 },
+    );
+  if (method === 'POST' && path === 'git/connections/appManifest/complete') {
+    connections = [appConnection()];
+    return Response.json({ data: appConnection() }, { status: 201 });
+  }
+  if (method === 'POST' && path === 'git/connections/app1/installation') {
+    connections = [appConnection({ installed: true })];
+    return { data: appConnection({ installed: true }) };
+  }
   return new Response(null, { status: 404 });
 });
 
-async function render(ui: ReactElement) {
+async function render(ui: ReactElement, route?: string) {
   return renderWithApp(<AuthenticationProvider>{ui}</AuthenticationProvider>, {
+    ...(route ? { route } : {}),
     namespace: packageMetadata.name,
     namespaces: { [packageMetadata.name]: enUS },
     plugins: [projects({ routes: false, realtime: false })],
@@ -348,5 +410,90 @@ describe('git settings page', () => {
       screen.getByText(words.settings.connections.tokenRequired),
     ).toBeInTheDocument();
     expect(calls('POST', 'git/connections')).toHaveLength(0);
+  });
+
+  it('creates a GitHub App by posting the manifest Studio answers to GitHub', async () => {
+    const submit = vi
+      .spyOn(HTMLFormElement.prototype, 'submit')
+      .mockImplementation(() => {});
+    await render(<GitSettingsPage />);
+    await screen.findByText(words.settings.app.empty);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: words.settings.app.create }),
+    );
+
+    await waitFor(() => expect(submit).toHaveBeenCalledTimes(1));
+    expect(calls('POST', 'git/connections/startAppManifest')[0]?.json).toEqual(
+      {},
+    );
+    const form = submit.mock.contexts[0] as HTMLFormElement;
+    expect(form.method).toBe('post');
+    expect(form.action).toBe('https://github.com/settings/apps/new?state=s1');
+    const field = form.querySelector('input[name="manifest"]');
+    expect(JSON.parse((field as HTMLInputElement).value)).toEqual({
+      name: 'Duong Sinh Studio',
+      public: false,
+    });
+    submit.mockRestore();
+    form.remove();
+  });
+
+  it('finishes the App GitHub sends back, once, and offers to install it', async () => {
+    await render(<GitSettingsPage />, '/?code=c0de&state=s1');
+
+    await waitFor(() =>
+      expect(
+        calls('POST', 'git/connections/appManifest/complete')[0]?.json,
+      ).toEqual({ code: 'c0de', state: 's1' }),
+    );
+    expect(
+      await screen.findByText(words.settings.app.notInstalled),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: words.settings.app.install }),
+    ).toHaveAttribute(
+      'href',
+      'https://github.com/apps/duong-sinh-studio/installations/new',
+    );
+    expect(calls('POST', 'git/connections/appManifest/complete')).toHaveLength(
+      1,
+    );
+  });
+
+  it('records the installation GitHub returns with, and shows the webhook', async () => {
+    connections = [appConnection()];
+    await render(
+      <GitSettingsPage />,
+      '/?githubApp=app1&installation_id=7&setup_action=install',
+    );
+
+    await waitFor(() =>
+      expect(
+        calls('POST', 'git/connections/app1/installation')[0]?.json,
+      ).toEqual({ installationId: '7' }),
+    );
+    expect(
+      await screen.findByText(
+        words.settings.app.installedOn.replace(
+          '{{account}}',
+          'covuaduongsinh',
+        ),
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: words.settings.app.permissions }),
+    ).toHaveAttribute('href', 'https://github.com/settings/installations/7');
+  });
+
+  it('warns about permissions the installation lacks', async () => {
+    connections = [
+      appConnection({ installed: true, missing: ['checks:write'] }),
+    ];
+    await render(<GitSettingsPage />);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'checks:write',
+    );
   });
 });
