@@ -1,0 +1,50 @@
+# Cấu hình chạy của Dương Sinh Studio trên VPS (/srv/duongsinh-studio/config.yml, gắn chỉ đọc vào /app/config.yml).
+# KHÔNG có bí mật ở đây: SECRETS_KEYS, DB_PASSWORD, INITIAL_ADMIN_* đến từ biến môi trường (tab Environment của Dokploy),
+# và biến môi trường đè lên file này (xem `dist/variables.json`).
+
+client:
+  app:
+    title: Dương Sinh Studio
+
+users:
+  initialAdmin:
+    username: admin
+
+auth:
+  emailAndPassword:
+    enabled: true
+    autoSignIn: false
+  session:
+    storeSessionInDatabase: true
+
+notification:
+  channels:
+    inbox:
+      type: in-app
+
+database:
+  default: main
+  connections:
+    main:
+      dialect: postgres
+      host: db
+      port: 5432
+      database: studio
+      username: studio
+      debug: false
+      schemaManagement: managed
+      migrations:
+        autoRun: true
+      seeds:
+        autoRun: true
+
+snowflake:
+  workerId: 0
+  epoch: 1605024000
+
+# Một tiến trình duy nhất: giữ jobs/queue trên bộ nhớ, không cảnh báo khi khởi động.
+jobs:
+  default: memory
+
+queue:
+  default: memory

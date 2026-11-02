@@ -1,0 +1,89 @@
+# Dương Sinh Studio trên Dokploy (nguồn "raw", project `duongsinh-studio`). Xem docs/trien-khai-vps.md.
+#
+# Không build gì trên VPS: bản phát hành `dist/` được build trên máy dev (`pnpm build --target linux-x64`), đóng gói
+# thành `studio-<sha>.tar.gz`, giải nén vào /srv/duongsinh-studio/releases/<sha>/ trên VPS và chạy bằng image Node chính
+# thức. Đổi phiên bản = đổi STUDIO_RELEASE rồi Deploy lại. Bí mật chỉ nằm trong tab Environment của Dokploy.
+# VPS dùng chung với production NocoBase 2 nên mọi service đều có giới hạn RAM/CPU.
+
+services:
+  app:
+    image: node:24.15.0-bookworm-slim
+    restart: unless-stopped
+    init: true
+    user: '1000:1000'
+    working_dir: /app
+    command: ['node', 'dist/server/standalone.js']
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      TZ: Asia/Ho_Chi_Minh
+      APP_BASE_PATH: /main
+      APP_SERVER_HOST: 0.0.0.0
+      APP_SERVER_PORT: 13000
+      APP_CONFIG_FILE: /app/config.yml
+      APP_PUBLIC_ORIGIN: ${APP_PUBLIC_ORIGIN:-https://studio.dsc.edu.vn}
+      DB_DIALECT: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-studio}
+      DB_USERNAME: ${DB_USERNAME:-studio}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      SECRETS_KEYS: ${SECRETS_KEYS:?SECRETS_KEYS is required}
+      INITIAL_ADMIN_USERNAME: ${INITIAL_ADMIN_USERNAME:-admin}
+      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:?INITIAL_ADMIN_EMAIL is required}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:?INITIAL_ADMIN_PASSWORD is required}
+      NODE_OPTIONS: --max-old-space-size=1024
+    volumes:
+      - /srv/duongsinh-studio/releases/${STUDIO_RELEASE:?STUDIO_RELEASE is required}/dist:/app/dist:ro
+      - /srv/duongsinh-studio/config.yml:/app/config.yml:ro
+      - /srv/duongsinh-studio/storage:/app/storage
+    expose:
+      - '13000'
+    mem_limit: 1536m
+    cpus: 1.5
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:13000/main/api/healthz',{signal:AbortSignal.timeout(3000)}).then(async r=>process.exit(r.ok&&(await r.json()).ok===true?0:1)).catch(()=>process.exit(1))"
+      interval: 60s
+      timeout: 5s
+      start_period: 120s
+      retries: 3
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    command:
+      - postgres
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - max_connections=30
+      - -c
+      - work_mem=4MB
+      - -c
+      - maintenance_work_mem=32MB
+      - -c
+      - effective_cache_size=192MB
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      POSTGRES_DB: ${DB_DATABASE:-studio}
+      POSTGRES_USER: ${DB_USERNAME:-studio}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+    volumes:
+      - studio-pg:/var/lib/postgresql/data
+    mem_limit: 384m
+    cpus: 0.5
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME:-studio} -d ${DB_DATABASE:-studio}']
+      interval: 60s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+volumes:
+  studio-pg:
