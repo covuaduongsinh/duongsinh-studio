@@ -111,18 +111,17 @@ Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng n�
 
 ## Runner
 
-Không có runner trên VPS (S5.3 hoãn vì VPS thiếu RAM). Runner cá nhân trên máy dev đăng ký vào server này bằng token
-lấy ở trang **Runtimes → Add runtime** của `https://studio.dsc.edu.vn/main/`:
+**Runner dùng chung trên VPS (S5.3, 03/11/2026):** `vps-studio-runner` (trust `team`, 1 lượt mỗi lần) chạy dưới user hệ
+thống `studio-runner` (không sudo, không nhóm `docker`, mật khẩu khoá; `loginctl enable-linger`). Giới hạn cả user bằng
+`systemctl set-property user-1002.slice MemoryMax=2G MemorySwapMax=1G CPUQuota=150%`. Claude Code + Codex cài bằng
+`npm -g` với prefix `~/.local` của user đó; chủ dự án tự đăng nhập (`ssh root@…` → `su - studio-runner` → `claude`,
+`codex login --device-auth`). Connector claude.ai bị tắt cho user này (`~/.claude/settings.json` →
+`env.ENABLE_CLAUDEAI_MCP_SERVERS=false`). Dịch vụ: `systemctl --user` `nocobase-runner.service` (khi `su -` phải đặt
+`XDG_RUNTIME_DIR=/run/user/1002 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1002/bus`). Sau khi đăng nhập công cụ phải
+`systemctl --user restart nocobase-runner` thì runner mới báo `ready`. Không để khoá/token nào khác trong user này.
 
-```bash
-nocobase-runner register --server https://studio.dsc.edu.vn/main --token <token> --name may-dev-duongsinh-prod
-```
-
-Runner chỉ giữ **một** đăng ký cho mỗi ứng dụng cùng tên: đăng ký vào production phải thêm `--force`, thay luôn
-đăng ký với bản dev (02/11/2026 đã làm vậy: `may-dev-duongsinh-prod`). Sau khi đăng ký phải `nocobase-runner stop` rồi
-`nocobase-runner start` thì tiến trình đang chạy mới đổi sang server mới. Muốn dùng lại bản dev thì đăng ký lại vào
-`http://127.0.0.1:13100/main` cũng bằng `--force`. Sau khi runner online mới tạo agent (Agents → Add agent, hoặc
-`ds-studio agent create`) và đặt lead agent (`ds-studio studio project-manager update --first-choice-agent-id …`).
+**Runner cá nhân trên máy dev** (`may-dev-duongsinh-prod`, ownerOnly): chỉ giữ **một** đăng ký cho mỗi ứng dụng cùng tên;
+đăng ký sang server khác phải `--force` rồi `nocobase-runner stop` / `start`. Hiện đang dừng (VPS lo việc).
 
 ## Tài nguyên đo được
 
