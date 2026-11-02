@@ -230,6 +230,43 @@ Studio đóng. Studio Dương Sinh tự viết, **chỉ đọc**:
 - Khác demo: chưa đọc nhánh của issue (chỉ nhánh mặc định), nên memory mới trong PR chỉ hiện sau khi merge; ứng dụng chưa
   có locale vi-VN nên chữ trên trang là en-US/zh-CN.
 
+## 16. S4 phần 2 — Knowledge (02/11/2026)
+
+Plugin `@nocobase/app-plugin-knowledge` 0.1.0-beta.16 cung cấp kho, tìm kiếm, đề xuất, snapshot và giao diện
+(`KnowledgeView`); nó **không có không gian nào** cho tới khi ứng dụng bind `knowledgeAccessToken`. Thượng nguồn chỉ có
+mẫu trong `app-template-examples` (một không gian, `inherits: []`, quyền thuần theo action); phần của Studio thật nằm trong
+lớp đóng. Studio Dương Sinh tự viết:
+
+- **Không gian** (`server/knowledge/access.ts`): `system` (khoá rỗng, tên "Dương Sinh") và `project` (khoá = id project,
+  chỉ tồn tại khi project còn), project kế thừa `system`. Không gian khác (kể cả `default` của plugin) → 400.
+- **Quyền** từ permission set (`kb.knowledge/read|propose|edit|manage`, mức `related`/`all`): `all` mọi không gian;
+  `related` = đọc/đề xuất ở `system` cho mọi người, đọc/đề xuất ở project mình **thấy**, sửa/quản lý ở project mình
+  **quản lý** (`accessTo().manage`). **Sửa `system` cần mức `all`** (chỉ admin/owner) — tài liệu plugin nói "ứng dụng
+  liên hệ không gian hệ thống với mọi người" nhưng không nói mức sửa; Studio chọn hẹp hơn cho an toàn. Owner (root) có
+  mọi quyền. Seed `202611040001_ds_roles_knowledge` thêm trang `knowledge` + Admin `*.all`, Contributor `*.related`.
+- **Agent** (actor `agent`): lấy mức thấp hơn giữa người mà run hành động thay và cấu hình của agent
+  (`kb.knowledge/read`, `kb.knowledge/propose`), không bao giờ quá `propose` (plugin cũng chặn). `kb.knowledge/read` nay
+  là quyền mặc định của agent (`applyDefaults` ghi vào agent có sẵn khi khởi động). Actor kiểu khác (vd. `online-agent`
+  của plugin) không đọc được gì — Studio chưa dùng online agent.
+- **CLI**: lệnh `kb search` / `kb read` của plugin chỉ cho người (không nhận run token). Studio thêm `/api/kb/search`,
+  `/api/kb/docs/{doc}`, `/api/kb/tree` (người hoặc run, đúng hợp đồng demo `kb:search|read|tree`) và gỡ hai operation
+  `knowledgeSearchDocs`, `knowledgeGetDoc` của plugin khỏi manifest (`cliToken.exclude`, vẫn còn trong API cho giao diện).
+  `kb read` nhận id (mọi không gian đọc được) hoặc slug (không gian `system`, hoặc `--scope/--owner`).
+- **Thư mục cho trang** `/knowledge`: `/api/knowledgeDirectory` (+ `/search`) chỉ liệt kê `system` và project người xem
+  thấy, rồi plugin tự lọc theo quyền từng tài liệu. Route của plugin tắt (`knowledge({ routes: false })`), trang nằm ở
+  `client/pages/knowledge`. Chưa làm tab Knowledge trong trang project (trang tổng đã có không gian từng project).
+- **Run**: mount `knowledge` (snapshot các không gian run đọc được, `INDEX.md` trước, đặt ở `knowledge/` cạnh các repo
+  trong thư mục làm việc, không nằm trong repo) và mục brief "Tri thức (knowledge)" liệt kê tài liệu (tối đa 40 dòng) kèm
+  cách trích dẫn. Quyền đọc được quyết trong `prepare` (ngoài transaction của claim). Runner không có tính năng `mounts`
+  thì chỉ có mục brief + lệnh `kb search`.
+- **Chưa có / khác demo**: agent chưa đề xuất sửa tri thức qua CLI (route đề xuất của plugin chỉ cho người; demo có
+  `kb offers`), nên brief bảo agent ghi vào comment; chưa đăng ký subject provider (`user`, `role`) nên quyền theo từng
+  thư mục/tài liệu chưa cấp được cho ai; **tìm kiếm ngữ nghĩa tắt** — chỉ tìm theo từ khoá. Bật sqlite-vec/pgvector cần
+  một embedding model (tốn tiền hoặc chạy model cục bộ): chờ chủ dự án quyết.
+- Nạp nội dung: `scripts/kb-import.mjs` (thư mục Markdown → không gian, giữ cây thư mục, chạy lại chỉ cập nhật file đổi,
+  `--dry-run`; xác thực bằng `DS_STUDIO_COOKIE_FILE` hoặc `DS_STUDIO_API_KEY`, không in ra). Rà bí mật/dữ liệu cá nhân
+  trước khi nạp: tri thức được mọi người và agent của không gian đọc.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

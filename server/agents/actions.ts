@@ -171,7 +171,7 @@ export const STUDIO_ACTIONS: readonly StudioAction[] = [
   rel('read-logs'),
   rel('deploy'),
   rel('deploy-protected', { peopleOnly: true }),
-  kb('kb.knowledge/read'),
+  kb('kb.knowledge/read', { defaultOn: true }),
   kb('kb.knowledge/propose'),
   agentsEdit(),
 ];

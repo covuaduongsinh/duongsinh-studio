@@ -19,6 +19,7 @@ const zhCN: AppResource = {
     usage: '用量',
     models: '模型',
     git: 'Git',
+    knowledge: '知识库',
     projectMemory: '项目记忆',
   },
   issueCard: {
@@ -503,9 +504,15 @@ const zhCN: AppResource = {
       loadFailed: '无法加载仓库。',
     },
   },
+  knowledge: {
+    title: '知识库',
+    shared: '公共',
+    inheritedHint: '所有项目共享',
+  },
   projectMemory: {
     title: '项目记忆',
-    description: '智能体为每个项目记住的内容：负责人的反馈、项目决定和参考资料，写在仓库的 .nb-studio/memory/ 中，通过拉取请求修改。',
+    description:
+      '智能体为每个项目记住的内容：负责人的反馈、项目决定和参考资料，写在仓库的 .nb-studio/memory/ 中，通过拉取请求修改。',
     project: '项目',
     repository: '仓库',
     from: '来自 {{ref}}',
@@ -514,14 +521,21 @@ const zhCN: AppResource = {
     viewFile: '在 Git 仓库中查看文件',
     typesLabel: '记忆类型',
     tabs: { all: '全部', feedback: '反馈', project: '项目', reference: '参考' },
-    types: { feedback: '反馈', project: '项目', reference: '参考', unknown: '无类型' },
+    types: {
+      feedback: '反馈',
+      project: '项目',
+      reference: '参考',
+      unknown: '无类型',
+    },
     search: '搜索记忆',
-    empty: '该仓库还没有记忆。智能体会在拉取请求中把记忆添加到 .nb-studio/memory/。',
+    empty:
+      '该仓库还没有记忆。智能体会在拉取请求中把记忆添加到 .nb-studio/memory/。',
     noMatch: '没有匹配的记忆。',
     oversize: '超过 4 KB',
     overLimit: '共有 {{total}} 条记忆，只读取前 {{limit}} 条。',
     noRepositories: '还没有项目关联仓库',
-    noRepositoriesHint: '在项目页面为项目添加已关联的仓库后，其记忆会显示在这里。',
+    noRepositoriesHint:
+      '在项目页面为项目添加已关联的仓库后，其记忆会显示在这里。',
     loadFailed: '无法加载项目记忆。',
     fileFailed: '无法加载该记忆。',
     unavailable: {

@@ -24,6 +24,7 @@ const enUS = {
     usage: 'Usage',
     models: 'Models',
     git: 'Git',
+    knowledge: 'Knowledge',
     projectMemory: 'Project memory',
   },
   // The words of the UI Library's issue card (`#components/issue-card`), which looks them up under this group.
@@ -525,6 +526,11 @@ const enUS = {
       loadFailed: 'The repositories could not be loaded.',
     },
   },
+  knowledge: {
+    title: 'Knowledge',
+    shared: 'Shared',
+    inheritedHint: 'Shared with every project',
+  },
   projectMemory: {
     title: 'Project memory',
     description:
@@ -536,22 +542,39 @@ const enUS = {
     viewRepository: 'View in the Git repository',
     viewFile: 'View the file in the Git repository',
     typesLabel: 'Memory types',
-    tabs: { all: 'All', feedback: 'Feedback', project: 'Project', reference: 'Reference' },
-    types: { feedback: 'Feedback', project: 'Project', reference: 'Reference', unknown: 'No type' },
+    tabs: {
+      all: 'All',
+      feedback: 'Feedback',
+      project: 'Project',
+      reference: 'Reference',
+    },
+    types: {
+      feedback: 'Feedback',
+      project: 'Project',
+      reference: 'Reference',
+      unknown: 'No type',
+    },
     search: 'Search memories',
-    empty: 'This repository keeps no memory yet. Agents add memories to .nb-studio/memory/ in their pull requests.',
+    empty:
+      'This repository keeps no memory yet. Agents add memories to .nb-studio/memory/ in their pull requests.',
     noMatch: 'No memory matches.',
     oversize: 'Over 4 KB',
-    overLimit: '{{total}} memories are kept; only the first {{limit}} are read.',
+    overLimit:
+      '{{total}} memories are kept; only the first {{limit}} are read.',
     noRepositories: 'No project has a repository yet',
-    noRepositoriesHint: 'Attach a linked repository to a project on its page; its memory shows here.',
+    noRepositoriesHint:
+      'Attach a linked repository to a project on its page; its memory shows here.',
     loadFailed: 'The project memory could not be loaded.',
     fileFailed: 'The memory could not be loaded.',
     unavailable: {
-      noToken: 'The repository’s Git connection has no usable token, so its memory cannot be read now.',
-      tokenRejected: 'GitHub rejected the connection’s token, so the memory cannot be read now.',
-      unreachable: 'The connection’s token cannot read this repository (it needs Contents: Read).',
-      hostUnavailable: 'GitHub cannot be reached now; what was read before is shown.',
+      noToken:
+        'The repository’s Git connection has no usable token, so its memory cannot be read now.',
+      tokenRejected:
+        'GitHub rejected the connection’s token, so the memory cannot be read now.',
+      unreachable:
+        'The connection’s token cannot read this repository (it needs Contents: Read).',
+      hostUnavailable:
+        'GitHub cannot be reached now; what was read before is shown.',
     },
   },
 };

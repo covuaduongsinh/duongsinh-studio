@@ -9,6 +9,7 @@ import {
   GitBranch,
   Hash,
   Home,
+  Library,
   ListTodo,
   Server,
   Tags,
@@ -156,6 +157,16 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     authz: pmPage('pm-projects'),
     navigation: { title: 'navigation.projectMemory', icon: BrainIcon },
     componentLoader: () => import('./pages/project-memory/index.js'),
+  },
+  {
+    // The knowledge plugin's view over the spaces the viewer reads: the shared space and their projects' spaces. The
+    // plugin's own route is off (`knowledge({ routes: false })`): it shows one space and knows no projects.
+    name: 'knowledge',
+    path: '/knowledge',
+    auth: 'required',
+    authz: pmPage('knowledge'),
+    navigation: { title: 'navigation.knowledge', icon: Library },
+    componentLoader: () => import('./pages/knowledge/index.js'),
   },
 ]);
 

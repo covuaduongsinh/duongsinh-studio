@@ -44,7 +44,8 @@ const clientPlugins: AppClientPlugins = defineClientPlugins([
   agents(),
   // The page tells people to connect a computer with this application's own CLI (`nocobase.cli.bin` in package.json).
   agentSessions({ cli: 'ds-studio' }),
-  knowledge(),
+  // Studio routes `/knowledge` itself (`client/routes.ts`) over every space the viewer reads.
+  knowledge({ routes: false }),
   releases(),
   // The application routes the plugin's pages itself (`client/routes.ts`): its `/projects` gains the application's
   // project page as a child, and `/issues` hosts the plugin's New issue dialog and plan page.

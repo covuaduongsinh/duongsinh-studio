@@ -67,10 +67,17 @@ describe('app client routes', () => {
         'issue-detail',
         'pm-subtask-new',
       ].map((name) => ({ name, authorizedAs: 'pm-issues' })),
-      ...['pm-projects', 'pm-project-new', 'project-detail', 'project-memory'].map((name) => ({
+      ...[
+        'pm-projects',
+        'pm-project-new',
+        'project-detail',
+        'project-memory',
+      ].map((name) => ({
         name,
         authorizedAs: 'pm-projects',
       })),
+      // Stage S4: the knowledge page, behind the knowledge plugin's own page grant.
+      { name: 'knowledge', authorizedAs: 'knowledge' },
       // The agents plugin's pages (stage S2) check its own page grants; Models stands behind `agents.services`.
       { name: 'agents', authorizedAs: 'agents' },
       { name: 'runtimes', authorizedAs: 'runtimes' },
@@ -114,6 +121,7 @@ describe('app client routes', () => {
         '/projects/new',
         '/projects/:projectId',
         '/project-memory',
+        '/knowledge',
       ]),
     );
   });

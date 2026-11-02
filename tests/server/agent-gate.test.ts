@@ -84,6 +84,8 @@ test('the gate gives people their own actions and runs their agent’s within th
       'pm.projects/view',
       // S3: executing agents open their issue's pull request through Studio.
       'studio.git/open-pr',
+      // S4: agents read the knowledge the person they act for may read.
+      'kb.knowledge/read',
     ].sort(),
   );
   expect((await agents.agents.get(PROJECT_MANAGER_ID)).actions).toEqual(
