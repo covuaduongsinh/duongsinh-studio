@@ -45,6 +45,23 @@ pnpm dev            # http://127.0.0.1:13100/main/ (cổng đặt trong .env: AP
   `POST /api/agents/runnerAgents` kèm mô tả "giỏi việc gì" tiếng Việt. Chưa bật Codex, nên review chéo khác nhà cung cấp
   chưa có.
 
+## Sessions trên máy của mình (tuỳ chọn, S4)
+
+Trang **My agents** (`/agent-sessions`) chạy coding agent (Claude Code, Codex…) **trên máy của chính người dùng** qua
+Agent Client Protocol. Chưa cài trên máy nào; khi chủ dự án muốn dùng, tự chạy trên máy đó (cần `ds-studio` đã đăng nhập):
+
+```bash
+ds-studio login --server http://127.0.0.1:13100/main   # đăng nhập thiết bị, duyệt trong trình duyệt
+ds-studio acp start                                     # nối máy, chạy trong terminal này
+# hoặc giữ kết nối nền từ mỗi lần đăng nhập (Windows: script trong Startup, Linux: systemd user unit):
+ds-studio acp service install
+ds-studio acp service status
+ds-studio acp service uninstall                         # gỡ
+```
+
+Agent của session chạy với quyền của chính người đó trên máy, chỉ trong các thư mục cho phép ở hộp thoại "My computers".
+Khác với **Ask agent** (nút trên trang issue/project và panel chat ⌘J): Ask agent chạy trên **runner** như mọi run khác.
+
 ## Bẫy đã gặp
 
 0. **`vite build` hết heap (SIGABRT).** Sau S2, bundle client vượt trần heap mặc định ~2 GB của Node (`FATAL ERROR:

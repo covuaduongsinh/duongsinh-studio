@@ -1,4 +1,6 @@
 import fileUi from '../extensions/nocobase-file-component-ui/locales/en-US.js';
+import agentChat from '../extensions/nocobase-agent-chat/locales/en-US.js';
+import planCard from '../extensions/nocobase-plan-card/locales/en-US.js';
 import type { LocaleResource } from '@nocobase/i18n';
 
 import systemEnUS from './system/en-US.js';
@@ -8,6 +10,8 @@ const enUS = {
   // `./system/` so a template upgrade can replace it without touching the application's copy below.
   ...systemEnUS,
   ...fileUi,
+  ...agentChat,
+  ...planCard,
   // The application's copy goes here, one group per feature. A shared group such as `navigation` is extended by
   // spreading the system one first, `navigation: { ...systemEnUS.navigation, orders: 'Orders' }`, since a group
   // written here replaces the system group of the same name rather than merging with it.
@@ -26,6 +30,7 @@ const enUS = {
     git: 'Git',
     knowledge: 'Knowledge',
     projectMemory: 'Project memory',
+    chat: 'Conversation',
   },
   // The words of the UI Library's issue card (`#components/issue-card`), which looks them up under this group.
   issueCard: {
@@ -575,6 +580,21 @@ const enUS = {
         'The connection’s token cannot read this repository (it needs Contents: Read).',
       hostUnavailable:
         'GitHub cannot be reached now; what was read before is shown.',
+    },
+  },
+  // Conversations with agents (S4): the Ask agent drafts of the issue and project pages, and the news a conversation
+  // hears when its plan is decided.
+  studioChat: {
+    askIssue: 'Ask agent',
+    askIssueDraft: 'Where does {{issue}} stand, and what is next?',
+    askProject: 'Ask agent',
+    askProjectDraft: 'Summarize where this project stands.',
+    planDecided: {
+      executed: 'Plan "{{title}}" was executed.',
+      failed: 'Plan "{{title}}" failed.',
+      stale: 'Plan "{{title}}" went stale.',
+      voided: 'Plan "{{title}}" was voided.',
+      undone: 'Plan "{{title}}" was undone.',
     },
   },
 };

@@ -26,6 +26,11 @@ vi.mock('../../client/layouts/components/app-sidebar.js', async (original) => ({
   >()),
   AppSidebar: () => null,
 }));
+// The harness mounts no authentication provider; the agents' chat around the shell needs the signed-in person.
+vi.mock('../../client/components/studio-chat.js', () => ({
+  StudioChatProvider: ({ children }: { readonly children: ReactElement }) =>
+    children,
+}));
 beforeEach(() =>
   vi.stubGlobal('matchMedia', () => ({
     matches: false,

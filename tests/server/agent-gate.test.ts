@@ -86,6 +86,8 @@ test('the gate gives people their own actions and runs their agent’s within th
       'studio.git/open-pr',
       // S4: agents read the knowledge the person they act for may read.
       'kb.knowledge/read',
+      // S4: agents in a person's conversation propose operation plans the person decides.
+      'pm.plans/use',
     ].sort(),
   );
   expect((await agents.agents.get(PROJECT_MANAGER_ID)).actions).toEqual(

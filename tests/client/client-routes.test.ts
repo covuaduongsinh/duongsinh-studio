@@ -78,6 +78,11 @@ describe('app client routes', () => {
       })),
       // Stage S4: the knowledge page, behind the knowledge plugin's own page grant.
       { name: 'knowledge', authorizedAs: 'knowledge' },
+      // Stage S4: a conversation with an agent as a page, and the links that open the chat panel. The agents plugin
+      // answers each person's own conversations only, so they opt out of page authorization like the inbox.
+      { name: 'chat-conversation', authorizedAs: null },
+      { name: 'chat-link', authorizedAs: null },
+      { name: 'chat-link-conversation', authorizedAs: null },
       // The agents plugin's pages (stage S2) check its own page grants; Models stands behind `agents.services`.
       { name: 'agents', authorizedAs: 'agents' },
       { name: 'runtimes', authorizedAs: 'runtimes' },

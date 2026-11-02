@@ -63,6 +63,19 @@ const zhCN: AppServerResource = {
       },
     },
   },
+  studioChat: {
+    sources: {
+      askAgent: '询问智能体',
+    },
+    actions: {
+      groupTitle: '计划',
+      plansUse: {
+        title: '提出计划',
+        description:
+          '提出操作计划（新建任务、评论、依赖），由本人在对话中审阅并执行。可查看任务的人都拥有此权限。',
+      },
+    },
+  },
 };
 
 export default zhCN;

@@ -14,6 +14,7 @@ import {
   Server,
   Tags,
 } from 'lucide-react';
+import { chatLinkRoutes } from '@nocobase/app-plugin-agents/client/chat';
 import {
   agentsRoute,
   modelsRoute,
@@ -168,6 +169,19 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     navigation: { title: 'navigation.knowledge', icon: Library },
     componentLoader: () => import('./pages/knowledge/index.js'),
   },
+  {
+    // One conversation with an agent as a page (the chat panel's "Open full page"). The agents plugin answers each
+    // person's own conversations only, so the page needs no authorization of its own.
+    name: 'chat-conversation',
+    path: '/chat/:conversationId',
+    auth: 'required',
+    authz: 'skip',
+    breadcrumb: { title: 'navigation.chat' },
+    componentLoader: () => import('./pages/chat/conversation.js'),
+  },
+  // Links that open the chat panel on any page (`/chat-link`, `/chat-link/new`, `/chat-link/:conversationId`), as the
+  // agents plugin's notices link conversations.
+  ...chatLinkRoutes('/chat-link'),
 ]);
 
 /**

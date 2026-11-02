@@ -5,6 +5,9 @@ import { Outlet, useLocation } from 'react-router';
 
 import { BrandWatermark } from '#components/brand-watermark';
 import { Breadcrumbs } from '#components/breadcrumbs';
+import { StudioChatProvider } from '#components/studio-chat';
+import { ChatPanel } from '#extensions/nocobase-agent-chat/chat-panel';
+import { ChatFloatingButton } from '#extensions/nocobase-agent-chat/launchers';
 
 import { RouteTreeProvider } from '../routing/route-context.js';
 
@@ -47,6 +50,7 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
   return (
     // The shell owns the business route tree used by its pages and navigation.
     <RouteTreeProvider routes={routes}>
+      <StudioChatProvider>
       <PageBreadcrumbProvider>
         <AppSidebarProvider>
           <AppSidebar label={navigationLabel} footer={<AppSidebarFooter />}>
@@ -69,17 +73,24 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
               </div>
               <HeaderActions />
             </LayoutHeader>
-            <main className='app-brand-surface relative isolate min-w-0 flex-1 overflow-hidden'>
-              <BrandWatermark className='-z-10' />
-              {/* main only positions; the page scrolls in here, so a child page layer laid over main is neither
-            moved by the page's scrolling nor stretched by its height. */}
-              <div className='h-full overflow-y-auto'>
-                <Outlet />
-              </div>
-            </main>
+            {/* The agents' chat panel docks beside main from 1280px and floats over it below, positioned against
+            this row (the agent-chat block's README). */}
+            <div className='relative flex min-h-0 flex-1'>
+              <main className='app-brand-surface relative isolate min-w-0 flex-1 overflow-hidden'>
+                <BrandWatermark className='-z-10' />
+                {/* main only positions; the page scrolls in here, so a child page layer laid over main is neither
+              moved by the page's scrolling nor stretched by its height. */}
+                <div className='h-full overflow-y-auto'>
+                  <Outlet />
+                </div>
+              </main>
+              <ChatPanel />
+            </div>
+            <ChatFloatingButton />
           </div>
         </AppSidebarProvider>
       </PageBreadcrumbProvider>
+      </StudioChatProvider>
     </RouteTreeProvider>
   );
 }

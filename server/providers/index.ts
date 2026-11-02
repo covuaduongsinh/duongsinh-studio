@@ -8,6 +8,7 @@ import IssueSubjectProvider from './issue-subject.js';
 import GitProvider from './git.js';
 import MemoryProvider from './memory.js';
 import KnowledgeProvider from './knowledge.js';
+import ConversationsProvider from './conversations.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -25,6 +26,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   MemoryProvider,
   // The knowledge spaces and their access, and the knowledge each run may read.
   KnowledgeProvider,
+  // Where conversations with agents start, what they read and the plans they propose; sessions on people's computers.
+  ConversationsProvider,
 ];
 
 export default serviceProviders;

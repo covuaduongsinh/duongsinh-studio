@@ -267,6 +267,56 @@ lớp đóng. Studio Dương Sinh tự viết:
   `--dry-run`; xác thực bằng `DS_STUDIO_COOKIE_FILE` hoặc `DS_STUDIO_API_KEY`, không in ra). Rà bí mật/dữ liệu cá nhân
   trước khi nạp: tri thức được mọi người và agent của không gian đọc.
 
+## 17. S4 phần 3 — Sessions & Ask agent (02/11/2026)
+
+Các plugin `app-plugin-agents` (conversations), `app-plugin-agent-sessions` và `app-plugin-projects` (plans) có đủ khung
+nhưng **không ai nối chúng với nhau**: `projectsPlanSourceToken`, `projectsPlanHooksToken`, `projectsIssueSessionToken`,
+`registerLinkKind`/`registerProjects` của agent-sessions và các `conversations.sources/contextKinds/rules` đều chờ "ứng
+dụng lắp ráp" (lớp Studio đóng). README của `projectsPlanHooksToken` nói "the agents plugin binds it" nhưng trong
+`app-plugin-agents` 2.0.0-beta.1 không có chỗ nào bind. Studio Dương Sinh tự viết (`server/conversations/`,
+`server/providers/conversations.ts`):
+
+- **Giao diện chat**: khối UI Library `@nocobase/agent-chat` (panel, trang hội thoại, nút "Ask agent") và
+  `@nocobase/plan-card` cài bằng `shadcn add`. Cả hai lần cài **lại hạ cấp** `@nocobase/app-client`, `@nocobase/i18n` và
+  `@nocobase/app-plugin-agents` trong `package.json` — đã khôi phục (đúng luật trong `.agents/rules/duongsinh-studio.md`);
+  `@nocobase/markdown-mermaid` vào `devDependencies`. `message-item.tsx` của khối chỉ tắt `react-hooks/static-components`
+  trong khi ESLint của template dùng `@eslint-react/static-components`: đã thêm tên quy tắc thứ hai vào cùng dòng tắt.
+- **Layout**: `StudioChatProvider` (một `ChatProvider` cho mỗi người, xoá trạng thái panel và cache khi đổi người, như
+  `app-template-examples`), `ChatPanel` cạnh `<main>` trong hàng `relative flex`, nút chat ở header (⌘J / Ctrl+J), nút
+  nổi trên điện thoại; trang `/chat/:conversationId` và `chatLinkRoutes('/chat-link')`.
+- **Ask agent** trên trang issue và trang project: `useChatContextSource` ghim issue/project, nút mở cuộc hội thoại mới
+  kèm câu hỏi nháp (không tự gửi). Server đăng ký nguồn `askAgent` (tên nguồn khối chat gửi) và resolver ngữ cảnh `issue`,
+  `project`: chỉ trả issue/project người hỏi **thấy** (qua `issueQueries.summaries` / `projects.list` theo quyền của
+  người), cái khác bị bỏ và đếm vào `dropped`.
+- **Luật cho run hội thoại** (`conversations.rules.provide`): trả lời tiếng Việt; không bao giờ đụng NocoBase 2 production
+  `nocobase.dsc.edu.vn`; không in bí mật/dữ liệu cá nhân; đọc issue/PR/KB/memory bằng `ds-studio` và trích dẫn; **mặc định
+  chỉ đọc** — muốn tạo/sửa việc thì đề xuất **một operation plan** để người duyệt ngay trong hội thoại, không ghi issue
+  trực tiếp.
+- **Plan từ hội thoại**: bind `projectsPlanSourceToken` — run của hội thoại đề xuất plan với nguồn
+  `conversation` (khoá `conversation:<id>`, plan mới thay plan đang mở); run trên issue không được đề xuất plan
+  (`null`). Quyền mới `pm.plans/use` (route plan của plugin kiểm nó cho run) là quyền **mượn** từ `pm.issues/view`, mặc
+  định bật. Plan được **rehearse bằng quyền của run**, nên agent chỉ đề xuất được việc chính nó được làm: muốn agent hội
+  thoại đề xuất tạo issue thì bật "Create issues" cho agent đó trong Capabilities (mặc định tắt, vì không có
+  `projectsDelegatedWritesToken` thì agent có quyền này cũng tạo issue trực tiếp được — chưa bind DelegatedWrites).
+  Thẻ plan hiện trong dòng thời gian của hội thoại (`ChatExtensionsContext.useTimelineItems` → `GET /projects/plans?
+  sourceKind=conversation&sourceKey=…`); người bấm Execute/Void ngay đó.
+- **Khi plan được quyết** (`projectsPlanHooksToken.onPlanDecided`): Studio gửi tin `ds.plan.decided` vào hội thoại
+  (`conversations.deliver`) trong cùng transaction của projects (bộ chạy transaction của agents nhận `outer` và chạy
+  thẳng trên kết nối đó), đánh thức agent để báo kết quả — trừ plan bị huỷ (`voided`). Sự kiện của agents được phát
+  sau một nhịp (`setTimeout 0`) vì không có móc "sau commit" của projects ra ngoài; nếu transaction rollback thì sự kiện
+  chỉ khiến runner đọc lại, không sai dữ liệu.
+- **Chưa làm**: `conversations.links.registerKind('issue')` — `resolve` của link kind chạy cả trong transaction của
+  claim ("Linked work" mỗi lượt), trên SQLite không đọc được quyền của người qua kết nối khác; để sau (giải pháp: đọc
+  quyền ở `prepare` hoặc dùng cache). Hệ quả: issue tạo từ plan chưa hiện thành "Linked work" của hội thoại (vẫn thấy
+  qua tin `ds.plan.decided` và thẻ plan). `conversations.workspace.provide` (checkout repo cho hội thoại theo project)
+  cũng chưa làm: agent hội thoại không có mã nguồn, chỉ đọc qua CLI.
+- **Sessions trên máy người dùng** (agent-sessions, ACP): link kind `issue` (trạng thái tiếng Việt, "Chờ bạn nghiệm thu"
+  khi người xem là owner của issue đang in_review, tìm `#` theo tiêu đề/mã), `registerProjects` (project người đó thấy),
+  `registerInstructions` (tiếng Anh như plugin yêu cầu: trả lời tiếng Việt, không đụng production, đề xuất issue trước
+  rồi mới `ds-studio issue create` trong session), và `projectsIssueSessionToken` (issue tạo từ session mặc định vào project
+  của session và được gắn vào session). Trang "My agents" (`/agent-sessions` của plugin) đã có từ S0. **Chưa cài bridge
+  ACP trên máy nào** — xem `docs/moi-truong-dev.md`.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

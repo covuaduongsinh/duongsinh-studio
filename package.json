@@ -36,6 +36,7 @@
     "@nocobase/dev-config": "0.1.0-beta.25",
     "@nocobase/drive": "^0.1.0-beta.7",
     "@nocobase/logging": "^0.1.0-beta.7",
+    "@nocobase/markdown-mermaid": "0.1.0-beta.2",
     "@nocobase/session": "^0.1.0-beta.3",
     "@playwright/test": "^1.62.1",
     "@silurus/ooxml": "0.85.1",

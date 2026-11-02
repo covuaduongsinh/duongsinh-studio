@@ -1,4 +1,6 @@
 import fileUi from '../extensions/nocobase-file-component-ui/locales/zh-CN.js';
+import agentChat from '../extensions/nocobase-agent-chat/locales/zh-CN.js';
+import planCard from '../extensions/nocobase-plan-card/locales/zh-CN.js';
 import type { AppResource } from './en-US.js';
 import systemZhCN from './system/zh-CN.js';
 
@@ -6,6 +8,8 @@ const zhCN: AppResource = {
   // The template's own copy; see `./en-US.ts`.
   ...systemZhCN,
   ...fileUi,
+  ...agentChat,
+  ...planCard,
   navigation: {
     ...systemZhCN.navigation,
     issues: '任务',
@@ -21,6 +25,7 @@ const zhCN: AppResource = {
     git: 'Git',
     knowledge: '知识库',
     projectMemory: '项目记忆',
+    chat: '对话',
   },
   issueCard: {
     priority: {
@@ -543,6 +548,19 @@ const zhCN: AppResource = {
       tokenRejected: 'GitHub 拒绝了连接的令牌，暂时无法读取记忆。',
       unreachable: '连接的令牌无法读取该仓库（需要 Contents: Read 权限）。',
       hostUnavailable: '暂时无法连接 GitHub；显示的是之前读取的内容。',
+    },
+  },
+  studioChat: {
+    askIssue: '询问智能体',
+    askIssueDraft: '{{issue}} 现在进展如何，下一步是什么？',
+    askProject: '询问智能体',
+    askProjectDraft: '总结一下这个项目的现状。',
+    planDecided: {
+      executed: '计划“{{title}}”已执行。',
+      failed: '计划“{{title}}”执行失败。',
+      stale: '计划“{{title}}”已过时。',
+      voided: '计划“{{title}}”已作废。',
+      undone: '计划“{{title}}”已撤销。',
     },
   },
 };

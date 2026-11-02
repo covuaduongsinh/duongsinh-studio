@@ -74,6 +74,21 @@ const enUS = {
       },
     },
   },
+  studioChat: {
+    // Where a conversation started (`conversations.sources`).
+    sources: {
+      askAgent: 'Ask agent',
+    },
+    // The business action of an agent's Capabilities tab.
+    actions: {
+      groupTitle: 'Plans',
+      plansUse: {
+        title: 'Propose plans',
+        description:
+          'Propose operation plans (new issues, comments, dependencies) that the person reviews and executes in the conversation. Whoever may view issues holds it.',
+      },
+    },
+  },
 };
 
 export type AppServerResource = LocaleResource<typeof enUS>;

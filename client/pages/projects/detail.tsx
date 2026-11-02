@@ -3,6 +3,7 @@
  * It is composed from the UI Library's `project-detail` block and `property-fields` over the plugin's headless
  * `client/projects` hooks: the project, its property changes, its members and visibility, and deleting it.
  */
+import { useChatContextSource } from '@nocobase/app-plugin-agents/client/chat';
 import { ApiClientError } from '@nocobase/app-client';
 import {
   canDeleteProjects,
@@ -29,10 +30,11 @@ import {
 } from '@nocobase/app-plugin-projects/shared/projects';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
 import { CircleAlertIcon, ListTodoIcon } from 'lucide-react';
-import type { ReactElement } from 'react';
+import { useMemo, type ReactElement } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import { BackButton } from '#components/back-button';
+import { AskAgentButton } from '#extensions/nocobase-agent-chat/launchers';
 import type { IssueTableColor } from '#components/issue-table';
 import { MarkdownView } from '#components/markdown-view';
 import { PageContainer } from '#components/page-container';
@@ -227,6 +229,12 @@ function ProjectDetailView({
     await deleteProject();
     await navigate('/projects', { replace: true });
   };
+  // What the agents' chat pins while this page is open; "Ask agent" opens it with the project and a draft question.
+  const chatItem = useMemo(
+    () => ({ kind: 'project', id: project.id, label: project.name }),
+    [project.id, project.name],
+  );
+  useChatContextSource(chatItem);
 
   return (
     <>
@@ -264,6 +272,13 @@ function ProjectDetailView({
               <ListTodoIcon data-icon='inline-start' />
               {t('projectDetail.viewIssues')}
             </Button>
+            <AskAgentButton
+              item={chatItem}
+              label={t('studioChat.askProject')}
+              draft={t('studioChat.askProjectDraft')}
+              size='default'
+              newConversation
+            />
             {canDeleteProjects(viewer) ? (
               <ProjectDeleteMenu
                 name={project.name}

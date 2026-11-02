@@ -147,6 +147,32 @@ function gitOpenPr(flags: Flags): StudioAction {
   };
 }
 
+/** The business action the projects plugin's plan routes check for a run (`PLANS_USE_ACTION`). */
+export const PLANS_USE_ACTION = 'pm.plans/use';
+
+/**
+ * `pm.plans/use`: proposing and reading operation plans of the person the agent works for, as an agent in a person's
+ * conversation does. The authorization plugin does not grant it either: whoever may view issues holds it, since a plan
+ * only proposes and the person executes it with their own permissions.
+ */
+function plansUse(flags: Flags): StudioAction {
+  return {
+    option: option(
+      PLANS_USE_ACTION,
+      'pm.plans',
+      {
+        title: appText('studioChat.actions.plansUse.title'),
+        description: appText('studioChat.actions.plansUse.description'),
+        groupTitle: appText('studioChat.actions.groupTitle'),
+      },
+      flags,
+    ),
+    resource: { type: pmAccess.RESOURCE_TYPE, id: 'pm.issues' },
+    names: pmAccess.levelActionsOf('pm.issues/view').map((level) => level.name),
+    borrowed: true,
+  };
+}
+
 /**
  * Every business action Studio knows, in the order the Capabilities tab lists them (the Studio demo's set, §S2 of the
  * plan). An executing agent starts with what working an issue needs: reading projects and issues, editing and
@@ -167,6 +193,7 @@ export const STUDIO_ACTIONS: readonly StudioAction[] = [
   pm('pm.issues', 'moderate-comments', { peopleOnly: true }),
   pm('pm.attachments', 'upload', { defaultOn: true }),
   gitOpenPr({ defaultOn: true }),
+  plansUse({ defaultOn: true }),
   rel('view'),
   rel('read-logs'),
   rel('deploy'),

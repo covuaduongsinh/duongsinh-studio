@@ -4,6 +4,7 @@
  * `useIssueUpdate`, `useIssuePageActions` and the activity hooks), and hosts the plugin's "New sub-issue" dialog
  * (`issueDetailChildRoutes`) at its outlet.
  */
+import { useChatContextSource } from '@nocobase/app-plugin-agents/client/chat';
 import { ApiClientError } from '@nocobase/app-client';
 import {
   ATTACHMENT_SIZE_MB,
@@ -37,11 +38,12 @@ import {
   ListTreeIcon,
   PaperclipIcon,
 } from 'lucide-react';
-import { useState, type ReactElement } from 'react';
+import { useState, type ReactElement, useMemo } from 'react';
 import { Link, Outlet, useNavigate, useParams } from 'react-router';
 
 import { BackButton } from '#components/back-button';
 import { MarkdownView } from '#components/markdown-view';
+import { AskAgentButton } from '#extensions/nocobase-agent-chat/launchers';
 import { RouteChildPage } from '#components/route-child-page';
 import { Alert, AlertDescription } from '#components/ui/alert';
 import {
@@ -176,6 +178,16 @@ function IssueDetailView({
   });
   const statusOf = (definition: StatusDefinition) =>
     status(definition.key, [definition]);
+  // What the agents' chat pins while this page is open; "Ask agent" opens it with the issue and a draft question.
+  const chatItem = useMemo(
+    () => ({
+      kind: 'issue',
+      id: detail.id,
+      label: `${detail.identifier} ${detail.title}`,
+    }),
+    [detail.id, detail.identifier, detail.title],
+  );
+  useChatContextSource(chatItem);
 
   return (
     <IssueDetailLayout
@@ -209,13 +221,23 @@ function IssueDetailView({
                   : null
               }
               actions={
-                canDeleteIssues(viewer) ? (
-                  <IssueDeleteButton
-                    identifier={detail.identifier}
-                    onDelete={remove}
-                    labels={labels}
+                <>
+                  <AskAgentButton
+                    item={chatItem}
+                    label={t('studioChat.askIssue')}
+                    draft={t('studioChat.askIssueDraft', {
+                      issue: detail.identifier,
+                    })}
+                    newConversation
                   />
-                ) : null
+                  {canDeleteIssues(viewer) ? (
+                    <IssueDeleteButton
+                      identifier={detail.identifier}
+                      onDelete={remove}
+                      labels={labels}
+                    />
+                  ) : null}
+                </>
               }
               {...(canEdit ? { onRename: (title) => save({ title }) } : {})}
               link={RouterAnchor}
