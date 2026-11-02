@@ -118,8 +118,11 @@ lấy ở trang **Runtimes → Add runtime** của `https://studio.dsc.edu.vn/ma
 nocobase-runner register --server https://studio.dsc.edu.vn/main --token <token> --name may-dev-duongsinh-prod
 ```
 
-Runner giữ được nhiều đăng ký (`nocobase-runner status` liệt kê "registrations"), nên đăng ký thêm production không bỏ
-đăng ký dev; `nocobase-runner unregister` để gỡ một cái. Sau khi runner online mới tạo agent (Agents → Add agent).
+Runner chỉ giữ **một** đăng ký cho mỗi ứng dụng cùng tên: đăng ký vào production phải thêm `--force`, thay luôn
+đăng ký với bản dev (02/11/2026 đã làm vậy: `may-dev-duongsinh-prod`). Sau khi đăng ký phải `nocobase-runner stop` rồi
+`nocobase-runner start` thì tiến trình đang chạy mới đổi sang server mới. Muốn dùng lại bản dev thì đăng ký lại vào
+`http://127.0.0.1:13100/main` cũng bằng `--force`. Sau khi runner online mới tạo agent (Agents → Add agent, hoặc
+`ds-studio agent create`) và đặt lead agent (`ds-studio studio project-manager update --first-choice-agent-id …`).
 
 ## Tài nguyên đo được
 
