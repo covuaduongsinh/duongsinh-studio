@@ -53,12 +53,19 @@ gần nhất trong `releases/`.
 
 ## Sao lưu và khôi phục
 
-Dokploy chưa có đích sao lưu (S3) nào, nên chưa bật sao lưu tự động của Dokploy. Hiện dùng cron trên VPS (chỉ cho project
-này), giữ 14 bản:
+Dokploy chưa có đích sao lưu (S3) nào (`destination.all` rỗng), nên chưa bật sao lưu tự động của Dokploy. Script
+`deploy/dokploy/backup.sh` (chỉ cho project này, giữ 14 bản) làm: `pg_dump -Fc` từ container `db` →
+`/srv/duongsinh-studio/backups/studio-<ngày>.dump`, cùng `storage-<ngày>.tar.gz`.
 
-- `/etc/cron.d/duongsinh-studio-backup` chạy `/srv/duongsinh-studio/backup.sh` lúc 02:30 hằng ngày;
-- `pg_dump -Fc` từ container `db` → `/srv/duongsinh-studio/backups/studio-<ngày>.dump`, cùng `storage-<ngày>.tar.gz`;
-- bản sao lưu nằm cùng máy với dữ liệu: khi có đích S3/Drive thì thêm bước đẩy ra ngoài (việc còn mở).
+**Chưa cài lịch chạy tự động** (thêm cron trên VPS là thay đổi lâu dài, cần chủ dự án tự làm). Chủ dự án chạy một lần:
+
+```bash
+scp deploy/dokploy/backup.sh root@217.15.160.118:/srv/duongsinh-studio/backup.sh
+ssh root@217.15.160.118 'chmod 700 /srv/duongsinh-studio/backup.sh && printf "30 2 * * * root /srv/duongsinh-studio/backup.sh >> /srv/duongsinh-studio/backups/backup.log 2>&1\n" > /etc/cron.d/duongsinh-studio-backup'
+```
+
+Đã có một bản sao lưu thủ công lúc cài: `/srv/duongsinh-studio/backups/studio-initial.dump` (đọc lại được bằng
+`pg_restore --list`). Bản sao lưu nằm cùng máy với dữ liệu: khi có đích S3/Drive thì thêm bước đẩy ra ngoài.
 
 Khôi phục DB (dừng app trước):
 
@@ -69,7 +76,16 @@ tar -xzf /srv/duongsinh-studio/backups/storage-<ngày>.tar.gz -C /srv/duongsinh-
 docker start <container app>
 ```
 
-Tên container xem bằng `docker ps --filter label=com.docker.compose.project=<appName của compose>`.
+Tên container: `duongsinh-studio-tluxoy-app-1` và `duongsinh-studio-tluxoy-db-1` (appName của compose trên Dokploy là
+`duongsinh-studio-tluxoy`).
+
+## CLI `ds-studio` nối vào production
+
+Đăng nhập bằng trình duyệt chưa có trên bản này ("offers no browser sign-in"), nên dùng API key: tạo khoá ở trang tài
+khoản (hoặc `POST /api/auth/api-key/create`) rồi `ds-studio login --server https://studio.dsc.edu.vn/main --api-key-stdin`.
+Trên WSL không có keychain nên khoá nằm ở `~/.ds-studio/config.json` (0600). Cài CLI:
+`curl -fsSL https://studio.dsc.edu.vn/main/api/agents/dist/installScript | sh -s -- --token <download token>` (token lấy
+khi bấm cài CLI trong ứng dụng).
 
 ## Runner
 
