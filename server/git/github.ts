@@ -86,6 +86,32 @@ export interface GitHubClient {
     input: { readonly sha: string; readonly title: string },
   ): Promise<{ readonly sha: string | null }>;
   comment(fullName: string, number: number, body: string): Promise<void>;
+  /** The commit a branch points at. */
+  branchHead(fullName: string, branch: string): Promise<string>;
+  /** The entries of a directory at `ref`; empty when the directory (or the path) does not exist there. */
+  directory(
+    fullName: string,
+    path: string,
+    ref: string,
+  ): Promise<GitHubContentEntry[]>;
+  /** A file's text at `ref` (UTF-8). */
+  file(fullName: string, path: string, ref: string): Promise<GitHubFile>;
+}
+
+export interface GitHubContentEntry {
+  readonly name: string;
+  readonly path: string;
+  readonly type: 'file' | 'dir' | 'other';
+  /** The blob's (or tree's) sha: the same content keeps the same sha across commits. */
+  readonly sha: string;
+  readonly size: number;
+}
+
+export interface GitHubFile {
+  readonly path: string;
+  readonly sha: string;
+  readonly size: number;
+  readonly text: string;
 }
 
 type Json = Record<string, unknown>;
@@ -212,6 +238,12 @@ export function createGitHubClient(options: {
 
   const repoPath = (fullName: string) =>
     `/repos/${fullName.split('/').map(encodeURIComponent).join('/')}`;
+  const contentsPath = (fullName: string, path: string, ref: string) =>
+    `${repoPath(fullName)}/contents/${path
+      .split('/')
+      .filter(Boolean)
+      .map(encodeURIComponent)
+      .join('/')}?ref=${encodeURIComponent(ref)}`;
 
   return {
     async viewer() {
@@ -317,6 +349,57 @@ export function createGitHubClient(options: {
       await call('POST', `${repoPath(fullName)}/issues/${number}/comments`, {
         body,
       });
+    },
+    async branchHead(fullName, branch) {
+      const answer = record(
+        await call(
+          'GET',
+          `${repoPath(fullName)}/branches/${encodeURIComponent(branch)}`,
+        ),
+      );
+      const sha = text(record(answer.commit).sha);
+      if (!sha)
+        throw new GitHubError(
+          502,
+          `GitHub named no commit for ${fullName}@${branch}.`,
+        );
+      return sha;
+    },
+    async directory(fullName, path, ref) {
+      let answer: unknown;
+      try {
+        answer = await call('GET', contentsPath(fullName, path, ref));
+      } catch (error) {
+        if (error instanceof GitHubError && error.status === 404) return [];
+        throw error;
+      }
+      // A file at the path answers an object, not a list: no directory there.
+      return items(answer).map((value): GitHubContentEntry => {
+        const entry = record(value);
+        return {
+          name: text(entry.name) ?? '',
+          path: text(entry.path) ?? '',
+          type:
+            entry.type === 'file' ? 'file' : entry.type === 'dir' ? 'dir' : 'other',
+          sha: text(entry.sha) ?? '',
+          size: typeof entry.size === 'number' ? entry.size : 0,
+        };
+      });
+    },
+    async file(fullName, path, ref) {
+      const answer = record(await call('GET', contentsPath(fullName, path, ref)));
+      const content = text(answer.content);
+      if (answer.type !== 'file' || content === null)
+        throw new GitHubError(404, `${fullName}:${path} is not a file at ${ref}.`);
+      return {
+        path: text(answer.path) ?? path,
+        sha: text(answer.sha) ?? '',
+        size: typeof answer.size === 'number' ? answer.size : 0,
+        text:
+          answer.encoding === 'base64'
+            ? Buffer.from(content, 'base64').toString('utf8')
+            : content,
+      };
     },
   };
 }

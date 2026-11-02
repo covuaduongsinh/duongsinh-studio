@@ -598,6 +598,12 @@ export function createGitService(deps: GitServiceDeps) {
     return repositoryView(record, (await projectLinks([id])).get(id) ?? []);
   }
 
+  /** A GitHub client with the token of the repository's connection, for reads other modules make (project memory). */
+  async function clientForRepository(id: string): Promise<GitHubClient> {
+    const record = await repositoryRecord(id);
+    return clientOf(await connectionRecord(record.connectionId));
+  }
+
   async function linkRepository(input: {
     readonly connectionId: string;
     readonly fullName: string;
@@ -1392,6 +1398,7 @@ export function createGitService(deps: GitServiceDeps) {
     deleteConnection,
     listRepositories,
     getRepository,
+    clientForRepository,
     linkRepository,
     attachToProject,
     projectsOf,

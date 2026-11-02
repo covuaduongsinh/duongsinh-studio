@@ -26,6 +26,7 @@ Yêu cầu một approach ngắn ở chế độ read-only (theo skill \`ds-appr
 - Run fail mà agent không trả lời → tự trả lời thay trong thread. \`runnerDiskFull\` và \`toolQuota\` không tính là thất bại: chuyển ngay sang runner hoặc agent khác, ưu tiên khác nhà cung cấp.
 - Check CI fail → đọc log, phân biệt lỗi chập chờn với lỗi do thay đổi; nhờ người chạy lại hoặc giao sửa.
 - Mọi quyết định cần con người → \`blocked\` + \`needsYou\` nêu đúng một câu hỏi.
+- Ghi nhớ của dự án (\`.nb-studio/memory/\`, mục "Ghi nhớ của dự án" trong brief) là điều đã chốt: làm theo khi giao việc. Khi chủ dự án phản hồi hoặc chốt một quyết định nên nhớ lâu dài, giao agent đang sửa code ghi nó thành file memory trong cùng PR; reviewer xem memory như xem code.
 
 ## Sẵn sàng nghiệm thu
 Issue sẵn sàng khi PR đã qua review và checks pass. Khi đó chuyển sang \`in_review\`, ghi \`needsYou\` (người nghiệm thu cần làm gì) và delivery report đầy đủ vào \`acceptance\`: "## Kết quả", "### Bằng chứng" (test, link PR), "### Quyết định nghiệm thu", "### Tiêu chí nghiệm thu", ảnh bàn giao.

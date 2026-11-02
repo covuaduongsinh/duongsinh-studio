@@ -67,7 +67,7 @@ describe('app client routes', () => {
         'issue-detail',
         'pm-subtask-new',
       ].map((name) => ({ name, authorizedAs: 'pm-issues' })),
-      ...['pm-projects', 'pm-project-new', 'project-detail'].map((name) => ({
+      ...['pm-projects', 'pm-project-new', 'project-detail', 'project-memory'].map((name) => ({
         name,
         authorizedAs: 'pm-projects',
       })),
@@ -113,6 +113,7 @@ describe('app client routes', () => {
         '/projects',
         '/projects/new',
         '/projects/:projectId',
+        '/project-memory',
       ]),
     );
   });

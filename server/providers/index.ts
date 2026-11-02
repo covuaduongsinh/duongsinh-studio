@@ -6,6 +6,7 @@ import ProjectManagerProvider from './project-manager.js';
 import AgentExecutorProvider from './agent-executor.js';
 import IssueSubjectProvider from './issue-subject.js';
 import GitProvider from './git.js';
+import MemoryProvider from './memory.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -19,6 +20,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   AgentExecutorProvider,
   IssueSubjectProvider,
   GitProvider,
+  // Reads repositories through the git service above.
+  MemoryProvider,
 ];
 
 export default serviceProviders;

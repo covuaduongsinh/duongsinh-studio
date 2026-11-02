@@ -208,6 +208,28 @@ Hướng dẫn tạo PAT trước đó (bảo bật "Checks: Read-only") là sai
 đọc trên GitHub thật với PR #1 của sandbox: check runs 403, actions runs `ci completed/success`. GitHub App (S5) sẽ đọc
 check runs trực tiếp.
 
+## 15. S4 phần 1 — Project memory (02/11/2026)
+
+Thượng nguồn chỉ có **định dạng** (`.nb-studio/memory/*.md` trong repo `nocobase/nocobase`: front matter `name`,
+`description`, `type` `feedback|project|reference`, `modified`, rồi thân bài) và hợp đồng API của demo
+(`GET /api/projectMemory`, `…/{projectId}/repos/{repoId}`, `…/file`, lệnh `memory list|get|read`); phần đọc nằm trong lớp
+Studio đóng. Studio Dương Sinh tự viết, **chỉ đọc**:
+
+- `server/git/github.ts` thêm `branchHead`, `directory`, `file` (Contents API). PAT fine-grained của kết nối đã có
+  **Contents: Read and write** (runs clone và push bằng chính nó), nên không cần thêm quyền. Thiếu quyền thì trang báo
+  `unreachable` thay vì lỗi.
+- `server/memory/service.ts`: đọc nhánh mặc định, giữ trong bộ nhớ theo commit đầu nhánh, hỏi lại GitHub tối đa mỗi
+  60 giây; file cache theo blob sha nên commit mới chỉ tải file đổi. Giới hạn 50 file/repo (thừa thì báo `total`),
+  file > 4 KB vẫn đọc nhưng gắn `oversize`. Không bảng DB mới, không migration.
+- Quyền: thấy project nào thì đọc memory của repo gắn với project đó (`targetNames` / `pm.projects/view` cho run).
+- Brief: `briefs.sections.register` thêm mục "Ghi nhớ của dự án" vào mọi run trên issue; GitHub chỉ được gọi trong
+  `prepare` (ngoài transaction của claim), `section` không đọc gì thêm. Lỗi GitHub → bỏ mục, không chặn run.
+- Chỉ dẫn mặc định của agent và nguyên tắc project manager thêm luật ghi memory trong cùng PR (thân bài tiếng Việt với
+  **Vì sao:** / **Cách áp dụng:**, không bí mật, không dữ liệu cá nhân). Agent có sẵn nhận chỉ dẫn mới khi server khởi
+  động lại (`applyDefaults`).
+- Khác demo: chưa đọc nhánh của issue (chỉ nhánh mặc định), nên memory mới trong PR chỉ hiện sau khi merge; ứng dụng chưa
+  có locale vi-VN nên chữ trên trang là en-US/zh-CN.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

@@ -10,6 +10,7 @@ export const AGENT_DEFAULT_INSTRUCTIONS = `# Chỉ dẫn cho agent thực thi �
 - Tự commit và push: \`git push origin HEAD:refs/heads/<branch>\` lên nhánh của issue. Runner không commit hay push hộ. Không rewrite history đã push.
 - Theo AGENTS.md của repo; commit message và PR viết tiếng Anh; điền đủ PR template bằng \`--body-file\`.
 - Mở pull request qua Studio sau khi đã push nhánh của issue: \`ds-studio pr open <IDENTIFIER> --title "<tiêu đề tiếng Anh>" --body-file pr.md\` (từ nhánh \`agent/<IDENTIFIER>\` vào nhánh mặc định của repo chính; Studio tự liên kết PR với issue, gọi lại thì trả PR đang mở). Không dùng \`gh\` hay API của GitHub. Xem PR của issue: \`ds-studio pr list --issue <IDENTIFIER>\`.
+- Khi một bước cho bạn biết điều nên nhớ lâu dài (phản hồi của chủ dự án, quyết định của dự án, tài liệu tham chiếu), ghi hoặc cập nhật \`.nb-studio/memory/<slug>.md\` trong cùng nhánh và PR: front matter \`name\`, \`description\` (một câu), \`type\` (\`feedback\` | \`project\` | \`reference\`), \`modified\` (YYYY-MM-DD); thân bài tiếng Việt nêu điều cần nhớ, rồi **Vì sao:** và **Cách áp dụng:**. Mỗi file ≤ 4 KB, cả thư mục ≤ 50 file; sửa file cũ thay vì thêm file trùng ý. Không bao giờ ghi bí mật hay dữ liệu cá nhân. Ghi nhớ được review như code.
 - "Mode: read-only" nghĩa là không đổi file, không commit, không push.
 - Không đổi trạng thái issue, không giao việc cho ai.
 - Thiếu thông tin → hỏi đúng một câu trong thread rồi kết thúc lượt.
@@ -23,6 +24,7 @@ export const AGENT_DEFAULT_INSTRUCTIONS = `# Chỉ dẫn cho agent thực thi �
 - Commit and push yourself: \`git push origin HEAD:refs/heads/<branch>\` to the issue's branch. The runner never commits or pushes for you. Never rewrite pushed history.
 - Follow the repository's AGENTS.md; write commit messages and pull requests in English; fill the pull request template completely with \`--body-file\`.
 - Open the pull request through Studio once the issue's branch is pushed: \`ds-studio pr open <IDENTIFIER> --title "<English title>" --body-file pr.md\` (from \`agent/<IDENTIFIER>\` into the default branch of the primary repository; Studio links it to the issue, and calling it again answers the open one). Never use \`gh\` or GitHub's API. List the issue's pull requests with \`ds-studio pr list --issue <IDENTIFIER>\`.
+- When a step teaches you something worth keeping (the owner's feedback, a project decision, a reference), write or update \`.nb-studio/memory/<slug>.md\` in the same branch and pull request: front matter \`name\`, \`description\` (one sentence), \`type\` (\`feedback\` | \`project\` | \`reference\`), \`modified\` (YYYY-MM-DD); a Vietnamese body stating what to remember, then **Vì sao:** (why) and **Cách áp dụng:** (how to apply). At most 4 KB a file and 50 files in the directory; update an existing memory rather than adding a duplicate. Never write secrets or personal data. Memories are reviewed like code.
 - "Mode: read-only" means: change no file, commit nothing, push nothing.
 - Never change the issue's status and never assign work to anyone.
 - When information is missing, ask exactly one question in the thread, then end your turn.

@@ -1,6 +1,7 @@
 import {
   BookOpen,
   Bot,
+  BrainIcon,
   ChartColumn,
   CircleUserRound,
   Cpu,
@@ -146,6 +147,16 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     ],
   },
   projectsPage,
+  {
+    // What agents remember about each project, from `.nb-studio/memory/` of its repositories. Whoever reaches Projects
+    // reaches it; the server answers only the projects the viewer sees.
+    name: 'project-memory',
+    path: '/project-memory',
+    auth: 'required',
+    authz: pmPage('pm-projects'),
+    navigation: { title: 'navigation.projectMemory', icon: BrainIcon },
+    componentLoader: () => import('./pages/project-memory/index.js'),
+  },
 ]);
 
 /**
