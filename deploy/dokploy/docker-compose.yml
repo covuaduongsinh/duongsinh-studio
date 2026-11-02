@@ -41,6 +41,18 @@ services:
       - /srv/duongsinh-studio/storage:/app/storage
     expose:
       - '13000'
+    labels:
+      # Traefik gửi `X-Forwarded-Proto: wss` cho WebSocket; @nocobase/app-websocket dựng URL `wss://…` rồi so với Origin
+      # `https://…` → 403 "Unable to connect" (docs/chenh-lech-upstream.md). Ép lại thành https chỉ cho router của Studio.
+      # Dokploy bỏ nhãn middleware gắn vào router nó tự sinh, nên dùng router riêng chỉ cho `/main/ws`, ưu tiên cao hơn.
+      - traefik.http.middlewares.ds-studio-forwarded-https.headers.customrequestheaders.X-Forwarded-Proto=https
+      - traefik.http.routers.ds-studio-ws.rule=Host(`studio.dsc.edu.vn`) && Path(`/main/ws`)
+      - traefik.http.routers.ds-studio-ws.entrypoints=websecure
+      - traefik.http.routers.ds-studio-ws.priority=1000
+      - traefik.http.routers.ds-studio-ws.tls.certresolver=letsencrypt
+      - traefik.http.routers.ds-studio-ws.middlewares=ds-studio-forwarded-https@docker
+      - traefik.http.routers.ds-studio-ws.service=ds-studio-ws
+      - traefik.http.services.ds-studio-ws.loadbalancer.server.port=13000
     mem_limit: 1536m
     cpus: 1.5
     healthcheck:
