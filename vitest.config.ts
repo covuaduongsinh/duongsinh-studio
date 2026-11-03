@@ -15,6 +15,8 @@ export default defineConfig({
           root,
           name: 'node',
           include: ['tests/{server,database,cli,project}/**/*.test.{ts,tsx}'],
+          // The application starts in vi-VN; server assertions are written against the English wording.
+          env: { APP_DEFAULT_LOCALE: 'en-US' },
           // Database fixtures and command output capture run one file at a time.
           fileParallelism: false,
         },

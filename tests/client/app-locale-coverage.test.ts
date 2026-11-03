@@ -4,6 +4,7 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import enUS from '../../client/locales/en-US.ts';
+import viVN from '../../client/locales/vi-VN.ts';
 import zhCN from '../../client/locales/zh-CN.ts';
 
 const clientDirectory = path.resolve(import.meta.dirname, '../../client');
@@ -35,6 +36,7 @@ function sourceFiles(directory: string): string[] {
 
 const english = new Set(translationKeys(enUS as Record<string, unknown>));
 const chinese = new Set(translationKeys(zhCN as Record<string, unknown>));
+const vietnamese = new Set(translationKeys(viVN as Record<string, unknown>));
 /** The literal first argument of `t()`: `t('projects.title')`, but not the prefix of `t('appearance.' + mode)`. */
 const calledKey = /\bt\(\s*'([^'$]+)'(?!\s*\+)/gu;
 /** A key completed by concatenation, `t('appearance.' + mode)`: only its prefix is static. */
@@ -126,8 +128,13 @@ describe('application translations', () => {
     expect(missing(chinese)).toEqual([]);
   });
 
+  it('translates every key the application uses into Vietnamese', () => {
+    expect(missing(vietnamese)).toEqual([]);
+  });
+
   it('translates the key families the application completes at runtime', () => {
     expect(missingFamilies(english)).toEqual([]);
     expect(missingFamilies(chinese)).toEqual([]);
+    expect(missingFamilies(vietnamese)).toEqual([]);
   });
 });

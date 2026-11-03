@@ -37,12 +37,12 @@ export function AuthPage({
           <img
             alt=''
             className='dark:hidden'
-            src={resolveAssetUrl('/assets/logo-mark.png')}
+            src={resolveAssetUrl('/assets/ds-mark.svg')}
           />
           <img
             alt=''
             className='hidden dark:block'
-            src={resolveAssetUrl('/assets/logo-mark-dark.png')}
+            src={resolveAssetUrl('/assets/ds-mark-dark.svg')}
           />
         </>
       }

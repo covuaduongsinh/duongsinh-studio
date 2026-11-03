@@ -2,8 +2,8 @@
 :root[data-theme='default'],
 .theme-preview[data-theme='default'] {
   --font-sans:
-    ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
-    'Microsoft YaHei', sans-serif;
+    Roboto, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'PingFang SC', 'Microsoft YaHei', sans-serif;
   --font-serif:
     ui-serif, Georgia, Cambria, 'Times New Roman', 'Songti SC', SimSun, serif;
   --font-mono:
@@ -53,9 +53,9 @@
   --card-foreground: oklch(0.16 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.16 0 0);
-  --primary: #002ad1;
-  --auth-brand-background: #101c3b;
-  --auth-brand-highlight: #8ca9ff;
+  --primary: #2b3990;
+  --auth-brand-background: #1c2563;
+  --auth-brand-highlight: #fbb040;
   --auth-brand-muted: #b8c4df;
   --status-success: rgb(21 112 70);
   --status-success-background: rgb(236 249 241);
@@ -66,8 +66,8 @@
   --secondary-foreground: oklch(0.22 0 0);
   --muted: oklch(0.96 0 0);
   --muted-foreground: oklch(0.52 0 0);
-  --accent: rgb(237 242 255);
-  --accent-foreground: rgb(0 42 209);
+  --accent: rgb(236 238 250);
+  --accent-foreground: rgb(43 57 144);
   --hover: color-mix(in srgb, var(--muted) 70%, var(--card));
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.9 0 0 / 60%);
@@ -97,7 +97,7 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.18 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: #8ca9ff;
+  --primary: #9aa8f0;
   --status-success: rgb(119 216 160);
   --status-success-background: rgb(23 49 37);
   --status-warning: rgb(242 190 103);

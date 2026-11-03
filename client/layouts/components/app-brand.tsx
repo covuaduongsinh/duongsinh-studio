@@ -13,19 +13,21 @@ export function AppBrand(inputProps: AppBrandProps): ReactElement {
 
   return (
     <Link
-      aria-label={t('navigation.brandHome', { defaultValue: 'NocoBase home' })}
+      aria-label={t('navigation.brandHome', {
+        defaultValue: 'Dương Sinh Studio home',
+      })}
       className='flex min-w-0 items-center text-foreground'
       to='/'
     >
       {compact ? (
         <span className='size-9 shrink-0 overflow-hidden'>
           <img
-            src={resolveAssetUrl('/assets/logo-mark.png')}
+            src={resolveAssetUrl('/assets/ds-mark.svg')}
             alt=''
             className='size-full object-contain dark:hidden'
           />
           <img
-            src={resolveAssetUrl('/assets/logo-mark-dark.png')}
+            src={resolveAssetUrl('/assets/ds-mark-dark.svg')}
             alt=''
             className='hidden size-full object-contain dark:block'
           />
@@ -33,13 +35,13 @@ export function AppBrand(inputProps: AppBrandProps): ReactElement {
       ) : (
         <span className='h-8 min-w-0 overflow-hidden'>
           <img
-            src={resolveAssetUrl('/assets/logo.png')}
-            alt='NocoBase'
+            src={resolveAssetUrl('/assets/ds-logo.svg')}
+            alt='Dương Sinh Studio'
             className='h-full w-auto object-contain dark:hidden'
           />
           <img
-            src={resolveAssetUrl('/assets/logo-dark.png')}
-            alt='NocoBase'
+            src={resolveAssetUrl('/assets/ds-logo-dark.svg')}
+            alt='Dương Sinh Studio'
             className='hidden h-full w-auto object-contain dark:block'
           />
         </span>

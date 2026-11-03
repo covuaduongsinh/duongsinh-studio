@@ -2,6 +2,9 @@
 # KHÔNG có bí mật ở đây: SECRETS_KEYS, DB_PASSWORD, INITIAL_ADMIN_* đến từ biến môi trường (tab Environment của Dokploy),
 # và biến môi trường đè lên file này (xem `dist/variables.json`).
 
+i18n:
+  defaultLocale: vi-VN
+
 client:
   app:
     title: Dương Sinh Studio

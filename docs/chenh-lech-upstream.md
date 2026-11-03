@@ -426,6 +426,29 @@ nhãn trên danh sách issue (`client/pages/issues/release-labels.ts`) và mục
 - **Tài nguyên:** đọc `MemAvailable` của host qua `/proc/meminfo` trong container (không có lxcfs) và đo thời gian trả
   lời của production; < 1,2 GB trống thì không dựng (`blocked: resources`), production > 3 s thì dừng preview.
 
+## 21. S6.1 — Tiếng Việt và nhận diện Dương Sinh (03/11/2026)
+
+- **Bản vi-VN của plugin upstream là dịch máy và lệch nghĩa**: `projects` dịch issue thành "Vấn đề", executor thành
+  "Người thi hành án", trạng thái "Tồn đọng"/"Đang xét duyệt"; `agents` dịch agent thành "Tác nhân"/"đại lý", runner
+  thành "Trình chạy"/"Thời gian chạy"; một vài chuỗi vô nghĩa ("hành động trên sân khấu" cho stage action). Lớp app không
+  sửa `node_modules`: theo skill `nocobase-app-plugin-i18n`, khối `overrides` trong locale của app (khoá theo tên gói,
+  áp sau khi mọi namespace đã đăng ký nên app luôn thắng) — `client/locales/overrides/vi-VN.ts` (7 gói: agent-sessions,
+  agents, foundation, knowledge, mail, projects, releases) và `server/locales/overrides/vi-VN.ts` (agent-sessions, agents,
+  projects), sinh tự động bằng luật thay thế theo bảng thuật ngữ `docs/thuat-ngu.md` (chỉ áp khi chuỗi tiếng Anh tương
+  ứng có thuật ngữ đó; "runtime" của plugin releases giữ nghĩa môi trường chạy ứng dụng), cộng trạng thái công việc viết
+  tay. Test `tests/client/locale-parity.test.ts` báo lỗi khi một khoá override không còn trong plugin (sau nâng cấp).
+- **File override phải nằm ngoài thư mục gốc `locales/`**: `pnpm nocobase locales check` coi mọi file `locales/*.ts` là
+  một ngôn ngữ (`vi-VN.overrides.ts` bị báo là ngôn ngữ thứ tư), nên đặt ở `locales/overrides/vi-VN.ts`.
+- **Mặc định vi-VN**: `server/config/i18n.ts` đổi `defaults.defaultLocale` sang `vi-VN` (đè được bằng
+  `APP_DEFAULT_LOCALE`), `deploy/dokploy/config.yml` ghi rõ `i18n.defaultLocale: vi-VN`. Người đã chọn ngôn ngữ giữ lựa
+  chọn của mình (plugin i18n lưu theo phiên). Mọi plugin Studio dùng đều đã có vi-VN (api-keys, concurrency,
+  database-explorer, template-print không có locale client nào), nên không phải dịch bổ sung cho chúng.
+- **Nhận diện**: skill thiết kế Dương Sinh không kèm tệp logo, nên dựng logo SVG theo quy tắc của skill (navy `#2B3990`,
+  ô bàn cờ, chữ Roboto, nhấn cam `#F7941D`): `public/assets/ds-mark(-dark).svg`, `ds-logo(-dark).svg`; favicon SVG,
+  `theme-color`, tiêu đề trang, màn hình tải; token `--primary` của hai theme đổi sang `#2B3990` (tối `#9AA8F0`), panel
+  đăng nhập navy + điểm nhấn cam; font Roboto (Google Fonts) đứng đầu `--font-sans`. Biểu tượng NocoBase trong
+  `brand-loading-mark`/`brand-watermark` (hình trang trí khi tải) giữ nguyên. Khi có file logo chính thức thì thay bốn SVG.
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném
