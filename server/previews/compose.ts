@@ -54,6 +54,8 @@ export type ComposeEnv = Readonly<Record<(typeof COMPOSE_ENV)[number], string>>;
 export const SETUP_SCRIPT = [
   "const env = process.env; const fs = require('fs'); const cp = require('child_process');",
   'const report = async (status, reason) => { for (let i = 0; i < 5; i++) { try { const r = await fetch(env.CALLBACK_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ status, reason, token: env.CALLBACK_TOKEN }) }); if (r.ok) return; } catch (e) { console.error("report", e.message); } await new Promise((ok) => setTimeout(ok, 5000)); } };',
+  // Opening a stopped preview starts every container again, this one too: once set up, it only says so and exits.
+  "if (fs.existsSync('/state/done')) { console.log('Already set up; nothing to do.'); process.exit(0); }",
   '(async () => { try {',
   "const h = { authorization: 'Bearer ' + env.GH_TOKEN, accept: 'application/vnd.github+json', 'user-agent': 'duongsinh-studio-preview' };",
   "fs.mkdirSync('/work', { recursive: true }); process.chdir('/work');",
@@ -67,6 +69,7 @@ export const SETUP_SCRIPT = [
   // On a busy VPS one blueprint can outlast Node's five-minute response timeout ("fetch failed"); run.mjs is safe to
   // run again and a second pass only finishes what the first left, so it is tried up to three times.
   "for (let attempt = 1; ; attempt++) { try { run(['setup/run.mjs', 'all']); break; } catch (error) { if (attempt >= 3) throw error; console.error('run.mjs all failed, attempt ' + attempt + ' of 3; running it again'); } }",
+  "fs.writeFileSync('/state/done', env.SHA + '\\n');",
   "await report('ready', null);",
   "} catch (error) { console.error(error); await report('failed', String((error && error.message) || error).slice(0, 500)); process.exit(1); } })();",
 ].join(' ');
@@ -196,6 +199,8 @@ ${setupEnv}
     extra_hosts:
 ${extraHosts}
     command: ["node", "-e", ${yamlString(SETUP_SCRIPT)}]
+    volumes:
+      - setupstate:/state
     mem_limit: 512m
     cpus: 0.5
     restart: "no"
@@ -207,6 +212,7 @@ networks:
 volumes:
   pgdata:
   storage:
+  setupstate:
 `;
 }
 

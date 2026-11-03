@@ -109,6 +109,9 @@ test('the compose file blocks production, gates the pages with basic auth and ho
   expect(file).toContain('ds-preview-app');
   expect(file).not.toMatch(/^ {2}(app|db):$/mu);
   expect(SETUP_SCRIPT).not.toContain('$');
+  // The one-shot setup does nothing when the stopped preview is started again.
+  expect(SETUP_SCRIPT.indexOf("fs.existsSync('/state/done')")).toBeLessThan(SETUP_SCRIPT.indexOf('api.github.com'));
+  expect(file).toContain('setupstate:/state');
   expect(SETUP_SCRIPT).not.toContain('`');
   expect(() => composeFile({ slot: 'preview', host: 'evil`) || Host(`x', basicAuthUsers: users })).toThrow();
   expect(() =>
