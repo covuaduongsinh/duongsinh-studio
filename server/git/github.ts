@@ -106,6 +106,16 @@ export interface GitHubClient {
   ): Promise<GitHubComparison>;
   /** When a commit was made (its committer date). */
   commitDate(fullName: string, sha: string): Promise<string | null>;
+  /** The artifacts a workflow run uploaded (names, ids and the API URL their zip downloads from). */
+  runArtifacts(fullName: string, runId: number): Promise<GitHubArtifact[]>;
+}
+
+export interface GitHubArtifact {
+  readonly id: number;
+  readonly name: string;
+  readonly expired: boolean;
+  /** `GET` with the token answers a redirect to the zip. */
+  readonly downloadUrl: string;
 }
 
 export interface GitHubTag {
@@ -465,6 +475,25 @@ export function createGitHubClient(options: {
       return (
         text(record(commit.committer).date) ?? text(record(commit.author).date)
       );
+    },
+    async runArtifacts(fullName, runId) {
+      const answer = record(
+        await call(
+          'GET',
+          `${repoPath(fullName)}/actions/runs/${encodeURIComponent(String(runId))}/artifacts?per_page=100`,
+        ),
+      );
+      return items(answer.artifacts)
+        .map((value): GitHubArtifact => {
+          const artifact = record(value);
+          return {
+            id: typeof artifact.id === 'number' ? artifact.id : 0,
+            name: text(artifact.name) ?? '',
+            expired: artifact.expired === true,
+            downloadUrl: text(artifact.archive_download_url) ?? '',
+          };
+        })
+        .filter((artifact) => artifact.id > 0 && artifact.downloadUrl !== '');
     },
   };
 }

@@ -5,7 +5,7 @@
  * (anyone else who may deploy asks the owner, who decides in the inbox).
  */
 import { useTranslation } from '@nocobase/i18n/client';
-import { PackageIcon, RefreshCwIcon } from 'lucide-react';
+import { RefreshCwIcon } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 
@@ -22,7 +22,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#components/ui/dialog';
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '#components/ui/empty';
 import { Label } from '#components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '#components/ui/tabs';
@@ -40,6 +39,8 @@ import {
   type IssueWhere,
   type ReleaseVersion,
 } from '#hooks/use-releases';
+
+import { PreviewsTab } from './previews.js';
 
 const TABS = ['previews', 'staging', 'releases', 'pending'] as const;
 type Tab = (typeof TABS)[number];
@@ -333,17 +334,10 @@ export default function ReleasesPage(): ReactElement {
   let body: ReactElement;
   if (tab === 'previews')
     body = (
-      <Empty>
-        <EmptyHeader>
-          <EmptyMedia variant='icon'>
-            <PackageIcon />
-          </EmptyMedia>
-          <EmptyTitle>{t('releases.previews.title')}</EmptyTitle>
-          <EmptyDescription>
-            {preview?.description ?? t('releases.previews.description')}
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
+      <div className='flex flex-col gap-4'>
+        {preview?.description ? <p className='text-sm text-muted-foreground'>{preview.description}</p> : null}
+        <PreviewsTab slot='preview' />
+      </div>
     );
   else if (tab === 'releases') body = <ReleasesTab projectId={projectId} />;
   else if (pending.error)
@@ -353,7 +347,14 @@ export default function ReleasesPage(): ReactElement {
       </p>
     );
   else if (!pending.data) body = <Loading />;
-  else body = <IssueTable marks={tab === 'staging' ? staging : pendingMarks} />;
+  else if (tab === 'staging')
+    body = (
+      <div className='flex flex-col gap-4'>
+        <PreviewsTab slot='staging' />
+        <IssueTable marks={staging} />
+      </div>
+    );
+  else body = <IssueTable marks={pendingMarks} />;
 
   return (
     <PageContainer>

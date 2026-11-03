@@ -119,6 +119,22 @@ Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng n�
   đổi qua `PUT /api/deploys/repositories/{id}/apps/production`.
 - Nhắc trong Inbox mỗi ngày khi có issue đã merge hơn 3 ngày mà chưa lên production.
 
+## Preview và staging (S5.6)
+
+- **Cấu hình** (tab Environment của compose `studio`): `DOKPLOY_URL=https://dokploy.dsc.edu.vn`, `DOKPLOY_API_KEY`
+  (khoá Dokploy, bí mật), `DOKPLOY_PROJECT_ID=UXiVqm4NRAAJO1HTFNo9I`. Thiếu một trong ba → Studio từ chối mọi thao tác
+  preview (không làm giả).
+- **Compose do Studio tạo** trong project `duongsinh-studio`: `nocobase-preview` (https://preview.dsc.edu.vn) và
+  `nocobase-staging` (https://staging-nocobase.dsc.edu.vn). Mỗi lần dựng Studio **xoá compose cũ kèm volume** rồi tạo mới
+  (id mới ghi vào `dsPreviewSlots`). Đừng sửa tay hai compose này; sửa ở `server/previews/compose.ts`.
+- **Kích hoạt:** PR của `duongsinh-nocobase` có nhãn `preview` → workflow `preview.yml` build plugin → Studio dựng. Push vào
+  `main` → staging. Admin dựng lại staging: `POST /api/previews/staging {repositoryId}`.
+- **Chỗ bị kẹt:** Releases → Previews → "Gỡ xuống" (PR đang chiếm chỗ) để PR chờ tiếp theo lên; hoặc đóng PR / bỏ nhãn.
+  Nếu compose bị xoá tay trong Dokploy, Studio bỏ qua và tạo lại ở lần dựng sau.
+- **Chi phí RAM:** preview chạy ≈ 1–1,4 GB (app 1 GB + DB 384 MB + setup 512 MB lúc dựng); staging tương tự và chạy
+  thường trực. Studio không dựng khi VPS còn < 1,2 GB trống; production > 3 s thì preview bị dừng.
+- **Tắt hẳn preview:** xoá `DOKPLOY_API_KEY` khỏi Environment của `studio` rồi Deploy; xoá tay 2 compose nếu còn.
+
 ## Runner
 
 **Runner dùng chung trên VPS (S5.3, 03/11/2026):** `vps-studio-runner` (trust `team`, 1 lượt mỗi lần) chạy dưới user hệ

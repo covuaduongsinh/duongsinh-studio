@@ -252,3 +252,62 @@ export function useDecideRequest(): UseMutationResult<
       : { note: input.note ?? '' },
   }));
 }
+
+export type PreviewStatus = 'waiting' | 'deploying' | 'ready' | 'stopped' | 'blocked' | 'failed' | 'destroyed';
+
+export interface Preview {
+  readonly id: string;
+  readonly slot: 'preview' | 'staging';
+  readonly repositoryId: string;
+  readonly pullNumber: number | null;
+  readonly issueId: string | null;
+  readonly branch: string;
+  readonly sha: string;
+  readonly logsUrl: string | null;
+  readonly status: PreviewStatus;
+  readonly reason: string | null;
+  readonly url: string | null;
+  readonly readyAt: string | null;
+  readonly lastUsedAt: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface PreviewCredentials {
+  readonly url: string;
+  readonly account: string;
+  readonly password: string;
+}
+
+/** Previews and staging deploys (`/api/previews`), for one issue when `issueId` is given. */
+export function usePreviews(issueId?: string): UseQueryResult<Preview[]> {
+  const api = useApiClient();
+  return useQuery({
+    queryKey: [...releaseKeys.all, 'previews', issueId ?? null],
+    queryFn: ({ signal }) => read<Preview[]>(api, 'previews', signal, issueId ? { issueId } : undefined),
+    refetchInterval: (query) =>
+      (query.state.data ?? []).some((item) => item.status === 'deploying' || item.status === 'waiting') ? 15_000 : false,
+  });
+}
+
+/** The generated sign-in of a preview: only someone who may edit the issue gets it (asked when shown). */
+export function usePreviewCredentials(previewId: string | null): UseQueryResult<PreviewCredentials | null> {
+  const api = useApiClient();
+  return useQuery({
+    queryKey: [...releaseKeys.all, 'previewCredentials', previewId],
+    enabled: previewId !== null,
+    retry: false,
+    queryFn: ({ signal }) => read<PreviewCredentials | null>(api, `previews/${previewId ?? ''}/credentials`, signal),
+  });
+}
+
+export function usePreviewAction(): UseMutationResult<Preview, unknown, { id: string; action: 'open' | 'retry' | 'down' }> {
+  return useReleaseMutation<{ id: string; action: 'open' | 'retry' | 'down' }, Preview>((input) => ({
+    path: `previews/${input.id}/${input.action}`,
+    json: {},
+  }));
+}
+
+export function useDeployStaging(): UseMutationResult<Preview, unknown, string> {
+  return useReleaseMutation<string, Preview>((repositoryId) => ({ path: 'previews/staging', json: { repositoryId } }));
+}

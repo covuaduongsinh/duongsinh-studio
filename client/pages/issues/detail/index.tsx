@@ -76,6 +76,7 @@ import { RouterAnchor } from '../router-anchor.js';
 import { IssueActivity } from './issue-activity.js';
 import { IssueAside } from './issue-aside.js';
 import { IssuePullRequests } from './issue-pull-requests.js';
+import { IssuePreview } from './issue-preview.js';
 import { IssueRelease } from './issue-release.js';
 
 /** A link between two issues, as the issue detail carries it (`shared/subtasks` is not a public entry). */
@@ -362,6 +363,7 @@ function IssueDetailView({
               canMerge={canCloseIssue(viewer, detail)}
               onMerged={refetchAfterMerge}
             />
+            <IssuePreview issueId={detail.id} />
             <IssueRelease issueId={detail.id} />
             {detail.acceptance ? (
               <IssueSection

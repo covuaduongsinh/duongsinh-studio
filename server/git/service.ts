@@ -460,6 +460,20 @@ export function createGitService(deps: GitServiceDeps) {
     };
   }
 
+  /** Who hears of pull request and workflow run deliveries of a linked repository (previews), with the payload. */
+  const webhookListeners = new Set<
+    (repositoryId: string, event: string, payload: Row) => Promise<void>
+  >();
+  /** Adds a listener for `pull_request` and `workflow_run` deliveries; answers what removes it. */
+  function onWebhookEvent(
+    listener: (repositoryId: string, event: string, payload: Row) => Promise<void>,
+  ): () => void {
+    webhookListeners.add(listener);
+    return () => {
+      webhookListeners.delete(listener);
+    };
+  }
+
   // Connections.
 
   const connectionRecord = async (id: string): Promise<ConnectionRecord> => {
@@ -1083,6 +1097,14 @@ export function createGitService(deps: GitServiceDeps) {
       for (const listener of tagListeners) await listener(repository.id);
       return tagListeners.size > 0 ? 'push.tags' : 'push.ignored';
     }
+    if (event === 'pull_request' || event === 'workflow_run')
+      for (const listener of webhookListeners) {
+        try {
+          await listener(repository.id, event, payload);
+        } catch (error) {
+          report(`A ${event} listener failed for ${repository.fullName}`, error);
+        }
+      }
     const numbers = new Set<number>();
     if (event === 'pull_request') {
       const number = num(object('pull_request').number, num(payload.number));
@@ -1280,6 +1302,22 @@ export function createGitService(deps: GitServiceDeps) {
   async function getRepository(id: string): Promise<GitRepositoryView> {
     const record = await repositoryRecord(id);
     return repositoryView(record, (await projectLinks([id])).get(id) ?? []);
+  }
+
+  /**
+   * A fresh installation token of the repository's App connection, limited to that repository (an hour), for a
+   * preview's setup to read the repository and its workflow artifacts. A token connection has none to give.
+   */
+  async function repositoryToken(
+    id: string,
+  ): Promise<{ token: string; expiresAt: string; fullName: string }> {
+    const record = await repositoryRecord(id);
+    const minted = await installationToken(
+      await connectionRecord(record.connectionId),
+      record.fullName,
+      true,
+    );
+    return { ...minted, fullName: record.fullName };
   }
 
   /** A GitHub client with the token of the repository's connection, for reads other modules make (project memory). */
@@ -2193,7 +2231,9 @@ export function createGitService(deps: GitServiceDeps) {
     listRepositories,
     getRepository,
     clientForRepository,
+    repositoryToken,
     onTagPush,
+    onWebhookEvent,
     linkRepository,
     attachToProject,
     projectsOf,

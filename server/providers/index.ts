@@ -10,6 +10,7 @@ import MemoryProvider from './memory.js';
 import KnowledgeProvider from './knowledge.js';
 import ConversationsProvider from './conversations.js';
 import ReleasesProvider from './releases.js';
+import PreviewsProvider from './previews.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -31,6 +32,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   ConversationsProvider,
   // Versions from tags, where each issue is, and the owner's production marks; the releases plugin's access.
   ReleasesProvider,
+  // Previews and staging of NocoBase 2 on the VPS, through the allowlisted Dokploy client (S5.6).
+  PreviewsProvider,
 ];
 
 export default serviceProviders;

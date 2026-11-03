@@ -35,6 +35,10 @@ services:
       INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:?INITIAL_ADMIN_EMAIL is required}
       INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:?INITIAL_ADMIN_PASSWORD is required}
       NODE_OPTIONS: --max-old-space-size=1024
+      # Previews and staging (S5.6): Studio drives only the composes it created (server/previews/dokploy.ts).
+      DOKPLOY_URL: ${DOKPLOY_URL:-}
+      DOKPLOY_API_KEY: ${DOKPLOY_API_KEY:-}
+      DOKPLOY_PROJECT_ID: ${DOKPLOY_PROJECT_ID:-}
     volumes:
       - /srv/duongsinh-studio/releases/${STUDIO_RELEASE:?STUDIO_RELEASE is required}/dist:/app/dist:ro
       - /srv/duongsinh-studio/config.yml:/app/config.yml:ro

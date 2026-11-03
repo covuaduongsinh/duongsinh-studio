@@ -31,6 +31,12 @@ import { GitError, type GitRepositoryView } from '../git/service.js';
 import { gitServiceToken } from '../providers/git.js';
 import { releaseServiceToken } from '../providers/releases.js';
 import { ReleaseError, type IssueMark } from '../releases/service.js';
+import { agentsToken, runIdentityOf } from '@nocobase/app-plugin-agents/server/tokens';
+import { PREVIEWS_MANAGE_ACTION } from '../agents/actions.js';
+import { ISSUE_SUBJECT } from '../agents/ids.js';
+import { DokployError, DokployRefused } from '../previews/dokploy.js';
+import { PreviewError } from '../previews/service.js';
+import { previewServiceToken } from '../providers/previews.js';
 
 type Env = AuthEnv & AuthorizationEnv;
 
@@ -225,6 +231,42 @@ const ApproveBody = z
   .object({ confirmAppId: z.string().trim().min(1).max(100), note: z.string().trim().max(2000).optional() })
   .strict();
 const RejectBody = z.object({ note: z.string().trim().min(1).max(2000) }).strict();
+
+const PreviewSchema = z
+  .object({
+    id: z.string(),
+    slot: z.enum(['preview', 'staging']),
+    repositoryId: z.string(),
+    pullNumber: z.number().int().nullable(),
+    pullRequestId: z.string().nullable(),
+    issueId: z.string().nullable(),
+    branch: z.string(),
+    sha: z.string(),
+    runId: z.number().int().nullable(),
+    logsUrl: z.string().nullable().meta({ description: 'The workflow run that built the plugins.' }),
+    status: z.enum(['waiting', 'deploying', 'ready', 'stopped', 'blocked', 'failed', 'destroyed']),
+    reason: z.string().nullable().meta({ description: 'Why it is blocked, failed or gone (`slotBusy: …`, `resources: …`).' }),
+    url: z.string().nullable(),
+    readyAt: z.string().nullable(),
+    lastUsedAt: z.string().nullable(),
+    stoppedAt: z.string().nullable(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  })
+  .meta({ ref: 'StudioPreview' });
+const PreviewCredentialsSchema = z
+  .object({ url: z.string(), account: z.string(), password: z.string() })
+  .meta({ ref: 'StudioPreviewCredentials' });
+const PreviewParams = z.object({ previewId: z.string() });
+const PreviewQuery = z.object({
+  projectId: z.string().optional(),
+  repositoryId: z.string().optional(),
+  issueId: z.string().optional(),
+});
+const StagingBody = z.object({ repositoryId: z.string().min(1) }).strict();
+const ReportBody = z
+  .object({ token: z.string().min(16).max(200), status: z.enum(['ready', 'failed']), reason: z.string().max(2000).nullable().optional() })
+  .strict();
 
 const denied = (message: string): ApiError =>
   new ApiError({ status: 'PERMISSION_DENIED', reason: 'ACCESS_DENIED', domain: DOMAIN, message });
@@ -900,8 +942,224 @@ export const deployRoutes: AppApiRouteContribution<Application> = defineApiRoute
     },
   );
 
+  // Previews and staging (S5.6): `/api/previews/*`. The setup container's report carries its own one-time token and no
+  // session; every other route needs a person or, for reading and for an agent's own pull request, a run.
+  const previews = new Hono<Env>();
+  const previewReports = new Hono();
+  const previewService = () => container.resolve(previewServiceToken);
+
+  const previewGuarded = async <T>(work: () => Promise<T>): Promise<T> =>
+    guarded(async () => {
+      try {
+        return await work();
+      } catch (error) {
+        if (error instanceof PreviewError)
+          throw new ApiError({ status: error.status, reason: error.reason, domain: DOMAIN, message: error.message, cause: error });
+        if (error instanceof DokployRefused)
+          throw new ApiError({ status: 'PERMISSION_DENIED', reason: 'DOKPLOY_REFUSED', domain: DOMAIN, message: error.message, cause: error });
+        if (error instanceof DokployError)
+          throw new ApiError({ status: 'UNAVAILABLE', reason: 'DOKPLOY_UNAVAILABLE', domain: DOMAIN, message: error.message, cause: error });
+        throw error;
+      }
+    });
+
+  const visiblePreview = async (context: Context<Env>, previewId: string) => {
+    const { repositories, viewer } = await visible(context);
+    const preview = await previewGuarded(() => previewService().get(previewId));
+    if (!repositories.some((repository) => repository.id === preview.repositoryId))
+      throw notFound(`Preview ${previewId} does not exist.`);
+    return { preview, viewer };
+  };
+
+  /** Whoever may edit the preview's issue in person, or an administrator; staging (no issue) is administrators'. */
+  const mayManagePreview = async (context: Context<Env>, viewer: Viewer, issueId: string | null): Promise<boolean> => {
+    if ((await unrestricted(context)) || (await holdsSettings(context, 'rel.environments', 'manage'))) return true;
+    if (!issueId) return false;
+    const edit = viewer.permissions.scopes['pm.issues/edit'];
+    return Boolean(edit && edit !== 'none' && (await issueOf(viewer, issueId)));
+  };
+
+  /** A run may take down or retry only the preview of the issue it works on, when its agent holds the action. */
+  const runMayManagePreview = async (context: Context<Env>, issueId: string | null): Promise<boolean | null> => {
+    const session = context.get('auth');
+    const run = runIdentityOf(session);
+    if (!run?.run) return null;
+    if (!issueId || run.run.run.subjectKind !== ISSUE_SUBJECT || run.run.run.subjectId !== issueId) return false;
+    if (!container.has(agentsToken)) return false;
+    return (await container.resolve(agentsToken).gate.allowed(run)).has(PREVIEWS_MANAGE_ACTION);
+  };
+
+  const requirePreviewManager = async (context: Context<Env>, previewId: string) => {
+    const { preview, viewer } = await visiblePreview(context, previewId);
+    const asRun = await runMayManagePreview(context, preview.issueId);
+    if (asRun === false || (asRun === null && !(await mayManagePreview(context, viewer, preview.issueId))))
+      throw denied('Only someone who may edit the issue (or its own run, given the previews action) manages its preview.');
+    return preview;
+  };
+
+  for (const path of ['/', '/staging', '/:previewId', '/:previewId/open', '/:previewId/credentials', '/:previewId/retry', '/:previewId/down'])
+    previews.use(path, auth.required({ scopedKeys: true }), authz.middleware());
+
+  previews.get(
+    '/',
+    describeRoute({
+      tags: ['Studio'],
+      summary: 'List previews and staging deploys',
+      description:
+        'The NocoBase 2 previews of pull requests labelled `preview` and the staging deploys of the default branch, newest first, of the repositories the caller sees. Credentials are never listed.',
+      operationId: 'studioPreviewsList',
+      security: PERSON_OR_RUN,
+      ...cliRoute({ command: 'preview list', action: VIEW_ACTION }),
+      responses: { '200': listResponse(PreviewSchema), ...apiErrorResponses },
+    }),
+    apiValidator('query', PreviewQuery),
+    async (context) => {
+      const query = context.req.valid('query');
+      const repositories = await scopedRepositories(context, query);
+      return context.json({
+        data: await previewService().list({
+          repositoryIds: repositories.map((repository) => repository.id),
+          ...(query.issueId ? { issueId: query.issueId } : {}),
+        }),
+      });
+    },
+  );
+
+  previews.post(
+    '/staging',
+    describeRoute({
+      tags: ['Studio'],
+      summary: 'Deploy staging again',
+      description: 'Builds staging again from the newest build of the default branch. An administrator in person.',
+      operationId: 'studioPreviewsDeployStaging',
+      security: PERSON,
+      ...cliRoute(false),
+      responses: { '200': dataResponse(PreviewSchema), ...apiErrorResponses },
+    }),
+    apiValidator('json', StagingBody),
+    async (context) => {
+      const userId = await requireAdmin(context);
+      const { repositoryId } = context.req.valid('json');
+      await visibleRepository(context, repositoryId);
+      return context.json({ data: await previewGuarded(() => previewService().deployStaging(repositoryId, userId)) });
+    },
+  );
+
+  previews.get(
+    '/:previewId',
+    describeRoute({
+      tags: ['Studio'],
+      summary: 'Get a preview',
+      operationId: 'studioPreviewsGet',
+      security: PERSON_OR_RUN,
+      ...cliRoute({ command: 'preview get', action: VIEW_ACTION }),
+      responses: { '200': dataResponse(PreviewSchema), ...apiErrorResponses, '404': apiErrorResponse(404) },
+    }),
+    apiValidator('param', PreviewParams),
+    async (context) => context.json({ data: (await visiblePreview(context, context.req.valid('param').previewId)).preview }),
+  );
+
+  previews.post(
+    '/:previewId/open',
+    describeRoute({
+      tags: ['Studio'],
+      summary: 'Open a preview',
+      description: 'Counts as use (a ready preview stops after 30 minutes unused) and starts a stopped one again.',
+      operationId: 'studioPreviewsOpen',
+      security: PERSON,
+      ...cliRoute(false),
+      responses: { '200': dataResponse(PreviewSchema), ...apiErrorResponses },
+    }),
+    apiValidator('param', PreviewParams),
+    async (context) => {
+      personId(context);
+      const { preview } = await visiblePreview(context, context.req.valid('param').previewId);
+      return context.json({ data: await previewGuarded(() => previewService().open(preview.id)) });
+    },
+  );
+
+  previews.get(
+    '/:previewId/credentials',
+    describeRoute({
+      tags: ['Studio'],
+      summary: "A preview's sign-in",
+      description: 'The generated root account of the sample NocoBase. Only someone who may edit the issue, in person.',
+      operationId: 'studioPreviewsCredentials',
+      security: PERSON,
+      ...cliRoute(false),
+      responses: { '200': dataResponse(PreviewCredentialsSchema.nullable()), ...apiErrorResponses },
+    }),
+    apiValidator('param', PreviewParams),
+    async (context) => {
+      personId(context);
+      const { preview, viewer } = await visiblePreview(context, context.req.valid('param').previewId);
+      if (!(await mayManagePreview(context, viewer, preview.issueId)))
+        throw denied("Only someone who may edit the issue sees its preview's sign-in.");
+      return context.json({ data: await previewGuarded(() => previewService().credentials(preview.id)) });
+    },
+  );
+
+  previews.post(
+    '/:previewId/retry',
+    describeRoute({
+      tags: ['Studio'],
+      summary: 'Build a preview again',
+      description: `The same build again, from empty data. Someone who may edit the issue, or the issue's own run when its agent holds \`${PREVIEWS_MANAGE_ACTION}\`.`,
+      operationId: 'studioPreviewsRetry',
+      security: PERSON_OR_RUN,
+      ...cliRoute({ command: 'preview retry', action: PREVIEWS_MANAGE_ACTION }),
+      responses: { '200': dataResponse(PreviewSchema), ...apiErrorResponses },
+    }),
+    apiValidator('param', PreviewParams),
+    async (context) => {
+      const preview = await requirePreviewManager(context, context.req.valid('param').previewId);
+      return context.json({ data: await previewGuarded(() => previewService().retry(preview.id)) });
+    },
+  );
+
+  previews.post(
+    '/:previewId/down',
+    describeRoute({
+      tags: ['Studio'],
+      summary: 'Take a preview down',
+      description: `Removes the preview with its data; a pull request waiting for the slot takes it. Same callers as retry.`,
+      operationId: 'studioPreviewsDown',
+      security: PERSON_OR_RUN,
+      ...cliRoute({ command: 'preview down', action: PREVIEWS_MANAGE_ACTION }),
+      responses: { '200': dataResponse(PreviewSchema), ...apiErrorResponses },
+    }),
+    apiValidator('param', PreviewParams),
+    async (context) => {
+      const preview = await requirePreviewManager(context, context.req.valid('param').previewId);
+      return context.json({ data: await previewGuarded(() => previewService().destroy(preview.id, 'taken down')) });
+    },
+  );
+
+  previewReports.post(
+    '/:previewId/report',
+    describeRoute({
+      tags: ['Studio'],
+      summary: "A preview setup's report",
+      description: 'Called by the setup container of a preview with the one-time token it was given. Not for people.',
+      operationId: 'studioPreviewsReport',
+      security: [],
+      ...cliRoute(false),
+      responses: { '204': { description: 'Recorded.' }, '401': apiErrorResponse(401) },
+    }),
+    async (context) => {
+      const previewId = context.req.param('previewId') ?? '';
+      const raw: unknown = await context.req.json().catch(() => null);
+      const parsed = ReportBody.safeParse(raw);
+      if (!parsed.success) return context.json({ error: 'invalid report' }, 400);
+      const accepted = await previewService().report({ id: previewId, ...parsed.data, reason: parsed.data.reason ?? null });
+      return accepted ? context.body(null, 204) : context.json({ error: 'unknown preview or token' }, 401);
+    },
+  );
+
   const root = new Hono();
   root.route('/deploys', router);
   root.route('/attention', attention);
+  root.route('/previews', previewReports);
+  root.route('/previews', previews);
   return root;
 });
