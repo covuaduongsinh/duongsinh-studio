@@ -148,7 +148,7 @@ const overrides: TranslationOverrides = {
     usage: {
       otherUse: {
         description:
-          'Mô hình gọi các hoạt động agent bên ngoài, chẳng hạn như lập chỉ mục và tìm kiếm cơ sở kiến thức.',
+          'Mô hình gọi các hoạt động agent bên ngoài, chẳng hạn như lập chỉ mục và tìm kiếm cơ sở tri thức.',
       },
       description:
         'Agent nào đang chạy đã được sử dụng và giá của chúng ở mức giá mẫu hiện tại.',
@@ -504,24 +504,70 @@ const overrides: TranslationOverrides = {
     },
   },
   '@nocobase/app-plugin-knowledge': {
+    indexing: {
+      description: 'Cấu hình chỉ mục tìm kiếm cho tất cả không gian tri thức.',
+    },
     access: {
+      businessSection: 'Tri thức',
       businesses: {
         knowledge: {
+          title: 'Tri thức',
           actions: {
+            read: {
+              title: 'Đọc tri thức',
+              description:
+                'Đọc tri thức hệ thống và các không gian liên quan đến chúng',
+              related: 'Đọc tri thức (các không gian liên quan đến chúng)',
+              all: 'Đọc tri thức (tất cả)',
+            },
             propose: {
+              title: 'Đề xuất tri thức',
               description:
                 'Đề xuất thay đổi để người có thể chỉnh sửa quyết định; những agent nào có thể được cung cấp',
+              related: 'Đề xuất tri thức (không gian liên quan đến chúng)',
+              all: 'Đề xuất tri thức (tất cả)',
+            },
+            edit: {
+              title: 'Chỉnh sửa tri thức',
+              description:
+                'Chỉnh sửa, lưu trữ và đánh dấu đã xác minh và quyết định các đề xuất; tri thức hệ thống cần tất cả',
+              related: 'Chỉnh sửa tri thức (không gian liên quan đến chúng)',
+              all: 'Chỉnh sửa tri thức (tất cả)',
+            },
+            manage: {
+              title: 'Quản lý truy cập tri thức',
+              description:
+                'Thay đổi người có thể truy cập từng thư mục và bài viết, đồng thời giữ quyền truy cập vào tất cả chúng; tri thức hệ thống cần tất cả',
             },
           },
         },
       },
     },
     knowledge: {
+      directory: {
+        title: 'Tri thức',
+        system: 'Tri thức hệ thống',
+        chooseTarget: 'Chọn một dự án hoặc tri thức hệ thống để tạo trong',
+        empty: 'Không có không gian tri thức có thể tiếp cận được',
+        emptyAccessHint:
+          'Yêu cầu quản trị viên cấp quyền truy cập vào tri thức về dự án hoặc hệ thống.',
+        noAccess:
+          'Tri thức này không có sẵn hoặc bạn không còn quyền truy cập.',
+        topResults:
+          'Các phần được xếp hạng hàng đầu trên tất cả các dự án và tri thức hệ thống.',
+        welcome:
+          'Mở rộng một dự án hoặc tri thức hệ thống được chia sẻ để duyệt tài liệu. Chọn một không gian để tạo ở đó hoặc tìm kiếm trên tất cả kiến ​​thức được ủy quyền.',
+      },
+      title: 'Tri thức',
+      loadFailed: 'Không thể tải tri thức',
       files: {
         statusHint: {
           ready:
             'Văn bản của nó được trích xuất, vì vậy bộ phận tìm kiếm và agent sẽ đọc nó.',
         },
+      },
+      spaces: {
+        default: 'Tri thức',
       },
       doc: {
         archiveDescription:
@@ -533,6 +579,10 @@ const overrides: TranslationOverrides = {
           'Chữ thường, chữ số và dấu gạch nối; làm thế nào các agent và liên kết đặt tên cho nó. Để trống, nó được làm từ tiêu đề.',
         summaryHint: 'Một dòng agent đọc trong chỉ mục.',
       },
+      search: {
+        placeholder: 'Tìm kiếm tri thức',
+        label: 'Tìm kiếm tri thức',
+      },
       access: {
         agents:
           'Agent thay mặt ai đó đọc và cầu hôn nhiều nhất; họ không bao giờ chỉnh sửa hoặc quyết định.',
@@ -540,6 +590,11 @@ const overrides: TranslationOverrides = {
       permissions: {
         managers:
           'Người quản lý không gian luôn có quyền truy cập. Các agent đọc và đề xuất nhiều nhất và chỉ những gì cả họ và người của họ có thể.',
+      },
+    },
+    ui: {
+      nav: {
+        knowledge: 'Tri thức',
       },
     },
   },
