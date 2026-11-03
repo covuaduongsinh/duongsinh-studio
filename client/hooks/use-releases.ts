@@ -275,6 +275,8 @@ export interface Preview {
 
 export interface PreviewCredentials {
   readonly url: string;
+  readonly basicUser: string;
+  readonly basicPassword: string;
   readonly account: string;
   readonly password: string;
 }

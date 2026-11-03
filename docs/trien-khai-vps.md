@@ -131,6 +131,9 @@ Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng n�
   `main` → staging. Admin dựng lại staging: `POST /api/previews/staging {repositoryId}`.
 - **Chỗ bị kẹt:** Releases → Previews → "Gỡ xuống" (PR đang chiếm chỗ) để PR chờ tiếp theo lên; hoặc đóng PR / bỏ nhãn.
   Nếu compose bị xoá tay trong Dokploy, Studio bỏ qua và tạo lại ở lần dựng sau.
+- **Đăng nhập preview:** trang có cổng basic auth (người dùng `preview`/`staging`, mật khẩu sinh mỗi lần dựng); sau đó
+  đăng nhập NocoBase bằng `preview-root@example.com` + mật khẩu sinh. Cả hai xem ở Releases → Previews → "Thông tin đăng
+  nhập" (chỉ người sửa được issue, admin, owner).
 - **Chi phí RAM:** preview chạy ≈ 1–1,4 GB (app 1 GB + DB 384 MB + setup 512 MB lúc dựng); staging tương tự và chạy
   thường trực. Studio không dựng khi VPS còn < 1,2 GB trống; production > 3 s thì preview bị dừng.
 - **Tắt hẳn preview:** xoá `DOKPLOY_API_KEY` khỏi Environment của `studio` rồi Deploy; xoá tay 2 compose nếu còn.

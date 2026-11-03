@@ -64,7 +64,9 @@ export const SETUP_SCRIPT = [
   "const run = (args) => cp.execFileSync('node', args, { stdio: 'inherit' });",
   "run(['ci/nocobase-ready.mjs', 'public-forms']);",
   "for (const file of fs.readdirSync('plugins/dist').filter((name) => name.endsWith('.tgz')).sort()) run(['plugins/install.mjs', 'plugins/dist/' + file]);",
-  "run(['setup/run.mjs', 'all']);",
+  // On a busy VPS one blueprint can outlast Node's five-minute response timeout ("fetch failed"); run.mjs is safe to
+  // run again and a second pass only finishes what the first left, so it is tried up to three times.
+  "for (let attempt = 1; ; attempt++) { try { run(['setup/run.mjs', 'all']); break; } catch (error) { if (attempt >= 3) throw error; console.error('run.mjs all failed, attempt ' + attempt + ' of 3; running it again'); } }",
   "await report('ready', null);",
   "} catch (error) { console.error(error); await report('failed', String((error && error.message) || error).slice(0, 500)); process.exit(1); } })();",
 ].join(' ');
@@ -72,7 +74,16 @@ export const SETUP_SCRIPT = [
 export interface ComposeInput {
   readonly slot: PreviewSlot;
   readonly host: string;
+  /**
+   * One htpasswd line (`user:<bcrypt hash>`) for Traefik's basic auth in front of the pages. `/api/` and `/ws` stay outside
+   * it: NocoBase sends `Authorization: Bearer` on every API call, which would replace the browser's Basic credentials, so
+   * those paths are guarded by NocoBase's own sign-in (a generated root account) instead.
+   */
+  readonly basicAuthUsers: string;
 }
+
+/** An htpasswd line as a Compose label value: every `$` doubled so Compose does not read it as a variable. */
+export const composeEscape = (value: string): string => value.replaceAll('$', '$$$$');
 
 const yamlString = (value: string): string => JSON.stringify(value);
 
@@ -80,6 +91,8 @@ const yamlString = (value: string): string => JSON.stringify(value);
 export function composeFile(input: ComposeInput): string {
   const { slot, host } = input;
   if (!/^[a-z0-9.-]+$/u.test(host)) throw new Error(`Invalid preview host ${host}.`);
+  if (!/^[a-z0-9_-]+:\$2[aby]\$\d\d\$[./A-Za-z0-9]{53}$/u.test(input.basicAuthUsers))
+    throw new Error('basicAuthUsers must be one bcrypt htpasswd line.');
   const app = `ds-${slot}-app`;
   const db = `ds-${slot}-db`;
   const setup = `ds-${slot}-setup`;
@@ -147,7 +160,7 @@ ${extraHosts}
       - default
       - dokploy-network
     mem_limit: 1g
-    cpus: 1
+    cpus: 1.5
     restart: unless-stopped
     labels:
       - traefik.enable=true
@@ -157,10 +170,19 @@ ${extraHosts}
       - traefik.http.routers.${router}-http.middlewares=redirect-to-https@file
       - traefik.http.routers.${router}-http.service=${router}
       - ${yamlString(`traefik.http.routers.${router}.rule=Host(\`${host}\`)`)}
+      - traefik.http.routers.${router}.priority=100
       - traefik.http.routers.${router}.entrypoints=websecure
       - traefik.http.routers.${router}.tls.certresolver=letsencrypt
-      - traefik.http.routers.${router}.middlewares=${router}-headers
+      - traefik.http.routers.${router}.middlewares=${router}-auth,${router}-headers
       - traefik.http.routers.${router}.service=${router}
+      - ${yamlString(`traefik.http.middlewares.${router}-auth.basicauth.users=${composeEscape(input.basicAuthUsers)}`)}
+      - traefik.http.middlewares.${router}-auth.basicauth.realm=Duong Sinh preview
+      - ${yamlString(`traefik.http.routers.${router}-api.rule=Host(\`${host}\`) && (PathPrefix(\`/api/\`) || PathPrefix(\`/ws\`))`)}
+      - traefik.http.routers.${router}-api.priority=200
+      - traefik.http.routers.${router}-api.entrypoints=websecure
+      - traefik.http.routers.${router}-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.${router}-api.middlewares=${router}-headers
+      - traefik.http.routers.${router}-api.service=${router}
       - traefik.http.middlewares.${router}-headers.headers.customrequestheaders.X-Forwarded-Proto=https
       - traefik.http.middlewares.${router}-headers.headers.customresponseheaders.X-Robots-Tag=noindex, nofollow
       - traefik.http.services.${router}.loadbalancer.server.port=80

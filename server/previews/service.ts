@@ -1,4 +1,5 @@
 import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import bcrypt from 'bcryptjs';
 import { readFile } from 'node:fs/promises';
 import type { SecretsService } from '@nocobase/app-server/secrets';
 import type { DatabaseConnection, DatabaseManager } from '@nocobase/db';
@@ -63,9 +64,16 @@ export interface PreviewView {
 
 export interface PreviewCredentials {
   readonly url: string;
+  /** The basic auth in front of the pages (Traefik). */
+  readonly basicUser: string;
+  readonly basicPassword: string;
+  /** The generated root account of the sample NocoBase. */
   readonly account: string;
   readonly password: string;
 }
+
+/** A ready preview still `deploying` after this long failed (the setup container died or hangs). */
+export const SETUP_TIMEOUT_MS = 3 * 60 * 60 * 1000;
 
 export interface ResourceProbe {
   /** Memory available on the host (MiB), null when unknown. */
@@ -241,6 +249,14 @@ export function createPreviewService(deps: PreviewServiceDeps) {
     await conn().query.deleteFrom(PREVIEW_SLOTS).where('slot', '=', slot).execute();
   }
 
+  /**
+   * Forgets which preview holds the slot but keeps its compose recorded (stopped, logs kept), so the next build may still
+   * remove it: the compose id stays in `dsPreviewSlots`.
+   */
+  async function clearSlotRecordOnly(slot: PreviewSlot): Promise<void> {
+    await conn().query.updateTable(PREVIEW_SLOTS).set({ previewId: null, updatedAt: now() }).where('slot', '=', slot).execute();
+  }
+
   async function resourcesProblem(): Promise<string | null> {
     const available = await deps.probe.availableMb();
     if (available !== null && available < MIN_AVAILABLE_MB)
@@ -284,12 +300,20 @@ export function createPreviewService(deps: PreviewServiceDeps) {
     const host = deps.hosts[preview.slot];
     const credentials: PreviewCredentials = {
       url: `https://${host}`,
+      basicUser: preview.slot,
+      basicPassword: '',
       account: `${preview.slot}-root@example.com`,
       password: random(12),
     };
     const callbackToken = random(24);
+    const basicPassword = random(12);
+    const sealedCredentials = { ...credentials, basicPassword };
     await client.update(created.composeId, {
-      composeFile: composeFile({ slot: preview.slot, host }),
+      composeFile: composeFile({
+        slot: preview.slot,
+        host,
+        basicAuthUsers: `${credentials.basicUser}:${bcrypt.hashSync(basicPassword, 10)}`,
+      }),
       env: composeEnv({
         APP_KEY: random(32),
         DB_PASSWORD: random(16),
@@ -308,7 +332,7 @@ export function createPreviewService(deps: PreviewServiceDeps) {
       status: 'deploying',
       reason: null,
       url: credentials.url,
-      credentialsSealed: deps.secrets().seal(JSON.stringify(credentials), { purpose: CREDENTIALS_PURPOSE, aad: [id] }),
+      credentialsSealed: deps.secrets().seal(JSON.stringify(sealedCredentials), { purpose: CREDENTIALS_PURPOSE, aad: [id] }),
       callbackHash: hashOf(callbackToken),
       readyAt: null,
       stoppedAt: null,
@@ -426,7 +450,10 @@ export function createPreviewService(deps: PreviewServiceDeps) {
     dokploy();
     const preview = viewOf(await previewRow(id));
     const current = await occupant(preview.slot);
-    if (current?.id === id) await clearSlot(preview.slot);
+    const slotRecord = await slotRow(preview.slot);
+    // The slot's compose goes with the preview holding it, or with a failed one that left it stopped and unclaimed.
+    if (current?.id === id || (slotRecord && strOrNull(slotRecord.previewId) === null && preview.status === 'failed'))
+      await clearSlot(preview.slot);
     if (preview.status !== 'destroyed') await write(id, { status: 'destroyed', reason, stoppedAt: now() });
     if (preview.slot === 'preview') await promote();
     return get(id);
@@ -456,12 +483,25 @@ export function createPreviewService(deps: PreviewServiceDeps) {
       await write(input.id, { status: 'ready', reason: null, readyAt: at, lastUsedAt: at, callbackHash: null });
       const production = await deps.probe.productionMs();
       if (production !== null && production > MAX_PRODUCTION_MS) await stop(input.id, `resources: production answered in ${production} ms`);
-    } else
+    } else {
       await write(input.id, {
         status: 'failed',
         reason: (input.reason ?? 'The setup failed.').slice(0, 1000),
         callbackHash: null,
       });
+      // A failed setup leaves NocoBase and its database running for nothing: stop them (the containers and their logs
+      // stay until the next build or the pull request closes), and let a waiting pull request in.
+      const slotRecord = await slotRow(preview.slot);
+      if (slotRecord && strOrNull(slotRecord.previewId) === input.id) {
+        try {
+          await dokploy().stop(str(slotRecord.composeId));
+        } catch (error) {
+          report(`Stopping the failed preview ${input.id} failed`, error);
+        }
+        await clearSlotRecordOnly(preview.slot);
+        if (preview.slot === 'preview') await promote();
+      }
+    }
     return true;
   }
 
@@ -494,11 +534,34 @@ export function createPreviewService(deps: PreviewServiceDeps) {
     const sealed = strOrNull(row.credentialsSealed);
     if (!sealed) return null;
     const value = record(JSON.parse(deps.secrets().open(sealed, { purpose: CREDENTIALS_PURPOSE, aad: [id] })));
-    return { url: str(value.url), account: str(value.account), password: str(value.password) };
+    return {
+      url: str(value.url),
+      basicUser: str(value.basicUser),
+      basicPassword: str(value.basicPassword),
+      account: str(value.account),
+      password: str(value.password),
+    };
   }
 
-  /** Stops ready previews nobody used for 30 minutes (staging stays); a stopped slot lets a waiting one in. */
+  /**
+   * Stops ready previews nobody used for 30 minutes (staging stays; a preview still being set up is not idle), fails
+   * one whose setup never reported within three hours, and lets a waiting pull request into a freed slot.
+   */
   async function sweep(): Promise<number> {
+    const stuck: Row[] = await conn()
+      .query.selectFrom(PREVIEWS)
+      .selectAll()
+      .where('status', '=', 'deploying')
+      .where('updatedAt', '<', new Date(now().getTime() - SETUP_TIMEOUT_MS))
+      .execute();
+    for (const row of stuck) {
+      try {
+        await stop(str(row.id), 'setup timed out: no report within 3 hours');
+        await write(str(row.id), { status: 'failed' });
+      } catch (error) {
+        report(`Stopping the stuck preview ${str(row.id)} failed`, error);
+      }
+    }
     const before = new Date(now().getTime() - IDLE_STOP_MS);
     const rows: Row[] = await conn()
       .query.selectFrom(PREVIEWS)

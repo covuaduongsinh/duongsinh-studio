@@ -2,6 +2,7 @@
 import { randomUUID } from 'node:crypto';
 import { afterEach, expect, vi } from 'vitest';
 import { createAppTest } from '@nocobase/app-testing/server';
+import bcrypt from 'bcryptjs';
 import { signIn, DEFAULT_ADMIN_CREDENTIALS } from '@nocobase/app-plugin-authentication/testing';
 import { secretsServiceToken } from '@nocobase/app-server/secrets';
 import { databaseManagerToken } from '@nocobase/db';
@@ -91,8 +92,17 @@ test('the Dokploy client touches only the preview composes Studio recorded', asy
   expect(created).toMatchObject({ composeId: 'new-1', environmentId: 'env-1' });
 });
 
-test('the compose file blocks production and holds no secret', () => {
-  const file = composeFile({ slot: 'preview', host: 'preview.dsc.edu.vn' });
+test('the compose file blocks production, gates the pages with basic auth and holds no secret', () => {
+  const users = `preview:${bcrypt.hashSync('gate-password', 4)}`;
+  const file = composeFile({ slot: 'preview', host: 'preview.dsc.edu.vn', basicAuthUsers: users });
+  // The pages are behind basic auth; `/api/` and `/ws` (NocoBase sends its own Authorization) have a router without it.
+  expect(file).toContain(`basicauth.users=${users.replaceAll('$', '$$$$')}`);
+  expect(file).not.toContain(users);
+  expect(file).toContain('routers.ds-nocobase-preview.middlewares=ds-nocobase-preview-auth,ds-nocobase-preview-headers');
+  expect(file).toContain('routers.ds-nocobase-preview-api.middlewares=ds-nocobase-preview-headers');
+  expect(file).toMatch(/ds-nocobase-preview-api\.rule=Host\(`preview\.dsc\.edu\.vn`\) && \(PathPrefix\(`\/api\/`\) \|\| PathPrefix\(`\/ws`\)\)/u);
+  expect(file).not.toContain('gate-password');
+  expect(() => composeFile({ slot: 'preview', host: 'preview.dsc.edu.vn', basicAuthUsers: 'preview:plain' })).toThrow();
   for (const host of BLOCKED_HOSTS) expect(file).toContain(`${host}:0.0.0.0`);
   expect(file).toContain('mem_limit: 1g');
   expect(file).toContain('Host(`preview.dsc.edu.vn`)');
@@ -100,7 +110,7 @@ test('the compose file blocks production and holds no secret', () => {
   expect(file).not.toMatch(/^ {2}(app|db):$/mu);
   expect(SETUP_SCRIPT).not.toContain('$');
   expect(SETUP_SCRIPT).not.toContain('`');
-  expect(() => composeFile({ slot: 'preview', host: 'evil`) || Host(`x' })).toThrow();
+  expect(() => composeFile({ slot: 'preview', host: 'evil`) || Host(`x', basicAuthUsers: users })).toThrow();
   expect(() =>
     composeEnv({
       APP_KEY: 'a\nb',
@@ -211,7 +221,8 @@ test('one preview slot: queue, report, close, idle and resources', async ({ app 
   expect(await service.report({ id: five.id, token: 'r2'.padEnd(24, 'x'), status: 'ready', reason: null })).toBe(true);
   expect((await service.get(five.id)).status).toBe('ready');
   const credentials = await service.credentials(five.id);
-  expect(credentials).toMatchObject({ url: 'https://preview.test', account: 'preview-root@example.com' });
+  expect(credentials).toMatchObject({ url: 'https://preview.test', account: 'preview-root@example.com', basicUser: 'preview' });
+  expect(credentials?.basicPassword).toMatch(/^r\d/u);
 
   // Closing pull request #5 removes its compose and gives the slot to #6.
   await service.onWebhook('repo-1', 'pull_request', { action: 'closed', pull_request: { number: 5 } });
@@ -239,6 +250,20 @@ test('one preview slot: queue, report, close, idle and resources', async ({ app 
   expect(seven).toMatchObject({ status: 'blocked' });
   expect(seven?.reason).toMatch(/^resources:/u);
   expect(dokploy.calls.length).toBe(before);
+
+  // A failed setup stops its compose and frees the slot; closing its pull request then removes the compose.
+  available = 4000;
+  await service.onWebhook('repo-1', 'workflow_run', workflowRun(8, 'ddd', 14));
+  const eight = (await service.list({ repositoryIds: ['repo-1'] })).find((item) => item.pullNumber === 8);
+  expect(eight?.status).toBe('deploying');
+  const created = dokploy.calls.at(-1)?.split(' ')[1] ?? '';
+  const drawn = tokenCounter;
+  expect(await service.report({ id: eight?.id ?? '', token: `r${drawn - 4}`.padEnd(24, 'x'), status: 'failed', reason: 'boom' })).toBe(true);
+  expect(await service.get(eight?.id ?? '')).toMatchObject({ status: 'failed', reason: 'boom' });
+  expect(dokploy.calls.at(-1)).toBe(`stop ${created}`);
+  expect(await service.occupant('preview')).toBeNull();
+  await service.onWebhook('repo-1', 'pull_request', { action: 'closed', pull_request: { number: 8 } });
+  expect(dokploy.calls.at(-1)).toBe(`remove ${created}`);
 
   // A failed build or another workflow is ignored.
   expect(

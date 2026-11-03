@@ -40,6 +40,10 @@ function Credentials({ previewId }: { readonly previewId: string }): ReactElemen
   if (!credentials.data) return <p className='text-sm text-muted-foreground'>{t('releases.preview.loading')}</p>;
   return (
     <dl className='grid grid-cols-[auto_1fr] gap-x-3 text-sm'>
+      <dt className='text-muted-foreground'>{t('releases.preview.basicUser')}</dt>
+      <dd className='font-mono'>{credentials.data.basicUser}</dd>
+      <dt className='text-muted-foreground'>{t('releases.preview.basicPassword')}</dt>
+      <dd className='font-mono'>{credentials.data.basicPassword}</dd>
       <dt className='text-muted-foreground'>{t('releases.preview.account')}</dt>
       <dd className='font-mono'>{credentials.data.account}</dd>
       <dt className='text-muted-foreground'>{t('releases.preview.password')}</dt>

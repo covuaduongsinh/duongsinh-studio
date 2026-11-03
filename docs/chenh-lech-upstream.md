@@ -407,16 +407,22 @@ nhãn trên danh sách issue (`client/pages/issues/release-labels.ts`) và mục
   compose tên `nocobase-preview` / `nocobase-staging` trong môi trường của project `duongsinh-studio`; mọi lệnh trên
   compose có sẵn bị từ chối nếu id không nằm trong `dsPreviewSlots` **và** Dokploy không trả lời rằng compose đó đúng tên
   và đúng môi trường. Không gọi domain/server/user/settings. Test: `tests/server/previews.test.ts`.
-- **Không dùng domain API của Dokploy, không basic auth:** Dokploy bỏ middleware gắn vào router nó sinh (mục WebSocket ở
-  `docs/trien-khai-vps.md`), nên compose tự khai router Traefik riêng (`ds-nocobase-<slot>`). Basic auth của Traefik
-  không dùng được vì NocoBase gửi `Authorization: Bearer` cho mọi API (đè header Basic) → bảo vệ bằng đăng nhập root
-  sinh ngẫu nhiên mỗi lần + `X-Robots-Tag: noindex`, dữ liệu mẫu.
+- **Không dùng domain API của Dokploy; basic auth chỉ cho trang:** Dokploy bỏ middleware gắn vào router nó sinh (mục
+  WebSocket ở `docs/trien-khai-vps.md`), nên compose tự khai router Traefik riêng. Router `ds-nocobase-<slot>` (mọi
+  đường dẫn) có **basic auth** (htpasswd bcrypt sinh mỗi lần dựng, `$` nhân đôi trong nhãn Compose); router
+  `ds-nocobase-<slot>-api` (`/api/`, `/ws`, ưu tiên cao hơn) không có, vì NocoBase gửi `Authorization: Bearer` cho mọi
+  API, đè header Basic của trình duyệt → các đường đó do đăng nhập root (sinh ngẫu nhiên) của NocoBase bảo vệ. Cả hai
+  thông tin đăng nhập niêm phong trong Studio, chỉ người sửa được issue thấy. Thêm `X-Robots-Tag: noindex`.
 - **Không cần CI key/secret GitHub** (kế hoạch ban đầu: workflow tải tarball lên Studio bằng khoá CI): workflow
   `preview.yml` chỉ tải artifact; Studio nghe `workflow_run` qua GitHub App (đã đăng ký sự kiện ở S5.2) và cấp token
   installation 1 giờ chỉ của repo để container setup tải mã + artifact. Ít bí mật hơn, chủ dự án không phải đặt secret.
 - **Một chỗ preview** `preview.dsc.edu.vn` (không có DNS wildcard, VPS ít RAM) thay cho `pr-<n>.preview…` tối đa 2.
 - **Dừng khi rảnh:** Studio không thấy truy cập qua Traefik, nên "dùng" = bấm Mở trong Studio (`POST previews/{id}/open`)
   hoặc build mới; 30 phút không dùng thì `compose.stop`, mở lại thì `compose.start`.
+- **Thời gian dựng:** trên VPS đang tải, `setup/run.mjs all` lần đầu mất > 60 phút với 1 CPU và một blueprint vượt
+  giới hạn 5 phút trả lời của `fetch` trong Node ("fetch failed") → app preview được 1,5 CPU, setup chạy lại `run.mjs all`
+  tối đa 3 lần (chạy lại an toàn). Setup báo lỗi thì Studio dừng compose (giữ log) và trả chỗ; không báo gì sau 3 giờ thì
+  coi là lỗi. Preview chỉ tính "rảnh" khi đã `ready`.
 - **Tài nguyên:** đọc `MemAvailable` của host qua `/proc/meminfo` trong container (không có lxcfs) và đo thời gian trả
   lời của production; < 1,2 GB trống thì không dựng (`blocked: resources`), production > 3 s thì dừng preview.
 

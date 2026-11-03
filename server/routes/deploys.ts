@@ -255,7 +255,13 @@ const PreviewSchema = z
   })
   .meta({ ref: 'StudioPreview' });
 const PreviewCredentialsSchema = z
-  .object({ url: z.string(), account: z.string(), password: z.string() })
+  .object({
+    url: z.string(),
+    basicUser: z.string().meta({ description: 'The basic auth in front of the pages.' }),
+    basicPassword: z.string(),
+    account: z.string().meta({ description: 'The generated root account of the sample NocoBase.' }),
+    password: z.string(),
+  })
   .meta({ ref: 'StudioPreviewCredentials' });
 const PreviewParams = z.object({ previewId: z.string() });
 const PreviewQuery = z.object({
