@@ -162,7 +162,7 @@ const systemViVN: SystemResource = {
     },
     example: {
       title: 'Thử một yêu cầu như sau',
-      text: 'Xây dựng ứng dụng đơn đặt hàng.\\n\\nMỗi đơn có số, mặt hàng, người đề nghị, số tiền và trạng thái duyệt. Người đề nghị tạo đơn và chỉ xem đơn của mình; người duyệt xem mọi đơn chờ duyệt và duyệt hoặc từ chối.\\nSau khi quyết định, báo cho người đề nghị trong hộp thư kèm đường link tới đơn.',
+      text: 'Xây dựng ứng dụng đơn đặt hàng.\n\nMỗi đơn có số, mặt hàng, người đề nghị, số tiền và trạng thái duyệt. Người đề nghị tạo đơn và chỉ xem đơn của mình; người duyệt xem mọi đơn chờ duyệt và duyệt hoặc từ chối.\nSau khi quyết định, báo cho người đề nghị trong hộp thư kèm đường link tới đơn.',
       hint: 'Dán vào Claude Code, Codex, Cursor hoặc bất kỳ agent lập trình nào đang mở dự án này.',
     },
     capabilitiesTitle: 'Tính năng có sẵn',
@@ -186,15 +186,15 @@ const systemViVN: SystemResource = {
         prompts: {
           disableSignUp: {
             label: 'Đóng đăng ký',
-            text: 'Ứng dụng này chỉ dành cho nhân viên công ty. Quản trị viên tạo mọi tài khoản.\\nTắt tự đăng ký và bỏ đường link đăng ký khỏi trang đăng nhập.\\nNhân viên hiện có vẫn phải đăng nhập được bằng tài khoản và mật khẩu.\\nGiữ đường link quên mật khẩu.',
+            text: 'Ứng dụng này chỉ dành cho nhân viên công ty. Quản trị viên tạo mọi tài khoản.\nTắt tự đăng ký và bỏ đường link đăng ký khỏi trang đăng nhập.\nNhân viên hiện có vẫn phải đăng nhập được bằng tài khoản và mật khẩu.\nGiữ đường link quên mật khẩu.',
           },
           companySso: {
             label: 'SSO công ty',
-            text: 'Cho nhân viên đăng nhập bằng nền tảng định danh của công ty qua OIDC.\\n\\nGiữ đăng nhập bằng tài khoản-mật khẩu và thêm nút Tài khoản công ty.\\nNút này mở nền tảng định danh. Đăng nhập thành công thì quay về trang chủ ứng dụng.\\n\\nCho phép lần đăng nhập đầu tạo tài khoản ứng dụng, nhận diện bằng mã người dùng ổn định của nền tảng.\\nKhông tự liên kết tài khoản theo tên hay email. Tài khoản mới dùng quyền mặc định của ứng dụng.\\n\\nLiệt kê thông tin quản trị viên nền tảng định danh cần cung cấp và địa chỉ callback họ cần đăng ký.',
+            text: 'Cho nhân viên đăng nhập bằng nền tảng định danh của công ty qua OIDC.\n\nGiữ đăng nhập bằng tài khoản-mật khẩu và thêm nút Tài khoản công ty.\nNút này mở nền tảng định danh. Đăng nhập thành công thì quay về trang chủ ứng dụng.\n\nCho phép lần đăng nhập đầu tạo tài khoản ứng dụng, nhận diện bằng mã người dùng ổn định của nền tảng.\nKhông tự liên kết tài khoản theo tên hay email. Tài khoản mới dùng quyền mặc định của ứng dụng.\n\nLiệt kê thông tin quản trị viên nền tảng định danh cần cung cấp và địa chỉ callback họ cần đăng ký.',
           },
           apiKeys: {
             label: 'API key',
-            text: 'Thêm mục Khoá tích hợp vào menu người dùng, dùng tính năng API key có sẵn của ứng dụng.\\nNhân viên chỉ quản lý khoá do mình tạo, nhập mục đích và số ngày hiệu lực.\\nChỉ hiện khoá đầy đủ một lần sau khi tạo, kèm nhắc sao chép và cất giữ ngay.\\nLiệt kê tên, một đoạn nhận diện, trạng thái, hạn và lần dùng cuối của từng khoá, cho phép thu hồi sau khi xác nhận.\\nKhông bao giờ hiện khoá đầy đủ trong danh sách, log hay trang chi tiết.',
+            text: 'Thêm mục Khoá tích hợp vào menu người dùng, dùng tính năng API key có sẵn của ứng dụng.\nNhân viên chỉ quản lý khoá do mình tạo, nhập mục đích và số ngày hiệu lực.\nChỉ hiện khoá đầy đủ một lần sau khi tạo, kèm nhắc sao chép và cất giữ ngay.\nLiệt kê tên, một đoạn nhận diện, trạng thái, hạn và lần dùng cuối của từng khoá, cho phép thu hồi sau khi xác nhận.\nKhông bao giờ hiện khoá đầy đủ trong danh sách, log hay trang chi tiết.',
           },
         },
       },
@@ -205,11 +205,11 @@ const systemViVN: SystemResource = {
         prompts: {
           postgres: {
             label: 'Đổi cơ sở dữ liệu',
-            text: 'Chuyển cơ sở dữ liệu của ứng dụng từ SQLite sang PostgreSQL.\\nĐọc thông tin kết nối từ cấu hình chạy của server, không lấy từ mã nguồn.\\nGiải thích cần cài driver nào, điền thiết lập nào, và nhắc rằng dữ liệu cũ không tự chuyển sang.',
+            text: 'Chuyển cơ sở dữ liệu của ứng dụng từ SQLite sang PostgreSQL.\nĐọc thông tin kết nối từ cấu hình chạy của server, không lấy từ mã nguồn.\nGiải thích cần cài driver nào, điền thiết lập nào, và nhắc rằng dữ liệu cũ không tự chuyển sang.',
           },
           externalDatabase: {
             label: 'Cơ sở dữ liệu ngoài',
-            text: 'Kết nối cơ sở dữ liệu tài chính sẵn có của công ty làm nguồn dữ liệu ngoài chỉ đọc; không sửa bảng của nó.\\nGhép bản ghi theo mã nhà cung cấp và thêm mục Thanh toán vào chi tiết nhà cung cấp, hiện kỳ thanh toán, hạn mức tín dụng và trạng thái thanh toán, có ghi nguồn.\\nVẫn đọc thông tin liên hệ nhà cung cấp từ cơ sở dữ liệu của ứng dụng, còn dữ liệu thanh toán đọc thẳng từ cơ sở dữ liệu ngoài, không nhập vào.\\nĐọc thông tin đăng nhập kết nối từ cấu hình chạy của server.',
+            text: 'Kết nối cơ sở dữ liệu tài chính sẵn có của công ty làm nguồn dữ liệu ngoài chỉ đọc; không sửa bảng của nó.\nGhép bản ghi theo mã nhà cung cấp và thêm mục Thanh toán vào chi tiết nhà cung cấp, hiện kỳ thanh toán, hạn mức tín dụng và trạng thái thanh toán, có ghi nguồn.\nVẫn đọc thông tin liên hệ nhà cung cấp từ cơ sở dữ liệu của ứng dụng, còn dữ liệu thanh toán đọc thẳng từ cơ sở dữ liệu ngoài, không nhập vào.\nĐọc thông tin đăng nhập kết nối từ cấu hình chạy của server.',
           },
         },
       },
@@ -220,15 +220,15 @@ const systemViVN: SystemResource = {
         prompts: {
           jobs: {
             label: 'Chức danh',
-            text: 'Tạo các chức danh Người đề nghị mua hàng và Người duyệt đơn cho ứng dụng.\\nNgười đề nghị mua hàng vào được trang đơn hàng và xem các đơn mình đề nghị.\\nNgười duyệt đơn vào được trang đơn hàng, xem đơn và duyệt hoặc từ chối đơn đang chờ.\\nChỉ quản trị viên ứng dụng được đổi quyền và phân công.\\nDùng tính năng phân quyền có sẵn để quản trị viên chỉnh quyền và phân người sau này.',
+            text: 'Tạo các chức danh Người đề nghị mua hàng và Người duyệt đơn cho ứng dụng.\nNgười đề nghị mua hàng vào được trang đơn hàng và xem các đơn mình đề nghị.\nNgười duyệt đơn vào được trang đơn hàng, xem đơn và duyệt hoặc từ chối đơn đang chờ.\nChỉ quản trị viên ứng dụng được đổi quyền và phân công.\nDùng tính năng phân quyền có sẵn để quản trị viên chỉnh quyền và phân người sau này.',
           },
           dataScopes: {
             label: 'Phạm vi dữ liệu',
-            text: 'Cho người đề nghị mua hàng chỉ xem đơn của mình, xác định theo trường người đề nghị của đơn.\\nNgười duyệt đơn xem được mọi đơn và xử lý các đơn chờ duyệt.\\nQuản trị viên chỉnh được phạm vi xem đơn của từng chức danh trong bộ quyền của nó.',
+            text: 'Cho người đề nghị mua hàng chỉ xem đơn của mình, xác định theo trường người đề nghị của đơn.\nNgười duyệt đơn xem được mọi đơn và xử lý các đơn chờ duyệt.\nQuản trị viên chỉnh được phạm vi xem đơn của từng chức danh trong bộ quyền của nó.',
           },
           restrictions: {
             label: 'Giới hạn',
-            text: 'Bob đang tạm hỗ trợ duyệt đơn mua hàng và chỉ được xem đơn từ 2.000 trở xuống.\\nThêm giới hạn số tiền vào thao tác Xem đơn của anh ấy, giữ nguyên chức danh và phạm vi dữ liệu hiện có.\\nÁp giới hạn cho cả đơn của chính anh ấy và đơn được chia sẻ với anh ấy.\\nQuản trị viên đổi được số tiền hoặc bỏ quy tắc; trước khi bỏ, hãy giải thích rằng phạm vi anh ấy thấy có thể rộng ra.',
+            text: 'Bob đang tạm hỗ trợ duyệt đơn mua hàng và chỉ được xem đơn từ 2.000 trở xuống.\nThêm giới hạn số tiền vào thao tác Xem đơn của anh ấy, giữ nguyên chức danh và phạm vi dữ liệu hiện có.\nÁp giới hạn cho cả đơn của chính anh ấy và đơn được chia sẻ với anh ấy.\nQuản trị viên đổi được số tiền hoặc bỏ quy tắc; trước khi bỏ, hãy giải thích rằng phạm vi anh ấy thấy có thể rộng ra.',
           },
         },
       },
@@ -239,15 +239,15 @@ const systemViVN: SystemResource = {
         prompts: {
           stages: {
             label: 'Giai đoạn',
-            text: 'Thêm quy trình cho đơn mua hàng: Chờ duyệt → Chờ mua → Đã nhận hàng → Hoàn thành.\\nNgười duyệt duyệt hoặc từ chối; từ chối phải có lý do và trả đơn về người đề nghị để sửa và gửi lại.\\nSau khi người mua đặt hàng, đơn ở trạng thái chờ mua; xác nhận giao hàng kèm biên nhận có chữ ký thì chuyển sang Đã nhận hàng, và người đề nghị xác nhận thì hoàn thành.\\nChi tiết đơn chỉ cho các thao tác của giai đoạn hiện tại, và sửa thông thường không đổi được giai đoạn.\\nKiểm tra giai đoạn và thông tin bắt buộc trên server, không bao giờ ghi đè kết quả người khác đã gửi.',
+            text: 'Thêm quy trình cho đơn mua hàng: Chờ duyệt → Chờ mua → Đã nhận hàng → Hoàn thành.\nNgười duyệt duyệt hoặc từ chối; từ chối phải có lý do và trả đơn về người đề nghị để sửa và gửi lại.\nSau khi người mua đặt hàng, đơn ở trạng thái chờ mua; xác nhận giao hàng kèm biên nhận có chữ ký thì chuyển sang Đã nhận hàng, và người đề nghị xác nhận thì hoàn thành.\nChi tiết đơn chỉ cho các thao tác của giai đoạn hiện tại, và sửa thông thường không đổi được giai đoạn.\nKiểm tra giai đoạn và thông tin bắt buộc trên server, không bao giờ ghi đè kết quả người khác đã gửi.',
           },
           backgroundExport: {
             label: 'Xuất dữ liệu nền',
-            text: 'Thêm trang báo cáo đơn hàng, xuất các đơn hiện có ra CSV.\\nSau khi gửi, yêu cầu xuất chờ xử lý, được tạo ở nền và hoàn tất kèm đường link tải.\\nHiện giai đoạn hiện tại, tên tệp, số đơn đã xuất, cùng lịch sử gửi và xử lý của hệ thống.\\nThử lại theo quy tắc khi tạo tệp lỗi, giữ lần lỗi cuối cho người phụ trách xử lý; chạy lại không được tạo trùng tệp báo cáo.\\nGiữ tiến độ và kết quả sau khi tải lại trang, và chỉ người có quyền mới xuất được đơn.',
+            text: 'Thêm trang báo cáo đơn hàng, xuất các đơn hiện có ra CSV.\nSau khi gửi, yêu cầu xuất chờ xử lý, được tạo ở nền và hoàn tất kèm đường link tải.\nHiện giai đoạn hiện tại, tên tệp, số đơn đã xuất, cùng lịch sử gửi và xử lý của hệ thống.\nThử lại theo quy tắc khi tạo tệp lỗi, giữ lần lỗi cuối cho người phụ trách xử lý; chạy lại không được tạo trùng tệp báo cáo.\nGiữ tiến độ và kết quả sau khi tải lại trang, và chỉ người có quyền mới xuất được đơn.',
           },
           history: {
             label: 'Lịch sử',
-            text: 'Hiện giai đoạn hiện tại và lịch sử xử lý trong chi tiết đơn.\\nMỗi mục cho biết ai làm, lúc nào, thao tác gì, giai đoạn trước và sau, kèm lý do từ chối hoặc biên nhận có chữ ký nếu có.\\nĐánh dấu các thao tác tự động là do hệ thống làm.\\nGiữ tiến độ và lịch sử sau khi tải lại trang để xem lại toàn bộ quy trình khi đã xong.',
+            text: 'Hiện giai đoạn hiện tại và lịch sử xử lý trong chi tiết đơn.\nMỗi mục cho biết ai làm, lúc nào, thao tác gì, giai đoạn trước và sau, kèm lý do từ chối hoặc biên nhận có chữ ký nếu có.\nĐánh dấu các thao tác tự động là do hệ thống làm.\nGiữ tiến độ và lịch sử sau khi tải lại trang để xem lại toàn bộ quy trình khi đã xong.',
           },
         },
       },
@@ -258,11 +258,11 @@ const systemViVN: SystemResource = {
         prompts: {
           reminder: {
             label: 'Nhắc hằng ngày',
-            text: 'Thêm lời nhắc Đơn chờ duyệt vào ứng dụng đơn hàng hiện có.\\n\\nLúc 09:00 giờ Việt Nam mỗi ngày làm việc, tìm các đơn đang chờ duyệt, nhóm theo người duyệt và gửi cho mỗi người một thông báo trong ứng dụng.\\nGhi số đơn đang chờ và đường link tới danh sách đơn chờ. Không có đơn chờ thì không gửi gì.\\nQuản trị viên xem được lịch, lịch sử chạy, và tạm dừng hoặc bật lại lời nhắc.',
+            text: 'Thêm lời nhắc Đơn chờ duyệt vào ứng dụng đơn hàng hiện có.\n\nLúc 09:00 giờ Việt Nam mỗi ngày làm việc, tìm các đơn đang chờ duyệt, nhóm theo người duyệt và gửi cho mỗi người một thông báo trong ứng dụng.\nGhi số đơn đang chờ và đường link tới danh sách đơn chờ. Không có đơn chờ thì không gửi gì.\nQuản trị viên xem được lịch, lịch sử chạy, và tạm dừng hoặc bật lại lời nhắc.',
           },
           weeklyReport: {
             label: 'Báo cáo tuần',
-            text: 'Lúc 08:00 giờ Việt Nam mỗi thứ Hai, tạo bản tổng hợp doanh số tuần trước và báo cho trưởng phòng kinh doanh.\\nGồm doanh thu, số đơn và tổng theo khu vực. Quản trị viên xem được tác vụ và lịch sử chạy.',
+            text: 'Lúc 08:00 giờ Việt Nam mỗi thứ Hai, tạo bản tổng hợp doanh số tuần trước và báo cho trưởng phòng kinh doanh.\nGồm doanh thu, số đơn và tổng theo khu vực. Quản trị viên xem được tác vụ và lịch sử chạy.',
           },
         },
       },
@@ -273,11 +273,11 @@ const systemViVN: SystemResource = {
         prompts: {
           inApp: {
             label: 'Tin nhắn trong ứng dụng',
-            text: 'Thêm duyệt đơn hàng vào ứng dụng hiện tại và báo kết quả cho người đề nghị bằng tin nhắn trong ứng dụng.\\n\\nĐơn gồm số, tên, người đề nghị, số tiền và trạng thái duyệt.\\nNgười đề nghị xem được đơn của mình. Người duyệt xem đơn chờ duyệt và duyệt hoặc từ chối. Dùng lại tính năng đơn hàng và duyệt nếu đã có.\\n\\nSau khi duyệt hoặc từ chối, chỉ gửi một tin nhắn cho người đề nghị của đơn.\\nTiêu đề cho biết đơn được duyệt hay bị từ chối. Nội dung gồm số đơn, tên và kết quả duyệt.\\nBấm vào tin nhắn thì mở chi tiết đơn tương ứng.\\nKhông gửi khi đơn còn chờ duyệt. Mỗi kết quả duyệt chỉ báo một lần.\\nGửi thông báo lỗi cũng không ảnh hưởng kết quả duyệt đã lưu.',
+            text: 'Thêm duyệt đơn hàng vào ứng dụng hiện tại và báo kết quả cho người đề nghị bằng tin nhắn trong ứng dụng.\n\nĐơn gồm số, tên, người đề nghị, số tiền và trạng thái duyệt.\nNgười đề nghị xem được đơn của mình. Người duyệt xem đơn chờ duyệt và duyệt hoặc từ chối. Dùng lại tính năng đơn hàng và duyệt nếu đã có.\n\nSau khi duyệt hoặc từ chối, chỉ gửi một tin nhắn cho người đề nghị của đơn.\nTiêu đề cho biết đơn được duyệt hay bị từ chối. Nội dung gồm số đơn, tên và kết quả duyệt.\nBấm vào tin nhắn thì mở chi tiết đơn tương ứng.\nKhông gửi khi đơn còn chờ duyệt. Mỗi kết quả duyệt chỉ báo một lần.\nGửi thông báo lỗi cũng không ảnh hưởng kết quả duyệt đã lưu.',
           },
           email: {
             label: 'Email',
-            text: 'Thêm email vào thông báo duyệt đơn hiện có, dùng kênh email đã cấu hình của ứng dụng.\\n\\nSau khi đơn được duyệt hoặc bị từ chối, gửi kết quả tới email tài khoản của người đề nghị.\\nTiêu đề có số đơn, nội dung có tên đơn và kết quả.\\nGiữ tin nhắn trong ứng dụng hiện có. Người đề nghị không có email thì chỉ gửi tin nhắn trong ứng dụng.\\nGửi email lỗi không được ảnh hưởng kết quả duyệt hay tin nhắn trong ứng dụng.',
+            text: 'Thêm email vào thông báo duyệt đơn hiện có, dùng kênh email đã cấu hình của ứng dụng.\n\nSau khi đơn được duyệt hoặc bị từ chối, gửi kết quả tới email tài khoản của người đề nghị.\nTiêu đề có số đơn, nội dung có tên đơn và kết quả.\nGiữ tin nhắn trong ứng dụng hiện có. Người đề nghị không có email thì chỉ gửi tin nhắn trong ứng dụng.\nGửi email lỗi không được ảnh hưởng kết quả duyệt hay tin nhắn trong ứng dụng.',
           },
         },
       },
@@ -288,15 +288,15 @@ const systemViVN: SystemResource = {
         prompts: {
           providers: {
             label: 'Nhà cung cấp thư',
-            text: 'Cấu hình mailbox.org cho ứng dụng trong mục mail.providers của cấu hình server:\\n- Máy chủ nhận IMAP: imap.mailbox.org, cổng 993, SSL/TLS.\\n- Máy chủ gửi SMTP: smtp.mailbox.org, cổng 465, SSL/TLS.\\nNgười dùng tự nhập địa chỉ email, tên đăng nhập và mật khẩu của mình ở trang tài khoản hộp thư, và chọn ngày bắt đầu đồng bộ lần đầu; không bao giờ ghi mật khẩu hộp thư vào cấu hình hay mã nguồn.',
+            text: 'Cấu hình mailbox.org cho ứng dụng trong mục mail.providers của cấu hình server:\n- Máy chủ nhận IMAP: imap.mailbox.org, cổng 993, SSL/TLS.\n- Máy chủ gửi SMTP: smtp.mailbox.org, cổng 465, SSL/TLS.\nNgười dùng tự nhập địa chỉ email, tên đăng nhập và mật khẩu của mình ở trang tài khoản hộp thư, và chọn ngày bắt đầu đồng bộ lần đầu; không bao giờ ghi mật khẩu hộp thư vào cấu hình hay mã nguồn.',
           },
           mailCenter: {
             label: 'Trung tâm thư',
-            text: 'Thư điện tử đã có sẵn trong ứng dụng này; hãy dùng lại thay vì dựng lại hay cài plugin khác.\\nThêm các trang Trung tâm thư và Tài khoản hộp thư vào thanh điều hướng, dùng trang làm việc với thư và trang tài khoản hộp thư mà tính năng thư cung cấp.\\nNgười dùng kết nối được hộp thư của mình, đồng bộ thư đến, đọc thư và tệp đính kèm, và trả lời, giữ tiêu đề và ngữ cảnh cuộc trao đổi gốc, gửi trả lời tới người gửi ban đầu.\\nMỗi người làm việc với hộp thư mình đã kết nối.',
+            text: 'Thư điện tử đã có sẵn trong ứng dụng này; hãy dùng lại thay vì dựng lại hay cài plugin khác.\nThêm các trang Trung tâm thư và Tài khoản hộp thư vào thanh điều hướng, dùng trang làm việc với thư và trang tài khoản hộp thư mà tính năng thư cung cấp.\nNgười dùng kết nối được hộp thư của mình, đồng bộ thư đến, đọc thư và tệp đính kèm, và trả lời, giữ tiêu đề và ngữ cảnh cuộc trao đổi gốc, gửi trả lời tới người gửi ban đầu.\nMỗi người làm việc với hộp thư mình đã kết nối.',
           },
           correspondence: {
             label: 'Email khách hàng',
-            text: 'Thêm mục thư từ vào chi tiết khách hàng, dùng lại các thành phần đọc và soạn thư có sẵn của ứng dụng.\\nHiện các thư có người gửi hoặc người nhận trùng email liên hệ của khách hàng hiện tại. Nhân viên kinh doanh đọc được thư, xem tệp đính kèm và trả lời bằng hộp thư mình đã kết nối.',
+            text: 'Thêm mục thư từ vào chi tiết khách hàng, dùng lại các thành phần đọc và soạn thư có sẵn của ứng dụng.\nHiện các thư có người gửi hoặc người nhận trùng email liên hệ của khách hàng hiện tại. Nhân viên kinh doanh đọc được thư, xem tệp đính kèm và trả lời bằng hộp thư mình đã kết nối.',
           },
         },
       },
@@ -307,11 +307,11 @@ const systemViVN: SystemResource = {
         prompts: {
           attachments: {
             label: 'Tệp đính kèm',
-            text: 'Thêm tệp đính kèm mua hàng vào ứng dụng quản lý đơn hiện có của tôi.\\n\\nThêm vùng đính kèm vào chi tiết đơn. Mỗi đơn có thể có nhiều tệp, gồm PDF, ảnh và DOCX.\\nHiện tên và dung lượng tệp, có thao tác xem trước, tải về và gỡ tệp.\\nSau khi tải lên, cho người dùng lưu tệp vào đơn hiện tại. Mở lại đơn vẫn còn tệp.\\nAi truy cập được đơn thì xem và tải được tệp của đơn. Người đề nghị và người duyệt thêm hoặc gỡ được tệp.\\nGỡ tệp chỉ bỏ liên kết với đơn hiện tại; vẫn giữ tệp.',
+            text: 'Thêm tệp đính kèm mua hàng vào ứng dụng quản lý đơn hiện có của tôi.\n\nThêm vùng đính kèm vào chi tiết đơn. Mỗi đơn có thể có nhiều tệp, gồm PDF, ảnh và DOCX.\nHiện tên và dung lượng tệp, có thao tác xem trước, tải về và gỡ tệp.\nSau khi tải lên, cho người dùng lưu tệp vào đơn hiện tại. Mở lại đơn vẫn còn tệp.\nAi truy cập được đơn thì xem và tải được tệp của đơn. Người đề nghị và người duyệt thêm hoặc gỡ được tệp.\nGỡ tệp chỉ bỏ liên kết với đơn hiện tại; vẫn giữ tệp.',
           },
           avatar: {
             label: 'Ảnh đại diện',
-            text: 'Thêm ảnh đại diện cho mỗi nhân viên, mỗi người một ảnh.\\nCho tải lên và thay ảnh đại diện, hiện ảnh trong danh sách và chi tiết nhân viên.\\nDùng ảnh mới sau khi thay và vẫn hiện sau khi tải lại trang.',
+            text: 'Thêm ảnh đại diện cho mỗi nhân viên, mỗi người một ảnh.\nCho tải lên và thay ảnh đại diện, hiện ảnh trong danh sách và chi tiết nhân viên.\nDùng ảnh mới sau khi thay và vẫn hiện sau khi tải lại trang.',
           },
         },
       },
