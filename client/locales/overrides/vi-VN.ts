@@ -554,6 +554,10 @@ const overrides: TranslationOverrides = {
         stageActionSkipped: 'bỏ qua một hành động theo giai đoạn',
         stageActionSuppressed:
           'đã chặn một hành động theo giai đoạn (quá nhiều lần chạy)',
+        stageActionBlocked:
+          'đã bỏ qua một hành động ở giai đoạn: công việc đang chờ xử lý',
+        workBlocked: 'chưa bắt đầu hoạt động: công việc đang chờ xử lý',
+        workDormant: 'không bắt đầu hoạt động trong khi công việc đang diễn ra',
         workLimited:
           'không bắt đầu hoạt động: nhận xét của nhân viên đã đạt đến giới hạn chạy của công việc',
         workWithdrawn:
@@ -576,7 +580,9 @@ const overrides: TranslationOverrides = {
         instructions:
           'Nhấn phím cách hoặc enter để chọn công việc, sử dụng các phím mũi tên để chuyển sang trạng thái khác, sau đó nhấn phím cách hoặc nhập lại để thả công việc hoặc thoát để hủy.',
       },
+      cardRole: 'Công việc kéo thả được',
       emptyColumn: 'Không có công việc gì',
+      label: 'Bảng công việc',
     },
     config: {
       labels: {
@@ -596,13 +602,17 @@ const overrides: TranslationOverrides = {
         'Công việc phụ thuộc đã thay đổi. Tải lại và thử lại.',
       INVALID_DEPENDENCY:
         'Công việc đó không thể là công việc phụ thuộc ở đây.',
+      ISSUE_BLOCKED: 'Công việc vẫn đang chờ các công việc chặn nó.',
       SUBTASKS_OPEN:
         'Trước tiên hãy hoàn thành hoặc hủy bỏ các công việc phụ của nó.',
     },
     dependencies: {
       add: 'Thêm công việc chặn',
+      addPlaceholder: 'Tìm công việc để thêm làm việc chặn',
       blockedBy: 'Đang vướng bởi',
       hidden_one: '{{count}} có thêm công việc chặn mà bạn không thể thấy.',
+      hidden_other:
+        '{{count}} có thêm nhiều công việc chặn mà bạn không thể thấy.',
     },
     filters: {
       anyExecutor: 'Bất cứ người thực hiện nào',
@@ -611,6 +621,7 @@ const overrides: TranslationOverrides = {
     issue: {
       backToList: 'Quay lại công việc',
       delete: 'Xóa công việc',
+      conflict: 'Công việc này đã thay đổi, đang tải lại.',
       loadFailed: 'Không thể tải công việc này',
       parent: 'Công việc phụ của',
     },
@@ -632,7 +643,9 @@ const overrides: TranslationOverrides = {
       emptyDescription: 'Tạo một công việc và chọn người thực hiện nó.',
       emptyTitle: 'Chưa có công việc gì',
       loadFailed: 'Không thể tải công việc',
+      new: 'Tạo công việc',
       noResults: 'Không có công việc trùng khớp.',
+      searchLabel: 'Tìm công việc',
       title: 'Công việc',
     },
     myIssues: {
@@ -645,10 +658,14 @@ const overrides: TranslationOverrides = {
       emptyDescription:
         'Các công việc được giao cho bạn sẽ hiển thị ở đây. Tạo một hoặc chọn một từ danh sách công việc.',
       title: 'Công việc của tôi',
+      tabsLabel: 'Các kiểu xem công việc của tôi',
     },
     nav: {
       issues: 'Công việc',
       myIssues: 'Công việc của tôi',
+    },
+    newIssue: {
+      title: 'Tạo công việc',
     },
     projectForm: {
       description:
@@ -674,6 +691,7 @@ const overrides: TranslationOverrides = {
         'Nhóm các công việc, liên kết các kho lưu trữ của họ và theo dõi tiến trình.',
       emptyDescription:
         'Tạo một dự án để nhóm các công việc và liên kết các kho lưu trữ mà chúng quan tâm.',
+      progressLabel: 'Xong {{done}}/{{total}} công việc',
       visibilityHint: {
         members:
           'Chỉ các thành viên dự án và quản trị viên không gian làm việc mới có thể xem dự án này và các công việc của nó.',
@@ -741,6 +759,7 @@ const overrides: TranslationOverrides = {
       hint: 'Nhập để tìm kiếm công việc.',
       issues: 'Công việc',
       noResults: 'Không có công việc trùng khớp.',
+      title: 'Tìm công việc',
     },
     settingsPage: {
       general: {
@@ -779,14 +798,17 @@ const overrides: TranslationOverrides = {
     },
     plans: {
       backToList: 'Quay lại công việc',
-      createIssues_one: 'Tạo công việc {{count}}',
+      createIssues_one: 'Tạo {{count}} công việc',
+      createIssues_other: 'Tạo {{count}} công việc',
+      executedIssues_one: 'Đã tạo {{count}} công việc.',
+      executedIssues_other: 'Đã tạo {{count}} công việc.',
       undoPreview: {
         ops: {
           'issue.retract': 'Xóa công việc {{target}}',
         },
       },
       wakeSkip: {
-        blocked: 'sự cố đã đang vướng',
+        blocked: 'công việc đang bị chặn',
         dormant: 'công việc chờ làm',
       },
       flags: {
@@ -795,6 +817,7 @@ const overrides: TranslationOverrides = {
         agentExecutor: 'Làm cho một agent trở thành người thực hiện',
       },
       ops: {
+        'issue.create': 'Tạo công việc',
         'issue.update': 'Công việc thay đổi',
         'issue.retract': 'Xóa công việc',
       },
@@ -835,6 +858,7 @@ const overrides: TranslationOverrides = {
       failedWhy: 'AI không thể soạn thảo các công việc: {{message}}',
       progress: {
         split: 'AI đang soạn thảo các công việc…',
+        breakdown: 'AI đang chia nhỏ {{issue}}…',
       },
       waitsHint:
         'Hiện tại không có runner nào trực tuyến: yêu cầu sẽ đợi cho đến khi một yêu cầu kết nối.',
