@@ -1,6 +1,7 @@
 import * as agentsAccess from '@nocobase/app-plugin-agents/shared/access';
 import * as kbAccess from '@nocobase/app-plugin-knowledge/shared/access';
 import * as projectsAccess from '@nocobase/app-plugin-projects/shared/access';
+import * as releasesAccess from '@nocobase/app-plugin-releases/shared/access';
 import type {
   AuthorizationTitle,
   PermissionGrant,
@@ -34,14 +35,12 @@ interface AccessSource {
   }[];
 }
 
-/**
- * The plugins whose capabilities make up a Studio role. Releases join in the stage that uses them; the order is the
- * catalog's.
- */
+/** The plugins whose capabilities make up a Studio role; the order is the catalog's. Releases joined in S5.4. */
 const SOURCES: readonly AccessSource[] = [
   projectsAccess,
   agentsAccess,
   kbAccess,
+  releasesAccess,
 ];
 
 interface BusinessEntry {

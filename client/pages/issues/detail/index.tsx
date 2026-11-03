@@ -76,6 +76,7 @@ import { RouterAnchor } from '../router-anchor.js';
 import { IssueActivity } from './issue-activity.js';
 import { IssueAside } from './issue-aside.js';
 import { IssuePullRequests } from './issue-pull-requests.js';
+import { IssueRelease } from './issue-release.js';
 
 /** A link between two issues, as the issue detail carries it (`shared/subtasks` is not a public entry). */
 type IssueDependency = IssueDetail['blockedBy'][number];
@@ -361,6 +362,7 @@ function IssueDetailView({
               canMerge={canCloseIssue(viewer, detail)}
               onMerged={refetchAfterMerge}
             />
+            <IssueRelease issueId={detail.id} />
             {detail.acceptance ? (
               <IssueSection
                 icon={<ClipboardCheckIcon />}

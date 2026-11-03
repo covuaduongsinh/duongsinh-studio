@@ -448,6 +448,17 @@ export function createGitService(deps: GitServiceDeps) {
   const report =
     deps.onError ??
     ((message: string, error: unknown) => console.error(message, error));
+  /** Who hears of a tag pushed to a linked repository (releases), by repository id. */
+  const tagListeners = new Set<(repositoryId: string) => Promise<void>>();
+  /** Adds a listener for pushed tags; answers what removes it. */
+  function onTagPush(
+    listener: (repositoryId: string) => Promise<void>,
+  ): () => void {
+    tagListeners.add(listener);
+    return () => {
+      tagListeners.delete(listener);
+    };
+  }
 
   // Connections.
 
@@ -1056,8 +1067,9 @@ export function createGitService(deps: GitServiceDeps) {
       forgetTokens(record.id);
       return event;
     }
-    // Tags and other pushes are for releases (S5.5); nothing reads them yet.
-    if (event === 'push') return 'push.ignored';
+    // A pushed tag is for releases (S5.5); other pushes say nothing a pull request does not.
+    if (event === 'push' && !str(payload.ref).startsWith('refs/tags/'))
+      return 'push.ignored';
     const fullName = str(object('repository').full_name);
     const repositoryRow: Row | undefined = await conn()
       .query.selectFrom(REPOSITORIES)
@@ -1067,6 +1079,10 @@ export function createGitService(deps: GitServiceDeps) {
       .executeTakeFirst();
     if (!repositoryRow) return `${event}.unlinked`;
     const repository = repositoryOf(repositoryRow);
+    if (event === 'push') {
+      for (const listener of tagListeners) await listener(repository.id);
+      return tagListeners.size > 0 ? 'push.tags' : 'push.ignored';
+    }
     const numbers = new Set<number>();
     if (event === 'pull_request') {
       const number = num(object('pull_request').number, num(payload.number));
@@ -2177,6 +2193,7 @@ export function createGitService(deps: GitServiceDeps) {
     listRepositories,
     getRepository,
     clientForRepository,
+    onTagPush,
     linkRepository,
     attachToProject,
     projectsOf,

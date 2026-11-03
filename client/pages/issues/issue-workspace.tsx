@@ -74,6 +74,7 @@ import {
   useKanbanLabels,
   useStatusPresenter,
 } from './presentation.js';
+import { useReleaseLabels } from './release-labels.js';
 import { RouterAnchor } from './router-anchor.js';
 
 const VIEWS = ['list', 'board'] as const;
@@ -351,6 +352,7 @@ function IssueListView({
   const toRow = useIssueRow();
   const labels = useIssueTableLabels();
   const items = flattenIssuePages(query.data?.pages);
+  const withRelease = useReleaseLabels(items.map((item) => item.id));
   const state = readState(
     query.error,
     query.data !== undefined,
@@ -362,7 +364,7 @@ function IssueListView({
     <div className='flex flex-col gap-3'>
       <ListFeedback state={state}>
         <IssueTable
-          rows={items.map(toRow)}
+          rows={items.map(toRow).map(withRelease)}
           sort={{
             column: columnOfSort(filters.sort),
             direction: filters.direction ?? 'desc',

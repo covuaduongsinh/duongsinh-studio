@@ -83,6 +83,15 @@ const zhCN: AppServerResource = {
       },
     },
   },
+  studioReleases: {
+    actions: {
+      groupTitle: '预览',
+      previewsManage: {
+        title: '管理拉取请求预览',
+        description: '创建、重试和撤下任务拉取请求的预览。可编辑任务的人都拥有此权限。',
+      },
+    },
+  },
 };
 
 export default zhCN;

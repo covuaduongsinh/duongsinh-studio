@@ -173,6 +173,33 @@ function plansUse(flags: Flags): StudioAction {
   };
 }
 
+/** The business action asking for or taking down an issue's pull request preview (S5.6). */
+export const PREVIEWS_MANAGE_ACTION = 'studio.previews/manage';
+
+/**
+ * `studio.previews/manage`: putting up, retrying and taking down the preview of an issue's pull request. Studio's own
+ * action, which the authorization plugin does not grant: whoever may edit issues holds it.
+ */
+function previewsManage(flags: Flags): StudioAction {
+  return {
+    option: option(
+      PREVIEWS_MANAGE_ACTION,
+      'studio.previews',
+      {
+        title: appText('studioReleases.actions.previewsManage.title'),
+        description: appText(
+          'studioReleases.actions.previewsManage.description',
+        ),
+        groupTitle: appText('studioReleases.actions.groupTitle'),
+      },
+      flags,
+    ),
+    resource: { type: pmAccess.RESOURCE_TYPE, id: 'pm.issues' },
+    names: pmAccess.levelActionsOf('pm.issues/edit').map((level) => level.name),
+    borrowed: true,
+  };
+}
+
 /**
  * Every business action Studio knows, in the order the Capabilities tab lists them (the Studio demo's set, §S2 of the
  * plan). An executing agent starts with what working an issue needs: reading projects and issues, editing and
@@ -194,10 +221,12 @@ export const STUDIO_ACTIONS: readonly StudioAction[] = [
   pm('pm.attachments', 'upload', { defaultOn: true }),
   gitOpenPr({ defaultOn: true }),
   plansUse({ defaultOn: true }),
-  rel('view'),
-  rel('read-logs'),
-  rel('deploy'),
+  // Agents see where a version is and read logs; deploying and marking production stay with people (S5.4).
+  rel('view', { defaultOn: true }),
+  rel('read-logs', { defaultOn: true }),
+  rel('deploy', { peopleOnly: true }),
   rel('deploy-protected', { peopleOnly: true }),
+  previewsManage({}),
   kb('kb.knowledge/read', { defaultOn: true }),
   kb('kb.knowledge/propose'),
   agentsEdit(),

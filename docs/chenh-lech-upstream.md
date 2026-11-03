@@ -356,6 +356,47 @@ bằng khoá RSA sinh trong test), `tests/database/ds-git-apps-migration.test.ts
 - **Lệch với demo**: demo có `git/connections/{id}/authorize|startDeviceFlow|useToken` (token cá nhân), `repairWebhook`,
   webhook theo repo (`webhookMode repository`); Studio Dương Sinh chưa làm, chỉ một webhook mức App.
 
+## 19. S5.4–S5.5 — Releases, môi trường, phiên bản, production marks (03/11/2026)
+
+Lắp ở `server/releases/service.ts`, `server/providers/releases.ts`, `server/routes/deploys.ts` (`/api/deploys/*`,
+`/api/attention`), migration `202611060001_ds_releases`, seed `202611060001_ds_environments` +
+`202611060002_ds_roles_releases`; client `client/pages/releases/*`, `client/pages/environments/`, `client/hooks/use-releases.ts`,
+nhãn trên danh sách issue (`client/pages/issues/release-labels.ts`) và mục "Release" trên trang issue. Test:
+`tests/server/releases.test.ts`, `tests/server/git-app.test.ts` (webhook `push` tag), `tests/database/ds-releases-migration.test.ts`,
+`tests/client/releases-page.test.tsx`.
+
+- **Môi trường không phải của plugin `releases`.** Môi trường của plugin cần một driver chạy App (`host` in-process/docker
+  cho app NocoBase 3). Preview/staging/production của Dương Sinh là NocoBase 2 chạy ngoài Studio (VPS, Dokploy), nên lớp
+  Studio giữ bảng riêng `dsEnvironments` (`runsOn: external`, `recordOnly: true`): preview (tối đa 2, rảnh 30 phút, xoá khi
+  PR đóng — mới là cấu hình, S5.6 làm phần chạy), staging (không protected), production (protected, approver = owner). Studio
+  **ghi nhận**, không deploy. Trang plugin (Apps, Deploy environments) dời sang `/apps`, `/release-environments`
+  (`releases({ appsPath, environmentsPath })`) để `/releases` và `/environments` là của Studio như demo.
+- **Bind `releasesAccessToken`** (trước đó chưa bind: mọi người không giữ quyền gì của plugin): quyền từ permission set như
+  projects/agents; catalog vai trò thêm nguồn `releases` (trang `rel-apps`, settings `rel.environments`, 9 action `rel.apps/*`).
+  Seed: Admin `rel-apps` + `rel.environments` read/manage + `rel.apps` view/read-logs/deploy `all`; Contributor `rel-apps` +
+  view/read-logs `related`. Agent: `rel.apps/view` và `read-logs` bật mặc định, `deploy` thành **people only**; thêm action
+  Studio `studio.previews/manage` (mượn quyền sửa issue, chưa bật mặc định, dùng ở S5.6).
+- **Bảng tên khác đề xuất ban đầu**: không có `dsProductionMarks` riêng — mọi đánh dấu (staging/production, `deployed` hoặc
+  `rolledBack`) nằm ở `dsDeploymentRecords`; yêu cầu chờ chủ dự án quyết ở `dsDeploymentRequests`; thông báo dùng plugin
+  notification (kênh `inbox`, `idempotencyKey`), không có `dsInboxNotices`.
+- **Phiên bản từ tag**: release line `stable` mỗi repo (mặc định nhánh mặc định, `v*`, bỏ tiền tố `v`; sửa qua
+  `PUT /api/deploys/repositories/{id}/releaseLine`). Đọc tag khi webhook App báo `push` một `refs/tags/*` (git service gọi
+  listener `onTagPush`) và poll 10 phút (`GET /repos/{r}/tags`, 100 tag mới nhất). Version xếp theo ngày commit của tag.
+  Issue của một version = PR đã merge (có issue) mà **merge commit nằm trong** `compare(previous...this)`; version đầu tiên
+  hỏi `compare(mergeCommit...tag)` từng PR (tối đa 200). Tag biến mất → version `deleted` (giữ lại cùng các đánh dấu, không
+  đánh dấu được nữa); tag quay lại → bỏ `deleted`. "Đọc tag" thủ công đếm lại mọi version (PR liên kết muộn).
+- **Issue ở đâu**: `merged` → `released` (trong version) → `staging` → `production`, tính từ đánh dấu mới nhất của từng môi
+  trường (rollback cũng là một đánh dấu). Tab **Pending release** = issue đã merge vào nhánh của line mà chưa lên
+  production. Nhắc chủ dự án mỗi ngày một lần khi có issue merge quá 3 ngày chưa lên production.
+- **Ai làm gì**: staging do quản trị đánh dấu; production **chỉ owner** (đánh dấu trực tiếp có ghi chú bắt buộc); người có
+  `rel.apps/deploy` khác thì **đề nghị** → owner quyết trong Inbox (feed "Production marks to decide": duyệt phải gõ lại App
+  id, ví dụ `duongsinh-nocobase-production`; từ chối phải có lý do; người đề nghị không tự quyết). Rollback production về
+  version cũ trả danh sách issue nên cân nhắc mở lại và báo owner. Mọi route ghi là người thật (session/API key của chính
+  người đó); run token và service account bị từ chối. Đọc (`environment list`, `release list`, `release pending`,
+  `version list`) có trên CLI, run đọc được với `rel.apps/view`.
+- **Lệch với demo**: chưa có `versionArtifacts`, `deploymentCount`/`comparisonState`, `publishTarget`, preview thật (S5.6),
+  badge `attention` trên thanh bên (route `/api/attention` đã có, giao diện dùng Inbox).
+
 ## 4. Agent Sessions client bắt buộc tên CLI của app
 
 `plugin register` ghi `agentSessions()` không tham số. Server vẫn boot và `curl` trang chủ vẫn trả 200, nhưng client ném

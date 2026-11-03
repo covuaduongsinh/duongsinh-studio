@@ -109,6 +109,16 @@ Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng n�
 `SECRETS_KEYS` thì phải tạo App mới. Địa chỉ webhook là `https://studio.dsc.edu.vn/main/api/webhooks/github/connections/<id>`
 (lấy từ `APP_PUBLIC_ORIGIN`); đổi tên miền thì phải sửa Webhook URL trong cài đặt App trên GitHub.
 
+## Phát hành (S5.4–S5.5)
+
+- Trang **Releases** (`/main/releases`) và **Hosted environments** (`/main/environments`). Production chỉ **ghi nhận**: chủ
+  dự án deploy NocoBase 2 bằng Dokploy như cũ, rồi vào Releases → version → **On production** (ghi chú bắt buộc).
+- Tag `v*` trên `main` của repo được đọc ngay khi GitHub App báo `push` tag, hoặc trong vòng 10 phút (poll). Nút **Read tags**
+  (quản trị) đọc lại và đếm lại issue của mọi version.
+- App id dùng để duyệt đề nghị lên production mặc định là `<tên repo>-production` (ví dụ `duongsinh-nocobase-production`);
+  đổi qua `PUT /api/deploys/repositories/{id}/apps/production`.
+- Nhắc trong Inbox mỗi ngày khi có issue đã merge hơn 3 ngày mà chưa lên production.
+
 ## Runner
 
 **Runner dùng chung trên VPS (S5.3, 03/11/2026):** `vps-studio-runner` (trust `team`, 1 lượt mỗi lần) chạy dưới user hệ

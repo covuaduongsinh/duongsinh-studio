@@ -78,6 +78,9 @@ describe('app client routes', () => {
       })),
       // Stage S4: the knowledge page, behind the knowledge plugin's own page grant.
       { name: 'knowledge', authorizedAs: 'knowledge' },
+      // Stage S5.4: Releases and Hosted environments, behind the releases plugin's page grant.
+      { name: 'releases-hub', authorizedAs: 'rel-apps' },
+      { name: 'hosted-environments', authorizedAs: 'rel-apps' },
       // Stage S4: a conversation with an agent as a page, and the links that open the chat panel. The agents plugin
       // answers each person's own conversations only, so they opt out of page authorization like the inbox.
       { name: 'chat-conversation', authorizedAs: null },
@@ -127,6 +130,8 @@ describe('app client routes', () => {
         '/projects/:projectId',
         '/project-memory',
         '/knowledge',
+        '/releases',
+        '/environments',
       ]),
     );
   });

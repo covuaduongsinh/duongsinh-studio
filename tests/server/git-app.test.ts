@@ -205,6 +205,11 @@ function fakeGitHub(): FakeGitHub {
         });
       if (method === 'GET' && path === `${repo}/commits/head-sha-1/status`)
         return answer({ state: 'success', statuses: [] });
+      // One release tag, for the push webhook (S5.5).
+      if (method === 'GET' && path === `${repo}/tags`)
+        return answer([{ name: 'v2026.11.0', commit: { sha: 'tag-sha-1' } }]);
+      if (method === 'GET' && path === `${repo}/commits/tag-sha-1`)
+        return answer({ sha: 'tag-sha-1', commit: { committer: { date: '2026-11-03T00:00:00Z' } } });
       return answer({ message: 'Not Found' }, 404);
     },
   );
@@ -497,12 +502,31 @@ test('a GitHub App connection: manifest flow, installation, tokens, webhooks and
   });
   expect((await unlinked.json()).data.handled).toBe('pull_request.unlinked');
 
+  // A pushed tag is read at once into a version (S5.5); a pushed branch is not a release.
+  const branchPush = await deliver('push', {
+    ref: 'refs/heads/main',
+    repository: { full_name: 'acme/sandbox' },
+  });
+  expect((await branchPush.json()).data.handled).toBe('push.ignored');
+  const tagPush = await deliver('push', {
+    ref: 'refs/tags/v2026.11.0',
+    repository: { full_name: 'acme/sandbox' },
+  });
+  expect((await tagPush.json()).data.handled).toBe('push.tags');
+  expect(
+    await connection.query
+      .selectFrom('dsVersions')
+      .select(['tag', 'sha'])
+      .where('repositoryId', '=', repository.id)
+      .execute(),
+  ).toEqual([{ tag: 'v2026.11.0', sha: 'tag-sha-1' }]);
+
   // The connection says how its webhook does; with deliveries coming in, its repositories are polled only every 10 min.
   const view = (
     await (await admin.fetch(`/git/connections/${appConnection.id}`)).json()
   ).data as { app: { lastDeliveryAt: string | null; lastEvent: string } };
   expect(view.app.lastDeliveryAt).not.toBeNull();
-  expect(view.app.lastEvent).toBe('pull_request');
+  expect(view.app.lastEvent).toBe('push');
   expect(
     (await git.pollIntervals(new Date())).get(repository.id)?.seconds,
   ).toBe(600);

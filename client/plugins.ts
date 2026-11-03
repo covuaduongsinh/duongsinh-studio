@@ -46,7 +46,8 @@ const clientPlugins: AppClientPlugins = defineClientPlugins([
   agentSessions({ cli: 'ds-studio' }),
   // Studio routes `/knowledge` itself (`client/routes.ts`) over every space the viewer reads.
   knowledge({ routes: false }),
-  releases(),
+  // Studio's own Releases and Hosted environments take /releases and /environments; the plugin's App pages move aside.
+  releases({ appsPath: '/apps', environmentsPath: '/release-environments' }),
   // The application routes the plugin's pages itself (`client/routes.ts`): its `/projects` gains the application's
   // project page as a child, and `/issues` hosts the plugin's New issue dialog and plan page.
   projects({ routes: false }),

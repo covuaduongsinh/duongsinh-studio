@@ -88,6 +88,9 @@ test('the gate gives people their own actions and runs their agent’s within th
       'kb.knowledge/read',
       // S4: agents in a person's conversation propose operation plans the person decides.
       'pm.plans/use',
+      // S5.4: agents see where versions are and read logs; deploying stays with people.
+      'rel.apps/view',
+      'rel.apps/read-logs',
     ].sort(),
   );
   expect((await agents.agents.get(PROJECT_MANAGER_ID)).actions).toEqual(

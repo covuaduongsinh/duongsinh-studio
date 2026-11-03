@@ -97,6 +97,16 @@ const enUS = {
       },
     },
   },
+  studioReleases: {
+    actions: {
+      groupTitle: 'Previews',
+      previewsManage: {
+        title: 'Manage pull request previews',
+        description:
+          'Put up, retry and take down the preview of an issue’s pull request. Whoever may edit issues holds it.',
+      },
+    },
+  },
 };
 
 export type AppServerResource = LocaleResource<typeof enUS>;

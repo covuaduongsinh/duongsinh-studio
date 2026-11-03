@@ -58,6 +58,9 @@ function fakeClient(state: {
     checks: refuse,
     merge: refuse,
     comment: refuse,
+    tags: refuse,
+    compare: refuse,
+    commitDate: refuse,
     async branchHead(_repo, branch) {
       state.calls.push(`head ${branch}`);
       if (state.fail) throw state.fail;

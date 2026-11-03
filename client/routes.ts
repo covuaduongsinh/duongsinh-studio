@@ -10,6 +10,8 @@ import {
   Hash,
   Home,
   Library,
+  PackageIcon,
+  ServerCog,
   ListTodo,
   Server,
   Tags,
@@ -168,6 +170,25 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     authz: pmPage('knowledge'),
     navigation: { title: 'navigation.knowledge', icon: Library },
     componentLoader: () => import('./pages/knowledge/index.js'),
+  },
+  {
+    // Where Dương Sinh's work is: previews, staging, versions of each repository and what waits for production
+    // (`server/routes/deploys.ts`). Behind the releases plugin's page grant, which the built-in roles hold.
+    name: 'releases-hub',
+    path: '/releases',
+    auth: 'required',
+    authz: pmPage('rel-apps'),
+    navigation: { title: 'navigation.releases', icon: PackageIcon },
+    componentLoader: () => import('./pages/releases/index.js'),
+  },
+  {
+    // Dương Sinh's hosted environments (preview, staging, production), all outside Studio and recorded here.
+    name: 'hosted-environments',
+    path: '/environments',
+    auth: 'required',
+    authz: pmPage('rel-apps'),
+    navigation: { title: 'navigation.environments', icon: ServerCog },
+    componentLoader: () => import('./pages/environments/index.js'),
   },
   {
     // One conversation with an agent as a page (the chat panel's "Open full page"). The agents plugin answers each

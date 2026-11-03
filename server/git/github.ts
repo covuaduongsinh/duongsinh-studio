@@ -96,6 +96,28 @@ export interface GitHubClient {
   ): Promise<GitHubContentEntry[]>;
   /** A file's text at `ref` (UTF-8). */
   file(fullName: string, path: string, ref: string): Promise<GitHubFile>;
+  /** The repository's tags, newest first as GitHub lists them (at most `perPage`, up to 100). */
+  tags(fullName: string, perPage: number): Promise<GitHubTag[]>;
+  /** How `head` relates to `base`, with the commits `head` has that `base` lacks (up to 250). */
+  compare(
+    fullName: string,
+    base: string,
+    head: string,
+  ): Promise<GitHubComparison>;
+  /** When a commit was made (its committer date). */
+  commitDate(fullName: string, sha: string): Promise<string | null>;
+}
+
+export interface GitHubTag {
+  readonly name: string;
+  readonly sha: string;
+}
+
+export interface GitHubComparison {
+  /** GitHub's words: `ahead`, `behind`, `identical` or `diverged`. */
+  readonly status: string;
+  readonly aheadBy: number;
+  readonly commits: readonly string[];
 }
 
 export interface GitHubContentEntry {
@@ -400,6 +422,49 @@ export function createGitHubClient(options: {
             ? Buffer.from(content, 'base64').toString('utf8')
             : content,
       };
+    },
+    async tags(fullName, perPage) {
+      const query = new URLSearchParams({
+        per_page: String(Math.min(Math.max(perPage, 1), 100)),
+      });
+      return items(
+        await call('GET', `${repoPath(fullName)}/tags?${query.toString()}`),
+      )
+        .map((value): GitHubTag => {
+          const tag = record(value);
+          return {
+            name: text(tag.name) ?? '',
+            sha: text(record(tag.commit).sha) ?? '',
+          };
+        })
+        .filter((tag) => tag.name !== '' && tag.sha !== '');
+    },
+    async compare(fullName, base, head) {
+      const answer = record(
+        await call(
+          'GET',
+          `${repoPath(fullName)}/compare/${encodeURIComponent(base)}...${encodeURIComponent(head)}?per_page=250`,
+        ),
+      );
+      return {
+        status: text(answer.status) ?? 'diverged',
+        aheadBy: typeof answer.ahead_by === 'number' ? answer.ahead_by : 0,
+        commits: items(answer.commits)
+          .map((value) => text(record(value).sha) ?? '')
+          .filter((sha) => sha !== ''),
+      };
+    },
+    async commitDate(fullName, sha) {
+      const answer = record(
+        await call(
+          'GET',
+          `${repoPath(fullName)}/commits/${encodeURIComponent(sha)}`,
+        ),
+      );
+      const commit = record(answer.commit);
+      return (
+        text(record(commit.committer).date) ?? text(record(commit.author).date)
+      );
     },
   };
 }
