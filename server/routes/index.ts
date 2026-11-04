@@ -6,12 +6,14 @@ import { gitRoutes } from './git.js';
 import { kbRoutes } from './kb.js';
 import { projectManagerRoutes } from './project-manager.js';
 import { projectMemoryRoutes } from './project-memory.js';
+import { reviewRoutes } from './reviews.js';
 import { webhookRoutes } from './webhooks.js';
 
 const routes: readonly AppRouteContribution<Application>[] = [
   accessRoutes,
   projectManagerRoutes,
   gitRoutes,
+  reviewRoutes,
   webhookRoutes,
   projectMemoryRoutes,
   kbRoutes,

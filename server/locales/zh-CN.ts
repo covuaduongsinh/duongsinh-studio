@@ -92,6 +92,16 @@ const zhCN: AppServerResource = {
       },
     },
   },
+  studioReviews: {
+    actions: {
+      groupTitle: '审查',
+      submit: {
+        title: '提交审查单',
+        description:
+          '在只读模式下为拉取请求提交结构化审查单（结论、清单、待修复项）。',
+      },
+    },
+  },
 };
 
 export default zhCN;

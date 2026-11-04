@@ -101,6 +101,16 @@ const viVN: AppServerResource = {
       },
     },
   },
+  studioReviews: {
+    actions: {
+      groupTitle: 'Review',
+      submit: {
+        title: 'Nộp phiếu review',
+        description:
+          'Nộp phiếu review PR có cấu trúc (kết luận, checklist, số must/should fix) ở chế độ read-only.',
+      },
+    },
+  },
   // Rewording of the plugins' own vi-VN to the glossary (docs/thuat-ngu.md).
   overrides,
 };

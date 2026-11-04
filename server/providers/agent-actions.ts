@@ -16,8 +16,13 @@ import {
   projectsRequestActorToken,
   type Actor,
 } from '@nocobase/app-plugin-projects/server/tokens';
+import { databaseManagerToken } from '@nocobase/db';
 import { ServiceProvider } from '@nocobase/service-provider';
-import { STUDIO_ACTIONS, type StudioAction } from '../agents/actions.js';
+import {
+  REVIEWS_SUBMIT_ACTION,
+  STUDIO_ACTIONS,
+  type StudioAction,
+} from '../agents/actions.js';
 import { AGENT_KIND } from '../agents/ids.js';
 import { userIdentity } from './projects-access.js';
 
@@ -64,6 +69,7 @@ export async function personActions(
  */
 export function createStudioGate(
   contextOf: (userId: string, keyScope?: KeyScope) => AuthorizationContext,
+  isRunReadOnly?: (runId: string) => Promise<boolean>,
 ): ActionGate {
   return {
     async allowed(identity: CallerIdentity): Promise<ReadonlySet<string>> {
@@ -72,7 +78,15 @@ export function createStudioGate(
       );
       if (identity.kind !== 'run') return own;
       const configured = new Set(identity.agent?.actions ?? []);
-      return new Set([...own].filter((action) => configured.has(action)));
+      const allowed = new Set([...own].filter((action) => configured.has(action)));
+      if (allowed.has(REVIEWS_SUBMIT_ACTION)) {
+        const runId = identity.run?.run.id;
+        const readOnly = runId && isRunReadOnly ? await isRunReadOnly(runId) : false;
+        if (!readOnly) {
+          allowed.delete(REVIEWS_SUBMIT_ACTION);
+        }
+      }
+      return allowed;
     },
   };
 }
@@ -126,8 +140,55 @@ export default class AgentActionsProvider extends ServiceProvider<Application> {
       return;
     const agents = container.resolve(agentsToken);
     const authz = container.resolve(authorizationToken);
-    const gate = createStudioGate((userId, keyScope) =>
-      authz.for(userIdentity(userId, keyScope)),
+    const db = container.has(databaseManagerToken)
+      ? container.resolve(databaseManagerToken)
+      : undefined;
+
+    const isRunReadOnly = async (runId: string): Promise<boolean> => {
+      if (!db) return false;
+      try {
+        const inputs: { text?: string | null; payload?: unknown }[] =
+          await db
+            .connection()
+            .query.selectFrom('agRunInputs')
+            .select(['text', 'payload'])
+            .where('runId', '=', runId)
+            .execute();
+        for (const input of inputs) {
+          if (
+            typeof input.text === 'string' &&
+            /mode:\s*read-only/i.test(input.text)
+          )
+            return true;
+          if (input.payload) {
+            try {
+              const parsed: unknown =
+                typeof input.payload === 'string'
+                  ? JSON.parse(input.payload)
+                  : input.payload;
+              if (
+                parsed &&
+                typeof parsed === 'object' &&
+                ('mode' in parsed || 'readOnly' in parsed)
+              ) {
+                const obj = parsed as Record<string, unknown>;
+                if (obj.mode === 'read-only' || obj.readOnly === true)
+                  return true;
+              }
+            } catch {
+              // ignore
+            }
+          }
+        }
+      } catch {
+        // ignore errors if table does not exist yet during migration
+      }
+      return false;
+    };
+
+    const gate = createStudioGate(
+      (userId, keyScope) => authz.for(userIdentity(userId, keyScope)),
+      isRunReadOnly,
     );
     this.releases.push(
       agents.actions.provide(() =>

@@ -11,6 +11,7 @@ import KnowledgeProvider from './knowledge.js';
 import ConversationsProvider from './conversations.js';
 import ReleasesProvider from './releases.js';
 import PreviewsProvider from './previews.js';
+import ReviewsProvider from './reviews.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -34,6 +35,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   ReleasesProvider,
   // Previews and staging of NocoBase 2 on the VPS, through the allowlisted Dokploy client (S5.6).
   PreviewsProvider,
+  // Structured review submissions by reviewing agents (AP1).
+  ReviewsProvider,
 ];
 
 export default serviceProviders;

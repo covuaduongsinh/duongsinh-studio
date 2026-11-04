@@ -200,6 +200,31 @@ function previewsManage(flags: Flags): StudioAction {
   };
 }
 
+/** The business action submitting a structured review for a pull request (AP1). */
+export const REVIEWS_SUBMIT_ACTION = 'studio.reviews/submit';
+
+/**
+ * `studio.reviews/submit`: submitting structured reviews for an issue's pull request in read-only mode. Studio's own
+ * action, which the authorization plugin does not grant: whoever may comment on issues holds it.
+ */
+function reviewsSubmit(flags: Flags): StudioAction {
+  return {
+    option: option(
+      REVIEWS_SUBMIT_ACTION,
+      'studio.reviews',
+      {
+        title: appText('studioReviews.actions.submit.title'),
+        description: appText('studioReviews.actions.submit.description'),
+        groupTitle: appText('studioReviews.actions.groupTitle'),
+      },
+      flags,
+    ),
+    resource: { type: pmAccess.RESOURCE_TYPE, id: 'pm.issues' },
+    names: pmAccess.levelActionsOf('pm.issues/comment').map((level) => level.name),
+    borrowed: true,
+  };
+}
+
 /**
  * Every business action Studio knows, in the order the Capabilities tab lists them (the Studio demo's set, §S2 of the
  * plan). An executing agent starts with what working an issue needs: reading projects and issues, editing and
@@ -221,6 +246,7 @@ export const STUDIO_ACTIONS: readonly StudioAction[] = [
   pm('pm.attachments', 'upload', { defaultOn: true }),
   gitOpenPr({ defaultOn: true }),
   plansUse({ defaultOn: true }),
+  reviewsSubmit({ defaultOn: true }),
   // Agents see where a version is and read logs; deploying and marking production stay with people (S5.4).
   rel('view', { defaultOn: true }),
   rel('read-logs', { defaultOn: true }),

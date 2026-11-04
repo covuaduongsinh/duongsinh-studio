@@ -107,6 +107,16 @@ const enUS = {
       },
     },
   },
+  studioReviews: {
+    actions: {
+      groupTitle: 'Reviews',
+      submit: {
+        title: 'Submit review',
+        description:
+          'Submit a structured pull request review with verdicts, checklist items, and findings in read-only mode.',
+      },
+    },
+  },
 };
 
 export type AppServerResource = LocaleResource<typeof enUS>;

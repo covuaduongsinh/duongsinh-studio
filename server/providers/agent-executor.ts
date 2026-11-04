@@ -69,6 +69,7 @@ interface Wake {
   readonly requestedByUserId?: string;
   readonly text: string;
   readonly commentId?: string;
+  readonly readOnly?: boolean;
 }
 
 /**
@@ -191,6 +192,7 @@ export function createAgentKind(deps: {
             identifier: issue.identifier,
             byPrincipal,
             ...(work.commentId ? { commentId: work.commentId } : {}),
+            ...(work.readOnly ? { mode: 'read-only' } : {}),
           },
         },
       },
@@ -290,6 +292,7 @@ export function createAgentKind(deps: {
       const executor = agentOf(issue);
       if (executor && !targets.has(executor)) targets.set(executor, 'comment');
       const author = actor.type === AGENT_KIND ? actor.id : null;
+      const readOnly = /mode:\s*read-only/i.test(comment.content);
       const attempts: RunAttempt[] = [];
       for (const [agentId, trigger] of targets) {
         if (agentId === author) continue;
@@ -303,6 +306,7 @@ export function createAgentKind(deps: {
             ...(userId ? { requestedByUserId: userId } : {}),
             text: `${trigger === 'mention' ? 'You were mentioned in' : 'New comment on'} ${issue.identifier} (${comment.id}).`,
             commentId: comment.id,
+            ...(readOnly ? { readOnly: true } : {}),
           }),
         );
       }

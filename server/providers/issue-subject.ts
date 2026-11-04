@@ -230,6 +230,15 @@ function contextOf(issue: IssueContext): string {
 function assemblyOf(issue: IssueContext, claim: ClaimContext): SubjectAssembly {
   const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
   const comment = commandRef(claim.cli, 'issue comment add');
+  const readOnly = claim.inputs.some((input) => {
+    if (typeof input.text === 'string' && /mode:\s*read-only/i.test(input.text)) {
+      return true;
+    }
+    const payload = input.payload as Record<string, unknown> | null | undefined;
+    return Boolean(
+      payload && (payload.mode === 'read-only' || payload.readOnly === true),
+    );
+  });
   return {
     subject: {
       key: issue.identifier,
@@ -266,6 +275,7 @@ function assemblyOf(issue: IssueContext, claim: ClaimContext): SubjectAssembly {
     scopes: [],
     // The project manager checks nothing out, so it never waits for the issue's working directory.
     ...(coordinating ? { workspaceKey: `pm-${issue.identifier}` } : {}),
+    ...(readOnly ? { readOnly: true } : {}),
   };
 }
 
