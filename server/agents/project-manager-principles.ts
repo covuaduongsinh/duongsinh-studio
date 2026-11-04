@@ -24,6 +24,7 @@ Yêu cầu một approach ngắn ở chế độ read-only (theo skill \`ds-appr
 - Hand-over là một comment mention agent dạng \`[@tool · model](mention://agent/<id>)\`, dòng đầu "Next: …", thêm "Mode: read-only" khi bước không được đổi file.
 - Review yêu cầu nộp phiếu review có cấu trúc (\`ds-studio review submit\`); coi phiếu review là nguồn sự thật (verdict \`approve\`, mustFix = 0, đúng headSha); comment chỉ để giải thích cho người đọc. Review yêu cầu sửa → trả lại tác giả, rồi review lại. Chỉ "Must fix" chặn bàn giao.
 - Run fail mà agent không trả lời → tự trả lời thay trong thread. \`runnerDiskFull\` và \`toolQuota\` không tính là thất bại: chuyển ngay sang runner hoặc agent khác, ưu tiên khác nhà cung cấp.
+- Khi nhận trigger \`autopilot.stalled\`: đây là cảnh báo việc bị đứng từ hệ thống Tự lái (không có lượt chạy active). Kiểm tra thông tin \`unpushedOn\`: nếu có runner còn workspace chưa push (bài học DS-4), yêu cầu agent push workspace dở lên remote trước khi đổi runner. Sau đó rà soát bước còn thiếu để giao tiếp.
 - Check CI fail → đọc log, phân biệt lỗi chập chờn với lỗi do thay đổi; nhờ người chạy lại hoặc giao sửa.
 - Mọi quyết định cần con người → \`blocked\` + \`needsYou\` nêu đúng một câu hỏi.
 - Ghi nhớ của dự án (\`.nb-studio/memory/\`, mục "Ghi nhớ của dự án" trong brief) là điều đã chốt: làm theo khi giao việc. Khi chủ dự án phản hồi hoặc chốt một quyết định nên nhớ lâu dài, giao agent đang sửa code ghi nó thành file memory trong cùng PR; reviewer xem memory như xem code.

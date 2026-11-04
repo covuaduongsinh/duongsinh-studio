@@ -18,6 +18,10 @@ import {
   createAutopilotScheduler,
   type AutopilotScheduler,
 } from '../autopilot/scheduler.js';
+import {
+  createAutopilotStallDetector,
+  type AutopilotStallDetector,
+} from '../autopilot/stall.js';
 import { str, strOrNull } from '../git/rows.js';
 
 export const autopilotServiceToken: ServiceToken<AutopilotEvaluator> =
@@ -25,6 +29,9 @@ export const autopilotServiceToken: ServiceToken<AutopilotEvaluator> =
 
 export const autopilotSchedulerToken: ServiceToken<AutopilotScheduler> =
   createServiceToken<AutopilotScheduler>('app/autopilot/scheduler');
+
+export const autopilotStallDetectorToken: ServiceToken<AutopilotStallDetector> =
+  createServiceToken<AutopilotStallDetector>('app/autopilot/stall');
 
 const SWEEP_INTERVAL_MS = 120_000; // 2 minutes
 
@@ -44,6 +51,13 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
 
     this.app.container.singleton(autopilotSchedulerToken, (resolver) =>
       createAutopilotScheduler({
+        database: resolver.resolve(databaseManagerToken),
+        evaluator: resolver.resolve(autopilotServiceToken),
+      }),
+    );
+
+    this.app.container.singleton(autopilotStallDetectorToken, (resolver) =>
+      createAutopilotStallDetector({
         database: resolver.resolve(databaseManagerToken),
         evaluator: resolver.resolve(autopilotServiceToken),
       }),
@@ -113,6 +127,7 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
         if (!(await database.collections().getPhysical(SETTINGS_TABLE))) return;
         const evaluator = container.resolve(autopilotServiceToken);
         const scheduler = container.resolve(autopilotSchedulerToken);
+        const stallDetector = container.resolve(autopilotStallDetectorToken);
         const conn = database.connection();
 
         try {
@@ -141,6 +156,9 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
             // 2. Lập lịch mở việc kế tiếp (AP3)
             await scheduler.openNext(projectId);
           }
+
+          // 3. Quét phát hiện đứng việc trên tất cả project bật tự lái (AP4)
+          await stallDetector.detectAndHandleStalls();
         } catch (error) {
           console.warn('Autopilot sweep error:', error);
         }
