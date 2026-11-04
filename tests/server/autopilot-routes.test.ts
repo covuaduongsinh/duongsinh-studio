@@ -134,7 +134,45 @@ test('autopilot REST routes: settings, pause, resume, events, stop-all and perso
   };
   expect(stoppedSettings.pausedReason).toBe('Emergency system shutdown');
 
-  // 8. Gate: anonymous call returns 401
+  // 8. Test issue auto-start flag routes
+  const issue = (
+    await (
+      await admin.fetch(
+        '/projects/issues',
+        json({
+          projectId: project.id,
+          title: 'Test flag issue',
+          statusKey: 'backlog',
+        }),
+      )
+    ).json()
+  ).data as { id: string };
+
+  const getFlagInitial = await admin.fetch(`/issues/${issue.id}/autopilot-flag`);
+  expect(getFlagInitial.status).toBe(200);
+  expect((await getFlagInitial.json()).data).toBeNull();
+
+  const setFlagRes = await admin.fetch(
+    `/issues/${issue.id}/autopilot-flag`,
+    json({ allowAutoStart: true, inheritFromParent: false }, 'PUT'),
+  );
+  expect(setFlagRes.status).toBe(200);
+  const flagData = (await setFlagRes.json()).data as {
+    issueId: string;
+    allowAutoStart: boolean;
+    inheritFromParent: boolean;
+  };
+  expect(flagData.issueId).toBe(issue.id);
+  expect(flagData.allowAutoStart).toBe(true);
+  expect(flagData.inheritFromParent).toBe(false);
+
+  const getFlagAfter = await admin.fetch(`/issues/${issue.id}/autopilot-flag`);
+  expect(getFlagAfter.status).toBe(200);
+  expect((await getFlagAfter.json()).data?.allowAutoStart).toBe(true);
+
+  // 9. Gate: anonymous call returns 401
   const anonRes = await request(`/projects/${project.id}/autopilot`);
   expect(anonRes.status).toBe(401);
+  const anonFlagRes = await request(`/issues/${issue.id}/autopilot-flag`);
+  expect(anonFlagRes.status).toBe(401);
 }, 120_000);

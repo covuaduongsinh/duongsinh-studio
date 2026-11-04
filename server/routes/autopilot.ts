@@ -29,7 +29,10 @@ import {
 } from '@nocobase/app-server/router';
 import { Hono, type Context } from 'hono';
 import { z } from 'zod';
-import { autopilotServiceToken } from '../providers/autopilot.js';
+import {
+  autopilotServiceToken,
+  autopilotSchedulerToken,
+} from '../providers/autopilot.js';
 
 type Env = AuthEnv & AuthorizationEnv;
 
@@ -107,6 +110,23 @@ const AutopilotEvaluationSchema = z
   })
   .meta({ ref: 'StudioAutopilotEvaluation' });
 
+const IssueFlagSchema = z
+  .object({
+    issueId: z.string(),
+    allowAutoStart: z.boolean(),
+    inheritFromParent: z.boolean(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
+  })
+  .meta({ ref: 'StudioAutopilotIssueFlag' });
+
+const UpdateIssueFlagBody = z
+  .object({
+    allowAutoStart: z.boolean().optional(),
+    inheritFromParent: z.boolean().optional(),
+  })
+  .strict();
+
 const ProjectParams = z.object({ projectId: z.string() });
 const IssueParams = z.object({ issueId: z.string() });
 const EventsQuery = z.object({
@@ -123,6 +143,7 @@ export const autopilotRoutes: AppApiRouteContribution<Application> = defineApiRo
     const authz = container.resolve(authorizationToken);
     const projects = (): Projects => container.resolve(projectsToken);
     const autopilot = () => container.resolve(autopilotServiceToken);
+    const scheduler = () => container.resolve(autopilotSchedulerToken);
 
     const requirePerson = async (context: Context<Env>) => {
       const session = context.get('auth');
@@ -415,6 +436,77 @@ export const autopilotRoutes: AppApiRouteContribution<Application> = defineApiRo
             projectId: evaluation.projectId,
           },
         });
+      },
+    );
+
+    routes.get(
+      '/issues/:issueId/autopilot-flag',
+      describeRoute({
+        tags: ['Studio Autopilot'],
+        summary: 'Get autopilot flag of an issue',
+        security: PERSON_ONLY,
+        ...cliRoute({ command: 'autopilot flag get' }),
+        responses: {
+          '200': dataResponse(IssueFlagSchema.nullable()),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('param', IssueParams),
+      async (context) => {
+        const { issueId } = context.req.valid('param');
+        const viewer = await viewerOf(context);
+        try {
+          await projects().issueQueries.visible(viewer, issueId);
+        } catch (error) {
+          if (error instanceof DomainError) {
+            throw new ApiError({
+              status: 'NOT_FOUND',
+              reason: 'ISSUE_NOT_FOUND',
+              domain: DOMAIN,
+              message: `Issue ${issueId} not found.`,
+            });
+          }
+          throw error;
+        }
+        const flag = await scheduler().getIssueFlag(issueId);
+        return context.json({ data: flag });
+      },
+    );
+
+    routes.put(
+      '/issues/:issueId/autopilot-flag',
+      describeRoute({
+        tags: ['Studio Autopilot'],
+        summary: 'Set autopilot flag for an issue or epic',
+        security: PERSON_ONLY,
+        ...cliRoute({ command: 'autopilot flag' }),
+        responses: {
+          '200': dataResponse(IssueFlagSchema),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('param', IssueParams),
+      apiValidator('json', UpdateIssueFlagBody),
+      async (context) => {
+        await requirePerson(context);
+        const { issueId } = context.req.valid('param');
+        const body = context.req.valid('json');
+        const viewer = await viewerOf(context);
+        try {
+          await projects().issueQueries.visible(viewer, issueId);
+        } catch (error) {
+          if (error instanceof DomainError) {
+            throw new ApiError({
+              status: 'NOT_FOUND',
+              reason: 'ISSUE_NOT_FOUND',
+              domain: DOMAIN,
+              message: `Issue ${issueId} not found.`,
+            });
+          }
+          throw error;
+        }
+        const flag = await scheduler().setIssueFlag(issueId, body);
+        return context.json({ data: flag });
       },
     );
 

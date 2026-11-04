@@ -14,10 +14,17 @@ import {
   type AutopilotEvaluator,
   SETTINGS_TABLE,
 } from '../autopilot/evaluator.js';
+import {
+  createAutopilotScheduler,
+  type AutopilotScheduler,
+} from '../autopilot/scheduler.js';
 import { str, strOrNull } from '../git/rows.js';
 
 export const autopilotServiceToken: ServiceToken<AutopilotEvaluator> =
   createServiceToken<AutopilotEvaluator>('app/autopilot');
+
+export const autopilotSchedulerToken: ServiceToken<AutopilotScheduler> =
+  createServiceToken<AutopilotScheduler>('app/autopilot/scheduler');
 
 const SWEEP_INTERVAL_MS = 120_000; // 2 minutes
 
@@ -34,6 +41,13 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
         reviews: () => resolver.resolve(reviewsServiceToken),
       }),
     );
+
+    this.app.container.singleton(autopilotSchedulerToken, (resolver) =>
+      createAutopilotScheduler({
+        database: resolver.resolve(databaseManagerToken),
+        evaluator: resolver.resolve(autopilotServiceToken),
+      }),
+    );
   }
 
   override async boot(): Promise<void> {
@@ -42,6 +56,7 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
 
     const git = container.resolve(gitServiceToken);
     const evaluator = () => container.resolve(autopilotServiceToken);
+    const scheduler = () => container.resolve(autopilotSchedulerToken);
     const db = container.resolve(databaseManagerToken);
 
     // Listen to git webhook events (PR sync / check updates)
@@ -62,7 +77,17 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
 
           const issueId = strOrNull(prRow?.issueId);
           if (issueId) {
-            await evaluator().mergeIfEligible(issueId);
+            const mergeResult = await evaluator().mergeIfEligible(issueId);
+            if (mergeResult.merged) {
+              const issueRow = await conn.query
+                .selectFrom('pmIssues')
+                .select(['projectId'])
+                .where('id', '=', issueId)
+                .executeTakeFirst();
+              if (issueRow?.projectId) {
+                await scheduler().openNext(str(issueRow.projectId));
+              }
+            }
           }
         } catch (error) {
           console.warn('Autopilot webhook listener error:', error);
@@ -87,6 +112,7 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
       execute: async () => {
         if (!(await database.collections().getPhysical(SETTINGS_TABLE))) return;
         const evaluator = container.resolve(autopilotServiceToken);
+        const scheduler = container.resolve(autopilotSchedulerToken);
         const conn = database.connection();
 
         try {
@@ -100,7 +126,7 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
 
           for (const setting of activeSettings) {
             const projectId = str(setting.projectId);
-            // Find issues in in_review for this project
+            // 1. Quét và merge các issue đủ điều kiện
             const candidateIssues = await conn.query
               .selectFrom('pmIssues')
               .select('id')
@@ -111,6 +137,9 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
             for (const issue of candidateIssues) {
               await evaluator.mergeIfEligible(str(issue.id));
             }
+
+            // 2. Lập lịch mở việc kế tiếp (AP3)
+            await scheduler.openNext(projectId);
           }
         } catch (error) {
           console.warn('Autopilot sweep error:', error);
