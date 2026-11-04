@@ -67,6 +67,8 @@ export interface GitHubClient {
     perPage: number,
   ): Promise<GitHubPull[]>;
   pull(fullName: string, number: number): Promise<GitHubPull>;
+  /** The files changed by a pull request (relative file paths). */
+  pullFiles(fullName: string, number: number): Promise<string[]>;
   /** The open pull requests whose head is `branch` of the repository itself (not of a fork). */
   openPullsFrom(fullName: string, branch: string): Promise<GitHubPull[]>;
   createPull(
@@ -308,6 +310,14 @@ export function createGitHubClient(options: {
     },
     async pull(fullName, number) {
       return pullOf(await call('GET', `${repoPath(fullName)}/pulls/${number}`));
+    },
+    async pullFiles(fullName, number) {
+      const answer = items(
+        await call('GET', `${repoPath(fullName)}/pulls/${number}/files?per_page=100`),
+      );
+      return answer
+        .map((entry) => text(record(entry).filename) ?? '')
+        .filter((name) => name !== '');
     },
     async openPullsFrom(fullName, branch) {
       const query = new URLSearchParams({

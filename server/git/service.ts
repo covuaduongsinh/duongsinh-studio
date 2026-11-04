@@ -1521,7 +1521,7 @@ export function createGitService(deps: GitServiceDeps) {
   async function listPullRequests(filter: {
     readonly issueId?: string;
     readonly repositoryId?: string;
-  }): Promise<GitPullRequestView[]> {
+  } = {}): Promise<GitPullRequestView[]> {
     let query = conn().query.selectFrom(PULL_REQUESTS).selectAll();
     if (filter.issueId) query = query.where('issueId', '=', filter.issueId);
     if (filter.repositoryId)
@@ -2009,6 +2009,14 @@ export function createGitService(deps: GitServiceDeps) {
     }
   }
 
+  /** Relative file paths changed by a pull request (read via GitHub client). */
+  async function pullFiles(id: string): Promise<string[]> {
+    const pull = await pullRecord(id);
+    const repo = await repositoryRecord(pull.repositoryId);
+    const client = await clientForRepository(repo.id);
+    return client.pullFiles(repo.fullName, pull.number);
+  }
+
   /**
    * Squash-merges a pull request on GitHub after reading it again. Refused with its `mergeBlocker`; `force` with a reason
    * ("Merge anyway") overrides the blockers of `FORCEABLE_BLOCKERS`, records the reason and says so on the pull request.
@@ -2240,6 +2248,7 @@ export function createGitService(deps: GitServiceDeps) {
     listPullRequests,
     getPullRequest,
     refreshPullRequest,
+    pullFiles,
     syncRepository,
     syncDue,
     pollIntervals,

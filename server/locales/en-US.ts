@@ -117,6 +117,15 @@ const enUS = {
       },
     },
   },
+  studioAutopilot: {
+    actions: {
+      groupTitle: 'Autopilot',
+      manage: {
+        title: 'Manage autopilot',
+        description: 'Configure and operate autopilot settings for projects.',
+      },
+    },
+  },
 };
 
 export type AppServerResource = LocaleResource<typeof enUS>;

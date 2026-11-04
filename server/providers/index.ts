@@ -12,6 +12,7 @@ import ConversationsProvider from './conversations.js';
 import ReleasesProvider from './releases.js';
 import PreviewsProvider from './previews.js';
 import ReviewsProvider from './reviews.js';
+import AutopilotProvider from './autopilot.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -37,6 +38,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   PreviewsProvider,
   // Structured review submissions by reviewing agents (AP1).
   ReviewsProvider,
+  // Studio autopilot: automatic evaluation, merge, and sweep (AP2).
+  AutopilotProvider,
 ];
 
 export default serviceProviders;

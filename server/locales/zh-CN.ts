@@ -102,6 +102,15 @@ const zhCN: AppServerResource = {
       },
     },
   },
+  studioAutopilot: {
+    actions: {
+      groupTitle: '自动驾驶',
+      manage: {
+        title: '管理自动驾驶',
+        description: '为项目配置和操作自动驾驶设置。',
+      },
+    },
+  },
 };
 
 export default zhCN;

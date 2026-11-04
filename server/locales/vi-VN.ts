@@ -111,6 +111,15 @@ const viVN: AppServerResource = {
       },
     },
   },
+  studioAutopilot: {
+    actions: {
+      groupTitle: 'Tự lái',
+      manage: {
+        title: 'Quản lý tự lái',
+        description: 'Cấu hình và vận hành tính năng tự lái cho các dự án.',
+      },
+    },
+  },
   // Rewording of the plugins' own vi-VN to the glossary (docs/thuat-ngu.md).
   overrides,
 };
