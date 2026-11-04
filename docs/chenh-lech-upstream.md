@@ -460,3 +460,9 @@ Cách làm: khai báo `nocobase.cli` trong `package.json` (`bin: ds-studio`, `di
 `envPrefix: DS_STUDIO`, nên CI dùng được `DS_STUDIO_API_KEY`), cài `@nocobase/app-cli-client`, chạy
 `pnpm nocobase cli link`, và truyền `agentSessions({ cli: 'ds-studio' })`. Đăng nhập thiết bị (`auth.clientId`) và
 `skills` giao kèm runner để đến S2.
+
+
+## 22. Tính năng Tự lái (Autopilot, AP1–AP6, 04/11/2026)
+
+- Thêm hệ thống phiếu review có cấu trúc (bảng `dsReviews`), cài đặt tự lái theo dự án (bảng `dsAutopilotSettings`), bộ đánh giá điều kiện tự merge 7 bước (`server/autopilot/evaluator.ts`), bộ lập lịch mở việc kế tiếp (`server/autopilot/scheduler.ts`, bảng `dsAutopilotIssueFlags`, thừa hưởng cờ từ epic), phát hiện đứng việc và xử lý giới hạn hạn mức (`server/autopilot/stall.ts`), giao diện cài đặt tự lái (`client/pages/projects/project-autopilot.tsx`), công tắc dừng khẩn cấp toàn hệ thống và bản tin digest 21:00 (`server/autopilot/digest.ts`).
+- **PostgreSQL transaction abort (25P02)**: Trong seed tạo user dịch vụ hệ thống `studio-autopilot` (`database/main/seeds/2026110803_ds_autopilot_user.ts`), không query thử các bảng trừu tượng/chưa có trong schema vật lý (như `authorizationAssignments`) để tránh huỷ toàn bộ transaction seed của PostgreSQL.
