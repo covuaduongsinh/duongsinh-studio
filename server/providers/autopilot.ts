@@ -2,11 +2,14 @@ import type { Application } from '@nocobase/app-server/application';
 import { jobExecutorServiceToken } from '@nocobase/app-server/jobs';
 import { databaseManagerToken } from '@nocobase/db';
 import type { ScheduleExecutor } from '@nocobase/jobs';
+import { authorizationToken } from '@nocobase/app-plugin-authorization';
+import { notificationServiceToken } from '@nocobase/app-plugin-notification/server';
 import {
   ServiceProvider,
   createServiceToken,
   type ServiceToken,
 } from '@nocobase/service-provider';
+import { ROOT_SET_KEY } from '../access/roles.js';
 import { gitServiceToken } from './git.js';
 import { reviewsServiceToken } from './reviews.js';
 import {
@@ -22,6 +25,10 @@ import {
   createAutopilotStallDetector,
   type AutopilotStallDetector,
 } from '../autopilot/stall.js';
+import {
+  createAutopilotDigest,
+  type AutopilotDigest,
+} from '../autopilot/digest.js';
 import { str, strOrNull } from '../git/rows.js';
 
 export const autopilotServiceToken: ServiceToken<AutopilotEvaluator> =
@@ -33,7 +40,11 @@ export const autopilotSchedulerToken: ServiceToken<AutopilotScheduler> =
 export const autopilotStallDetectorToken: ServiceToken<AutopilotStallDetector> =
   createServiceToken<AutopilotStallDetector>('app/autopilot/stall');
 
+export const autopilotDigestToken: ServiceToken<AutopilotDigest> =
+  createServiceToken<AutopilotDigest>('app/autopilot/digest');
+
 const SWEEP_INTERVAL_MS = 120_000; // 2 minutes
+const INBOX_CHANNEL = 'in-app';
 
 export default class AutopilotProvider extends ServiceProvider<Application> {
   readonly name = 'app/autopilot';
@@ -62,6 +73,44 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
         evaluator: resolver.resolve(autopilotServiceToken),
       }),
     );
+
+    this.app.container.singleton(autopilotDigestToken, (resolver) => {
+      const authz = () => resolver.resolve(authorizationToken);
+      const container = this.app.container;
+      return createAutopilotDigest({
+        database: resolver.resolve(databaseManagerToken),
+        owners: async () =>
+          (await authz().permissionSets.listAssignments(ROOT_SET_KEY))
+            .filter((assignment) => assignment.subject.type === 'user')
+            .map((assignment) => assignment.subject.id),
+        notify: async (notice) => {
+          if (
+            !container.has(notificationServiceToken) ||
+            notice.to.length === 0
+          )
+            return;
+          try {
+            await container.resolve(notificationServiceToken).send({
+              idempotencyKey: notice.key,
+              source: {
+                type: 'duongsinh-studio/autopilot',
+                referenceId: notice.key,
+              },
+              messages: {
+                [INBOX_CHANNEL]: {
+                  to: [...notice.to],
+                  title: notice.title,
+                  body: notice.body,
+                  target: { type: 'route', path: notice.path },
+                },
+              },
+            });
+          } catch (notifyErr) {
+            console.warn('Autopilot could not send notification', notifyErr);
+          }
+        },
+      });
+    });
   }
 
   override async boot(): Promise<void> {
@@ -161,6 +210,21 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
           await stallDetector.detectAndHandleStalls();
         } catch (error) {
           console.warn('Autopilot sweep error:', error);
+        }
+      },
+    });
+
+    await this.executor.addJob({
+      name: 'autopilot-daily-digest',
+      options: { cron: '0 21 * * *', tz: 'Asia/Ho_Chi_Minh' },
+      payload: {},
+      execute: async () => {
+        if (!(await database.collections().getPhysical(SETTINGS_TABLE))) return;
+        const digest = container.resolve(autopilotDigestToken);
+        try {
+          await digest.sendDailyDigest();
+        } catch (error) {
+          console.warn('Autopilot daily digest error:', error);
         }
       },
     });

@@ -69,6 +69,10 @@ import {
   useStatusPresenter,
 } from '../issues/presentation.js';
 import { ProjectCode } from './project-code.js';
+import {
+  ProjectAutopilot,
+  ProjectAutopilotBadge,
+} from './project-autopilot.js';
 
 /** A project status's colour, the same hues as the issue statuses. */
 const PROJECT_STATUS_COLOR: Readonly<Record<ProjectStatus, IssueTableColor>> = {
@@ -257,6 +261,7 @@ function ProjectDetailView({
         trail={<BackButton />}
         actions={
           <>
+            <ProjectAutopilotBadge projectId={project.id} />
             <Button
               variant='outline'
               nativeButton={false}
@@ -337,6 +342,7 @@ function ProjectDetailView({
               labels={labels}
             />
             <ProjectCode projectId={project.id} />
+            <ProjectAutopilot projectId={project.id} />
             <ProjectMembersEditor
               visibility={project.visibility}
               members={project.members.map((member) => ({

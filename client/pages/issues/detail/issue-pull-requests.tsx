@@ -43,6 +43,10 @@ import {
   type MergeBlocker,
 } from '#hooks/use-git';
 import { useGitErrorText } from '#hooks/use-git-error-text';
+import {
+  useIssueAutopilot,
+  type AutopilotEvaluation,
+} from '#hooks/use-autopilot';
 
 type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline';
 
@@ -153,11 +157,13 @@ function PullRequestItem({
   issueId,
   canMerge,
   onMerged,
+  autopilotEval,
 }: {
   readonly pull: GitPullRequest;
   readonly issueId: string;
   readonly canMerge: boolean;
   readonly onMerged: () => void;
+  readonly autopilotEval?: AutopilotEvaluation;
 }): ReactElement {
   const { t } = useTranslation();
   const toaster = useToaster();
@@ -250,6 +256,25 @@ function PullRequestItem({
               }
             >
               {t(`git.mergeability.${pull.mergeability}`)}
+            </Badge>
+          ) : null}
+          {open && autopilotEval ? (
+            <Badge
+              variant='outline'
+              className={
+                autopilotEval.eligible
+                  ? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300'
+                  : 'text-muted-foreground'
+              }
+              title={
+                autopilotEval.eligible
+                  ? t('autopilot.pr.eligibleHint')
+                  : autopilotEval.reasons.join(', ')
+              }
+            >
+              {autopilotEval.eligible
+                ? t('autopilot.pr.eligible')
+                : t('autopilot.pr.notEligible')}
             </Badge>
           ) : null}
         </div>
@@ -393,6 +418,7 @@ export function IssuePullRequests({
 }): ReactElement | null {
   const { t } = useTranslation();
   const query = useIssuePullRequests(issueId);
+  const { data: autopilotEval } = useIssueAutopilot(issueId);
   // Nothing to show while loading or when no pull request is linked, as the block's other sections do.
   if (query.error)
     return (
@@ -420,6 +446,7 @@ export function IssuePullRequests({
             issueId={issueId}
             canMerge={canMerge}
             onMerged={onMerged}
+            autopilotEval={autopilotEval}
           />
         ))}
       </ul>

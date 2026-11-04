@@ -484,7 +484,8 @@ const enUS = {
         create: 'Create GitHub App',
         creating: 'Opening GitHub…',
         completing: 'Saving the GitHub App…',
-        completed: 'GitHub App {{name}} created. Install it on your repositories next.',
+        completed:
+          'GitHub App {{name}} created. Install it on your repositories next.',
         installing: 'Checking the installation…',
         installed: 'GitHub App installed on {{account}}.',
         empty: 'No GitHub App yet.',
@@ -667,7 +668,8 @@ const enUS = {
       title: 'Preview of pull request #{{number}}',
       subject: 'Pull request or branch',
       pull: 'Pull request #{{number}}',
-      noStaging: 'Staging has not been built yet: a push to main builds it (the preview workflow), or an administrator asks for it.',
+      noStaging:
+        'Staging has not been built yet: a push to main builds it (the preview workflow), or an administrator asks for it.',
       open: 'Open',
       signIn: 'Sign-in',
       basicUser: 'Gate user',
@@ -692,7 +694,8 @@ const enUS = {
     },
     previews: {
       title: 'No previews yet',
-      description: 'Pull requests labelled preview get a NocoBase 2 preview with sample data.',
+      description:
+        'Pull requests labelled preview get a NocoBase 2 preview with sample data.',
     },
     line: 'Branch {{branch}}, tags {{pattern}}',
     synced: 'tags read {{time}}',
@@ -713,20 +716,24 @@ const enUS = {
     },
     mark: {
       note: 'Note',
-      notePlaceholder: 'What was deployed, when and how (for example: Dokploy redeploy at 20:00).',
+      notePlaceholder:
+        'What was deployed, when and how (for example: Dokploy redeploy at 20:00).',
       confirm: 'Confirm',
-      failed: 'It could not be recorded. Check the note and your role, then try again.',
+      failed:
+        'It could not be recorded. Check the note and your role, then try again.',
       staging: {
         title: 'Mark {{repo}} {{tag}} as running on staging',
         description: 'Records that staging runs this version now.',
       },
       production: {
         title: 'Mark {{repo}} {{tag}} as on production',
-        description: 'Deploy it through Dokploy first. Studio records the version; it deploys nothing.',
+        description:
+          'Deploy it through Dokploy first. Studio records the version; it deploys nothing.',
       },
       rollback: {
         title: 'Roll production of {{repo}} back to {{tag}}',
-        description: 'Records the rollback. The issues of the later versions are listed for you to consider reopening.',
+        description:
+          'Records the rollback. The issues of the later versions are listed for you to consider reopening.',
       },
       request: {
         title: 'Ask the owner to mark {{repo}} {{tag}} as on production',
@@ -754,7 +761,8 @@ const enUS = {
   },
   environments: {
     title: 'Hosted environments',
-    description: 'Where Dương Sinh runs its work. All run outside Studio; Studio records what runs where.',
+    description:
+      'Where Dương Sinh runs its work. All run outside Studio; Studio records what runs where.',
     columns: {
       name: 'Name',
       purpose: 'Purpose',
@@ -764,13 +772,119 @@ const enUS = {
       approvers: 'Approvers',
       url: 'Public URL',
     },
-    purposes: { preview: 'Previews', test: 'Testing', production: 'Production' },
+    purposes: {
+      preview: 'Previews',
+      test: 'Testing',
+      production: 'Production',
+    },
     runsOn: { external: 'Outside Studio' },
     maxApps_one: 'At most {{count}} app',
     maxApps_other: 'At most {{count}} apps',
     idleStop: 'Stops after {{minutes}} idle minutes',
     protected: 'Protected',
     recordOnly: 'Recorded only',
+  },
+  autopilot: {
+    section: {
+      title: 'Autopilot',
+      description:
+        'Studio automatically merges eligible PRs, opens next tasks and detects stalled work.',
+    },
+    status: {
+      active: 'Autopilot: Active',
+      disabled: 'Autopilot: Disabled',
+      paused: 'Autopilot: Paused',
+    },
+    loading: 'Loading autopilot information...',
+    pausedAlert: {
+      title: 'Autopilot is paused',
+      reason: 'Reason',
+    },
+    actions: {
+      pause: 'Pause Autopilot',
+      resume: 'Resume Autopilot',
+      save: 'Save settings',
+    },
+    fields: {
+      enableAutopilot: 'Enable Autopilot for this project',
+      enableAutopilotHint:
+        'Allow Studio to automatically evaluate and merge PRs and schedule next tasks.',
+      mergeMethod: 'Default merge method',
+      maxActiveIssues: 'Max parallel issues',
+      maxActiveIssuesPlaceholder: 'No limit (follow runner slots)',
+      maxActiveIssuesHint:
+        'Leave empty to automatically match available runner capacity.',
+      stallMinutes: 'Stall detection threshold (minutes)',
+      stallMinutesHint:
+        'Minutes of inactivity before waking up PM agent or raising an alert.',
+      sensitivePolicy: 'Sensitive paths policy',
+      sensitivePaths: 'Sensitive paths (one per line)',
+      sensitivePathsHint: 'E.g. database/, server/security/, package.json',
+    },
+    mergeMethods: {
+      squash: 'Squash and merge',
+      merge: 'Create merge commit',
+      rebase: 'Rebase and merge',
+    },
+    sensitivePolicies: {
+      extraReview: 'Require additional specialist review (e.g. dba-reviewer)',
+      human: 'Require human approval',
+    },
+    events: {
+      title: 'Recent Autopilot Events',
+      empty: 'No autopilot events recorded yet.',
+      merged: 'Merged',
+      opened: 'Opened task',
+      stalled: 'Stalled warning',
+      blocked: 'Blocked',
+      paused: 'Paused',
+      skipped: 'Skipped',
+    },
+    toast: {
+      savedTitle: 'Autopilot settings saved',
+      savedDescription: 'Changes have been applied successfully.',
+      saveErrorTitle: 'Failed to save autopilot settings',
+      pausedTitle: 'Autopilot paused',
+      pausedDescription: 'Autopilot has been paused for this project.',
+      pauseErrorTitle: 'Failed to pause autopilot',
+      resumedTitle: 'Autopilot resumed',
+      resumedDescription: 'Autopilot is now active again.',
+      resumeErrorTitle: 'Failed to resume autopilot',
+    },
+    pauseDialog: {
+      title: 'Pause Autopilot',
+      description:
+        'Enter a reason for pausing. Autopilot will not merge PRs or open tasks until resumed.',
+      reasonLabel: 'Pause reason',
+      reasonPlaceholder: 'E.g. Preparing database migration...',
+    },
+    emergencyStop: {
+      cardTitle: 'System-wide Emergency Stop',
+      cardDescription:
+        'Pause Autopilot across all projects in Studio. Use only during severe incidents.',
+      buttonLabel: 'Emergency Stop All',
+      dialogTitle: 'Confirm Emergency Stop',
+      dialogDescription:
+        'This immediately pauses autopilot across ALL projects. You will need to re-enable each project individually.',
+      reasonLabel: 'Reason for emergency stop',
+      reasonPlaceholder: 'E.g. Token quota runaway detected...',
+      confirmLabel: 'Type "{{word}}" to confirm:',
+      confirmButton: 'Confirm Stop All',
+      successTitle: 'Emergency stop applied',
+      successDescription: 'Autopilot has been paused across all projects.',
+      errorTitle: 'Emergency stop failed',
+    },
+    issueSection: {
+      title: 'Autopilot',
+      allowAutoStart: 'Automatically start when unblocked',
+      inheritFromParent: 'Inherit auto-start from parent epic',
+    },
+    pr: {
+      eligible: 'Autopilot merge eligible',
+      notEligible: 'Not eligible for autopilot merge',
+      eligibleHint:
+        'All CI checks, reviews, and autopilot policies are satisfied.',
+    },
   },
 };
 

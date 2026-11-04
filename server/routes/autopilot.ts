@@ -32,6 +32,7 @@ import { z } from 'zod';
 import {
   autopilotServiceToken,
   autopilotSchedulerToken,
+  autopilotDigestToken,
 } from '../providers/autopilot.js';
 
 type Env = AuthEnv & AuthorizationEnv;
@@ -94,7 +95,14 @@ const AutopilotEventSchema = z
     projectId: z.string(),
     issueId: z.string().nullable(),
     pullRequestId: z.string().nullable(),
-    kind: z.enum(['merged', 'skipped', 'opened', 'stalled', 'blocked', 'paused']),
+    kind: z.enum([
+      'merged',
+      'skipped',
+      'opened',
+      'stalled',
+      'blocked',
+      'paused',
+    ]),
     reason: z.string().nullable(),
     data: z.record(z.string(), z.unknown()).nullable(),
     createdAt: z.string(),
@@ -134,8 +142,8 @@ const EventsQuery = z.object({
   limit: z.coerce.number().int().min(1).max(500).optional(),
 });
 
-export const autopilotRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
-  (app) => {
+export const autopilotRoutes: AppApiRouteContribution<Application> =
+  defineApiRoutes((app) => {
     const router = new Hono();
     const routes = new Hono<Env>();
     const { container } = app;
@@ -161,7 +169,8 @@ export const autopilotRoutes: AppApiRouteContribution<Application> = defineApiRo
           status: 'PERMISSION_DENIED',
           reason: 'RUN_NOT_ALLOWED',
           domain: DOMAIN,
-          message: 'Autopilot endpoints refuse run tokens and service accounts.',
+          message:
+            'Autopilot endpoints refuse run tokens and service accounts.',
         });
       }
       if (await auth.isScopedSession(session, context.req.raw)) {
@@ -279,9 +288,17 @@ export const autopilotRoutes: AppApiRouteContribution<Application> = defineApiRo
       apiValidator('json', UpdateAutopilotSettingsBody),
       async (context) => {
         const { projectId } = context.req.valid('param');
-        const { viewer } = await requireProjectAccess(context, projectId, 'manage');
+        const { viewer } = await requireProjectAccess(
+          context,
+          projectId,
+          'manage',
+        );
         const body = context.req.valid('json');
-        const updated = await autopilot().saveSettings(projectId, body, viewer.userId);
+        const updated = await autopilot().saveSettings(
+          projectId,
+          body,
+          viewer.userId,
+        );
         return context.json({ data: updated });
       },
     );
@@ -302,7 +319,11 @@ export const autopilotRoutes: AppApiRouteContribution<Application> = defineApiRo
       apiValidator('json', PauseAutopilotBody),
       async (context) => {
         const { projectId } = context.req.valid('param');
-        const { viewer } = await requireProjectAccess(context, projectId, 'manage');
+        const { viewer } = await requireProjectAccess(
+          context,
+          projectId,
+          'manage',
+        );
         const { reason } = context.req.valid('json');
         await autopilot().pause(projectId, reason, viewer.userId);
         const settings = await autopilot().getSettings(projectId);
@@ -325,7 +346,11 @@ export const autopilotRoutes: AppApiRouteContribution<Application> = defineApiRo
       apiValidator('param', ProjectParams),
       async (context) => {
         const { projectId } = context.req.valid('param');
-        const { viewer } = await requireProjectAccess(context, projectId, 'manage');
+        const { viewer } = await requireProjectAccess(
+          context,
+          projectId,
+          'manage',
+        );
         await autopilot().resume(projectId, viewer.userId);
         const settings = await autopilot().getSettings(projectId);
         return context.json({ data: settings });
@@ -510,7 +535,46 @@ export const autopilotRoutes: AppApiRouteContribution<Application> = defineApiRo
       },
     );
 
+    routes.post(
+      '/autopilot/digest',
+      describeRoute({
+        tags: ['Studio Autopilot'],
+        summary:
+          'Trigger sending daily autopilot digest notification immediately',
+        security: PERSON_ONLY,
+        ...cliRoute({ command: 'autopilot digest' }),
+        responses: {
+          '200': dataResponse(
+            z.object({
+              date: z.string(),
+              mergedCount: z.number(),
+              openedCount: z.number(),
+              stalledCount: z.number(),
+              blockedCount: z.number(),
+              sent: z.boolean(),
+            }),
+          ),
+          ...apiErrorResponses,
+        },
+      }),
+      async (context) => {
+        await requirePerson(context);
+        const snapshot = await context.get('authz').snapshot();
+        if (!snapshot.unrestricted) {
+          throw new ApiError({
+            status: 'PERMISSION_DENIED',
+            reason: 'ACCESS_DENIED',
+            domain: DOMAIN,
+            message:
+              'Only administrators or owners can trigger the daily digest.',
+          });
+        }
+        const digest = container.resolve(autopilotDigestToken);
+        const result = await digest.sendDailyDigest();
+        return context.json({ data: result });
+      },
+    );
+
     router.route('/', routes);
     return router;
-  },
-);
+  });

@@ -31,10 +31,15 @@ import {
   PropertySelect,
   type PropertyOption,
 } from '#components/property-fields';
+import { Checkbox } from '#components/ui/checkbox';
 import {
   IssueDates,
   IssueFollowers,
 } from '#extensions/nocobase-issue-detail/issue-properties';
+import {
+  useIssueAutopilotFlag,
+  useSetIssueAutopilotFlag,
+} from '#hooks/use-autopilot';
 
 import {
   useIssueDetailLabels,
@@ -57,6 +62,55 @@ const executorValue = (executor: {
   readonly type: string;
   readonly id: string;
 }) => `${executor.type}:${executor.id}`;
+
+function IssueAutopilotSection({
+  issueId,
+  canEdit,
+}: {
+  readonly issueId: string;
+  readonly canEdit: boolean;
+}): ReactElement {
+  const { t } = useTranslation();
+  const { data: flag, isLoading } = useIssueAutopilotFlag(issueId);
+  const setFlag = useSetIssueAutopilotFlag(issueId);
+
+  const allowAutoStart = flag?.allowAutoStart ?? true;
+  const inheritFromParent = flag?.inheritFromParent ?? true;
+
+  return (
+    <div className='rounded-lg border bg-card p-3 text-card-foreground shadow-xs space-y-3'>
+      <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+        {t('autopilot.issueSection.title')}
+      </span>
+      <div className='space-y-2.5 text-xs'>
+        <label className='flex items-center gap-2 cursor-pointer select-none'>
+          <Checkbox
+            checked={allowAutoStart}
+            onCheckedChange={(checked) => {
+              setFlag.mutate({ allowAutoStart: Boolean(checked) });
+            }}
+            disabled={!canEdit || isLoading || setFlag.isPending}
+          />
+          <span className='font-medium text-foreground'>
+            {t('autopilot.issueSection.allowAutoStart')}
+          </span>
+        </label>
+        <label className='flex items-center gap-2 cursor-pointer select-none'>
+          <Checkbox
+            checked={inheritFromParent}
+            onCheckedChange={(checked) => {
+              setFlag.mutate({ inheritFromParent: Boolean(checked) });
+            }}
+            disabled={!canEdit || isLoading || setFlag.isPending}
+          />
+          <span className='text-muted-foreground'>
+            {t('autopilot.issueSection.inheritFromParent')}
+          </span>
+        </label>
+      </div>
+    </div>
+  );
+}
 
 export function IssueAside({
   detail,
@@ -249,6 +303,7 @@ export function IssueAside({
           />
         </PropertyRow>
       </PropertyCard>
+      <IssueAutopilotSection issueId={detail.id} canEdit={canEdit} />
       <IssueFollowers
         followers={detail.subscribers.map((subscriber) => ({
           id: subscriber.userId,

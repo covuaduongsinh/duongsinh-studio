@@ -788,6 +788,107 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  autopilot: {
+    section: {
+      title: 'Tự lái',
+      description:
+        'Studio tự merge PR khi đủ điều kiện, tự mở việc kế tiếp và phát hiện việc bị đứng.',
+    },
+    status: {
+      active: 'Tự lái: Bật',
+      disabled: 'Tự lái: Tắt',
+      paused: 'Tự lái: Tạm dừng',
+    },
+    loading: 'Đang tải thông tin tự lái...',
+    pausedAlert: {
+      title: 'Tự lái đang tạm dừng',
+      reason: 'Lý do',
+    },
+    actions: {
+      pause: 'Tạm dừng tự lái',
+      resume: 'Tiếp tục tự lái',
+      save: 'Lưu cài đặt',
+    },
+    fields: {
+      enableAutopilot: 'Kích hoạt Tự lái cho dự án này',
+      enableAutopilotHint:
+        'Cho phép Studio tự động đánh giá merge PR và mở việc kế tiếp.',
+      mergeMethod: 'Cách merge mặc định',
+      maxActiveIssues: 'Số việc song song tối đa',
+      maxActiveIssuesPlaceholder: 'Không giới hạn (theo số runner)',
+      maxActiveIssuesHint:
+        'Để trống để Studio tự tính theo số chỗ chạy agent đang rảnh.',
+      stallMinutes: 'Thời gian coi là đứng việc (phút)',
+      stallMinutesHint:
+        'Số phút không có hoạt động trước khi đánh thức PM hoặc báo động.',
+      sensitivePolicy: 'Chính sách đường dẫn nhạy cảm',
+      sensitivePaths: 'Các đường dẫn nhạy cảm (mỗi dòng một đường dẫn)',
+      sensitivePathsHint: 'Ví dụ: database/, server/security/, package.json',
+    },
+    mergeMethods: {
+      squash: 'Squash (ghép commit)',
+      merge: 'Merge (tạo commit merge)',
+      rebase: 'Rebase',
+    },
+    sensitivePolicies: {
+      extraReview: 'Cần thêm 1 agent chuyên môn duyệt (VD: dba-reviewer)',
+      human: 'Bắt buộc người duyệt',
+    },
+    events: {
+      title: 'Nhật ký tự lái gần đây',
+      empty: 'Chưa có sự kiện tự lái nào.',
+      merged: 'Tự merge',
+      opened: 'Tự mở việc',
+      stalled: 'Cảnh báo đứng việc',
+      blocked: 'Bị vướng',
+      paused: 'Tạm dừng',
+      skipped: 'Bỏ qua',
+    },
+    toast: {
+      savedTitle: 'Đã lưu cài đặt tự lái',
+      savedDescription: 'Các thay đổi đã được áp dụng thành công.',
+      saveErrorTitle: 'Lỗi khi lưu cài đặt tự lái',
+      pausedTitle: 'Đã tạm dừng tự lái',
+      pausedDescription: 'Tự lái đã tạm dừng trên dự án này.',
+      pauseErrorTitle: 'Lỗi khi tạm dừng tự lái',
+      resumedTitle: 'Đã tiếp tục tự lái',
+      resumedDescription: 'Tự lái đã hoạt động trở lại.',
+      resumeErrorTitle: 'Lỗi khi tiếp tục tự lái',
+    },
+    pauseDialog: {
+      title: 'Tạm dừng Tự lái',
+      description:
+        'Nhập lý do tạm dừng. Tự lái sẽ không tự merge hay tự mở việc mới cho tới khi được bật lại.',
+      reasonLabel: 'Lý do tạm dừng',
+      reasonPlaceholder: 'Ví dụ: Đang chuẩn bị bảo trì database...',
+    },
+    emergencyStop: {
+      cardTitle: 'Dừng khẩn cấp Tự lái toàn hệ thống',
+      cardDescription:
+        'Tạm dừng tính năng Tự lái trên toàn bộ các dự án trong hệ thống Studio. Chỉ dùng khi phát hiện sự cố nghiêm trọng.',
+      buttonLabel: 'Dừng khẩn cấp toàn hệ thống',
+      dialogTitle: 'Xác nhận Dừng khẩn cấp Tự lái',
+      dialogDescription:
+        'Hành động này sẽ tạm dừng tự lái trên MỌI dự án ngay lập tức. Để tiếp tục, bạn sẽ phải bật lại từng dự án thủ công.',
+      reasonLabel: 'Lý do dừng khẩn cấp',
+      reasonPlaceholder: 'Ví dụ: Phát hiện lỗi tràn hạn mức token...',
+      confirmLabel: 'Gõ "{{word}}" để xác nhận:',
+      confirmButton: 'Xác nhận Dừng tất cả',
+      successTitle: 'Đã dừng khẩn cấp thành công',
+      successDescription: 'Tự lái đã được tạm dừng trên tất cả các dự án.',
+      errorTitle: 'Lỗi khi dừng khẩn cấp',
+    },
+    issueSection: {
+      title: 'Tự lái',
+      allowAutoStart: 'Tự động mở việc khi hết bị chặn',
+      inheritFromParent: 'Kế thừa thiết lập từ việc/epic cha',
+    },
+    pr: {
+      eligible: 'Đủ điều kiện tự merge',
+      notEligible: 'Chưa đủ điều kiện tự merge',
+      eligibleHint: 'Tất cả điều kiện CI, review và tự lái đều đã thỏa mãn.',
+    },
+  },
   // Rewording of the plugins' own vi-VN to the glossary (docs/thuat-ngu.md).
   overrides,
 };

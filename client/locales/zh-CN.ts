@@ -445,7 +445,8 @@ const zhCN: AppResource = {
       MERGE_REFUSED_BY_HOST: 'GitHub 拒绝合并该拉取请求。',
       ACCESS_DENIED: '你无权执行此操作。',
       GIT_PUBLIC_URL_MISSING: 'Studio 未配置公开地址，GitHub 无法回调。',
-      GIT_APP_MANIFEST_EXPIRED: '该 GitHub App 请求未知、已使用或已过期，请重新开始。',
+      GIT_APP_MANIFEST_EXPIRED:
+        '该 GitHub App 请求未知、已使用或已过期，请重新开始。',
       GIT_APP_NOT_FOUND: '该连接没有 GitHub App。',
       GIT_APP_NOT_INSTALLED: '该 GitHub App 尚未安装。',
       GIT_APP_INSTALLATION_AMBIGUOUS:
@@ -630,7 +631,8 @@ const zhCN: AppResource = {
       title: '拉取请求 #{{number}} 的预览',
       subject: '拉取请求或分支',
       pull: '拉取请求 #{{number}}',
-      noStaging: '预发布环境尚未构建：推送到 main 会构建它（preview 工作流），或由管理员请求。',
+      noStaging:
+        '预发布环境尚未构建：推送到 main 会构建它（preview 工作流），或由管理员请求。',
       open: '打开',
       signIn: '登录信息',
       basicUser: '门禁用户名',
@@ -655,7 +657,8 @@ const zhCN: AppResource = {
     },
     previews: {
       title: '暂无预览',
-      description: '带有 preview 标签的拉取请求会获得一个使用示例数据的 NocoBase 2 预览。',
+      description:
+        '带有 preview 标签的拉取请求会获得一个使用示例数据的 NocoBase 2 预览。',
     },
     line: '分支 {{branch}}，标签 {{pattern}}',
     synced: '已于 {{time}} 读取标签',
@@ -676,7 +679,8 @@ const zhCN: AppResource = {
     },
     mark: {
       note: '备注',
-      notePlaceholder: '部署了什么、何时以及如何部署（例如：20:00 在 Dokploy 重新部署）。',
+      notePlaceholder:
+        '部署了什么、何时以及如何部署（例如：20:00 在 Dokploy 重新部署）。',
       confirm: '确认',
       failed: '无法记录。请检查备注和你的角色后重试。',
       staging: {
@@ -717,7 +721,8 @@ const zhCN: AppResource = {
   },
   environments: {
     title: '托管环境',
-    description: 'Dương Sinh 的工作运行在哪里。全部在 Studio 之外运行；Studio 记录各处运行的内容。',
+    description:
+      'Dương Sinh 的工作运行在哪里。全部在 Studio 之外运行；Studio 记录各处运行的内容。',
     columns: {
       name: '名称',
       purpose: '用途',
@@ -734,6 +739,103 @@ const zhCN: AppResource = {
     idleStop: '空闲 {{minutes}} 分钟后停止',
     protected: '受保护',
     recordOnly: '仅记录',
+  },
+  autopilot: {
+    section: {
+      title: '自动驾驶',
+      description:
+        'Studio 在满足条件时自动合并 PR、自动开启下一项工作并检测停滞工作。',
+    },
+    status: {
+      active: '自动驾驶: 开启',
+      disabled: '自动驾驶: 关闭',
+      paused: '自动驾驶: 已暂停',
+    },
+    loading: '正在加载自动驾驶信息...',
+    pausedAlert: {
+      title: '自动驾驶已暂停',
+      reason: '原因',
+    },
+    actions: {
+      pause: '暂停自动驾驶',
+      resume: '恢复自动驾驶',
+      save: '保存设置',
+    },
+    fields: {
+      enableAutopilot: '在此项目启用自动驾驶',
+      enableAutopilotHint: '允许 Studio 自动评估并合并 PR 以及安排后续任务。',
+      mergeMethod: '默认合并方式',
+      maxActiveIssues: '最大并行任务数',
+      maxActiveIssuesPlaceholder: '不限制（匹配运行器插槽数）',
+      maxActiveIssuesHint: '留空则由 Studio 根据可用运行器插槽数自动计算。',
+      stallMinutes: '停滞判定时间（分钟）',
+      stallMinutesHint: '在唤醒 PM Agent 或发出警报前允许的不活动时间。',
+      sensitivePolicy: '敏感路径策略',
+      sensitivePaths: '敏感路径列表（每行一个）',
+      sensitivePathsHint: '例如: database/, server/security/, package.json',
+    },
+    mergeMethods: {
+      squash: 'Squash (压缩提交并合并)',
+      merge: 'Merge (创建合并提交)',
+      rebase: 'Rebase (变基合并)',
+    },
+    sensitivePolicies: {
+      extraReview: '需要额外的专业审查 (例如 dba-reviewer)',
+      human: '需要人工审批',
+    },
+    events: {
+      title: '最近自动驾驶日志',
+      empty: '暂无自动驾驶事件。',
+      merged: '自动合并',
+      opened: '自动开工',
+      stalled: '停滞警告',
+      blocked: '受阻',
+      paused: '已暂停',
+      skipped: '跳过',
+    },
+    toast: {
+      savedTitle: '自动驾驶设置已保存',
+      savedDescription: '更改已成功生效。',
+      saveErrorTitle: '保存自动驾驶设置失败',
+      pausedTitle: '自动驾驶已暂停',
+      pausedDescription: '已在此项目中暂停自动驾驶。',
+      pauseErrorTitle: '暂停自动驾驶失败',
+      resumedTitle: '自动驾驶已恢复',
+      resumedDescription: '自动驾驶现已重新生效。',
+      resumeErrorTitle: '恢复自动驾驶失败',
+    },
+    pauseDialog: {
+      title: '暂停自动驾驶',
+      description:
+        '输入暂停原因。在恢复之前，自动驾驶不会自动合并 PR 或开启新任务。',
+      reasonLabel: '暂停原因',
+      reasonPlaceholder: '例如: 正在准备数据库迁移...',
+    },
+    emergencyStop: {
+      cardTitle: '全系统紧急停止',
+      cardDescription: '暂停 Studio 中所有项目的自动驾驶。仅在严重故障时使用。',
+      buttonLabel: '全系统紧急停止',
+      dialogTitle: '确认紧急停止自动驾驶',
+      dialogDescription:
+        '此操作将立即暂停所有项目的自动驾驶。如需恢复，您需要逐个手动重新开启。',
+      reasonLabel: '紧急停止原因',
+      reasonPlaceholder: '例如: 检测到 Token 额度异常超支...',
+      confirmLabel: '输入 "{{word}}" 进行确认:',
+      confirmButton: '确认停止全部',
+      successTitle: '紧急停止已应用',
+      successDescription: '所有项目的自动驾驶均已暂停。',
+      errorTitle: '紧急停止失败',
+    },
+    issueSection: {
+      title: '自动驾驶',
+      allowAutoStart: '解除阻塞后自动开启',
+      inheritFromParent: '继承自父级史诗设置',
+    },
+    pr: {
+      eligible: '符合自动合并条件',
+      notEligible: '尚未符合自动合并条件',
+      eligibleHint: '所有 CI 检查、评审和自动驾驶策略均已满足。',
+    },
   },
 };
 

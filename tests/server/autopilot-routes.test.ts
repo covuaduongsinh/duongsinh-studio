@@ -148,7 +148,9 @@ test('autopilot REST routes: settings, pause, resume, events, stop-all and perso
     ).json()
   ).data as { id: string };
 
-  const getFlagInitial = await admin.fetch(`/issues/${issue.id}/autopilot-flag`);
+  const getFlagInitial = await admin.fetch(
+    `/issues/${issue.id}/autopilot-flag`,
+  );
   expect(getFlagInitial.status).toBe(200);
   expect((await getFlagInitial.json()).data).toBeNull();
 
@@ -175,4 +177,19 @@ test('autopilot REST routes: settings, pause, resume, events, stop-all and perso
   expect(anonRes.status).toBe(401);
   const anonFlagRes = await request(`/issues/${issue.id}/autopilot-flag`);
   expect(anonFlagRes.status).toBe(401);
+
+  // 10. POST /api/autopilot/digest triggers daily digest notification
+  const digestRes = await admin.fetch('/autopilot/digest', json({}));
+  expect(digestRes.status).toBe(200);
+  const digestData = (await digestRes.json()).data as {
+    date: string;
+    mergedCount: number;
+    openedCount: number;
+    sent: boolean;
+  };
+  expect(typeof digestData.date).toBe('string');
+  expect(typeof digestData.mergedCount).toBe('number');
+
+  const anonDigestRes = await request('/autopilot/digest', json({}));
+  expect(anonDigestRes.status).toBe(401);
 }, 120_000);
