@@ -33,30 +33,5 @@ export default defineSeed({
         })
         .execute();
     }
-
-    try {
-      const assignment = await query
-        .selectFrom('authorizationAssignments')
-        .select('id')
-        .where('subjectType', '=', 'user')
-        .where('subjectId', '=', AUTOPILOT_USER_ID)
-        .where('permissionSet', '=', 'ds-admin')
-        .executeTakeFirst();
-      if (!assignment) {
-        await query
-          .insertInto('authorizationAssignments')
-          .values({
-            id: `assign:${AUTOPILOT_USER_ID}:ds-admin`,
-            subjectType: 'user',
-            subjectId: AUTOPILOT_USER_ID,
-            permissionSet: 'ds-admin',
-            createdAt: now,
-            updatedAt: now,
-          })
-          .execute();
-      }
-    } catch {
-      // ignore if authorizationAssignments table is structured differently or not present
-    }
   },
 });
