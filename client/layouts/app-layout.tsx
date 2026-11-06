@@ -1,5 +1,5 @@
 import { useSyncServerLocale } from '@nocobase/app-plugin-i18n/client';
-import type { ReactElement } from 'react';
+import { useMemo, type ReactElement } from 'react';
 import type { AppClientRegisteredRoute } from '@nocobase/app-client/plugins';
 import { Outlet, useLocation } from 'react-router';
 
@@ -10,6 +10,7 @@ import { ChatPanel } from '#extensions/nocobase-agent-chat/chat-panel';
 import { ChatFloatingButton } from '#extensions/nocobase-agent-chat/launchers';
 
 import { RouteTreeProvider } from '../routing/route-context.js';
+import { RouteLeaveBoundary } from '../routing/route-leave-boundary.js';
 
 import { PageBreadcrumbProvider } from '@nocobase/app-client';
 import { useTranslation } from '@nocobase/i18n/client';
@@ -37,7 +38,8 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
   useSyncServerLocale();
 
   const { t } = useTranslation();
-  const { items: menuItems, denied } = useRouteNavigation(routes);
+  const { items: menuItems, denied, loading } = useRouteNavigation(routes);
+  const access = useMemo(() => ({ denied, loading }), [denied, loading]);
   const selectedKey = selectedNavigationId(
     routes,
     useLocation().pathname,
@@ -49,47 +51,49 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
 
   return (
     // The shell owns the business route tree used by its pages and navigation.
-    <RouteTreeProvider routes={routes}>
+    <RouteTreeProvider routes={routes} access={access}>
       <StudioChatProvider>
-      <PageBreadcrumbProvider>
-        <AppSidebarProvider>
-          <AppSidebar label={navigationLabel} footer={<AppSidebarFooter />}>
-            <NavigationMenu
-              items={menuItems}
-              label={navigationLabel}
-              selectedKey={selectedKey}
-            />
-          </AppSidebar>
-          <div className='flex min-w-0 flex-1 flex-col'>
-            <LayoutHeader className='sticky top-0 z-40 justify-between'>
-              <div className='flex min-w-0 items-center gap-3'>
-                <AppSidebarToggle />
-                <div className='md:hidden'>
-                  <AppBrand />
+        <PageBreadcrumbProvider>
+          <AppSidebarProvider>
+            <AppSidebar label={navigationLabel} footer={<AppSidebarFooter />}>
+              <NavigationMenu
+                items={menuItems}
+                label={navigationLabel}
+                selectedKey={selectedKey}
+              />
+            </AppSidebar>
+            <div className='flex min-w-0 flex-1 flex-col'>
+              <LayoutHeader className='sticky top-0 z-40 justify-between'>
+                <div className='flex min-w-0 items-center gap-3'>
+                  <AppSidebarToggle />
+                  <div className='md:hidden'>
+                    <AppBrand />
+                  </div>
+                  <div className='h-5 w-px shrink-0 bg-border' />
+                  {/* The current page's trail: the route tree's, or the one the page declares (`usePageBreadcrumb`). */}
+                  <Breadcrumbs denied={denied} />
                 </div>
-                <div className='h-5 w-px shrink-0 bg-border' />
-                {/* The current page's trail: the route tree's, or the one the page declares (`usePageBreadcrumb`). */}
-                <Breadcrumbs denied={denied} />
-              </div>
-              <HeaderActions />
-            </LayoutHeader>
-            {/* The agents' chat panel docks beside main from 1280px and floats over it below, positioned against
+                <HeaderActions />
+              </LayoutHeader>
+              {/* The agents' chat panel docks beside main from 1280px and floats over it below, positioned against
             this row (the agent-chat block's README). */}
-            <div className='relative flex min-h-0 flex-1'>
-              <main className='app-brand-surface relative isolate min-w-0 flex-1 overflow-hidden'>
-                <BrandWatermark className='-z-10' />
-                {/* main only positions; the page scrolls in here, so a child page layer laid over main is neither
+              <div className='relative flex min-h-0 flex-1'>
+                <main className='app-brand-surface relative isolate min-w-0 flex-1 overflow-hidden'>
+                  <BrandWatermark className='-z-10' />
+                  {/* main only positions; the page scrolls in here, so a child page layer laid over main is neither
               moved by the page's scrolling nor stretched by its height. */}
-                <div className='h-full overflow-y-auto'>
-                  <Outlet />
-                </div>
-              </main>
-              <ChatPanel />
+                  <div className='h-full overflow-y-auto'>
+                    <RouteLeaveBoundary hidden={loading}>
+                      <Outlet />
+                    </RouteLeaveBoundary>
+                  </div>
+                </main>
+                <ChatPanel />
+              </div>
+              <ChatFloatingButton />
             </div>
-            <ChatFloatingButton />
-          </div>
-        </AppSidebarProvider>
-      </PageBreadcrumbProvider>
+          </AppSidebarProvider>
+        </PageBreadcrumbProvider>
       </StudioChatProvider>
     </RouteTreeProvider>
   );

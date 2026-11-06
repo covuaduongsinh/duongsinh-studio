@@ -15,13 +15,17 @@ const enUS = {
   // The application's copy goes here, one group per feature. A shared group such as `navigation` is extended by
   // spreading the system one first, `navigation: { ...systemEnUS.navigation, orders: 'Orders' }`, since a group
   // written here replaces the system group of the same name rather than merging with it.
+  common: { cancel: 'Cancel' },
   navigation: {
     ...systemEnUS.navigation,
     issues: 'Issues',
     myIssues: 'My issues',
     projects: 'Projects',
     issuePrefix: 'Issue prefix',
+    issuePrefixDescription: 'Set the prefix of new issue numbers.',
     issueLabels: 'Issue labels',
+    issueLabelsDescription: 'Manage the labels shared by every project.',
+    gitDescription: 'Connect GitHub and link the repositories agents work in.',
     agents: 'Agents',
     runtimes: 'Runtimes',
     skills: 'Skills',

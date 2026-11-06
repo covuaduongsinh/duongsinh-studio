@@ -70,6 +70,9 @@ const systemViVN: SystemResource = {
     'Đăng nhập bằng tên đăng nhập hoặc email và mật khẩu.',
   'auth.registerTitle': 'Tạo tài khoản',
   'auth.registerDescription': 'Tạo tài khoản để bắt đầu.',
+  'auth.registrationAccepted': 'Đã gửi yêu cầu đăng ký',
+  'auth.registrationGuidance':
+    'Hãy thử đăng nhập bằng tên đăng nhập và mật khẩu vừa gửi. Nếu email này đã có tài khoản thì thông tin mới không có hiệu lực: hãy đăng nhập bằng tài khoản cũ hoặc khôi phục mật khẩu. Nếu ứng dụng yêu cầu xác minh, hãy làm theo hướng dẫn trước khi đăng nhập.',
   'auth.forgotTitle': 'Quên mật khẩu',
   'auth.forgotDescription':
     'Nhập email, chúng tôi sẽ gửi đường link đặt lại nếu tài khoản tồn tại.',
@@ -113,9 +116,9 @@ const systemViVN: SystemResource = {
   'auth.continueWith': 'Tiếp tục bằng {provider}',
   'auth.about': 'Về ứng dụng này',
   'auth.platform': 'Cờ vua Dương Sinh · Studio phát triển',
-  'auth.marketingTitleFirst': 'Agent làm việc,',
-  'auth.marketingTitleSecond': 'con người quyết định,',
-  'auth.marketingTitleThird': 'chất lượng được giữ.',
+  // Two lines since template 1.0.0-beta.88; the wording stays Dương Sinh's.
+  'auth.marketingTitleFirst': 'Agent làm việc, con người',
+  'auth.marketingTitleSecond': 'quyết định, chất lượng được giữ.',
   'auth.marketingDescription':
     'Dương Sinh Studio giao việc cho các agent lập trình, theo dõi từng bước từ công việc đến pull request, kiểm tra và review chéo, để chủ dự án chỉ cần nghiệm thu và quyết định.',
   'auth.frontend': 'Đội agent',
@@ -137,8 +140,8 @@ const systemViVN: SystemResource = {
   'status.routeFailedDescription':
     'Không tải được trang {{label}} của {{packageName}}.',
   shell: {
-    buildFreely: 'Cờ vua Dương Sinh',
-    reliability: '<brand>Studio</brand> phát triển nội bộ.',
+    brandPartnership: 'Cờ vua Dương Sinh · <brand>Studio</brand>',
+    buildReliableSystems: 'Phát triển nội bộ',
   },
   home: {
     platform: 'Dương Sinh Studio · nền tảng NocoBase',

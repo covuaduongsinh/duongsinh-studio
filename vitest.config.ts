@@ -19,6 +19,7 @@ export default defineConfig({
           env: { APP_DEFAULT_LOCALE: 'en-US' },
           // Database fixtures and command output capture run one file at a time.
           fileParallelism: false,
+          setupFiles: ['./tests/setup/skip-foundation-source-scan.ts'],
         },
       }),
       createReactVitestConfig({
@@ -29,7 +30,10 @@ export default defineConfig({
           // Client integration tests also start isolated application databases.
           fileParallelism: false,
           include: ['tests/client/**/*.test.{ts,tsx}'],
-          setupFiles: ['./tests/setup/client-config.ts'],
+          setupFiles: [
+            './tests/setup/skip-foundation-source-scan.ts',
+            './tests/setup/client-config.ts',
+          ],
           server: {
             deps: {
               // Keep the fixture, application and plugin clients in the same React/router context.
