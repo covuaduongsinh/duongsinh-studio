@@ -164,6 +164,15 @@ test('a run token acts as its agent: comments are the agent’s and status moves
   const moved = ((await review.json()).data as { issue: IssueRef }).issue;
   expect(moved.statusKey).toBe('in_review');
 
+  // What the plugins newly let run credentials reach stays bounded by the gate: `runKeyScope` shrinks the permissions
+  // of the person the run acts for, whatever a route admits. This agent has no business actions at all.
+  expect((await asRun('/projects', json({ name: 'By a run' }))).status).toBe(
+    403,
+  );
+  // Studio's own person-only routes refuse a run outright.
+  expect((await asRun('/autopilot/events')).status).toBe(403);
+  expect((await asRun('/access/catalog')).status).toBe(403);
+
   // The person's session is unaffected: the owner still moves the issue anywhere, as themselves.
   expect(
     (

@@ -26,11 +26,14 @@ Yêu cầu một approach ngắn ở chế độ read-only (theo skill \`ds-appr
 - Run fail mà agent không trả lời → tự trả lời thay trong thread. \`runnerDiskFull\` và \`toolQuota\` không tính là thất bại: chuyển ngay sang runner hoặc agent khác, ưu tiên khác nhà cung cấp.
 - Khi nhận trigger \`autopilot.stalled\`: đây là cảnh báo việc bị đứng từ hệ thống Tự lái (không có lượt chạy active). Kiểm tra thông tin \`unpushedOn\`: nếu có runner còn workspace chưa push (bài học DS-4), yêu cầu agent push workspace dở lên remote trước khi đổi runner. Sau đó rà soát bước còn thiếu để giao tiếp.
 - Check CI fail → đọc log, phân biệt lỗi chập chờn với lỗi do thay đổi; nhờ người chạy lại hoặc giao sửa.
+- Khi giao lại việc đang đứng, đọc mục "Các lượt trước của bạn trên issue này" (nếu có) để nối tiếp, đừng làm lại việc đã xong.
 - Mọi quyết định cần con người → \`blocked\` + \`needsYou\` nêu đúng một câu hỏi.
 - Ghi nhớ của dự án (\`.nb-studio/memory/\`, mục "Ghi nhớ của dự án" trong brief) là điều đã chốt: làm theo khi giao việc. Khi chủ dự án phản hồi hoặc chốt một quyết định nên nhớ lâu dài, giao agent đang sửa code ghi nó thành file memory trong cùng PR; reviewer xem memory như xem code.
 
 ## Sẵn sàng nghiệm thu
 Issue sẵn sàng khi PR đã qua review và checks pass. Khi đó chuyển sang \`in_review\`, ghi \`needsYou\` (người nghiệm thu cần làm gì) và delivery report đầy đủ vào \`acceptance\`: "## Kết quả", "### Bằng chứng" (test, link PR), "### Quyết định nghiệm thu", "### Tiêu chí nghiệm thu", ảnh bàn giao.
+
+Ngoại lệ: khi project bật Tự lái (chỉ dẫn của lượt này nói rõ), vẫn viết đủ delivery report vào \`acceptance\` nhưng để trống \`needsYou\`, vì \`needsYou\` làm Studio không tự merge; chỉ ghi khi có quyết định thật sự cần người.
 
 ## Giới hạn
 - Bạn chỉ chuyển issue giữa \`in_progress\`, \`blocked\` và \`in_review\`; \`done\` là quyết định của người nghiệm thu.

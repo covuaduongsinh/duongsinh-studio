@@ -9,6 +9,8 @@ export interface QuotaFailureInput {
   readonly runId?: string;
   readonly failureReason?: string;
   readonly message?: string;
+  /** The earliest known quota reset (RFC 3339), when the agents plugin knows one. */
+  readonly until?: string | null;
 }
 
 export interface QuotaThrottleState {
@@ -31,6 +33,21 @@ export interface AutopilotStallDetectorDeps {
     readonly runs?: {
       readonly enqueue?: (params: Record<string, unknown>) => Promise<unknown>;
       readonly retry?: (runId: string) => Promise<unknown>;
+      /** The open runs and why each queued one waits (`agents.runs.workload`). */
+      readonly workload?: (query: {
+        readonly subjectKind: string;
+        readonly limit?: number;
+      }) => Promise<{
+        readonly runs: readonly {
+          readonly id: string;
+          readonly status: string;
+          readonly subject: { readonly kind: string; readonly id: string };
+          readonly wait?: {
+            readonly reason: string;
+            readonly until: string | null;
+          } | null;
+        }[];
+      }>;
     };
   };
   readonly notify?: (notice: {
@@ -56,6 +73,8 @@ export interface AutopilotStallDetector {
     effectiveConcurrency: number;
   }>;
   getQuotaThrottle(projectId: string): QuotaThrottleState | null;
+  /** Reads which projects' queued runs wait on tool quota, and throttles those until the known reset. */
+  syncQuotaWaits(): Promise<void>;
 }
 
 const DEFAULT_STALL_MINUTES = 30;
@@ -69,6 +88,8 @@ export function createAutopilotStallDetector(
   const getNow = (): Date => (deps.now ? deps.now() : new Date());
 
   const quotaThrottles = new Map<string, QuotaThrottleState>();
+  // The last guessed delay of each project, kept past the throttle's end so the backoff grows while the wait lasts.
+  const lastQuotaDelays = new Map<string, number>();
 
   function getQuotaThrottle(projectId: string): QuotaThrottleState | null {
     const existing = quotaThrottles.get(projectId);
@@ -86,10 +107,20 @@ export function createAutopilotStallDetector(
     failure: QuotaFailureInput,
   ) {
     const now = getNow();
-    const existing = getQuotaThrottle(projectId);
-    const delay = existing
-      ? Math.min(existing.retryDelayMs * 2, MAX_QUOTA_BACKOFF_MS)
-      : INITIAL_QUOTA_BACKOFF_MS;
+    const reset = failure.until
+      ? new Date(failure.until).getTime()
+      : Number.NaN;
+    const previous = lastQuotaDelays.get(projectId);
+    let delay: number;
+    if (reset > now.getTime()) {
+      // The plugin knows when the quota returns; a guess could only be wrong.
+      delay = reset - now.getTime();
+    } else {
+      delay = previous
+        ? Math.min(previous * 2, MAX_QUOTA_BACKOFF_MS)
+        : INITIAL_QUOTA_BACKOFF_MS;
+      lastQuotaDelays.set(projectId, delay);
+    }
 
     const state: QuotaThrottleState = {
       activeUntil: new Date(now.getTime() + delay),
@@ -116,6 +147,57 @@ export function createAutopilotStallDetector(
       retryDelayMs: delay,
       effectiveConcurrency: 1,
     };
+  }
+
+  async function syncQuotaWaits(): Promise<void> {
+    const workload = deps.agents?.runs?.workload;
+    if (!workload) return;
+    const { runs } = await workload({ subjectKind: 'issue', limit: 1000 });
+    const waiting = runs.filter(
+      (run) => run.status === 'queued' && run.wait?.reason === 'toolQuota',
+    );
+    const issueIds = waiting.map((run) => run.subject.id);
+    const issues: readonly Row[] = issueIds.length
+      ? await conn()
+          .query.selectFrom('pmIssues')
+          .select(['id', 'projectId'])
+          .where('id', 'in', issueIds)
+          .execute()
+      : [];
+    const projectOf = new Map(
+      issues.map((issue) => [str(issue.id), strOrNull(issue.projectId)]),
+    );
+    const byProject = new Map<string, (typeof waiting)[number][]>();
+    for (const run of waiting) {
+      const projectId = projectOf.get(run.subject.id);
+      if (projectId)
+        byProject.set(projectId, [...(byProject.get(projectId) ?? []), run]);
+    }
+    for (const projectId of lastQuotaDelays.keys())
+      if (!byProject.has(projectId)) lastQuotaDelays.delete(projectId);
+
+    for (const [projectId, projectRuns] of byProject) {
+      const settings = await deps.evaluator.getSettings(projectId);
+      if (!settings?.enabled || settings.pausedReason) continue;
+      // Work may resume as soon as the first of them can.
+      const until =
+        projectRuns
+          .map((run) => run.wait?.until ?? null)
+          .filter((value): value is string => value !== null)
+          .sort()[0] ?? null;
+      const active = getQuotaThrottle(projectId);
+      if (
+        active &&
+        (!until || active.activeUntil.getTime() === new Date(until).getTime())
+      )
+        continue;
+      const [first] = projectRuns;
+      await handleQuotaFailure(projectId, first.subject.id, {
+        runId: first.id,
+        failureReason: 'toolQuota',
+        until,
+      });
+    }
   }
 
   async function detectAndHandleStalls(
@@ -232,7 +314,8 @@ export function createAutopilotStallDetector(
           .execute();
 
         const latestEvent = recentEvents[0] as Row | undefined;
-        const isSecondConsecutiveStall = latestEvent && str(latestEvent.kind) === 'stalled';
+        const isSecondConsecutiveStall =
+          latestEvent && str(latestEvent.kind) === 'stalled';
 
         if (isSecondConsecutiveStall) {
           // ESCALATE TO BLOCKED: 2nd consecutive stall
@@ -271,7 +354,10 @@ export function createAutopilotStallDetector(
               })
               .execute();
           } catch (commentErr) {
-            console.warn('Autopilot could not post blocked comment', commentErr);
+            console.warn(
+              'Autopilot could not post blocked comment',
+              commentErr,
+            );
           }
 
           // Record audit event
@@ -303,7 +389,10 @@ export function createAutopilotStallDetector(
                 });
               }
             } catch (notifyErr) {
-              console.warn('Autopilot could not send blocked notification', notifyErr);
+              console.warn(
+                'Autopilot could not send blocked notification',
+                notifyErr,
+              );
             }
           }
         } else {
@@ -327,12 +416,17 @@ export function createAutopilotStallDetector(
                     ? (JSON.parse(rawUsage) as Record<string, unknown>)
                     : (rawUsage as Record<string, unknown>);
                 if (num(usage.unpushedCount) > 0) {
-                  unpushedOn.push(str(runner.name) || str(runner.hostname) || str(runner.id));
+                  unpushedOn.push(
+                    str(runner.name) || str(runner.hostname) || str(runner.id),
+                  );
                 }
               }
             }
           } catch (runnerErr) {
-            console.warn('Autopilot could not check runner unpushed workspaces', runnerErr);
+            console.warn(
+              'Autopilot could not check runner unpushed workspaces',
+              runnerErr,
+            );
           }
 
           // Post warning comment on issue
@@ -359,7 +453,10 @@ export function createAutopilotStallDetector(
               })
               .execute();
           } catch (commentErr) {
-            console.warn('Autopilot could not post stall warning comment', commentErr);
+            console.warn(
+              'Autopilot could not post stall warning comment',
+              commentErr,
+            );
           }
 
           // Enqueue wake-up run for ds-project-manager
@@ -383,7 +480,10 @@ export function createAutopilotStallDetector(
                 },
               });
             } catch (runErr) {
-              console.warn('Autopilot could not enqueue wake run for project manager', runErr);
+              console.warn(
+                'Autopilot could not enqueue wake run for project manager',
+                runErr,
+              );
             }
           }
 
@@ -416,5 +516,6 @@ export function createAutopilotStallDetector(
     detectAndHandleStalls,
     handleQuotaFailure,
     getQuotaThrottle,
+    syncQuotaWaits,
   };
 }

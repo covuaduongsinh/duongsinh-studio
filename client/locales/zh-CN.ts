@@ -193,6 +193,13 @@ const zhCN: AppResource = {
       openValue: '打开{label}',
     },
     activity: {
+      workSkipped: {
+        limited:
+          '未启动：此任务在 24 小时内由评论触发的智能体运行已达 20 次上限',
+        blocked: '未启动：此任务正在等待其他任务',
+        dormant: '未启动：此任务在待办中',
+        waitingOwner: '正在等待负责人确认这项工作',
+      },
       title: '动态',
       empty: '还没有任何动态。',
       loadOlder: '加载更早的',

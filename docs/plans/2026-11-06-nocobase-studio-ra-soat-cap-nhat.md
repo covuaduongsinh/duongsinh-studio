@@ -296,7 +296,11 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
   - Việc còn mở: (1) nguyên tắc trưởng nhóm luôn ghi `needsYou` nên autopilot không tự merge được trong luồng thật, chờ chủ dự án quyết định; (2) review chéo chạy bằng Claude Opus, không phải Codex như
     kiểm chứng đầu-cuối mục 4 nêu; (3) chưa chạy ca thật trên Dương Sinh App; (4) `package.json` `version` vẫn `1.0.0-beta.86`, nên CLI `ds-studio` không có phiên bản mới để runner tải (nâng ở lần phát hành sau);
     (5) trạng thái merge PR #4 lấy từ Studio, chưa đối chiếu trực tiếp trên GitHub.
-- [ ] U2 — Cơ chế mới của plugin
+- [x] U2 — Cơ chế mới của plugin (06/11/2026, chưa lên production)
+  - Giữ `runKeyScope` vì admission chỉ quyết định vào route (`docs/chenh-lech-upstream.md` mục 24). Nối thật autopilot với agent runs và Hộp thư, hạn mức theo `until`, trưởng nhóm để trống `needsYou` khi tự lái bật, lượt read-only dùng phiên mới, hiện lý do `work_skipped`.
+  - Cổng kiểm tra: lint, typecheck, `locales check` xanh; test 133/133 file, 659 test; build xanh; thử sống trên dev (đăng nhập, chi tiết công việc, Chat).
+  - `scripts/compare-studio-api.mjs`: 36/186 route Studio của demo đã có, còn thiếu 150.
+  - Việc còn mở: chưa kiểm chứng trưởng nhóm thật sự bỏ `needsYou` trong một lượt agent thật (cần production hoặc runner dev); menu tài khoản chỉ có test client, chưa xem ảnh.
 - [ ] U3 — Tiến độ công việc, hàng đợi agent, run lỗi
 - [ ] U4 — Inbox hợp nhất, badge, Follow-ups, nhóm việc
 - [ ] U5 — Dashboard

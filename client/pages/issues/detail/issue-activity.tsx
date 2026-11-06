@@ -50,6 +50,14 @@ import {
 } from '../presentation.js';
 
 /** The changes the activity line names in this application's words; any other reads as "updated the issue". */
+/** Why an agent did not start on a comment or a move (`work_skipped`, the projects plugin's activity). */
+const WORK_SKIP_REASONS = new Set([
+  'limited',
+  'blocked',
+  'dormant',
+  'waitingOwner',
+]);
+
 const ACTIVITY_ACTIONS = new Set([
   'created',
   'updated',
@@ -98,9 +106,15 @@ function ActivityLine({
   const { locale } = useLocale();
   const status = useStatusPresenter();
   const key = camel(activity.action);
-  const verb = ACTIVITY_ACTIONS.has(key)
-    ? t(`issueDetail.activity.actions.${key}`)
-    : t('issueDetail.activity.actions.updated');
+  const skipReason = activity.details.reason;
+  const verb =
+    activity.action === 'work_skipped' &&
+    typeof skipReason === 'string' &&
+    WORK_SKIP_REASONS.has(skipReason)
+      ? t(`issueDetail.activity.workSkipped.${skipReason}`)
+      : ACTIVITY_ACTIONS.has(key)
+        ? t(`issueDetail.activity.actions.${key}`)
+        : t('issueDetail.activity.actions.updated');
   const { from, to } = activity.details;
   const change =
     activity.action === 'status_changed' &&

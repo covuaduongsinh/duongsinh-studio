@@ -205,6 +205,13 @@ const viVN: AppResource = {
       openValue: 'Mở {label}',
     },
     activity: {
+      workSkipped: {
+        limited:
+          'chưa bắt đầu: công việc này đã đạt giới hạn 20 lượt chạy agent từ bình luận trong 24 giờ',
+        blocked: 'chưa bắt đầu: công việc này đang chờ công việc khác',
+        dormant: 'chưa bắt đầu: công việc này đang ở Backlog',
+        waitingOwner: 'đang chờ người phụ trách xác nhận',
+      },
       title: 'Hoạt động',
       empty: 'Chưa có hoạt động nào.',
       loadOlder: 'Tải cũ hơn',

@@ -1,7 +1,7 @@
 {
   "name": "duongsinh-studio",
   "displayName": "duongsinh-studio",
-  "version": "1.0.0-beta.86",
+  "version": "1.0.0-beta.88",
   "type": "module",
   "prettier": "@nocobase/dev-config/prettier",
   "engines": {

@@ -199,6 +199,13 @@ const enUS = {
       openValue: 'Open {label}',
     },
     activity: {
+      workSkipped: {
+        limited:
+          'did not start: this issue reached the limit of 20 agent runs from comments in 24 hours',
+        blocked: 'did not start: this issue waits for other issues',
+        dormant: 'did not start: this issue is in the backlog',
+        waitingOwner: 'is waiting for the owner to confirm the work',
+      },
       title: 'Activity',
       empty: 'Nothing has happened yet.',
       loadOlder: 'Load older',

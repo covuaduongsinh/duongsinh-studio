@@ -2,6 +2,7 @@ import type { Application } from '@nocobase/app-server/application';
 import { jobExecutorServiceToken } from '@nocobase/app-server/jobs';
 import { databaseManagerToken } from '@nocobase/db';
 import type { ScheduleExecutor } from '@nocobase/jobs';
+import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
 import { authorizationToken } from '@nocobase/app-plugin-authorization';
 import { notificationServiceToken } from '@nocobase/app-plugin-notification/server';
 import {
@@ -44,12 +45,87 @@ export const autopilotDigestToken: ServiceToken<AutopilotDigest> =
   createServiceToken<AutopilotDigest>('app/autopilot/digest');
 
 const SWEEP_INTERVAL_MS = 120_000; // 2 minutes
-const INBOX_CHANNEL = 'in-app';
+// The channel name `server/config/notification.ts` configures, not the type of its transport.
+const INBOX_CHANNEL = 'inbox';
 
 export default class AutopilotProvider extends ServiceProvider<Application> {
   readonly name = 'app/autopilot';
   private executor?: ScheduleExecutor;
   private readonly releases: (() => void)[] = [];
+
+  /** Real agent runs for autopilot's own wake-ups, as the person who owns the issue. */
+  private agentRuns() {
+    const { container } = this.app;
+    return {
+      runs: {
+        enqueue: async (params: Record<string, unknown>) => {
+          const subject = params.subject as { id: string };
+          const issue = await container
+            .resolve(databaseManagerToken)
+            .connection()
+            .query.selectFrom('pmIssues')
+            .select('ownerUserId')
+            .where('id', '=', subject.id)
+            .executeTakeFirst();
+          const input = params.input as Record<string, unknown>;
+          const request = {
+            ...params,
+            // Autopilot wakes the agent on behalf of the person who owns the issue.
+            actorUserId: strOrNull(issue?.ownerUserId) ?? undefined,
+            responsibleUserId: strOrNull(issue?.ownerUserId),
+            input: {
+              ...input,
+              actor: { kind: 'system', id: 'system', name: 'Tự lái' },
+            },
+          };
+          return container.resolve(agentsToken).runs.enqueue(request as never);
+        },
+        workload: (query: { subjectKind: string; limit?: number }) =>
+          container.resolve(agentsToken).runs.workload(query),
+      },
+    };
+  }
+
+  private async ownerIds(): Promise<string[]> {
+    return (
+      await this.app.container
+        .resolve(authorizationToken)
+        .permissionSets.listAssignments(ROOT_SET_KEY)
+    )
+      .filter((assignment) => assignment.subject.type === 'user')
+      .map((assignment) => assignment.subject.id);
+  }
+
+  private async notifyInbox(notice: {
+    readonly to: readonly string[];
+    readonly key: string;
+    readonly title: string;
+    readonly body: string;
+    readonly path: string;
+  }): Promise<void> {
+    const { container } = this.app;
+    if (!container.has(notificationServiceToken) || notice.to.length === 0)
+      return;
+    try {
+      await container.resolve(notificationServiceToken).send({
+        idempotencyKey: notice.key,
+        source: {
+          type: 'duongsinh-studio/autopilot',
+          referenceId: notice.key,
+        },
+        messages: {
+          [INBOX_CHANNEL]: {
+            to: [...notice.to],
+            title: notice.title,
+            body: notice.body,
+            target: { type: 'route', path: notice.path },
+          },
+        },
+      });
+    } catch (notifyErr) {
+      console.warn('Autopilot could not send notification', notifyErr);
+    }
+  }
 
   override register(): void {
     this.app.container.singleton(autopilotServiceToken, (resolver) =>
@@ -64,6 +140,11 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
       createAutopilotScheduler({
         database: resolver.resolve(databaseManagerToken),
         evaluator: resolver.resolve(autopilotServiceToken),
+        agents: this.agentRuns(),
+        quotaThrottle: (projectId) =>
+          resolver
+            .resolve(autopilotStallDetectorToken)
+            .getQuotaThrottle(projectId),
       }),
     );
 
@@ -71,46 +152,19 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
       createAutopilotStallDetector({
         database: resolver.resolve(databaseManagerToken),
         evaluator: resolver.resolve(autopilotServiceToken),
+        agents: this.agentRuns(),
+        notify: (notice) => this.notifyInbox(notice),
+        owners: () => this.ownerIds(),
       }),
     );
 
-    this.app.container.singleton(autopilotDigestToken, (resolver) => {
-      const authz = () => resolver.resolve(authorizationToken);
-      const container = this.app.container;
-      return createAutopilotDigest({
+    this.app.container.singleton(autopilotDigestToken, (resolver) =>
+      createAutopilotDigest({
         database: resolver.resolve(databaseManagerToken),
-        owners: async () =>
-          (await authz().permissionSets.listAssignments(ROOT_SET_KEY))
-            .filter((assignment) => assignment.subject.type === 'user')
-            .map((assignment) => assignment.subject.id),
-        notify: async (notice) => {
-          if (
-            !container.has(notificationServiceToken) ||
-            notice.to.length === 0
-          )
-            return;
-          try {
-            await container.resolve(notificationServiceToken).send({
-              idempotencyKey: notice.key,
-              source: {
-                type: 'duongsinh-studio/autopilot',
-                referenceId: notice.key,
-              },
-              messages: {
-                [INBOX_CHANNEL]: {
-                  to: [...notice.to],
-                  title: notice.title,
-                  body: notice.body,
-                  target: { type: 'route', path: notice.path },
-                },
-              },
-            });
-          } catch (notifyErr) {
-            console.warn('Autopilot could not send notification', notifyErr);
-          }
-        },
-      });
-    });
+        owners: () => this.ownerIds(),
+        notify: (notice) => this.notifyInbox(notice),
+      }),
+    );
   }
 
   override async boot(): Promise<void> {
@@ -180,6 +234,9 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
         const conn = database.connection();
 
         try {
+          // Before opening anything: which projects' runs wait on tool quota, and until when.
+          await stallDetector.syncQuotaWaits();
+
           // Find active projects with autopilot enabled
           const activeSettings = await conn.query
             .selectFrom(SETTINGS_TABLE)

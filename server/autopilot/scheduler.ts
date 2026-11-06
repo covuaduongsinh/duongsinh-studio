@@ -32,6 +32,10 @@ export interface AutopilotSchedulerDeps {
       readonly enqueue: (params: Record<string, unknown>) => Promise<unknown>;
     };
   };
+  /** While a project's runs wait on tool quota, it opens no more than this allows (`stall.ts`). */
+  readonly quotaThrottle?: (
+    projectId: string,
+  ) => { readonly effectiveConcurrency: number } | null;
 }
 
 export interface AutopilotScheduler {
@@ -43,10 +47,14 @@ export interface AutopilotScheduler {
   isIssueEligibleForAutoStart(issueId: string): Promise<boolean>;
   calculateCapacity(projectId: string): Promise<number>;
   listCandidates(projectId: string): Promise<CandidateIssue[]>;
-  openNext(projectId: string): Promise<{ openedCount: number; openedIssueIds: string[] }>;
+  openNext(
+    projectId: string,
+  ): Promise<{ openedCount: number; openedIssueIds: string[] }>;
 }
 
-export function createAutopilotScheduler(deps: AutopilotSchedulerDeps): AutopilotScheduler {
+export function createAutopilotScheduler(
+  deps: AutopilotSchedulerDeps,
+): AutopilotScheduler {
   const conn = (): DatabaseConnection => deps.database.connection();
 
   async function setIssueFlag(
@@ -100,7 +108,9 @@ export function createAutopilotScheduler(deps: AutopilotSchedulerDeps): Autopilo
       issueId,
       allowAutoStart,
       inheritFromParent,
-      createdAt: existing ? (iso(existing.createdAt) ?? now.toISOString()) : now.toISOString(),
+      createdAt: existing
+        ? (iso(existing.createdAt) ?? now.toISOString())
+        : now.toISOString(),
       updatedAt: now.toISOString(),
     };
   }
@@ -123,7 +133,9 @@ export function createAutopilotScheduler(deps: AutopilotSchedulerDeps): Autopilo
     };
   }
 
-  async function isIssueEligibleForAutoStart(issueId: string): Promise<boolean> {
+  async function isIssueEligibleForAutoStart(
+    issueId: string,
+  ): Promise<boolean> {
     const visited = new Set<string>();
     let currentId: string | null = issueId;
 
@@ -165,8 +177,20 @@ export function createAutopilotScheduler(deps: AutopilotSchedulerDeps): Autopilo
   }
 
   async function calculateCapacity(projectId: string): Promise<number> {
+    const capacity = await configuredCapacity(projectId);
+    const throttle = deps.quotaThrottle?.(projectId);
+    return throttle
+      ? Math.min(capacity, throttle.effectiveConcurrency)
+      : capacity;
+  }
+
+  async function configuredCapacity(projectId: string): Promise<number> {
     const settings = await deps.evaluator.getSettings(projectId);
-    if (settings && typeof settings.maxActiveIssues === 'number' && settings.maxActiveIssues > 0) {
+    if (
+      settings &&
+      typeof settings.maxActiveIssues === 'number' &&
+      settings.maxActiveIssues > 0
+    ) {
       return settings.maxActiveIssues;
     }
 
@@ -177,7 +201,10 @@ export function createAutopilotScheduler(deps: AutopilotSchedulerDeps): Autopilo
         .where('status', '=', 'online')
         .execute();
 
-      const totalSlots = runners.reduce((sum, r: Row) => sum + (num(r.slots) || 1), 0);
+      const totalSlots = runners.reduce(
+        (sum, r: Row) => sum + (num(r.slots) || 1),
+        0,
+      );
       return Math.max(1, totalSlots);
     } catch {
       return 1;
@@ -228,8 +255,11 @@ export function createAutopilotScheduler(deps: AutopilotSchedulerDeps): Autopilo
         }
       }
 
-      const priorityRank = issue.priorityRank != null ? num(issue.priorityRank) : 4;
-      const createdAt = issue.createdAt ? new Date(str(issue.createdAt)) : new Date();
+      const priorityRank =
+        issue.priorityRank != null ? num(issue.priorityRank) : 4;
+      const createdAt = issue.createdAt
+        ? new Date(str(issue.createdAt))
+        : new Date();
 
       candidates.push({
         id: issueId,
@@ -319,7 +349,10 @@ export function createAutopilotScheduler(deps: AutopilotSchedulerDeps): Autopilo
           })
           .execute();
       } catch (commentErr) {
-        console.warn('Autopilot could not post open comment on issue', commentErr);
+        console.warn(
+          'Autopilot could not post open comment on issue',
+          commentErr,
+        );
       }
 
       // Record audit event
@@ -353,7 +386,10 @@ export function createAutopilotScheduler(deps: AutopilotSchedulerDeps): Autopilo
             },
           });
         } catch (runErr) {
-          console.warn('Autopilot could not enqueue run for project manager', runErr);
+          console.warn(
+            'Autopilot could not enqueue run for project manager',
+            runErr,
+          );
         }
       }
     }

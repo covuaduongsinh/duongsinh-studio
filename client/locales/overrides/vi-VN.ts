@@ -435,6 +435,7 @@ const overrides: TranslationOverrides = {
         restricted: 'Chính sách của runner, thư mục hoặc hạn chế biến',
         agentArchived: 'Agent được lưu trữ',
         noRunnerOnline: 'Không có runner trực tuyến',
+        toolQuota: 'Công cụ đã hết hạn mức; giờ hồi: {{until}}',
         runnersOffline: 'Runner của nó đang ngoại tuyến',
         missingFeatures: 'Không có runner hỗ trợ {{features}}',
         secretsNotAllowed:

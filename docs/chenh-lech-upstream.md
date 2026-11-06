@@ -496,3 +496,15 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **Runner trên VPS không cài bằng npm:** bản tự quản ở `~/.local/share/nocobase-runner`. Tải `storage/runners/dist/stable/nocobase-runner` mới lên là runner tự cập nhật qua heartbeat; `nocobase-runner update` làm ngay.
 - **`ds-studio issue update --needs-you null` ghi chuỗi `"null"`**, không xoá giá trị; xoá thật phải dùng `--file` với `{"needsYou":null}`.
 - **Autopilot không tự merge trong luồng thật (có sẵn từ AP):** nguyên tắc trưởng nhóm luôn ghi `needsYou` khi sang `in_review`, còn điều kiện 2 của bộ đánh giá đòi `needsYou` rỗng. Test và ca PR #3 đặt tay `needsYou: null` nên không lộ ra.
+
+## 24. U2 — Cơ chế mới của plugin (06/11/2026)
+
+- **Giữ `runKeyScope`, không thay bằng admission:** `Auth.addCredentialRoutePolicy` (`CredentialRoutePolicy`, agents beta.3, projects beta.25) chỉ quyết định một issued credential có **vào được route** không,
+  và khi trả `true` thì "delegates scope enforcement to the application". `runKeyScope` làm việc khác: thu hẹp từng kiểm tra `AuthorizationContext.can` theo action mà gate cho phép. Hai cơ chế bổ sung cho nhau, không thay nhau.
+  Studio chưa đăng ký policy nào vì `undefined` giữ nguyên `security` khai báo trên route, đúng ý hiện tại; các route run mới của plugin vẫn bị `runKeyScope` chặn (test `run-actor`). Cập nhật cho mục 9.
+- **Autopilot chưa được nối thật từ AP3–AP6 (đã sửa):** provider không truyền `agents`, `notify`, `owners` cho scheduler và stall detector, nên trên production đánh thức trưởng nhóm và báo Hộp thư không bao giờ chạy; digest gửi nhầm kênh `in-app` trong khi tên kênh là `inbox`;
+  `handleQuotaFailure` không có nơi gọi. Test cũ dùng mock nên không lộ ra. `tests/server/autopilot-wiring.test.ts` đi qua provider thật.
+- **Hạn mức tool:** `syncQuotaWaits` đọc `runs.workload`, lấy `wait.until` của `toolQuota`; biết giờ hồi thì dùng đúng giờ đó, không biết thì giữ backoff 30 phút → 2 giờ. Trong lúc đó project mở tối đa 1 việc.
+- **Autopilot và `needsYou` (chủ dự án chọn sửa, 06/11):** lượt của trưởng nhóm trên project bật tự lái nhận thêm quy tắc `AUTOPILOT_ON_RULE`: bàn giao mà để trống `needsYou`, trừ khi có quyết định thật. Hệ quả có chủ ý: PR đạt đủ điều kiện sẽ tự merge không chờ chủ dự án.
+- **Lượt read-only** dùng `sessionPolicy: 'fresh'` để review độc lập với phiên làm việc; **trưởng nhóm** nhận tóm tắt các lượt trước qua `turn.fresh` (`runs.recentSummaries`).
+- **`work_skipped`:** hook `useIssueCommentActions` của plugin bỏ trường `skipped` của `POST comments`, nên Studio đọc từ activity `work_skipped` để hiện lý do (giới hạn 20 lượt/24 giờ…).

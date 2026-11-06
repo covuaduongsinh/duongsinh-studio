@@ -227,11 +227,36 @@ function contextOf(issue: IssueContext): string {
   return lines.join('\n');
 }
 
-function assemblyOf(issue: IssueContext, claim: ClaimContext): SubjectAssembly {
-  const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
-  const comment = commandRef(claim.cli, 'issue comment add');
-  const readOnly = claim.inputs.some((input) => {
-    if (typeof input.text === 'string' && /mode:\s*read-only/i.test(input.text)) {
+/** What `agents.runs.recentSummaries` answers of an earlier run. */
+interface RecentRunSummary {
+  readonly status: string;
+  readonly finishedAt: string | null;
+  readonly summary: string | null;
+}
+
+export const AUTOPILOT_ON_RULE =
+  'Autopilot is on for this project: when the work is ready for acceptance, move it to in_review with the delivery report and leave needsYou empty, so Studio merges it. Write needsYou only for a decision a person really has to make.';
+
+/** Whether autopilot would merge this project's work now. Read in the claim's transaction. */
+async function autopilotOn(
+  conn: DatabaseConnection,
+  projectId: string,
+): Promise<boolean> {
+  const settings = await conn.query
+    .selectFrom('dsAutopilotSettings')
+    .select(['enabled', 'pausedReason'])
+    .where('projectId', '=', projectId)
+    .executeTakeFirst();
+  return Boolean(settings?.enabled) && !settings?.pausedReason;
+}
+
+/** A turn that may read but not change anything: a review or an investigation. */
+function isReadOnlyTurn(claim: ClaimContext): boolean {
+  return claim.inputs.some((input) => {
+    if (
+      typeof input.text === 'string' &&
+      /mode:\s*read-only/i.test(input.text)
+    ) {
       return true;
     }
     const payload = input.payload as Record<string, unknown> | null | undefined;
@@ -239,6 +264,32 @@ function assemblyOf(issue: IssueContext, claim: ClaimContext): SubjectAssembly {
       payload && (payload.mode === 'read-only' || payload.readOnly === true),
     );
   });
+}
+
+/** What the project manager's earlier turns on this issue ended with, for picking up work that stood still. */
+function handOverNotes(summaries: readonly RecentRunSummary[]): string {
+  const lines = summaries
+    .filter((run) => run.summary)
+    .map(
+      (run) =>
+        `- ${run.finishedAt ?? ''} (${run.status}): ${run.summary ?? ''}`,
+    );
+  return lines.length > 0
+    ? ['## Các lượt trước của bạn trên issue này', '', ...lines].join('\n')
+    : '';
+}
+
+function assemblyOf(
+  issue: IssueContext,
+  claim: ClaimContext,
+  extras: {
+    readonly autopilotOn: boolean;
+    readonly handOver: string;
+  },
+): SubjectAssembly {
+  const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
+  const comment = commandRef(claim.cli, 'issue comment add');
+  const readOnly = isReadOnlyTurn(claim);
   return {
     subject: {
       key: issue.identifier,
@@ -253,6 +304,7 @@ function assemblyOf(issue: IssueContext, claim: ClaimContext): SubjectAssembly {
           ? `Hand steps to agents by mentioning them in a comment; move the issue only between in_progress, blocked and in_review (${commandRef(claim.cli, 'issue update')}).`
           : 'Never change the issue’s status or assign it; the project manager does.',
         'Write every comment and your final run summary in Vietnamese; keep commands, paths and identifiers as they are.',
+        ...(coordinating && extras.autopilotOn ? [AUTOPILOT_ON_RULE] : []),
       ],
       whenBlocked: `Say what is missing in one reply with ${comment} and end your turn.`,
     },
@@ -264,6 +316,7 @@ function assemblyOf(issue: IssueContext, claim: ClaimContext): SubjectAssembly {
       prompt: claim.inputs
         .map((input) => `- ${input.actor.name}: ${input.text}`)
         .join('\n'),
+      ...(extras.handOver ? { fresh: extras.handOver } : {}),
     },
     data: {
       issueId: issue.id,
@@ -284,10 +337,21 @@ export function createIssueSubject(deps: {
   readonly projects: Projects;
   readonly viewerOf: (userId: string) => Promise<Viewer | null>;
   readonly translate: () => Promise<Translate>;
+  readonly recentSummaries: (
+    conn: DatabaseConnection,
+    key: {
+      readonly agentId: string;
+      readonly subjectKind: string;
+      readonly subjectId: string;
+    },
+    exceptRunId: string,
+  ) => Promise<readonly RecentRunSummary[]>;
 }): SubjectBinding {
   const { projects } = deps;
   return {
     kind: ISSUE_SUBJECT,
+    // A review stays independent of the work it reviews; everything else keeps the ordinary reuse.
+    sessionPolicy: (claim) => (isReadOnlyTurn(claim) ? 'fresh' : 'reuse'),
     title: appText('studioAgents.subjects.issue'),
     path: '/issues/{id}',
     triggers: {
@@ -311,7 +375,26 @@ export function createIssueSubject(deps: {
           throw new Error(
             `Issue ${claim.run.subject.id} does not exist any more.`,
           );
-        return assemblyOf(issue, claim);
+        const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
+        return assemblyOf(issue, claim, {
+          autopilotOn:
+            coordinating && issue.project
+              ? await autopilotOn(conn, issue.project.id)
+              : false,
+          handOver: coordinating
+            ? handOverNotes(
+                await deps.recentSummaries(
+                  conn,
+                  {
+                    agentId: claim.agent.id,
+                    subjectKind: ISSUE_SUBJECT,
+                    subjectId: claim.run.subject.id,
+                  },
+                  claim.run.id,
+                ),
+              )
+            : '',
+        });
       },
     },
     sink: {
@@ -379,6 +462,10 @@ export default class IssueSubjectProvider extends ServiceProvider<Application> {
           };
         },
         translate,
+        recentSummaries: (conn, key, exceptRunId) =>
+          container
+            .resolve(agentsToken)
+            .runs.recentSummaries(conn, key, exceptRunId),
       }),
     );
   }
