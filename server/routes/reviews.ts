@@ -102,7 +102,10 @@ export const reviewRoutes: AppApiRouteContribution<Application> = defineApiRoute
     const reviews = () => container.resolve(reviewsServiceToken);
     const git = () => container.resolve(gitServiceToken);
 
-    routes.use('*', auth.required({ scopedKeys: true }));
+    // Only the paths this router owns: it mounts at the API root, where `*` would also require a session on everything
+    // registered after it, public webhooks and run-token routes included.
+    for (const path of ['/reviews', '/git/pullRequests/:pullRequestId/reviews'])
+      routes.use(path, auth.required({ scopedKeys: true }));
 
     const handleError = (error: unknown): never => {
       if (error instanceof ReviewError) {

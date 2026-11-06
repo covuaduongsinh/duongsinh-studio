@@ -237,7 +237,15 @@ export const autopilotRoutes: AppApiRouteContribution<Application> =
       return { viewer };
     };
 
-    routes.use('*', auth.required({ scopedKeys: true }), authz.middleware());
+    // Only the paths this router owns: it mounts at the API root, where `*` would also require a session on everything
+    // registered after it, public webhooks and run-token routes included.
+    for (const path of [
+      '/projects/:projectId/autopilot/*',
+      '/autopilot/*',
+      '/issues/:issueId/autopilot',
+      '/issues/:issueId/autopilot-flag',
+    ])
+      routes.use(path, auth.required({ scopedKeys: true }), authz.middleware());
 
     routes.get(
       '/projects/:projectId/autopilot',
