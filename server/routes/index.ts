@@ -4,6 +4,7 @@ import { accessRoutes } from './access.js';
 import { autopilotRoutes } from './autopilot.js';
 import { deployRoutes } from './deploys.js';
 import { gitRoutes } from './git.js';
+import { inboxRoutes } from './inbox.js';
 import { issueWorkRoutes } from './issue-work.js';
 import { kbRoutes } from './kb.js';
 import { projectManagerRoutes } from './project-manager.js';
@@ -18,6 +19,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   gitRoutes,
   reviewRoutes,
   issueWorkRoutes,
+  inboxRoutes,
   webhookRoutes,
   projectMemoryRoutes,
   kbRoutes,

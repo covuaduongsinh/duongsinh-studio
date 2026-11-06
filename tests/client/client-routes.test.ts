@@ -190,6 +190,7 @@ describe('app client routes', () => {
       { name: 'home', authorizedAs: null },
       { name: 'inbox', authorizedAs: null },
       { name: 'my-issues', authorizedAs: 'pm-my-issues' },
+      { name: 'follow-ups', authorizedAs: 'pm-issues' },
       ...[
         'issues',
         'pm-issue-new',
@@ -267,11 +268,10 @@ describe('app client routes', () => {
     );
   });
 
-  it('keeps the inbox out of the application navigation', () => {
-    // The inbox is reached from the header's inbox button, so it deliberately declares no menu entry.
+  it('puts the inbox in the menu, where every decision waits', () => {
     expect(
       applicationRoutes[0].routes.find((route) => route.name === 'inbox'),
-    ).not.toHaveProperty('navigation');
+    ).toHaveProperty('navigation');
   });
 });
 

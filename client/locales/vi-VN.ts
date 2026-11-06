@@ -105,6 +105,32 @@ const viVN: AppResource = {
       },
     },
   },
+  followUps: {
+    title: 'Theo dõi',
+    description:
+      'Các công việc đang mở bạn tham gia, và điều mới kể từ lần xem trước.',
+    loading: 'Đang tải danh sách theo dõi',
+    failed: 'Không tải được danh sách theo dõi.',
+    empty: 'Chưa có gì cần theo dõi.',
+    follow: 'Theo dõi',
+    unfollow: 'Bỏ theo dõi',
+    unread: '{{count}} mới',
+    group: {
+      in_review: 'Chờ nghiệm thu',
+      blocked: 'Đang vướng',
+      in_progress: 'Đang làm',
+      backlog: 'Backlog',
+    },
+  },
+  inboxStudio: {
+    open: 'Mở công việc',
+    type: {
+      accept: 'Chờ nghiệm thu',
+      answer: 'Cần bạn trả lời',
+      failed: 'Lượt chạy bị lỗi',
+      takeOver: 'Được bàn giao cho bạn',
+    },
+  },
   common: { cancel: 'Huỷ' },
   navigation: {
     home: 'Trang chủ',
@@ -120,6 +146,8 @@ const viVN: AppResource = {
     back: 'Quay lại',
     issues: 'Công việc',
     myIssues: 'Công việc của tôi',
+    inbox: 'Hộp thư',
+    followUps: 'Theo dõi',
     projects: 'Dự án',
     issuePrefix: 'Tiền tố công việc',
     issuePrefixDescription: 'Đặt tiền tố cho số hiệu công việc mới.',

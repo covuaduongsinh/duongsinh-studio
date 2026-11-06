@@ -36,7 +36,13 @@ const messages = [
   },
 ];
 
+let waiting: unknown[] | null = null;
+
 const api = vi.fn(({ path }: ApiCall) => {
+  if (path === 'inbox/waiting' && waiting) return { data: waiting, meta: {} };
+  if (path === 'inbox/notices' && waiting) return { data: [], meta: {} };
+  if (path === 'inbox/pending' && waiting)
+    return { data: { decision: waiting.length, info: 2 } };
   if (path === 'notificationInApp/unreadCount') return { data: { count: 2 } };
   if (path === 'notificationInApp/messages')
     return { data: messages, meta: {} };
@@ -91,4 +97,50 @@ it("lists the plugin's messages as notifications and marks one read when it is o
       method: 'POST',
     }),
   );
+});
+
+it('lists what waits on the viewer, and opens it on its issue', async () => {
+  waiting = [
+    {
+      item: {
+        id: 'decision-1',
+        deliveryId: 'decision-1',
+        notificationId: 'decision-1',
+        title: 'PM-1 Trang đăng nhập',
+        body: 'Xem PR rồi nghiệm thu.',
+        target: { type: 'route', path: '/issues/1' },
+        readAt: '2026-10-01T09:00:00.000Z',
+        createdAt: '2026-10-01T09:00:00.000Z',
+      },
+      notice: {
+        notificationId: 'decision-1',
+        source: 'studio',
+        kind: 'decision',
+        type: 'accept',
+        subject: { type: 'issue', id: '1', label: 'PM-1' },
+        decisionKey: 'accept:1',
+        data: null,
+        count: 1,
+        resolvedAt: null,
+        outcome: null,
+      },
+    },
+  ];
+  try {
+    await renderInbox();
+    expect(
+      (await screen.findAllByText('PM-1 Trang đăng nhập')).length,
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText('Waiting for acceptance').length,
+    ).toBeGreaterThan(0);
+    // A decision is not a message: nothing asks the plugin to mark it read.
+    expect(api).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: 'notificationInApp/messages/decision-1/markRead',
+      }),
+    );
+  } finally {
+    waiting = null;
+  }
 });

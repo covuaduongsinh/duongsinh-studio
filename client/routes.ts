@@ -5,10 +5,12 @@ import {
   ChartColumn,
   CircleUserRound,
   Cpu,
+  EyeIcon,
   FolderKanban,
   GitBranch,
   Hash,
   Home,
+  InboxIcon,
   Library,
   PackageIcon,
   ServerCog,
@@ -87,6 +89,8 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     componentLoader: () => import('./pages/inbox.js'),
     name: 'inbox',
     path: '/inbox',
+    // Dương Sinh: the template keeps it out of the menu, but here it is where every decision waits.
+    navigation: { title: 'navigation.inbox', icon: InboxIcon },
   },
   {
     auth: 'guest',
@@ -133,6 +137,15 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     authz: pmPage('pm-my-issues'),
     navigation: { title: 'navigation.myIssues', icon: CircleUserRound },
     componentLoader: () => import('./pages/my-issues/index.js'),
+  },
+  {
+    // The open issues the viewer takes part in. Whoever reaches issues reaches it; the server answers only those they see.
+    name: 'follow-ups',
+    path: '/follow-ups',
+    auth: 'required',
+    authz: pmPage('pm-issues'),
+    navigation: { title: 'navigation.followUps', icon: EyeIcon },
+    componentLoader: () => import('./pages/follow-ups/index.js'),
   },
   {
     // Every issue the viewer can see, as a list or a board. Its children render at the page's outlet: the plugin's

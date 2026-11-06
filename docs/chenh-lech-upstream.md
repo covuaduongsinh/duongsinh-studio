@@ -517,3 +517,10 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **`failedRuns/{id}/decide` với `reassign`:** có `userId` thì đổi người phụ trách; không có thì đánh thức trưởng nhóm để giao agent khác. `cancel` chỉ ghi nhận quyết định, không đổi trạng thái công việc.
 - **Test chập chờn:** `tests/client/permission-management-tabs.test.tsx` (template) có thể vượt timeout 30 giây khi máy dev bận; chạy riêng thì xanh.
 - **`DB_FILENAME` không có tác dụng trên dev** vì `config.yml` khai sẵn đường dẫn: thử sống dùng DB dev có sẵn. Muốn DB trắng phải đổi trong `config.yml`.
+
+## 26. U4 — Inbox hợp nhất, badge, Follow-ups (07/11/2026)
+
+- **Quyết định đọc từ trạng thái công việc, không lưu riêng:** `inbox/waiting` tính từ issue của người đó (`in_review`, `needsYou`, run lỗi chưa trả lời), nên quyết định đã xong tự biến mất và `inbox/reconcile` luôn không có gì để sửa. Id của mục là UUID băm từ khoá quyết định, không phải id thật trong `notificationInAppItems`.
+- **Hộp thư vào menu chính** (template để ngoài menu): không có nút nào khác dẫn tới `/inbox`.
+- **`app-layout.tsx` gọi `useNavigationCounts`** để truyền badge cho menu; lúc nâng template cần giữ. Hai test shell mock hook này.
+- **`StudioFollowingState`** dùng `{ following, stored }`; `/followUps` chỉ tính bình luận của người khác vào `unread`, chưa tính thay đổi khác.

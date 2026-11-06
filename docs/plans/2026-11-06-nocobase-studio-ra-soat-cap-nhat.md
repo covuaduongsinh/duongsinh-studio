@@ -302,12 +302,16 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
   - `scripts/compare-studio-api.mjs`: 36/186 route Studio của demo đã có, còn thiếu 150.
   - Ca thật Sandbox DS-21, không can thiệp: trưởng nhóm tự để trống `needsYou`, autopilot tự merge PR #5, issue sang `done`. Tự lái Dương Sinh App bật lại sau ca này.
   - Việc còn mở: menu tài khoản chỉ có test client, chưa xem ảnh; chưa có ca thật trên Dương Sinh App.
-- [x] U3 — Tiến độ công việc, hàng đợi agent, run lỗi (06/11/2026, chưa lên production)
+- [x] U3 — Tiến độ công việc, hàng đợi agent, run lỗi (06/11/2026, production `68b8a30`; ca thật DS-22: Gửi lại → sửa → autopilot merge)
   - 19 route theo hợp đồng demo (`server/routes/issue-work.ts`), bảng `dsFailedRunDecisions`, `dsCommentRunGrants`, `dsOwnerHandoffDecisions`; trang công việc thêm khối Tiến độ, Lượt chạy, thẻ quyết định; `/issues` và `/my-issues` thêm chế độ Hàng đợi agent.
   - Cổng kiểm tra: lint, typecheck, `locales check` xanh; test 137/137 file, 669 test (`permission-management-tabs` của template lỗi timeout một lần khi máy bận, chạy riêng xanh); build xanh; thử sống trên dev không có API lỗi.
   - `compare-studio-api.mjs`: 55/186 route Studio của demo đã có, còn thiếu 131.
   - Việc còn mở: `issuePanels` chưa có `versionProgress`, `decisions`, `offers`, `previews` (U4, U6); `issueProgress` chưa có `managerWait`, `personalRunnerRequests`, `waiting`; bảng danh sách của plugin không có chỗ gắn nhãn phụ nên "Cần bạn nghiệm thu / Agent đang làm" nằm ở chế độ Hàng đợi; dòng `step` có thể là tiếng Anh khi hệ thống tự đánh thức.
-- [ ] U4 — Inbox hợp nhất, badge, Follow-ups, nhóm việc
+- [x] U4 — Inbox hợp nhất, badge, Follow-ups, nhóm việc (07/11/2026, chưa lên production)
+  - 18 route `inbox/*`, `followUps/*`, `taskGroups/*` (`server/routes/inbox.ts`), bảng `dsIssueSeen`; Hộp thư có trong menu, nhóm "Cần tôi quyết định" lấy từ trạng thái công việc; badge ở Hộp thư, Công việc của tôi, Phát hành; trang `/follow-ups`.
+  - Không viết lại trang `/inbox` như kế hoạch: khối Inbox của UI Library đã có tab và hợp đồng `InboxSource`, Studio chỉ cắm nguồn dữ liệu.
+  - `compare-studio-api.mjs`: 73/186 route Studio của demo đã có, còn thiếu 113.
+  - Việc còn mở: quyết định loại `takeOver` (bàn giao owner) và giới hạn lượt chạy mới hiện trên trang công việc, chưa vào Hộp thư; `/taskGroups` chưa phân trang theo `cursor` (tối đa 200 việc); chưa có trang riêng cho bảng nhóm, "Chờ bạn" hiện qua badge và Hộp thư; nút đánh dấu/xoá trên thẻ quyết định gọi plugin với id tổng hợp nên có thể báo lỗi; một số thông báo cũ vẫn bằng tiếng Anh.
 - [ ] U5 — Dashboard
 - [ ] U6 — Thiết lập dự án, khoá tổ chức, git, tri thức, nợ S6.7
 - [ ] U7 — Thông báo ra ngoài + ngân sách

@@ -9,6 +9,8 @@ import { StudioChatProvider } from '#components/studio-chat';
 import { ChatPanel } from '#extensions/nocobase-agent-chat/chat-panel';
 import { ChatFloatingButton } from '#extensions/nocobase-agent-chat/launchers';
 
+import { useNavigationCounts } from '#hooks/use-follow-ups';
+
 import { RouteTreeProvider } from '../routing/route-context.js';
 import { RouteLeaveBoundary } from '../routing/route-leave-boundary.js';
 
@@ -45,6 +47,16 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
     useLocation().pathname,
     denied,
   );
+  // Dương Sinh: what waits on the viewer, beside the entries it belongs to; the shell owns the menu, so it passes them.
+  const counts = useNavigationCounts(!loading);
+  const badges = useMemo(
+    () => ({
+      inbox: counts.decisions,
+      'my-issues': counts.myIssues,
+      'releases-hub': counts.releases,
+    }),
+    [counts.decisions, counts.myIssues, counts.releases],
+  );
   const navigationLabel = t('navigation.label', {
     defaultValue: 'Application navigation',
   });
@@ -58,6 +70,7 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
             <AppSidebar label={navigationLabel} footer={<AppSidebarFooter />}>
               <NavigationMenu
                 items={menuItems}
+                badges={badges}
                 label={navigationLabel}
                 selectedKey={selectedKey}
               />

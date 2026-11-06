@@ -1,13 +1,21 @@
 import type { ReactElement } from 'react';
 
 import { InboxPage as InboxBlock } from '#extensions/nocobase-inbox/inbox-page';
-import { defaultInboxRegistry, type InboxRegistry } from '#extensions/nocobase-inbox/registry';
+import {
+  defaultInboxRegistry,
+  type InboxRegistry,
+} from '#extensions/nocobase-inbox/registry';
 
+import {
+  studioDecisionRenderer,
+  studioInboxSource,
+} from './inbox-decisions.js';
 import { releaseRequestsFeed } from './releases/inbox-feed.js';
 
 /** The inbox's contributors: production marks the owner decides (S5.4), before the decisions of the in-app items. */
 const registry: InboxRegistry = {
   ...defaultInboxRegistry,
+  renderers: [studioDecisionRenderer],
   feeds: [releaseRequestsFeed],
 };
 
@@ -16,5 +24,5 @@ const registry: InboxRegistry = {
  * button. Every message reads as a notification; production marks waiting on the owner come from their own feed.
  */
 export default function InboxPage(): ReactElement {
-  return <InboxBlock registry={registry} />;
+  return <InboxBlock registry={registry} source={studioInboxSource} />;
 }
