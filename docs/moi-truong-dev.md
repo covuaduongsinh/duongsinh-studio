@@ -64,6 +64,8 @@ Khác với **Ask agent** (nút trên trang issue/project và panel chat ⌘J): 
 
 ## Bẫy đã gặp
 
+Bẫy khi nâng cấp và chạy kiểm tra: xem `docs/nang-cap.md`.
+
 0. **`vite build` hết heap (SIGABRT).** Sau S2, bundle client vượt trần heap mặc định ~2 GB của Node (`FATAL ERROR:
 Ineffective mark-compacts near heap limit`), nặng thêm vì Rollup chạy bản WebAssembly. Cách xử lý:
    `nodeOptions: --max-old-space-size=4096` trong `pnpm-workspace.yaml`. Lưu ý: pnpm 11 **không** đọc `node-options` từ

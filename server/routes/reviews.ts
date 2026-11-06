@@ -75,7 +75,8 @@ const SubmitReviewBody = z
       description: 'Number of recommended fixes.',
     }),
     kind: z.enum(['code', 'security']).default('code').meta({
-      description: 'Whether this is a standard code review or an extra security review.',
+      description:
+        'Whether this is a standard code review or an extra security review.',
     }),
     checklist: z.record(z.string(), z.unknown()).meta({
       description: 'Structured checklist results.',
@@ -93,8 +94,8 @@ const ListReviewsQuery = z.object({
 
 const PullParams = z.object({ pullRequestId: z.string() });
 
-export const reviewRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
-  (app) => {
+export const reviewRoutes: AppApiRouteContribution<Application> =
+  defineApiRoutes((app) => {
     const router = new Hono();
     const routes = new Hono<Env>();
     const { container } = app;
@@ -102,7 +103,10 @@ export const reviewRoutes: AppApiRouteContribution<Application> = defineApiRoute
     const reviews = () => container.resolve(reviewsServiceToken);
     const git = () => container.resolve(gitServiceToken);
 
-    routes.use('*', auth.required({ scopedKeys: true }));
+    // Only the paths this router owns: it mounts at the API root, where `*` would also require a session on everything
+    // registered after it, public webhooks and run-token routes included.
+    for (const path of ['/reviews', '/git/pullRequests/:pullRequestId/reviews'])
+      routes.use(path, auth.required({ scopedKeys: true }));
 
     const handleError = (error: unknown): never => {
       if (error instanceof ReviewError) {
@@ -179,7 +183,8 @@ export const reviewRoutes: AppApiRouteContribution<Application> = defineApiRoute
       describeRoute({
         tags: ['Studio'],
         summary: 'List reviews for a pull request',
-        description: 'Lists all structured review submissions for a pull request.',
+        description:
+          'Lists all structured review submissions for a pull request.',
         operationId: 'studioListReviews',
         security: PERSON_OR_RUN,
         ...cliRoute({ command: 'review list' }),
@@ -205,5 +210,4 @@ export const reviewRoutes: AppApiRouteContribution<Application> = defineApiRoute
 
     router.route('/', routes);
     return router;
-  },
-);
+  });

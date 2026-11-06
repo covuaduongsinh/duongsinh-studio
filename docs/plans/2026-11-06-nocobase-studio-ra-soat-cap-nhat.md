@@ -281,6 +281,10 @@ Thứ tự: U1 → U2 → U3 → U4 → U5 → U6 → U7 → U8; tổng ≈ 17�
 | Q4  | Email SMTP, web push, ngân sách, sao lưu Drive, giám sát (Q2–Q6 của S6)       | Như khuyến nghị S6; hỏi lại trước U7/U8                            |
 | Q5  | Hoãn `repositoryDeployments/builds` (app-host) tới khi Dương Sinh App v3 cần? | Hoãn                                                               |
 
+**Đã chốt 06/11/2026:** Q1 cuối U1 (vẫn hỏi lại ngay trước mỗi lần cập nhật) · Q2 thay nếu phủ đủ, phủ một phần thì giữ song song · Q3 chưa bật · Q4 theo S6, hỏi lại trước
+U7/U8 · **Q5 chủ dự án chọn làm trong U6, khác khuyến nghị:** đưa 12 + 5 route `repositoryDeployments/*`, `builds/*` (và `releaseDownloads/{token}`) vào U6, thay các chữ "Hoãn"/"ngoài
+phạm vi" ở mục 1.5, 2 và 3-U6.
+
 ## 7. Tiến độ
 
 - [ ] U1 — Nâng template + gói

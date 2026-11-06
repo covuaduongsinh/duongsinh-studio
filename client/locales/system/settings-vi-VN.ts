@@ -1,6 +1,10 @@
 // Generated from the en-US structure and the reviewed Vietnamese wording (docs/thuat-ngu.md); edit the wording here.
 
 const settings = {
+  notificationManagementDescription:
+    'Xem các mẫu thông báo đã đăng ký và bản xem trước với dữ liệu giả lập.',
+  notificationTemplates: 'Mẫu thông báo',
+  notificationManagement: 'Quản lý thông báo',
   listChanged: 'Danh sách đã thay đổi. Hãy thử lại.',
   setup: {
     title: 'Điều kiện cần cho tính năng',
@@ -111,6 +115,19 @@ const settings = {
   passwordPolicy: 'Mật khẩu chưa đạt chính sách mật khẩu hiện tại.',
   reload: 'Tải lại vai trò',
   title: 'Cài đặt hệ thống',
+  home: {
+    description:
+      'Tài khoản, phân quyền, cấu hình nghiệp vụ và các khả năng hệ thống đều ở đây.',
+    empty: 'Bạn chưa có mục cài đặt nào.',
+  },
+  categories: {
+    account: 'Tài khoản và phân quyền',
+    business: 'Cấu hình nghiệp vụ',
+    ai: 'AI',
+    system: 'Hệ thống',
+  },
+  permissionManagementDescription:
+    'Đặt việc mỗi vai trò được mở, được làm và dữ liệu được thấy.',
   users: 'Người dùng',
   roles: 'Vai trò và quyền',
   usersDescription:

@@ -35,7 +35,12 @@ import {
   projectsRoute,
 } from '@nocobase/app-plugin-projects/client/pages';
 
+import { createAppClientConfig } from '@nocobase/app-client';
+import { readAppClientRuntimeConfig } from '@nocobase/app-client/runtime';
+
+import { includeNotificationTemplateRoutes } from './pages/settings/notification-routes.js';
 import systemSettingsRoutes from './pages/settings/routes.js';
+import settingsShellRoutes from './pages/settings/shell-routes.js';
 
 /** A page the projects plugin's page grants open (`pm-issues`, `pm-my-issues`, `pm-projects`). */
 const pmPage = (id: string) =>
@@ -206,40 +211,53 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
 ]);
 
 /**
- * The projects plugin's settings pages, appended to the prepared Settings group: the issue prefix and the shared
- * labels. Each opens with the settings item the plugin registers and its endpoints check (`pm.general`, `pm.labels`).
+ * The projects plugin's settings pages, as cards on the System settings home: the issue prefix and the shared labels
+ * under Business, Git connections under System. Each opens with the settings item the plugin registers and its
+ * endpoints check (`pm.general`, `pm.labels`). The categories are pathless, so the URLs stay `/settings/<path>`.
  */
 const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
   {
     name: 'settingsIssuePrefix',
-    parent: 'settings',
+    parent: 'settingsBusiness',
     path: '/issue-prefix',
     auth: 'required',
     authz: { resource: { type: 'settings', id: 'pm.general' }, action: 'read' },
-    navigation: { title: 'navigation.issuePrefix', icon: Hash },
+    navigation: {
+      title: 'navigation.issuePrefix',
+      description: 'navigation.issuePrefixDescription',
+      icon: Hash,
+    },
     componentLoader: () => import('./pages/settings/projects-general.js'),
   },
   {
     name: 'settingsIssueLabels',
-    parent: 'settings',
+    parent: 'settingsBusiness',
     path: '/issue-labels',
     auth: 'required',
     authz: { resource: { type: 'settings', id: 'pm.labels' }, action: 'read' },
-    navigation: { title: 'navigation.issueLabels', icon: Tags },
+    navigation: {
+      title: 'navigation.issueLabels',
+      description: 'navigation.issueLabelsDescription',
+      icon: Tags,
+    },
     componentLoader: () => import('./pages/settings/projects-labels.js'),
   },
   {
     // GitHub connections and linked repositories. Every endpoint of `server/routes/git.ts` the page calls requires an
     // administrator: the `pm.members` `define-roles` settings item, which the page checks too.
     name: 'settingsGit',
-    parent: 'settings',
+    parent: 'settingsSystem',
     path: '/git',
     auth: 'required',
     authz: {
       resource: { type: 'settings', id: 'pm.members' },
       action: 'define-roles',
     },
-    navigation: { title: 'navigation.git', icon: GitBranch },
+    navigation: {
+      title: 'navigation.git',
+      description: 'navigation.gitDescription',
+      icon: GitBranch,
+    },
     componentLoader: () => import('./pages/settings/git.js'),
   },
 ]);
@@ -273,12 +291,24 @@ const agentRoutes: AppClientRouteContribution = defineAppRoutes([
 ]);
 
 // The application has business capabilities (projects and issues), so the prepared Users and Roles settings are
-// registered, and the projects plugin's settings join them.
-const routes: readonly AppClientRouteContribution[] = [
-  appRoutes,
-  agentRoutes,
-  systemSettingsRoutes,
-  projectSettingsRoutes,
-];
+// registered in the System settings shell, and the projects plugin's settings join them. The shell stays after the
+// agent pages so the sidebar keeps its order.
+export function createApplicationRoutes(
+  rawConfig: unknown = readAppClientRuntimeConfig(),
+): readonly AppClientRouteContribution[] {
+  const config = createAppClientConfig({ rawConfig });
+  return includeNotificationTemplateRoutes(
+    [
+      appRoutes,
+      agentRoutes,
+      settingsShellRoutes,
+      systemSettingsRoutes,
+      projectSettingsRoutes,
+    ],
+    config.get<boolean>('notificationTemplates.invitationConfigured') === true,
+  );
+}
+
+const routes: readonly AppClientRouteContribution[] = createApplicationRoutes();
 
 export default routes;

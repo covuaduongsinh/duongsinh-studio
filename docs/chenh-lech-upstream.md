@@ -466,3 +466,30 @@ Cách làm: khai báo `nocobase.cli` trong `package.json` (`bin: ds-studio`, `di
 
 - Thêm hệ thống phiếu review có cấu trúc (bảng `dsReviews`), cài đặt tự lái theo dự án (bảng `dsAutopilotSettings`), bộ đánh giá điều kiện tự merge 7 bước (`server/autopilot/evaluator.ts`), bộ lập lịch mở việc kế tiếp (`server/autopilot/scheduler.ts`, bảng `dsAutopilotIssueFlags`, thừa hưởng cờ từ epic), phát hiện đứng việc và xử lý giới hạn hạn mức (`server/autopilot/stall.ts`), giao diện cài đặt tự lái (`client/pages/projects/project-autopilot.tsx`), công tắc dừng khẩn cấp toàn hệ thống và bản tin digest 21:00 (`server/autopilot/digest.ts`).
 - **PostgreSQL transaction abort (25P02)**: Trong seed tạo user dịch vụ hệ thống `studio-autopilot` (`database/main/seeds/2026110803_ds_autopilot_user.ts`), không query thử các bảng trừu tượng/chưa có trong schema vật lý (như `authorizationAssignments`) để tránh huỷ toàn bộ transaction seed của PostgreSQL.
+
+## 23. U1 — Nâng template beta.86 → beta.88 (06/11/2026)
+
+Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc nâng đã là beta.89, không dùng). Quy trình: `docs/nang-cap.md`.
+
+- **Mailer (breaking ở `app-server` 5):** gỡ `@nocobase/app-server/mailer`; Studio không dùng API đó nên không phải sửa mã. Thêm
+  `server/config/mailers.ts` (mặc định rỗng) và `mailers` trong cấu hình; email vẫn chưa bật. `server/config/notification.ts` giữ kênh
+  `inbox` mặc định của Dương Sinh, TARGET để rỗng.
+- **Cấu trúc System settings mới của template** (kế hoạch U1 chưa nêu, skill bắt buộc gộp): một mục sidebar, trang chủ dạng thẻ theo nhóm, tab
+  trong module. Tiền tố và nhãn công việc vào `settingsBusiness`, Git vào `settingsSystem`; tên route, URL và `authz` không đổi. Các trang
+  Agent, Runner, Skill, Mức sử dụng, Mô hình vẫn nằm ở sidebar nghiệp vụ, chưa chuyển vào cấu trúc này.
+- **`autoSignIn: true` ở mặc định của template:** production giữ `false` trong `deploy/dokploy/config.yml`, không đổi hành vi. `config.yml` dev cũng khai `false`.
+- **Giữ của Dương Sinh:** trang đăng nhập navy, logo `ds-mark`, `StudioChatProvider`, `ChatPanel`, `ChatHeaderButton`. Tiêu đề đăng nhập vi-VN gộp thành hai dòng theo
+  layout mới, giữ nguyên câu chữ; chân sidebar `Cờ vua Dương Sinh · Studio` thay cho slogan NocoBase. Nút giao diện chuyển vào menu tài khoản theo template.
+- **Foundation quét mã nguồn khi khởi động (lệch tài liệu):** README ghi "không có warm-up job", nhưng `FoundationProvider.start()` gọi
+  `ensureScan()` mỗi khi chưa có snapshot cho phiên bản kernel đang chạy. Trên checkout mã nguồn, lần quét phân tích tĩnh toàn bộ TypeScript của
+  app, đồng bộ trong tiến trình (khoảng 45 giây với 82.000 dòng của Studio, RSS tới khoảng 800 MB) và không có tuỳ chọn tắt.
+  - Production không chạy nhánh này: bản phát hành không có `client/routes` nên plugin đọc `dist/server/foundation-modules.json`. Đã đo bản build trên bản sao
+    DB production: `healthz` sau 6 giây, RSS 614 MB.
+  - Test: mỗi DB mới đều quét lại, làm test và hook vượt timeout 30 giây. `tests/setup/skip-foundation-source-scan.ts` thay `ModuleSourceCache` bằng kết quả rỗng
+    **chỉ trong test**. Nên báo upstream; khi có tuỳ chọn tắt thì bỏ file này.
+- **Lỗi có sẵn trên `main` phát hiện khi đối chiếu mốc** (không do nâng cấp, đã sửa):
+  - `autopilot.ts`, `reviews.ts` mount ở gốc API với `routes.use('*', auth.required(...))`, làm mọi route đăng ký sau đó đòi phiên đăng nhập. Hậu quả **trên production từ bản
+    tự lái**: webhook GitHub trả 401, run token bị 403 ở `/cli/manifest`, đường dẫn API không tồn tại trả 401 thay vì 404. Đã thu hẹp về đúng path của từng router.
+  - `tests/server/agent-gate.test.ts` thiếu `studio.reviews/submit`; khoá `common.cancel` chưa khai báo nên nút Huỷ ở trang tự lái và tiền tố công việc hiện khoá thô.
+- **Migration khi nâng production:** chỉ `202611070002_foundation_snapshots` chạy (thêm một bảng rỗng, có `down`). `202610260001_ag_drop_directory_index` và
+  `202610260002_rel_bound_artifact_keys` đánh dấu `irreversible` nhưng `shouldRun` là false nên bỏ qua. Không lệch checksum.

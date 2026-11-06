@@ -12,6 +12,7 @@ const viVN: AppResource = {
   ...fileUi,
   ...agentChat,
   ...planCard,
+  common: { cancel: 'Huỷ' },
   navigation: {
     home: 'Trang chủ',
     open: 'Mở thanh điều hướng',
@@ -28,6 +29,9 @@ const viVN: AppResource = {
     myIssues: 'Công việc của tôi',
     projects: 'Dự án',
     issuePrefix: 'Tiền tố công việc',
+    issuePrefixDescription: 'Đặt tiền tố cho số hiệu công việc mới.',
+    issueLabelsDescription: 'Quản lý các nhãn dùng chung cho mọi dự án.',
+    gitDescription: 'Kết nối GitHub và liên kết các repo agent làm việc.',
     issueLabels: 'Nhãn công việc',
     agents: 'Agent',
     runtimes: 'Runner',

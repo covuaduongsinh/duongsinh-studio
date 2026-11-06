@@ -1,3 +1,4 @@
+import NotificationManagementProvider from './notification-management.js';
 import SubmissionProvider from './submission.js';
 import ProjectsAccessProvider from './projects-access.js';
 import AgentsAccessProvider from './agents-access.js';
@@ -17,6 +18,7 @@ import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   SubmissionProvider,
+  NotificationManagementProvider,
   ProjectsAccessProvider,
   AgentsAccessProvider,
   // The business actions come first: the defaults and the project manager below are given some of them.

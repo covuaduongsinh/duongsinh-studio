@@ -1,8 +1,8 @@
 # Dương Sinh Studio: application-specific decisions
 
-This application is Dương Sinh Studio, a self-built agent orchestration platform for Công ty CP Cờ vua Dương Sinh. The
-development plan lives outside this repository (`D:\code\nocobase\docs\plans\2026-11-01-nocobase-studio-ke-hoach-phat-trien.md`);
-Vietnamese operating notes live in `docs/`.
+This application is Dương Sinh Studio, a self-built agent orchestration platform for Công ty CP Cờ vua Dương Sinh. Plans from
+2026-11-06 onward live in `docs/plans/`; earlier ones stay in `D:\code\nocobase\docs\plans\` (read-only reference). Vietnamese
+operating notes live in `docs/`; moving to a newer NocoBase follows `docs/nang-cap.md`.
 
 ## Toolchain constraints
 
@@ -34,6 +34,13 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
 - For a contributor, "related" issues include every issue without a project. Private work belongs in a project with
   `visibility: 'members'`.
 - Record every mismatch between a published `@nocobase/*@beta` package and its README in `docs/chenh-lech-upstream.md`.
+
+## Tests
+
+- `tests/setup/skip-foundation-source-scan.ts` stubs Foundation's source scan in tests only, because every test starts on a fresh database and the
+  scan takes about 45 s on this application's source; see `docs/chenh-lech-upstream.md` section 23. Do not assert module associations in tests here.
+- A router mounted at the API root must scope its middleware to the paths it owns; `use('*')` there takes every later route with it, public webhooks
+  included. `tests/server/app-server.test.ts` and `tests/server/git-app.test.ts` catch this.
 
 ## Language
 
