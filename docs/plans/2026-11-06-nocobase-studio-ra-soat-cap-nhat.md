@@ -287,7 +287,15 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
 
 ## 7. Tiến độ
 
-- [ ] U1 — Nâng template + gói
+- [x] U1 — Nâng template + gói (06/11/2026)
+  - Commit: `82b4f3b` (sửa middleware), `d3f44b1` (nâng template), `010f990` (docs), merge `1246de1`.
+  - Cổng kiểm tra: lint, typecheck, `locales check` xanh; test 131/131 file, 656 test (server 120, client a–k 167, client l–z + project 369); build xanh; e2e `issue-flow` và 8 test
+    alignment xanh trên dev; 16 trang duyệt bằng trình duyệt không có API lỗi.
+  - Production: `1246de1` từ `cd6421a` (sao lưu `studio-before-1246de1-20261106-1332.dump`); runner `vps-studio-runner` beta.23; `nocobase.dsc.edu.vn` 200.
+  - Ca thật Sandbox DS-20: trưởng nhóm → dev → PR #4 → CI → review `approve` → `in_review` → autopilot merge → `done`. Xoá `needsYou` bằng tay để autopilot merge được (xem việc mở).
+  - Việc còn mở: (1) nguyên tắc trưởng nhóm luôn ghi `needsYou` nên autopilot không tự merge được trong luồng thật, chờ chủ dự án quyết định; (2) review chéo chạy bằng Claude Opus, không phải Codex như
+    kiểm chứng đầu-cuối mục 4 nêu; (3) chưa chạy ca thật trên Dương Sinh App; (4) `package.json` `version` vẫn `1.0.0-beta.86`, nên CLI `ds-studio` không có phiên bản mới để runner tải (nâng ở lần phát hành sau);
+    (5) trạng thái merge PR #4 lấy từ Studio, chưa đối chiếu trực tiếp trên GitHub.
 - [ ] U2 — Cơ chế mới của plugin
 - [ ] U3 — Tiến độ công việc, hàng đợi agent, run lỗi
 - [ ] U4 — Inbox hợp nhất, badge, Follow-ups, nhóm việc

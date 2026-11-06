@@ -493,3 +493,6 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
   - `tests/server/agent-gate.test.ts` thiếu `studio.reviews/submit`; khoá `common.cancel` chưa khai báo nên nút Huỷ ở trang tự lái và tiền tố công việc hiện khoá thô.
 - **Migration khi nâng production:** chỉ `202611070002_foundation_snapshots` chạy (thêm một bảng rỗng, có `down`). `202610260001_ag_drop_directory_index` và
   `202610260002_rel_bound_artifact_keys` đánh dấu `irreversible` nhưng `shouldRun` là false nên bỏ qua. Không lệch checksum.
+- **Runner trên VPS không cài bằng npm:** bản tự quản ở `~/.local/share/nocobase-runner`. Tải `storage/runners/dist/stable/nocobase-runner` mới lên là runner tự cập nhật qua heartbeat; `nocobase-runner update` làm ngay.
+- **`ds-studio issue update --needs-you null` ghi chuỗi `"null"`**, không xoá giá trị; xoá thật phải dùng `--file` với `{"needsYou":null}`.
+- **Autopilot không tự merge trong luồng thật (có sẵn từ AP):** nguyên tắc trưởng nhóm luôn ghi `needsYou` khi sang `in_review`, còn điều kiện 2 của bộ đánh giá đòi `needsYou` rỗng. Test và ca PR #3 đặt tay `needsYou: null` nên không lộ ra.

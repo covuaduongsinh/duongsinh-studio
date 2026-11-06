@@ -148,6 +148,7 @@ thống `studio-runner` (không sudo, không nhóm `docker`, mật khẩu khoá;
 `env.ENABLE_CLAUDEAI_MCP_SERVERS=false`). Dịch vụ: `systemctl --user` `nocobase-runner.service` (khi `su -` phải đặt
 `XDG_RUNTIME_DIR=/run/user/1002 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1002/bus`). Sau khi đăng nhập công cụ phải
 `systemctl --user restart nocobase-runner` thì runner mới báo `ready`. Không để khoá/token nào khác trong user này.
+Nâng runner: sau khi server lên bản mới, chép thư mục phiên bản và `manifest.json` từ `storage/runners/dist/stable/nocobase-runner` của máy dev vào cùng đường dẫn trên VPS (chủ sở hữu 1000:1000); runner tự cập nhật qua heartbeat, hoặc chạy `nocobase-runner update`.
 
 **Runner cá nhân trên máy dev** (`may-dev-duongsinh-prod`, ownerOnly): chỉ giữ **một** đăng ký cho mỗi ứng dụng cùng tên;
 đăng ký sang server khác phải `--force` rồi `nocobase-runner stop` / `start`. Hiện đang dừng (VPS lo việc).
