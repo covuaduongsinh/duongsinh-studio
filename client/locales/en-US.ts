@@ -15,6 +15,100 @@ const enUS = {
   // The application's copy goes here, one group per feature. A shared group such as `navigation` is extended by
   // spreading the system one first, `navigation: { ...systemEnUS.navigation, orders: 'Orders' }`, since a group
   // written here replaces the system group of the same name rather than merging with it.
+  issueWork: {
+    title: 'Progress',
+    current: 'Current',
+    next: 'Next',
+    needsYou: 'Needs you',
+    pullRequest: 'Pull request',
+    failed: 'That did not work. Please try again.',
+    handToManager: 'Hand to the project manager',
+    state: {
+      working: '{{agent}} is working',
+      queued: '{{agent}} is waiting for a runner',
+      checksPending: 'Waiting for checks',
+      needsDecision: 'Waiting for a decision',
+      waitingForContinuation: 'Held back by the run limit',
+      inReview: 'Waiting for acceptance',
+      notStarted: 'Not started',
+      finished: 'Finished',
+      idle: 'Nothing is running',
+    },
+    failedRun: {
+      title: 'An agent run failed',
+      description: 'Decide what happens to this step.',
+      retry: 'Try again',
+      reassign: 'Hand to another agent',
+      cancel: 'Stop',
+    },
+    limit: {
+      title: 'Agent work is held back',
+      description:
+        'Agents reached the limit of {{maxRuns}} runs from comments in {{windowHours}} hours.',
+      continue: 'Continue',
+    },
+    handoff: {
+      title: 'This issue was handed to you',
+      description: 'Accept it, or return it to its previous owner.',
+      accept: 'Accept',
+      reject: 'Return',
+    },
+    sendBack: {
+      action: 'Send back',
+      title: 'Send this issue back',
+      description:
+        'It returns to In progress, and the agent reads your reason.',
+      reason: 'What needs to change',
+    },
+    runs: {
+      title: 'Runs',
+      show: 'Show transcript',
+      hide: 'Hide transcript',
+      loading: 'Loading the transcript',
+      noEvents: 'This run has no transcript.',
+      status: {
+        queued: 'Queued',
+        dispatched: 'Starting',
+        running: 'Running',
+        completed: 'Completed',
+        failed: 'Failed',
+        cancelled: 'Cancelled',
+      },
+    },
+    queue: {
+      loading: 'Loading the agent queue',
+      failed: 'The agent queue could not be loaded.',
+      empty: 'No agent has work here.',
+      start: 'Start',
+      untilUnknown: 'unknown',
+      group: {
+        waiting: 'Waiting for people',
+        working: 'Working',
+        queued: 'Queued',
+        idle: 'Idle',
+      },
+      waiting: {
+        yours: {
+          review: 'Needs your acceptance',
+          question: 'Needs your answer',
+        },
+        other: {
+          review: 'Waiting for acceptance',
+          question: 'Waiting for an answer',
+        },
+      },
+      reason: {
+        toolQuota: 'Tool quota exhausted; resets {{until}}',
+        noRunnerOnline: 'No runner online',
+        next: 'Next for a free runner',
+      },
+      idle: {
+        backlog: 'In the backlog',
+        lastRun: 'The last run has ended',
+        neverRan: 'Has not started',
+      },
+    },
+  },
   common: { cancel: 'Cancel' },
   navigation: {
     ...systemEnUS.navigation,
@@ -61,6 +155,7 @@ const enUS = {
       label: 'View',
       list: 'List',
       board: 'Board',
+      queue: 'Agent queue',
     },
     search: 'Search issues',
     filters: {

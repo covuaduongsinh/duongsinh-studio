@@ -508,3 +508,12 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **Autopilot và `needsYou` (chủ dự án chọn sửa, 06/11):** lượt của trưởng nhóm trên project bật tự lái nhận thêm quy tắc `AUTOPILOT_ON_RULE`: bàn giao mà để trống `needsYou`, trừ khi có quyết định thật. Hệ quả có chủ ý: PR đạt đủ điều kiện sẽ tự merge không chờ chủ dự án.
 - **Lượt read-only** dùng `sessionPolicy: 'fresh'` để review độc lập với phiên làm việc; **trưởng nhóm** nhận tóm tắt các lượt trước qua `turn.fresh` (`runs.recentSummaries`).
 - **`work_skipped`:** hook `useIssueCommentActions` của plugin bỏ trường `skipped` của `POST comments`, nên Studio đọc từ activity `work_skipped` để hiện lý do (giới hạn 20 lượt/24 giờ…).
+
+## 25. U3 — Tiến độ công việc, hàng đợi agent, run lỗi (06/11/2026)
+
+- **Bàn giao owner và giới hạn lượt chạy suy ra từ activity** (`owner_changed`, `work_skipped`) của plugin, không tạo hàng đợi riêng; bảng chỉ lưu câu trả lời của người. `notificationKey` và `token` là UUID băm từ id activity, nên chỉ dùng được cho đúng lần đó.
+- **Giới hạn 20 lượt tính từ lần "Tiếp tục" gần nhất** (`dsCommentRunGrants`), trong cửa sổ 24 giờ; demo không nói rõ cách tính lại.
+- **Thêm trường `failedRunId` vào `StudioIssueProgress`** (lệch có chủ ý): thẻ run lỗi cần biết run nào đang chờ quyết định.
+- **`failedRuns/{id}/decide` với `reassign`:** có `userId` thì đổi người phụ trách; không có thì đánh thức trưởng nhóm để giao agent khác. `cancel` chỉ ghi nhận quyết định, không đổi trạng thái công việc.
+- **Test chập chờn:** `tests/client/permission-management-tabs.test.tsx` (template) có thể vượt timeout 30 giây khi máy dev bận; chạy riêng thì xanh.
+- **`DB_FILENAME` không có tác dụng trên dev** vì `config.yml` khai sẵn đường dẫn: thử sống dùng DB dev có sẵn. Muốn DB trắng phải đổi trong `config.yml`.

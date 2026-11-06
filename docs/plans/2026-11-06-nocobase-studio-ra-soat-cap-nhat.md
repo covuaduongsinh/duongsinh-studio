@@ -302,7 +302,11 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
   - `scripts/compare-studio-api.mjs`: 36/186 route Studio của demo đã có, còn thiếu 150.
   - Ca thật Sandbox DS-21, không can thiệp: trưởng nhóm tự để trống `needsYou`, autopilot tự merge PR #5, issue sang `done`. Tự lái Dương Sinh App bật lại sau ca này.
   - Việc còn mở: menu tài khoản chỉ có test client, chưa xem ảnh; chưa có ca thật trên Dương Sinh App.
-- [ ] U3 — Tiến độ công việc, hàng đợi agent, run lỗi
+- [x] U3 — Tiến độ công việc, hàng đợi agent, run lỗi (06/11/2026, chưa lên production)
+  - 19 route theo hợp đồng demo (`server/routes/issue-work.ts`), bảng `dsFailedRunDecisions`, `dsCommentRunGrants`, `dsOwnerHandoffDecisions`; trang công việc thêm khối Tiến độ, Lượt chạy, thẻ quyết định; `/issues` và `/my-issues` thêm chế độ Hàng đợi agent.
+  - Cổng kiểm tra: lint, typecheck, `locales check` xanh; test 137/137 file, 669 test (`permission-management-tabs` của template lỗi timeout một lần khi máy bận, chạy riêng xanh); build xanh; thử sống trên dev không có API lỗi.
+  - `compare-studio-api.mjs`: 55/186 route Studio của demo đã có, còn thiếu 131.
+  - Việc còn mở: `issuePanels` chưa có `versionProgress`, `decisions`, `offers`, `previews` (U4, U6); `issueProgress` chưa có `managerWait`, `personalRunnerRequests`, `waiting`; bảng danh sách của plugin không có chỗ gắn nhãn phụ nên "Cần bạn nghiệm thu / Agent đang làm" nằm ở chế độ Hàng đợi; dòng `step` có thể là tiếng Anh khi hệ thống tự đánh thức.
 - [ ] U4 — Inbox hợp nhất, badge, Follow-ups, nhóm việc
 - [ ] U5 — Dashboard
 - [ ] U6 — Thiết lập dự án, khoá tổ chức, git, tri thức, nợ S6.7

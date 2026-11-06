@@ -239,10 +239,7 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
       issueId: string,
     ): Promise<IssueRow> => {
       try {
-        return (await projects().issueQueries.visible(
-          viewer,
-          issueId,
-        )) as unknown as IssueRow;
+        return await projects().issueQueries.visible(viewer, issueId);
       } catch {
         throw notFound('Issue');
       }
@@ -406,14 +403,14 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
             .catch(() => null)
         : null;
       const firstInput = detail?.inputs?.[0] as { text?: string } | undefined;
-      const managerComment = (await conn()
+      const managerComment = await conn()
         .query.selectFrom('pmComments')
         .select('id')
         .where('issueId', '=', issue.id)
         .where('authorId', '=', PROJECT_MANAGER_ID)
         .where('deletedAt', 'is', null)
         .orderBy('createdAt', 'desc')
-        .executeTakeFirst()) as { id?: string } | undefined;
+        .executeTakeFirst();
       const progress = computeProgress({
         statusKey: issue.statusKey,
         needsYou: issue.needsYou,
@@ -1035,7 +1032,7 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
           ...(issue.statusKey === 'backlog'
             ? { statusKey: 'in_progress' }
             : {}),
-        } as never);
+        });
         const [open] = await agents().runs.openOn(
           conn(),
           { kind: ISSUE, id: issue.id },
@@ -1085,12 +1082,12 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
         const { comment } = await projects().comments.create(viewer, issue.id, {
           content: body.content,
           ...(body.attachmentIds ? { attachmentIds: body.attachmentIds } : {}),
-        } as never);
+        });
         await projects().issues.update(viewer, issue.id, {
           revision: body.revision,
           statusKey: 'in_progress',
           needsYou: null,
-        } as never);
+        });
         return context.json({ data: { commentId: comment.id } });
       },
     );
@@ -1176,7 +1173,7 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
             await projects().issues.update(viewer, issue.id, {
               revision: issue.revision,
               ownerUserId: userId,
-            } as never);
+            });
           } else {
             await startAgent(
               issue,
@@ -1267,12 +1264,12 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
           {
             ...viewer,
             actor: { type: 'agent', id: identity.agent?.id ?? agentId },
-          } as Viewer,
+          },
           issue.id,
           {
             content: body.content,
             ...(body.parentId ? { parentId: body.parentId } : {}),
-          } as never,
+          },
         );
         const [replacement] = await agents().runs.openOn(
           conn(),
@@ -1479,9 +1476,9 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
         requirePerson(context);
         const viewer = await viewerOf(context);
         const { issueId } = context.req.param() as { issueId: string };
-        const { notificationKey } = (await context.req.json()) as {
+        const { notificationKey } = await context.req.json<{
           notificationKey: string;
-        };
+        }>();
         const issue = await visibleIssue(viewer, issueId);
         const current = await handoffOf(
           viewer,
@@ -1511,7 +1508,7 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
           await projects().issues.update(viewer, issue.id, {
             revision: issue.revision,
             ownerUserId: current.handoff.previousOwnerUserId,
-          } as never);
+          });
         return context.json({
           data: {
             handoff: {

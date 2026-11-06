@@ -4,6 +4,8 @@
  * `useIssueUpdate`, `useIssuePageActions` and the activity hooks), and hosts the plugin's "New sub-issue" dialog
  * (`issueDetailChildRoutes`) at its outlet.
  */
+import { IssueProgressPanel } from './issue-progress.js';
+import { IssueRuns } from './issue-runs.js';
 import { useChatContextSource } from '@nocobase/app-plugin-agents/client/chat';
 import { ApiClientError } from '@nocobase/app-client';
 import {
@@ -358,6 +360,12 @@ function IssueDetailView({
               locale={locale}
               labels={fileLabels}
             />
+            <IssueProgressPanel
+              issueId={detail.id}
+              revision={detail.revision}
+              canEdit={canEditIssues(viewer)}
+              onChanged={refetchAfterMerge}
+            />
             <IssuePullRequests
               issueId={detail.id}
               canMerge={canCloseIssue(viewer, detail)}
@@ -365,6 +373,7 @@ function IssueDetailView({
             />
             <IssuePreview issueId={detail.id} />
             <IssueRelease issueId={detail.id} />
+            <IssueRuns issueId={detail.id} />
             {detail.acceptance ? (
               <IssueSection
                 icon={<ClipboardCheckIcon />}

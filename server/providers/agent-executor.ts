@@ -142,7 +142,7 @@ export function createAgentKind(deps: {
     const since = new Date(
       Math.max(
         Date.now() - COMMENT_RUN_WINDOW_MS,
-        grant?.continuedAt ? new Date(String(grant.continuedAt)).getTime() : 0,
+        grant?.continuedAt ? new Date(grant.continuedAt as string | Date).getTime() : 0,
       ),
     );
     const inputs = await agents.runs.inputsSince(

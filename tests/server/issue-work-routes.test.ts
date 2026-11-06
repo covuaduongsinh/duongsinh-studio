@@ -113,14 +113,14 @@ test(
     ];
     // Nobody signed in: 401, on every route.
     for (const path of [...readPaths, '/agentBoard'])
-      expect((await request(path)).status, path).toBe(401);
+      expect((await request(path)).status).toBe(401);
     expect(
       (await request(`/agentBoard/issues/${issue.id}/start`, json({}))).status,
     ).toBe(401);
 
     // A contributor who cannot see the issue gets nothing about it, and no board row.
     for (const path of readPaths)
-      expect((await contributor.fetch(path)).status, path).toBe(404);
+      expect((await contributor.fetch(path)).status).toBe(404);
     const contributorBoard = (
       await (await contributor.fetch('/agentBoard')).json()
     ).data as {

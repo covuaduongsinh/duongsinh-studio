@@ -32,7 +32,13 @@ import {
 import type { IssueListItem } from '@nocobase/app-plugin-projects/shared/issues';
 import { FIXED_STATUSES } from '@nocobase/app-plugin-projects/shared/statuses';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
-import { KanbanIcon, ListIcon, LoaderCircle, SearchIcon } from 'lucide-react';
+import {
+  BotIcon,
+  KanbanIcon,
+  ListIcon,
+  LoaderCircle,
+  SearchIcon,
+} from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 import { useHref, useNavigate } from 'react-router';
 
@@ -75,9 +81,10 @@ import {
   useStatusPresenter,
 } from './presentation.js';
 import { useReleaseLabels } from './release-labels.js';
+import { AgentQueueView } from './agent-queue.js';
 import { RouterAnchor } from './router-anchor.js';
 
-const VIEWS = ['list', 'board'] as const;
+const VIEWS = ['list', 'board', 'queue'] as const;
 const ALL = '__all__';
 
 /** The table's sortable columns and the order the API knows each by. */
@@ -305,9 +312,24 @@ export function IssueWorkspace({
             <KanbanIcon data-icon='inline-start' />
             {t('issues.view.board')}
           </ToggleGroupItem>
+          <ToggleGroupItem value='queue' aria-label={t('issues.view.queue')}>
+            <BotIcon data-icon='inline-start' />
+            {t('issues.view.queue')}
+          </ToggleGroupItem>
         </ToggleGroup>
       </div>
-      {view === 'board' ? (
+      {view === 'queue' ? (
+        <AgentQueueView
+          filters={{
+            q: filters.q,
+            projectId: filters.projectId,
+            labelId: filters.labelId,
+            ownerUserId: filters.ownerUserId,
+            executorId: filters.executorId,
+            involvesUserId: filters.involvesUserId,
+          }}
+        />
+      ) : view === 'board' ? (
         <IssueBoardView
           filters={filters}
           filtered={filtered}
