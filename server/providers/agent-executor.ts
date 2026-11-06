@@ -133,7 +133,18 @@ export function createAgentKind(deps: {
     conn: DatabaseConnection,
     issueId: string,
   ): Promise<number> => {
-    const since = new Date(Date.now() - COMMENT_RUN_WINDOW_MS);
+    const grant = await conn.query
+      .selectFrom('dsCommentRunGrants')
+      .select('continuedAt')
+      .where('issueId', '=', issueId)
+      .executeTakeFirst();
+    // Counted from the owner's last "continue" (`issueCommentRuns`), within the window.
+    const since = new Date(
+      Math.max(
+        Date.now() - COMMENT_RUN_WINDOW_MS,
+        grant?.continuedAt ? new Date(String(grant.continuedAt)).getTime() : 0,
+      ),
+    );
     const inputs = await agents.runs.inputsSince(
       conn,
       { kind: ISSUE_SUBJECT, id: issueId },
