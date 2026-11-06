@@ -101,6 +101,24 @@ const viVN: AppServerResource = {
       },
     },
   },
+  studioReports: {
+    actions: {
+      groupTitle: 'Báo cáo',
+      read: {
+        title: 'Đọc báo cáo',
+        description:
+          'Đọc số liệu giao việc, chi phí và nghiệm thu thay cho người đã gọi agent.',
+      },
+    },
+    metricsMessage:
+      'Số liệu từ {{from}} đến {{to}}\nSử dụng: {{activeDays}} ngày hoạt động trong {{activeWeeks}} tuần, {{activeMembers}} người, tạo {{issuesCreated}} công việc và {{commentsCreated}} bình luận.\nĐã giao: {{deliveredTotal}} công việc, agent làm {{deliveredByAgent}} (tỷ lệ {{share}}).\nReview: đạt {{passed}}, trả lại {{reworked}}.\nLượt chạy: {{runs}} lượt, xong {{completedRuns}}, lỗi {{failedRuns}}, mất {{lostRuns}}; chờ trung vị {{wait}}, chạy trung vị {{duration}}.\nToken: {{inputTokens}} vào và {{outputTokens}} ra.\nQuyết định: {{asked}} cần hỏi, {{decided}} đã quyết (trung vị {{resolve}}), {{open}} đang chờ.',
+    usageMessage:
+      'Mức dùng từ {{from}} đến {{to}} theo {{groupBy}}: {{runs}} lượt chạy, {{inputTokens}} token vào và {{outputTokens}} token ra.',
+    weekly: {
+      title: 'Báo cáo tuần {{from}} đến {{to}}',
+      body: '### Báo cáo tuần {{from}} đến {{to}}\n\n- **Công việc hoàn thành**: {{completed}} (tuần trước: {{completedBefore}})\n- **Chu kỳ trung vị**: {{cycle}}\n- **Do agent làm**: {{share}}\n- **Token mỗi công việc**: {{tokens}}\n- **Tỷ lệ chạy thành công**: {{success}} trên {{runs}} lượt\n- **Cần chú ý**: {{blocked}} bị vướng, {{overdue}} quá hạn, {{reviews}} chờ review, {{failed}} lượt chạy lỗi',
+    },
+  },
   studioReviews: {
     actions: {
       groupTitle: 'Review',

@@ -220,8 +220,37 @@ function reviewsSubmit(flags: Flags): StudioAction {
       flags,
     ),
     resource: { type: pmAccess.RESOURCE_TYPE, id: 'pm.issues' },
-    names: pmAccess.levelActionsOf('pm.issues/comment').map((level) => level.name),
+    names: pmAccess
+      .levelActionsOf('pm.issues/comment')
+      .map((level) => level.name),
     borrowed: true,
+  };
+}
+
+/** The business action reading `reports/metrics` and `reports/usage` from a run. */
+export const REPORTS_READ_ACTION = 'studio.reports/read';
+
+/** The page whose grant opens the dashboard and every report. */
+export const REPORTS_PAGE = 'reports';
+
+/**
+ * `studio.reports/read`: reading the figures as the person the run acts for. Studio's own action, held through the
+ * dashboard page's grant, and not borrowed: a run that may read reports is thereby let through that grant.
+ */
+function reportsRead(flags: Flags): StudioAction {
+  return {
+    option: option(
+      REPORTS_READ_ACTION,
+      'studio.reports',
+      {
+        title: appText('studioReports.actions.read.title'),
+        description: appText('studioReports.actions.read.description'),
+        groupTitle: appText('studioReports.actions.groupTitle'),
+      },
+      flags,
+    ),
+    resource: { type: 'page', id: REPORTS_PAGE },
+    names: ['access'],
   };
 }
 
@@ -247,6 +276,7 @@ export const STUDIO_ACTIONS: readonly StudioAction[] = [
   gitOpenPr({ defaultOn: true }),
   plansUse({ defaultOn: true }),
   reviewsSubmit({ defaultOn: true }),
+  reportsRead({}),
   // Agents see where a version is and read logs; deploying and marking production stay with people (S5.4).
   rel('view', { defaultOn: true }),
   rel('read-logs', { defaultOn: true }),

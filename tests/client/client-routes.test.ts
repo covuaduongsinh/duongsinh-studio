@@ -190,6 +190,7 @@ describe('app client routes', () => {
       { name: 'home', authorizedAs: null },
       { name: 'inbox', authorizedAs: null },
       { name: 'my-issues', authorizedAs: 'pm-my-issues' },
+      { name: 'dashboard', authorizedAs: 'reports' },
       { name: 'follow-ups', authorizedAs: 'pm-issues' },
       ...[
         'issues',

@@ -97,7 +97,13 @@ test('the access API manages Studio roles, members and the default role', async 
 
   // Stage S2 roles: the agent pages and skills editing (their own for Contributor, every one for Admin).
   expect(byKey.get('contributor')?.pages).toEqual(
-    expect.arrayContaining(['agents', 'runtimes', 'skills', 'usage']),
+    expect.arrayContaining([
+      'agents',
+      'runtimes',
+      'skills',
+      'usage',
+      'reports',
+    ]),
   );
   expect(byKey.get('contributor')?.abilities['agents.agents/edit']).toBe(
     'related',

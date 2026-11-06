@@ -107,6 +107,24 @@ const enUS = {
       },
     },
   },
+  studioReports: {
+    actions: {
+      groupTitle: 'Reports',
+      read: {
+        title: 'Read reports',
+        description:
+          'Read delivery, cost and acceptance figures for the person who woke the agent.',
+      },
+    },
+    metricsMessage:
+      'Metrics {{from}} to {{to}}\nAdoption: {{activeDays}} active days in {{activeWeeks}} weeks, {{activeMembers}} people, {{issuesCreated}} issues and {{commentsCreated}} comments created.\nDelivered: {{deliveredTotal}} issues, {{deliveredByAgent}} by agents (AI share {{share}}).\nReview: {{passed}} passed, {{reworked}} sent back.\nRuns: {{runs}} started, {{completedRuns}} completed, {{failedRuns}} failed, {{lostRuns}} lost; median wait {{wait}}, median run {{duration}}.\nTokens: {{inputTokens}} input and {{outputTokens}} output.\nDecisions: {{asked}} asked, {{decided}} decided (median {{resolve}}), {{open}} open.',
+    usageMessage:
+      'Usage {{from}} to {{to}} by {{groupBy}}: {{runs}} runs, {{inputTokens}} input and {{outputTokens}} output tokens.',
+    weekly: {
+      title: 'Weekly report {{from}} to {{to}}',
+      body: '### Weekly report {{from}} to {{to}}\n\n- **Issues completed**: {{completed}} (the week before: {{completedBefore}})\n- **Median cycle time**: {{cycle}}\n- **Completed by agents**: {{share}}\n- **Tokens per issue**: {{tokens}}\n- **Run success rate**: {{success}} of {{runs}} runs\n- **Needs attention**: {{blocked}} blocked, {{overdue}} overdue, {{reviews}} waiting for review, {{failed}} failed runs',
+    },
+  },
   studioReviews: {
     actions: {
       groupTitle: 'Reviews',

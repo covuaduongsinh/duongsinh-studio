@@ -88,8 +88,26 @@ const zhCN: AppServerResource = {
       groupTitle: '预览',
       previewsManage: {
         title: '管理拉取请求预览',
-        description: '创建、重试和撤下任务拉取请求的预览。可编辑任务的人都拥有此权限。',
+        description:
+          '创建、重试和撤下任务拉取请求的预览。可编辑任务的人都拥有此权限。',
       },
+    },
+  },
+  studioReports: {
+    actions: {
+      groupTitle: '报告',
+      read: {
+        title: '读取报告',
+        description: '代唤醒智能体的人读取交付、成本和验收数据。',
+      },
+    },
+    metricsMessage:
+      '{{from}} 至 {{to}} 的指标\n使用：{{activeWeeks}} 周内活跃 {{activeDays}} 天，{{activeMembers}} 人，创建 {{issuesCreated}} 个任务和 {{commentsCreated}} 条评论。\n交付：{{deliveredTotal}} 个任务，智能体完成 {{deliveredByAgent}} 个（占比 {{share}}）。\n评审：通过 {{passed}}，退回 {{reworked}}。\n运行：共 {{runs}} 次，完成 {{completedRuns}}，失败 {{failedRuns}}，丢失 {{lostRuns}}；等待中位数 {{wait}}，运行中位数 {{duration}}。\n令牌：输入 {{inputTokens}}，输出 {{outputTokens}}。\n决定：提出 {{asked}} 个，已决定 {{decided}} 个（中位数 {{resolve}}），待决定 {{open}} 个。',
+    usageMessage:
+      '{{from}} 至 {{to}} 按 {{groupBy}} 的用量：{{runs}} 次运行，输入 {{inputTokens}} 令牌，输出 {{outputTokens}} 令牌。',
+    weekly: {
+      title: '周报 {{from}} 至 {{to}}',
+      body: '### 周报 {{from}} 至 {{to}}\n\n- **完成任务**：{{completed}}（上周：{{completedBefore}}）\n- **周期中位数**：{{cycle}}\n- **智能体完成**：{{share}}\n- **每任务令牌**：{{tokens}}\n- **运行成功率**：{{runs}} 次中 {{success}}\n- **需要关注**：{{blocked}} 个受阻，{{overdue}} 个逾期，{{reviews}} 个等待评审，{{failed}} 次运行失败',
     },
   },
   studioReviews: {

@@ -68,6 +68,10 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-run-completed: var(--run-completed);
+  --color-run-failed: var(--run-failed);
+  --color-run-open: var(--run-open);
+  --color-run-cancelled: var(--run-cancelled);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

@@ -9,6 +9,7 @@ import {
   FolderKanban,
   GitBranch,
   Hash,
+  LayoutDashboard,
   Home,
   InboxIcon,
   Library,
@@ -137,6 +138,15 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     authz: pmPage('pm-my-issues'),
     navigation: { title: 'navigation.myIssues', icon: CircleUserRound },
     componentLoader: () => import('./pages/my-issues/index.js'),
+  },
+  {
+    // How delivery goes and what is stuck. The server limits every figure to what the viewer may see.
+    name: 'dashboard',
+    path: '/dashboard',
+    auth: 'required',
+    authz: pmPage('reports'),
+    navigation: { title: 'navigation.dashboard', icon: LayoutDashboard },
+    componentLoader: () => import('./pages/dashboard/index.js'),
   },
   {
     // The open issues the viewer takes part in. Whoever reaches issues reaches it; the server answers only those they see.

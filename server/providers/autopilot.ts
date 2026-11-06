@@ -1,4 +1,9 @@
 import type { Application } from '@nocobase/app-server/application';
+import { APP_NS } from '@nocobase/i18n';
+import { i18nToken } from '@nocobase/app-server/i18n';
+import { projectsAccessToken } from '@nocobase/app-plugin-projects/server/tokens';
+import { sendWeeklyReport } from '../reports/weekly.js';
+import { reportFiguresOf } from '../reports/wiring.js';
 import { jobExecutorServiceToken } from '@nocobase/app-server/jobs';
 import { databaseManagerToken } from '@nocobase/db';
 import type { ScheduleExecutor } from '@nocobase/jobs';
@@ -282,6 +287,43 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
           await digest.sendDailyDigest();
         } catch (error) {
           console.warn('Autopilot daily digest error:', error);
+        }
+      },
+    });
+
+    await this.executor.addJob({
+      name: 'reports-weekly',
+      options: { cron: '0 8 * * 1', tz: 'Asia/Ho_Chi_Minh' },
+      payload: {},
+      execute: async () => {
+        try {
+          await sendWeeklyReport({
+            figures: () => reportFiguresOf(container),
+            owners: () => this.ownerIds(),
+            notify: (notice) => this.notifyInbox(notice),
+            translate: async () => {
+              const i18n = container.resolve(i18nToken);
+              const locale = i18n.getDefaultLocale();
+              await i18n.ensureLocaleLoaded(locale);
+              const t = i18n.getFixedT(APP_NS, locale);
+              return (key, params) => t(key, params);
+            },
+            scopeOf: async (userId) => {
+              const access = container.resolve(projectsAccessToken);
+              return {
+                viewer: {
+                  userId,
+                  actor: { type: 'user', id: userId },
+                  permissions:
+                    (await access.permissionsOfUser?.(userId)) ?? ([] as never),
+                },
+                caller: { userId, allRuns: true },
+                subjects: true,
+              };
+            },
+          });
+        } catch (error) {
+          console.warn('Weekly report error:', error);
         }
       },
     });

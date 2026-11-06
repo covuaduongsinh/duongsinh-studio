@@ -13,6 +13,7 @@ import {
   roleOfSetKey,
   setKeyOfRole,
 } from './roles.js';
+import { REPORTS_PAGE } from '../agents/actions.js';
 
 /** How far a role reaches with one business action. */
 export type AbilityLevel = 'related' | 'all' | 'none';
@@ -41,6 +42,14 @@ const SOURCES: readonly AccessSource[] = [
   agentsAccess,
   kbAccess,
   releasesAccess,
+  // Studio's own page: the dashboard (`server/routes/reports.ts`).
+  {
+    PAGES: [REPORTS_PAGE],
+    SETTINGS_ACTIONS: {},
+    RESOURCE_TYPE: 'studio',
+    BUSINESS_KEYS: [],
+    levelActionsOf: () => [],
+  },
 ];
 
 interface BusinessEntry {

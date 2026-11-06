@@ -78,6 +78,11 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+  /* A run's outcome on the dashboard, in stacking order (`pages/dashboard/runs-chart.tsx`); checked as a set with the dataviz validator. */
+  --run-completed: #3f51c8;
+  --run-failed: #e5484d;
+  --run-open: #12a594;
+  --run-cancelled: #d29500;
   --sidebar: var(--card);
   --sidebar-foreground: var(--card-foreground);
   --sidebar-primary: color-mix(in srgb, var(--primary) 8%, var(--sidebar));
@@ -119,6 +124,10 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
+  --run-completed: #7384e6;
+  --run-failed: #e0555a;
+  --run-open: #14a08e;
+  --run-cancelled: #b98a12;
   --sidebar: var(--card);
   --sidebar-foreground: var(--card-foreground);
   --sidebar-primary: color-mix(in srgb, var(--primary) 8%, var(--sidebar));

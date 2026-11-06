@@ -419,15 +419,18 @@ export function createIssueSubject(deps: {
         const viewer = ids.length > 0 ? await deps.viewerOf(userId) : null;
         if (!viewer) return facts;
         for (let at = 0; at < ids.length; at += SUMMARY_BATCH)
-          for (const issue of await projects.issueQueries.summaries(
-            viewer,
-            ids.slice(at, at + SUMMARY_BATCH),
-          ))
-            facts.set(issue.id, {
-              label: `${issue.identifier} ${issue.title}`,
-              visible: true,
-              group: null,
-            });
+          for (const issue of (
+            await projects.reports.describe(
+              viewer,
+              ids.slice(at, at + SUMMARY_BATCH),
+            )
+          ).values())
+            if (issue.visible)
+              facts.set(issue.id, {
+                label: `${issue.identifier} ${issue.title}`,
+                visible: true,
+                group: issue.project,
+              });
         return facts;
       },
     },

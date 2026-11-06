@@ -524,3 +524,15 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **Hộp thư vào menu chính** (template để ngoài menu): không có nút nào khác dẫn tới `/inbox`.
 - **`app-layout.tsx` gọi `useNavigationCounts`** để truyền badge cho menu; lúc nâng template cần giữ. Hai test shell mock hook này.
 - **`StudioFollowingState`** dùng `{ following, stored }`; `/followUps` chỉ tính bình luận của người khác vào `unread`, chưa tính thay đổi khác.
+
+## 27. U5 — Dashboard (07/11/2026)
+
+- **Thẻ KPI thứ tư là token mỗi công việc, không phải chi phí mỗi công việc:** agent của Studio chạy bằng gói thuê bao. `reports/delivery` vẫn trả `costPerIssue` đúng hợp đồng và thêm `tokensPerIssue` ở `current`, `previous`, `buckets`.
+- **Biểu đồ lượt chạy dùng cột chồng tự vẽ thay cho vùng chồng của demo:** không kéo `echarts` vào trang, màu lấy từ token theme, có chú giải, tooltip và bảng số. Bốn token `--run-*` thêm vào `client/theme/themes/*.css` và `client/styles.css` (đã qua validator của skill `dataviz` ở nền sáng và tối); không đổi `--chart-*` vì `flow-diagram.tsx` đang dùng. Lúc nâng template cần giữ.
+- **`groupBy` của `reports/usage`:** theo enum của demo (`agent|person|project|issue|day|model|tool`), đổi sang `group`/`subject` khi gọi plugin. Không nhận `type` tuy mô tả của demo có nhắc tới.
+- **`SubjectFacts.group` giờ là project của công việc** (`server/providers/issue-subject.ts`), trước đó luôn `null`; nhờ vậy `?projectId=` và nhóm theo project mới có nghĩa.
+- **`statuses` của `reports/metrics`** dùng ngưỡng của Studio (`METRIC_TARGETS`), demo không công bố ngưỡng: agent làm ≥ 50%, review đạt ≥ 80%, chờ nhận ≤ 30 giây, không mất run, quyết định ≤ 1 ngày.
+- **`humanLoad`** chỉ tính hai loại quyết định Studio lưu lại (`failedRun`, `ownerHandoff`); `openDecisions` đếm công việc có `needsYou` hoặc chờ nghiệm thu. Demo tính từ thông báo quyết định.
+- **`failedRuns` của `reports/attention`** bỏ cả run đã có quyết định, không chỉ run đã gửi lại.
+- **`meta.message`** của `reports/metrics` và `reports/usage` viết theo ngôn ngữ mặc định của ứng dụng; không có dòng chi phí vì Studio dùng gói thuê bao.
+- **Quyền:** trang `reports` nằm trong catalog vai trò (`server/access/access-service.ts`), seed `202611090001_ds_roles_reports` cấp cho Admin và Contributor. Hành động `studio.reports/read` trỏ thẳng vào quyền trang đó và không `borrowed`, nên run được qua cổng trang khi agent có hành động này.
