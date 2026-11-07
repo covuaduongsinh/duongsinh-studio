@@ -97,6 +97,9 @@ const zhCN: AppServerResource = {
     },
   },
   studioOrgKeys: {
+    checksTitle: '上报检查',
+    checksDescription: '允许 CI 上报其仓库的检查结果。',
+    report: '上报检查',
     section: 'Studio',
     settingsTitle: '组织 API 密钥',
     read: '查看',

@@ -64,6 +64,7 @@ describe('default Foundation integration', () => {
         'settingsSystem',
         [
           ['settingsGit', '/settings/git'],
+          ['settingsOrganizationKeys', '/settings/organization-keys'],
           ['foundation', '/foundation'],
         ],
       ],

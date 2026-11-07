@@ -120,6 +120,17 @@ test(
     expect([401, 403]).toContain(
       (await withKey(created.secret, '/organizationKeys')).status,
     );
+    // Nor does the owner's own key without a scope, which otherwise is the owner.
+    const ownKey = (
+      (await (
+        await admin.fetch(
+          '/apiKeys',
+          json({ name: 'Của tôi', expiresInDays: 1, scope: null }),
+        )
+      ).json()) as { data: { secret: string } }
+    ).data.secret;
+    for (const path of ['/organizationKeys', '/organizationKeys/scopeOptions'])
+      expect((await withKey(ownKey, path)).status).toBe(403);
     // The scope narrows: this key reaches Apps, not issues, and a key for issues reaches them.
     expect(
       (

@@ -111,6 +111,10 @@ const enUS = {
     },
   },
   studioOrgKeys: {
+    checksTitle: 'Report checks',
+    checksDescription:
+      'Lets CI report the checks of a repository whose checks come from it.',
+    report: 'Report checks',
     section: 'Studio',
     settingsTitle: 'Organization API keys',
     read: 'View',

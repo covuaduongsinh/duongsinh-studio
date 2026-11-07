@@ -9,6 +9,7 @@ import {
 import {
   ApiKeyRequestError,
   ApiKeyScopeError,
+  isApiKeySession,
   scopedApiKeysToken,
   toApiKeysApiError,
 } from '@nocobase/app-plugin-api-keys/server';
@@ -150,7 +151,11 @@ export const organizationKeyRoutes: AppApiRouteContribution<Application> =
     ): Promise<string> => {
       const session = context.get('auth');
       if (!session) throw denied('Sign in first.');
-      if (session.credential)
+      // `credential` is a run's token; an API key, scoped or not, reads as its owner's session.
+      if (
+        session.credential ||
+        isApiKeySession(session, context.req.raw.headers)
+      )
         throw denied('Organization keys are managed from a signed-in session.');
       const allowed = await context.get('authz').can({
         resource: { type: 'settings', id: SETTINGS },
@@ -328,7 +333,7 @@ export const organizationKeyRoutes: AppApiRouteContribution<Application> =
       async (context) => {
         const userId = await require(context, 'manage');
         const body = context.req.valid('json');
-        await requireHeld(userId, body.scope as KeyScopeInput);
+        await requireHeld(userId, body.scope);
         const created = await guarded(() =>
           keys().create(
             ORGANIZATION_KEYS_USER,
@@ -449,7 +454,7 @@ export const organizationKeyRoutes: AppApiRouteContribution<Application> =
         const userId = await require(context, 'manage');
         const { keyId } = context.req.valid('param');
         const { scope } = context.req.valid('json');
-        await requireHeld(userId, scope as KeyScopeInput);
+        await requireHeld(userId, scope);
         const updated = await guarded(() =>
           keys().setScope(
             ORGANIZATION_KEYS_USER,

@@ -45,7 +45,10 @@ const SOURCES: readonly AccessSource[] = [
   // Studio's own page: the dashboard (`server/routes/reports.ts`).
   {
     PAGES: [REPORTS_PAGE],
-    SETTINGS_ACTIONS: { 'studio.apiKeys': ['read', 'manage'] },
+    SETTINGS_ACTIONS: {
+      'studio.apiKeys': ['read', 'manage'],
+      'studio.checks': ['report'],
+    },
     RESOURCE_TYPE: 'studio',
     BUSINESS_KEYS: [],
     levelActionsOf: () => [],

@@ -16,6 +16,10 @@ const GRANT: Grant = {
   resource: { type: 'settings', id: 'studio.apiKeys' },
   actions: [{ action: 'read' }, { action: 'manage' }],
 };
+const CHECKS: Grant = {
+  resource: { type: 'settings', id: 'studio.checks' },
+  actions: [{ action: 'report' }],
+};
 
 function parseGrants(value: unknown): Grant[] {
   let parsed: unknown = value;
@@ -70,7 +74,7 @@ export default defineSeed({
     await query
       .updateTable('authorizationPermissionSets')
       .set({
-        grants: JSON.stringify([...grants, GRANT]),
+        grants: JSON.stringify([...grants, GRANT, CHECKS]),
         // A new revision, so an editor holding the old one gets a conflict instead of overwriting this change.
         revision: randomUUID(),
         updatedAt: new Date(),

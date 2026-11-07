@@ -40,11 +40,15 @@ import {
   runIdentityOf,
   type CallerIdentity,
 } from '@nocobase/app-plugin-agents/server/tokens';
+import { isApiKeySession } from '@nocobase/app-plugin-api-keys/server';
 import { OPEN_PR_ACTION } from '../agents/actions.js';
-import { ISSUE_BRANCH_PREFIX } from '../agents/ids.js';
+import { ISSUE_BRANCH_PREFIX, ISSUE_SUBJECT } from '../agents/ids.js';
+import { FORCEABLE_BLOCKERS } from '../git/pull-state.js';
+import { str, type Row } from '../git/rows.js';
 import { gitServiceToken } from '../providers/git.js';
 import {
   GitError,
+  type GitConnectionView,
   type GitPullRequestView,
   type GitRepositoryView,
 } from '../git/service.js';
@@ -227,6 +231,7 @@ const PullRequestSchema = z
     checks: z.array(CheckSchema),
     issueId: z.string().nullable(),
     linkedBy: z.string().nullable(),
+    autoCompleteDisabled: z.boolean(),
     mergedAt: z.string().nullable(),
     mergedBy: z.object({ id: z.string() }).nullable(),
     mergeForcedReason: z.string().nullable(),
@@ -241,6 +246,105 @@ const PullRequestSchema = z
     updatedAt: z.string(),
   })
   .meta({ ref: 'StudioGitPullRequest' });
+
+const ConnectionChoice = z
+  .object({
+    id: z.string(),
+    provider: z.literal('github'),
+    kind: z.string(),
+    name: z.string(),
+    account: z.string().nullable(),
+  })
+  .meta({ ref: 'StudioGitConnectionChoice' });
+
+const AuthorizationSchema = z
+  .object({
+    connectionId: z.string(),
+    login: z.string(),
+    method: z.literal('token'),
+    connectedAt: z.string(),
+  })
+  .meta({ ref: 'StudioGitPersonalAuthorization' });
+
+const ResourceSchema = z.object({
+  repo: z.string(),
+  webUrl: z.string(),
+  connection: ConnectionChoice,
+  branchRules: z.array(z.string()),
+  wakeOnChecks: z.boolean(),
+  wakeOnChecksPassed: z.boolean(),
+  wakeOnConflict: z.boolean(),
+  referenceChecks: z.array(z.string()),
+  checksSource: ChecksSource,
+  polledAt: z.string().nullable(),
+  pollError: z.string().nullable(),
+  pollSeconds: z.number(),
+  webhookMode: z.literal('connection'),
+  hasWebhookSecret: z.boolean(),
+  webhookError: z.string().nullable(),
+});
+
+const CheckStatus = z.enum(['pending', 'success', 'failure']);
+
+const ReportedCheckSchema = z
+  .object({
+    repo: z.string(),
+    sha: z.string(),
+    name: z.string(),
+    status: CheckStatus,
+    source: z.enum(['ci', 'agent']),
+    url: z.string().nullable(),
+    summary: z.string().nullable(),
+    runId: z.string().nullable(),
+    reportedAt: z.string(),
+    pullRequests: z.array(z.object({ repo: z.string(), number: z.number() })),
+  })
+  .meta({ ref: 'StudioReportedCheck' });
+
+const ReportedChecksSchema = z
+  .object({
+    source: z.enum(['ci', 'agent']).nullable(),
+    sha: z.string().nullable(),
+    lastReportAt: z.string().nullable(),
+    checks: z.array(
+      z.object({
+        name: z.string(),
+        status: CheckStatus,
+        url: z.string().nullable(),
+        reportedAt: z.string(),
+      }),
+    ),
+  })
+  .meta({ ref: 'StudioRepositoryReportedChecks' });
+
+const CheckMergeSchema = z.object({
+  blocker: MergeBlocker.nullable(),
+  method: z.literal('squash'),
+  headSha: z.string(),
+  baseRef: z.string(),
+  commitTitle: z.string(),
+  failedChecks: z.array(
+    z.object({ name: z.string(), url: z.string().nullable() }),
+  ),
+  referenceFailures: z.array(
+    z.object({ name: z.string(), url: z.string().nullable() }),
+  ),
+  canForce: z.boolean(),
+});
+
+const ReportCheckBody = z.object({
+  repository: z.string().optional(),
+  sha: z.string().optional(),
+  branch: z.string().optional(),
+  changeRequest: z.number().int().optional(),
+  name: z.string().min(1),
+  status: CheckStatus.optional(),
+  exitCode: z.number().int().optional(),
+  url: z.string().optional(),
+  summary: z.string().optional(),
+});
+
+const ResourceParams = z.object({ resourceId: z.string() });
 
 const ConnectionParams = z.object({ connectionId: z.string() });
 const PullParams = z.object({ pullRequestId: z.string() });
@@ -357,6 +461,21 @@ function pullNotFound(id: string): ApiError {
     message: `Pull request ${id} does not exist.`,
   });
 }
+
+const choiceOf = (connection: GitConnectionView) => ({
+  id: connection.id,
+  provider: connection.provider,
+  kind: connection.kind,
+  name: connection.name,
+  account: connection.account,
+});
+
+const authorizationOf = (row: Row) => ({
+  connectionId: str(row.connectionId),
+  login: str(row.login),
+  method: 'token' as const,
+  connectedAt: new Date(row.connectedAt as string | Date).toISOString(),
+});
 
 /**
  * Git hosting (`/api/git/*` and `/api/projects/{projectId}/codeLocations`, the Studio demo's contract): token
@@ -560,8 +679,18 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
 
     // Connections are for people only; repositories and pull requests also take a run's token (each handler still
     // refuses what only a person does), which `required()` accepts only when the route opts in to scoped credentials.
-    for (const path of ['/connections', '/connections/*'])
+    for (const path of [
+      '/connections',
+      '/connections/*',
+      '/status',
+      '/authorizations',
+      '/authorizations/*',
+      '/resources',
+      '/resources/*',
+    ])
       git.use(path, auth.required(), authz.middleware());
+    for (const path of ['/checks', '/commitChecks'])
+      git.use(path, auth.required({ scopedKeys: true }), authz.middleware());
     for (const path of [
       '/repositories',
       '/repositories/*',
@@ -995,6 +1124,902 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
         return context.json({
           data: await guarded(context, () =>
             service().refreshPullRequest(pullRequestId),
+          ),
+        });
+      },
+    );
+
+    /** Who may decide about a pull request: the linked issue's owner, its project lead or an administrator. */
+    const mayDecide = async (
+      context: Context<Env>,
+      pull: GitPullRequestView,
+      action: 'pm.issues/close' | 'pm.issues/edit',
+    ): Promise<boolean> => {
+      const viewer = await viewerOf(context);
+      if (!pull.issueId) return can(context, 'pm.members', 'define-roles');
+      const issue = await visibleIssue(viewer, pull.issueId);
+      const scope = viewer.permissions.scopes[action];
+      if (!issue || !scope) return false;
+      return (
+        scope === 'all' ||
+        reaches(scope, issue.ownerUserId) ||
+        (issue.projectId !== null &&
+          reaches(
+            scope,
+            (await projects().projects.get(viewer, issue.projectId)).lead?.id,
+          ))
+      );
+    };
+
+    const decidablePull = async (
+      context: Context<Env>,
+      id: string,
+      action: 'pm.issues/close' | 'pm.issues/edit',
+    ): Promise<GitPullRequestView> => {
+      const pull = await readablePull(context, id);
+      if (!(await mayDecide(context, pull, action)))
+        throw denied(
+          'Only the issue’s owner, its project lead or an administrator decides this.',
+        );
+      return pull;
+    };
+
+    /** A project manager of one of the repository's projects, or an administrator. */
+    const requireRepositoryManager = async (
+      context: Context<Env>,
+      repository: GitRepositoryView,
+    ): Promise<void> => {
+      if (await can(context, 'pm.members', 'define-roles')) return;
+      const viewer = await viewerOf(context);
+      for (const link of repository.projects) {
+        const access = await projects().projects.accessTo(viewer, {
+          projectId: link.projectId,
+        });
+        if (access?.manage === true) return;
+      }
+      throw denied('A manager of the repository’s project changes this.');
+    };
+
+    /** A repository as `git/resources/{id}` answers it. */
+    const resourceOf = async (repository: GitRepositoryView) => {
+      const connection = await service().getConnection(repository.connectionId);
+      return {
+        repo: repository.repo,
+        webUrl: repository.webUrl,
+        connection: {
+          id: connection.id,
+          provider: connection.provider,
+          kind: connection.kind,
+          name: connection.name,
+          account: connection.account,
+        },
+        branchRules: [`${repository.branchPrefix}*`],
+        wakeOnChecks: false,
+        wakeOnChecksPassed: false,
+        wakeOnConflict: false,
+        referenceChecks: repository.referenceChecks,
+        checksSource: repository.checksSource,
+        polledAt: repository.polledAt,
+        pollError: repository.pollError,
+        pollSeconds: repository.pollSeconds,
+        webhookMode: 'connection' as const,
+        hasWebhookSecret: false,
+        webhookError: null,
+      };
+    };
+
+    const seenRepository = async (
+      context: Context<Env>,
+      id: string,
+    ): Promise<GitRepositoryView> => {
+      const repository = await guarded(context, () =>
+        service().getRepository(id),
+      );
+      // For whoever sees one of its projects; reading agents is not enough here.
+      const viewer = await viewerOf(context);
+      let seen = await can(context, 'pm.members', 'define-roles');
+      for (const link of repository.projects) {
+        if (seen) break;
+        const access = await projects().projects.accessTo(viewer, {
+          projectId: link.projectId,
+        });
+        seen = access?.visible === true;
+      }
+      if (!seen)
+        throw new ApiError({
+          status: 'NOT_FOUND',
+          reason: 'GIT_REPOSITORY_NOT_FOUND',
+          domain: DOMAIN,
+          message: 'No such repository.',
+        });
+      return repository;
+    };
+
+    git.get(
+      '/status',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Whether a code host is connected',
+        description:
+          'For anyone signed in: whether any connection to a code host exists, the connections to pick from, and whether the caller manages them.',
+        operationId: 'studioGitStatus',
+        ...cliRoute({ command: 'git status' }),
+        responses: {
+          '200': dataResponse(
+            z.object({
+              enabled: z.boolean(),
+              connections: z.array(ConnectionChoice),
+              canManage: z.boolean(),
+            }),
+          ),
+          ...apiErrorResponses,
+        },
+      }),
+      async (context) => {
+        const connections = await service().listConnections();
+        return context.json({
+          data: {
+            enabled: connections.length > 0,
+            connections: connections.map(choiceOf),
+            canManage: await can(context, 'pm.members', 'define-roles'),
+          },
+        });
+      },
+    );
+
+    git.patch(
+      '/connections/:connectionId',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Rename a connection or replace its token',
+        description:
+          'For whoever manages the connections. A field left out stays; a new token is checked on the host first and never returned.',
+        operationId: 'studioGitUpdateConnection',
+        ...cliRoute({ command: 'git connection update' }),
+        responses: {
+          '200': dataResponse(ConnectionSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ConnectionParams),
+      apiValidator(
+        'json',
+        z.object({
+          name: z.string().trim().min(1).max(100).optional(),
+          token: z.string().trim().min(1).max(1_000).optional(),
+        }),
+      ),
+      async (context) => {
+        await requireAdmin(context);
+        const { connectionId } = context.req.valid('param');
+        const { name, token } = context.req.valid('json');
+        return context.json({
+          data: await guarded(context, () =>
+            service().updateConnection(connectionId, {
+              ...(name ? { name } : {}),
+              ...(token ? { token } : {}),
+            }),
+          ),
+        });
+      },
+    );
+
+    git.get(
+      '/connections/:connectionId/usage',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'What goes through a connection',
+        description:
+          'For whoever manages the connections: the project repositories linked through it. Reads no secret.',
+        operationId: 'studioGitConnectionUsage',
+        ...cliRoute({ command: 'git connection usage' }),
+        responses: {
+          '200': dataResponse(
+            z.array(
+              z.object({
+                resourceId: z.string(),
+                projectId: z.string(),
+                projectName: z.string(),
+                repo: z.string(),
+              }),
+            ),
+          ),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ConnectionParams),
+      async (context) => {
+        await requireAdmin(context);
+        const { connectionId } = context.req.valid('param');
+        const viewer = await viewerOf(context);
+        const repositories = await guarded(context, () =>
+          service().connectionUsage(connectionId),
+        );
+        const data = [];
+        for (const repository of repositories)
+          for (const link of repository.projects) {
+            const access = await projects().projects.accessTo(viewer, {
+              projectId: link.projectId,
+            });
+            if (access?.visible !== true) continue;
+            data.push({
+              resourceId: repository.id,
+              projectId: link.projectId,
+              projectName: (
+                await projects().projects.get(viewer, link.projectId)
+              ).name,
+              repo: repository.repo,
+            });
+          }
+        return context.json({ data, meta: { total: data.length } });
+      },
+    );
+
+    git.get(
+      '/authorizations',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'The connections you connected your own account through',
+        description:
+          'For the signed-in person: each connection, how they may connect (a personal token), and whether they did. The token is never sent back.',
+        operationId: 'studioGitListAuthorizations',
+        ...cliRoute({ command: 'git authorization list' }),
+        responses: {
+          '200': dataResponse(z.object({ hosts: z.array(z.unknown()) })),
+          ...apiErrorResponses,
+        },
+      }),
+      async (context) => {
+        const userId = personId(context);
+        const { connections, rows } =
+          await service().listAuthorizations(userId);
+        return context.json({
+          data: {
+            hosts: connections.map((connection) => {
+              const row = rows.find(
+                (item) => str(item.connectionId) === connection.id,
+              );
+              return {
+                connection: choiceOf(connection),
+                methods: ['token'],
+                authorization: row ? authorizationOf(row) : null,
+              };
+            }),
+          },
+        });
+      },
+    );
+
+    git.post(
+      '/authorizations/:connectionId/useToken',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Connect your own account with a token',
+        description:
+          'Checks the token by calling the host as it, then stores it sealed as the caller’s authorization. The token is never sent back.',
+        operationId: 'studioGitUseToken',
+        ...cliRoute({ command: 'git authorization use-token' }),
+        responses: {
+          '200': dataResponse(AuthorizationSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ConnectionParams),
+      apiValidator('json', z.object({ token: z.string().trim().min(1) })),
+      async (context) => {
+        const userId = personId(context);
+        const { connectionId } = context.req.valid('param');
+        const { token } = context.req.valid('json');
+        const stored = await guarded(context, () =>
+          service().useToken(userId, connectionId, token),
+        );
+        return context.json({
+          data: {
+            connectionId,
+            login: stored.login,
+            method: 'token' as const,
+            connectedAt: stored.connectedAt,
+          },
+        });
+      },
+    );
+
+    git.delete(
+      '/authorizations/:connectionId',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Forget your authorization',
+        operationId: 'studioGitForgetAuthorization',
+        ...cliRoute({ command: 'git authorization delete' }),
+        responses: {
+          '204': { description: 'Forgotten.' },
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('param', ConnectionParams),
+      async (context) => {
+        const userId = personId(context);
+        await service().forgetAuthorization(
+          userId,
+          context.req.valid('param').connectionId,
+        );
+        return context.body(null, 204);
+      },
+    );
+
+    git.get(
+      '/resources/:resourceId',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Read a repository’s settings',
+        description:
+          'For whoever sees the project. `wakeOn*` stay false: Studio wakes agents through autopilot, not by these rules. No secret is sent back.',
+        operationId: 'studioGitGetResource',
+        ...cliRoute({ command: 'git resource get' }),
+        responses: {
+          '200': dataResponse(ResourceSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ResourceParams),
+      async (context) =>
+        context.json({
+          data: await resourceOf(
+            await seenRepository(
+              context,
+              context.req.valid('param').resourceId,
+            ),
+          ),
+        }),
+    );
+
+    git.patch(
+      '/resources/:resourceId',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Change a repository’s settings',
+        description:
+          'For the project’s managers. `branchRules` takes one rule, `<prefix>*`. Setting a `wakeOn*` rule answers 400 `WAKE_RULES_UNAVAILABLE`: Studio wakes agents through autopilot.',
+        operationId: 'studioGitUpdateResource',
+        ...cliRoute({ command: 'git resource update' }),
+        responses: {
+          '200': dataResponse(ResourceSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ResourceParams),
+      apiValidator(
+        'json',
+        z.object({
+          checksSource: ChecksSource.optional(),
+          referenceChecks: z.array(z.string().min(1)).optional(),
+          branchRules: z.array(z.string().min(1)).optional(),
+          wakeOnChecks: z.boolean().optional(),
+          wakeOnChecksPassed: z.boolean().optional(),
+          wakeOnConflict: z.boolean().optional(),
+        }),
+      ),
+      async (context) => {
+        const repository = await seenRepository(
+          context,
+          context.req.valid('param').resourceId,
+        );
+        await requireRepositoryManager(context, repository);
+        const body = context.req.valid('json');
+        if (
+          body.wakeOnChecks !== undefined ||
+          body.wakeOnChecksPassed !== undefined ||
+          body.wakeOnConflict !== undefined
+        )
+          throw new ApiError({
+            status: 'INVALID_ARGUMENT',
+            reason: 'WAKE_RULES_UNAVAILABLE',
+            domain: DOMAIN,
+            message:
+              'Studio wakes agents through autopilot, not by these rules.',
+          });
+        let branchPrefix: string | undefined;
+        if (body.branchRules) {
+          const [rule] = body.branchRules;
+          if (body.branchRules.length !== 1 || !rule?.endsWith('*'))
+            throw new ApiError({
+              status: 'INVALID_ARGUMENT',
+              reason: 'BRANCH_RULE_UNSUPPORTED',
+              domain: DOMAIN,
+              message: 'branchRules takes one rule of the form `<prefix>*`.',
+            });
+          branchPrefix = rule.slice(0, -1);
+        }
+        return context.json({
+          data: await resourceOf(
+            await guarded(context, () =>
+              service().updateRepository(repository.id, {
+                ...(body.checksSource
+                  ? { checksSource: body.checksSource }
+                  : {}),
+                ...(body.referenceChecks
+                  ? { referenceChecks: body.referenceChecks }
+                  : {}),
+                ...(branchPrefix ? { branchPrefix } : {}),
+              }),
+            ),
+          ),
+        });
+      },
+    );
+
+    git.get(
+      '/resources/:resourceId/reportedChecks',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'The checks reported on a repository last',
+        description:
+          'For whoever sees the project. The commit an external CI (`ci`) or agents’ runs (`agent`) reported checks on last, with each check’s latest report; the repository’s own source when `source` is left out. Empty while nothing was reported.',
+        operationId: 'studioGitReportedChecks',
+        ...cliRoute({ command: 'git resource reported-checks' }),
+        responses: {
+          '200': dataResponse(ReportedChecksSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ResourceParams),
+      apiValidator(
+        'query',
+        z.object({ source: z.enum(['ci', 'agent']).optional() }),
+      ),
+      async (context) => {
+        const repository = await seenRepository(
+          context,
+          context.req.valid('param').resourceId,
+        );
+        return context.json({
+          data: await service().reportedChecksOf(
+            repository.id,
+            context.req.valid('query').source ?? null,
+          ),
+        });
+      },
+    );
+
+    git.post(
+      '/resources/:resourceId/repairWebhook',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Repair a repository’s own webhook',
+        description:
+          'For project managers, on a host where Studio creates one webhook per repository. On GitHub webhooks belong to the App, so this answers 400 `WEBHOOK_NOT_PER_REPOSITORY`.',
+        operationId: 'studioGitRepairWebhook',
+        ...cliRoute({ command: 'git resource repair-webhook' }),
+        responses: {
+          '200': dataResponse(ResourceSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ResourceParams),
+      async (context) => {
+        const repository = await seenRepository(
+          context,
+          context.req.valid('param').resourceId,
+        );
+        await requireRepositoryManager(context, repository);
+        throw new ApiError({
+          status: 'INVALID_ARGUMENT',
+          reason: 'WEBHOOK_NOT_PER_REPOSITORY',
+          domain: DOMAIN,
+          message:
+            'On GitHub, webhooks belong to the App, not to a repository.',
+        });
+      },
+    );
+
+    git.post(
+      '/checks',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Report a check on a commit',
+        description:
+          'For a repository whose checks are reported rather than read from its code host: its one check source decides who may report. "External CI" takes an organization API key with `studio.checks`; "Agent self-check" takes an agent’s run on an issue, for its project’s repositories and only the head of a pull request linked to that issue. Any other source is refused (`CHECKS_FROM_HOST`, `CHECKS_FROM_EXTERNAL_CI`, `CHECKS_FROM_AGENT`). The latest report of a name on a commit replaces the one before, and the reports are the checks of the open pull requests at that head.',
+        operationId: 'studioGitReportCheck',
+        security: PERSON_OR_RUN,
+        ...cliRoute({ command: 'check report' }),
+        responses: {
+          '201': dataResponse(ReportedCheckSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('json', ReportCheckBody),
+      async (context) => {
+        const body = context.req.valid('json');
+        const session = context.get('auth');
+        const run = runIdentityOf(session);
+        const refuse = (reason: string, message: string) =>
+          new ApiError({
+            status: 'PERMISSION_DENIED',
+            reason,
+            domain: DOMAIN,
+            message,
+          });
+        const all = await service().listRepositories();
+        let repository = body.repository
+          ? all.find((item) => item.repo === body.repository)
+          : undefined;
+        let issueId: string | null = null;
+        if (run?.run) {
+          if (run.run.run.subjectKind !== ISSUE_SUBJECT)
+            throw refuse(
+              'CHECKS_FROM_AGENT',
+              'Only a run on an issue reports.',
+            );
+          const runIssueId = run.run.run.subjectId;
+          issueId = runIssueId;
+          const viewer = await viewerOf(context);
+          const issue = await visibleIssue(viewer, runIssueId);
+          if (!issue?.projectId)
+            throw refuse(
+              'CHECKS_FROM_AGENT',
+              'The run’s issue has no project.',
+            );
+          const projectId = issue.projectId;
+          repository ??=
+            (await service().primaryRepository(projectId)) ?? undefined;
+          if (
+            repository &&
+            !repository.projects.some((link) => link.projectId === projectId)
+          )
+            throw refuse(
+              'CHECKS_FROM_AGENT',
+              'The repository does not serve the issue’s project.',
+            );
+        }
+        if (!repository)
+          throw new ApiError({
+            status: 'NOT_FOUND',
+            reason: 'GIT_REPOSITORY_NOT_FOUND',
+            domain: DOMAIN,
+            message: 'No such repository.',
+          });
+        if (repository.checksSource === 'host')
+          throw refuse(
+            'CHECKS_FROM_HOST',
+            'This repository’s checks are read from its code host.',
+          );
+        if (repository.checksSource === 'external') {
+          if (
+            run?.run ||
+            !session ||
+            !isApiKeySession(session, context.req.raw.headers) ||
+            !(await can(context, 'studio.checks', 'report'))
+          )
+            throw refuse(
+              'CHECKS_FROM_EXTERNAL_CI',
+              'This repository takes checks from its CI’s organization API key.',
+            );
+        } else if (!run?.run)
+          throw refuse(
+            'CHECKS_FROM_AGENT',
+            'This repository takes checks from agents’ runs.',
+          );
+        const repositoryId = repository.id;
+        const linked = issueId
+          ? (await service().listPullRequests({ issueId })).filter(
+              (pull) => pull.repositoryId === repositoryId,
+            )
+          : [];
+        const sha =
+          (await guarded(context, () =>
+            service().resolveCommit(repositoryId, {
+              ...(body.changeRequest !== undefined
+                ? { changeRequest: body.changeRequest }
+                : {}),
+              ...(body.sha ? { sha: body.sha } : {}),
+              ...(body.branch ? { branch: body.branch } : {}),
+            }),
+          )) ?? linked[0]?.headSha;
+        if (!sha)
+          throw new ApiError({
+            status: 'INVALID_ARGUMENT',
+            reason: 'CHECK_COMMIT_REQUIRED',
+            domain: DOMAIN,
+            message: 'Name the commit: changeRequest, sha or branch.',
+          });
+        if (run?.run && !linked.some((pull) => pull.headSha === sha))
+          throw refuse(
+            'CHECKS_FROM_AGENT',
+            'A run reports only the head of a pull request linked to its issue.',
+          );
+        const status =
+          body.status ??
+          (body.exitCode === undefined
+            ? 'pending'
+            : body.exitCode === 0
+              ? 'success'
+              : 'failure');
+        return context.json(
+          {
+            data: await service().reportCheck({
+              repositoryId,
+              sha,
+              name: body.name,
+              status,
+              source: run?.run ? 'agent' : 'ci',
+              url: body.url ?? null,
+              summary: body.summary ?? null,
+              runId: run?.run ? run.run.run.id : null,
+            }),
+          },
+          201,
+        );
+      },
+    );
+
+    git.get(
+      '/commitChecks',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'A commit’s checks now',
+        description:
+          'For whoever sees the issue and its project repository. Name a repository belonging to that project and exactly one 7–40 character hexadecimal SHA or branch; the returned full SHA pins the result.',
+        operationId: 'studioGitCommitChecks',
+        security: PERSON_OR_RUN,
+        ...cliRoute({ command: 'commit checks' }),
+        responses: { '200': dataResponse(z.unknown()), ...apiErrorResponses },
+      }),
+      apiValidator(
+        'query',
+        z
+          .object({
+            issueId: z.string().min(1),
+            resourceId: z.string().min(1),
+            sha: z
+              .string()
+              .regex(/^[0-9a-f]{7,40}$/iu)
+              .optional(),
+            branch: z.string().min(1).optional(),
+          })
+          .refine((value) => Boolean(value.sha) !== Boolean(value.branch), {
+            message: 'Name exactly one of sha and branch.',
+          }),
+      ),
+      async (context) => {
+        const query = context.req.valid('query');
+        const viewer = await viewerOf(context);
+        const issue = await visibleIssue(viewer, query.issueId);
+        const repository = await guarded(context, () =>
+          service().getRepository(query.resourceId),
+        );
+        if (
+          !issue?.projectId ||
+          !repository.projects.some(
+            (link) => link.projectId === issue.projectId,
+          )
+        )
+          throw new ApiError({
+            status: 'NOT_FOUND',
+            reason: 'GIT_REPOSITORY_NOT_FOUND',
+            domain: DOMAIN,
+            message: 'No such repository on this issue’s project.',
+          });
+        const sha = await guarded(context, () =>
+          service().resolveCommit(repository.id, {
+            ...(query.sha ? { sha: query.sha } : {}),
+            ...(query.branch ? { branch: query.branch } : {}),
+          }),
+        );
+        if (!sha)
+          throw new ApiError({
+            status: 'NOT_FOUND',
+            reason: 'GIT_COMMIT_NOT_FOUND',
+            domain: DOMAIN,
+            message: 'No such branch.',
+          });
+        return context.json({
+          data: await guarded(context, () =>
+            service().commitChecks(repository.id, sha),
+          ),
+        });
+      },
+    );
+
+    git.get(
+      '/pullRequests/:pullRequestId/checks',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'A pull request’s failed checks',
+        description:
+          'For whoever sees the issue. The failed checks of the pull request’s head as Studio last read them, each with its page on the host.',
+        operationId: 'studioGitPullChecks',
+        security: PERSON_OR_RUN,
+        ...cliRoute({ command: 'pr checks' }),
+        responses: {
+          '200': dataResponse(
+            z.object({
+              headSha: z.string(),
+              checks: z.array(
+                z.object({
+                  name: z.string(),
+                  conclusion: z.string(),
+                  url: z.string().nullable(),
+                  reference: z.boolean(),
+                }),
+              ),
+            }),
+          ),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', PullParams),
+      async (context) => {
+        const pull = await readablePull(
+          context,
+          context.req.valid('param').pullRequestId,
+        );
+        const repository = await service().getRepository(pull.repositoryId);
+        return context.json({
+          data: {
+            headSha: pull.headSha,
+            checks: pull.checks
+              .filter((check) => check.outcome === 'failure')
+              .map((check) => ({
+                name: check.name,
+                conclusion: check.conclusion ?? 'failure',
+                url: check.url,
+                reference: repository.referenceChecks.includes(check.name),
+              })),
+          },
+        });
+      },
+    );
+
+    git.patch(
+      '/pullRequests/:pullRequestId',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Say whether a merge moves the issue on',
+        description:
+          'For whoever may edit the issue. `autoCompleteDisabled` says whether the pull request counts for moving the issue on when merged.',
+        operationId: 'studioGitUpdatePull',
+        ...cliRoute({ command: 'pr update' }),
+        responses: {
+          '200': dataResponse(PullRequestSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', PullParams),
+      apiValidator('json', z.object({ autoCompleteDisabled: z.boolean() })),
+      async (context) => {
+        const { pullRequestId } = context.req.valid('param');
+        await decidablePull(context, pullRequestId, 'pm.issues/edit');
+        return context.json({
+          data: await guarded(context, () =>
+            service().setAutoComplete(
+              pullRequestId,
+              context.req.valid('json').autoCompleteDisabled,
+            ),
+          ),
+        });
+      },
+    );
+
+    for (const [path, operationId, summary, command] of [
+      [
+        '/pullRequests/:pullRequestId',
+        'studioGitUnlinkPull',
+        'Take a pull request off its issue',
+        'pr unlink',
+      ],
+      [
+        '/pullRequests/:pullRequestId/suggestion',
+        'studioGitDismissSuggestion',
+        'Dismiss a suggested pull request',
+        'pr suggestion dismiss',
+      ],
+    ] as const)
+      git.delete(
+        path,
+        describeRoute({
+          tags: ['Studio'],
+          summary,
+          description:
+            'For whoever may edit the issue. Polling does not link it back.',
+          operationId,
+          ...cliRoute({ command }),
+          responses: {
+            '204': { description: 'Unlinked.' },
+            ...apiErrorResponses,
+            '404': apiErrorResponse(404),
+          },
+        }),
+        apiValidator('param', PullParams),
+        async (context) => {
+          const { pullRequestId } = context.req.valid('param');
+          await decidablePull(context, pullRequestId, 'pm.issues/edit');
+          await guarded(context, () =>
+            service().unlinkPullRequest(pullRequestId),
+          );
+          return context.body(null, 204);
+        },
+      );
+
+    git.post(
+      '/pullRequests/:pullRequestId/checkMerge',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Ask whether a pull request can merge now',
+        description:
+          'For whoever may merge. Reads the pull request from the code host now and stores what it read; `headSha` is what `merge` expects back.',
+        operationId: 'studioGitCheckMerge',
+        ...cliRoute({ command: 'pr check-merge' }),
+        responses: {
+          '200': dataResponse(CheckMergeSchema),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('param', PullParams),
+      async (context) => {
+        const { pullRequestId } = context.req.valid('param');
+        await decidablePull(context, pullRequestId, 'pm.issues/close');
+        const pull = await guarded(context, () =>
+          service().refreshPullRequest(pullRequestId),
+        );
+        const repository = await service().getRepository(pull.repositoryId);
+        const failed = pull.checks.filter(
+          (check) => check.outcome === 'failure',
+        );
+        const isReference = (name: string) =>
+          repository.referenceChecks.includes(name);
+        return context.json({
+          data: {
+            blocker: pull.mergeBlocker,
+            method: 'squash' as const,
+            headSha: pull.headSha,
+            baseRef: pull.baseRef,
+            commitTitle: `${pull.title} (#${pull.number})`,
+            failedChecks: failed
+              .filter((check) => !isReference(check.name))
+              .map((check) => ({ name: check.name, url: check.url })),
+            referenceFailures: failed
+              .filter((check) => isReference(check.name))
+              .map((check) => ({ name: check.name, url: check.url })),
+            canForce:
+              pull.mergeBlocker !== null &&
+              FORCEABLE_BLOCKERS.has(pull.mergeBlocker),
+          },
+        });
+      },
+    );
+
+    git.post(
+      '/pullRequests/:pullRequestId/markMerged',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Record a pull request merged outside Studio',
+        description:
+          'For whoever may merge. Records it merged without the code host.',
+        operationId: 'studioGitMarkMerged',
+        ...cliRoute({ command: 'pr mark-merged' }),
+        responses: {
+          '200': dataResponse(PullRequestSchema),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('param', PullParams),
+      async (context) => {
+        const userId = personId(context);
+        const { pullRequestId } = context.req.valid('param');
+        await decidablePull(context, pullRequestId, 'pm.issues/close');
+        return context.json({
+          data: await guarded(context, () =>
+            service().markMerged(pullRequestId, userId),
           ),
         });
       },

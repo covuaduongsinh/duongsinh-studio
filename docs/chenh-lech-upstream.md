@@ -536,3 +536,15 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **`failedRuns` của `reports/attention`** bỏ cả run đã có quyết định, không chỉ run đã gửi lại.
 - **`meta.message`** của `reports/metrics` và `reports/usage` viết theo ngôn ngữ mặc định của ứng dụng; không có dòng chi phí vì Studio dùng gói thuê bao.
 - **Quyền:** trang `reports` nằm trong catalog vai trò (`server/access/access-service.ts`), seed `202611090001_ds_roles_reports` cấp cho Admin và Contributor. Hành động `studio.reports/read` trỏ thẳng vào quyền trang đó và không `borrowed`, nên run được qua cổng trang khi agent có hành động này.
+
+## 28. U6 — Thiết lập dự án, khoá tổ chức, git theo hợp đồng (07/11/2026)
+
+- **`projectSetups`:** tạo project, nối repo có sẵn và tạo issue "Khởi tạo dự án" giao trưởng nhóm agent. `newRepo` trả 400 `NEW_REPO_UNAVAILABLE`, vì tạo repo trên GitHub cần xin thêm quyền cho GitHub App. `deploy` và `ci` chưa áp dụng, trả `deployError`. Repo được nối trước khi tạo project, nên repo không với tới được thì không để lại project thừa.
+- **Skill:** `project` là scope skill và biến; skill của project đi vào run qua `issue-subject.ts`. Năm skill `ds-*` (`server/agents/builtin-skills.ts`) được tạo một lần nếu chưa có; `ds-comment-style` ở scope global nên có trong mọi run. Runner phải có tính năng `skills`; runner thật đã có.
+- **`organizationKeys`:** khoá thuộc tài khoản dịch vụ `studio-organization-keys` mang vai trò Admin, nên khoá tối đa bằng Admin trong phạm vi của nó, kể cả khi owner tạo. `managedBy` luôn `null` cho đến khi có app-host. Không chọn được từng bản ghi trong một nhóm phạm vi, vì Studio chưa nối nguồn bản ghi của plugin.
+- **Nhóm phạm vi khoá:** Studio nạp nhóm của plugin projects, agents, releases vào registry. Trước đó danh sách rỗng, nên khoá cá nhân có phạm vi cũng không dùng được.
+- **Git, chỗ khác demo:** `wakeOn*` luôn `false` và đặt thì trả 400 `WAKE_RULES_UNAVAILABLE`, vì Studio đánh thức agent qua tự lái. `branchRules` chỉ nhận một luật dạng `<prefix>*`. `repairWebhook` trả 400 vì webhook GitHub thuộc về App. `git/connections` PATCH chỉ đổi tên và token.
+- **`git/checks`:** "External CI" nhận API key có nhóm `studio.checks` (organization key hoặc khoá có phạm vi đó), không phải một khoá riêng cho từng repo như demo. "Agent self-check" chỉ nhận head của PR nối với issue, chưa nhận head nhánh của issue.
+- **`git/authorizations`:** chỉ có `useToken`. Token cá nhân được lưu kín nhưng chưa dùng để commit đứng tên người đó; OAuth và device flow để sau.
+- **`referenceChecks`:** check tham chiếu hiện ra nhưng không tính vào CI. `git/resources` chỉ đọc được bởi người thấy project, chặt hơn `git/repositories` hiện có (người đọc được agent thấy mọi repo).
+- **Sửa kèm:** `reports/attention` bỏ PR của công việc đã xong khỏi danh sách chờ review.

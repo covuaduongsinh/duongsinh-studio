@@ -80,6 +80,17 @@ export default class OrganizationKeysProvider extends ServiceProvider<Applicatio
           .map((level) => level.name),
       };
     });
+    this.releases.push(
+      scopes.groups.add({
+        id: 'studio.checks',
+        category: 'business',
+        title: appText('studioOrgKeys.checksTitle'),
+        description: appText('studioOrgKeys.checksDescription'),
+        levels: {
+          write: [{ kind: 'settings', id: 'studio.checks', action: 'report' }],
+        },
+      }),
+    );
     for (const group of [
       ...pmAccess.KEY_SCOPE_GROUPS,
       ...agentsAccess.KEY_SCOPE_GROUPS,
@@ -115,6 +126,15 @@ export default class OrganizationKeysProvider extends ServiceProvider<Applicatio
     });
     authz.ui.place(
       { type: 'settings', id: 'studio.apiKeys' },
+      { section: 'studio' },
+    );
+    authz.settings.add({
+      id: 'studio.checks',
+      title: appText('studioOrgKeys.checksTitle'),
+      actions: [{ name: 'report', title: appText('studioOrgKeys.report') }],
+    });
+    authz.ui.place(
+      { type: 'settings', id: 'studio.checks' },
       { section: 'studio' },
     );
     this.offerScopes();

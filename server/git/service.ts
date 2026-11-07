@@ -56,6 +56,11 @@ export const PR_MERGED_MESSAGE = 'ds.pr.merged';
 export const PR_CLOSED_MESSAGE = 'ds.pr.closed';
 /** What seals a connection's token; `aad` is the connection id. */
 export const TOKEN_SECRET_PURPOSE = 'duongsinh-studio/git-connection-token';
+const PERSONAL_TOKEN_PURPOSE = 'duongsinh-studio/git-personal-token';
+const REPORTED_CHECKS = 'dsReportedChecks';
+const AUTHORIZATIONS = 'dsGitAuthorizations';
+/** `linkedBy` of a pull request someone took off its issue: polling leaves it alone. */
+const UNLINKED = 'unlinked';
 
 export const CONNECTIONS = 'dsGitConnections';
 export const REPOSITORIES = 'dsRepositories';
@@ -167,6 +172,7 @@ export interface GitRepositoryView {
   readonly branchPrefix: string;
   readonly checksSource: ChecksSource;
   readonly requiredChecks: string[];
+  readonly referenceChecks: string[];
   readonly pollSeconds: number;
   readonly polledAt: string | null;
   readonly pollError: string | null;
@@ -207,6 +213,7 @@ export interface GitPullRequestView {
   readonly checks: StoredCheck[];
   readonly issueId: string | null;
   readonly linkedBy: string | null;
+  readonly autoCompleteDisabled: boolean;
   readonly mergedAt: string | null;
   readonly mergedBy: { readonly id: string } | null;
   readonly mergeForcedReason: string | null;
@@ -239,6 +246,7 @@ interface RepositoryRecord {
   readonly branchPrefix: string;
   readonly checksSource: ChecksSource;
   readonly requiredChecks: string[];
+  readonly referenceChecks: string[];
   readonly pollSeconds: number;
   readonly polledAt: string | null;
   readonly pollError: string | null;
@@ -251,6 +259,7 @@ interface PullRecord {
   readonly number: number;
   readonly issueId: string | null;
   readonly linkedBy: string | null;
+  readonly autoCompleteDisabled: boolean;
   readonly headBranch: string;
   readonly headSha: string;
   readonly baseBranch: string;
@@ -370,6 +379,7 @@ const repositoryOf = (row: Row): RepositoryRecord => ({
   branchPrefix: str(row.branchPrefix),
   checksSource: checksSourceOf(row.checksSource),
   requiredChecks: strings(row.requiredChecks),
+  referenceChecks: strings(row.referenceChecks),
   pollSeconds: num(row.pollSeconds, 60),
   polledAt: iso(row.polledAt),
   pollError: strOrNull(row.pollError),
@@ -382,6 +392,7 @@ const pullOf = (row: Row): PullRecord => ({
   number: num(row.number),
   issueId: strOrNull(row.issueId),
   linkedBy: strOrNull(row.linkedBy),
+  autoCompleteDisabled: bool(row.autoCompleteDisabled),
   headBranch: str(row.headBranch),
   headSha: str(row.headSha),
   baseBranch: str(row.baseBranch),
@@ -1297,6 +1308,7 @@ export function createGitService(deps: GitServiceDeps) {
     branchPrefix: record.branchPrefix,
     checksSource: record.checksSource,
     requiredChecks: record.requiredChecks,
+    referenceChecks: record.referenceChecks,
     pollSeconds: record.pollSeconds,
     polledAt: record.polledAt,
     pollError: record.pollError,
@@ -1521,6 +1533,7 @@ export function createGitService(deps: GitServiceDeps) {
     checks: pull.checks,
     issueId: pull.issueId,
     linkedBy: pull.linkedBy,
+    autoCompleteDisabled: pull.autoCompleteDisabled,
     mergedAt: pull.mergedAt,
     mergedBy: pull.mergedById ? { id: pull.mergedById } : null,
     mergeForcedReason: pull.mergeForcedReason,
@@ -1598,13 +1611,14 @@ export function createGitService(deps: GitServiceDeps) {
     const projects = deps.projects();
     if (!projects || !pull.issueId) return;
     try {
-      await projects.statusEvents.fire({
-        event: PR_MERGED_EVENT,
-        issueIds: [pull.issueId],
-        ...(actor ? { actor } : {}),
-        note: `${repository.fullName}#${pull.number}`,
-        details: { pullRequestId: pull.id, url: pull.url },
-      });
+      if (!pull.autoCompleteDisabled)
+        await projects.statusEvents.fire({
+          event: PR_MERGED_EVENT,
+          issueIds: [pull.issueId],
+          ...(actor ? { actor } : {}),
+          note: `${repository.fullName}#${pull.number}`,
+          details: { pullRequestId: pull.id, url: pull.url },
+        });
     } catch (error) {
       report(
         `Dương Sinh Studio could not move issue ${pull.issueId} for the merge of ${repository.fullName}#${pull.number}.`,
@@ -1679,18 +1693,24 @@ export function createGitService(deps: GitServiceDeps) {
     const existing = existingRow ? pullOf(existingRow) : null;
     const link = existing?.issueId
       ? { id: existing.issueId, by: existing.linkedBy ?? 'branch' }
-      : (opened ?? (await issueFor(repository, hosted)));
+      : existing?.linkedBy === UNLINKED
+        ? { id: null, by: UNLINKED }
+        : (opened ?? (await issueFor(repository, hosted)));
     const merged = hosted.merged || merge !== undefined;
     const state: PullState = merged ? 'merged' : hosted.state;
     const now = new Date();
-    const stored: StoredCheck[] | undefined = checks?.map((check) => ({
-      kind: check.kind,
-      name: check.name,
-      status: check.status,
-      conclusion: check.conclusion,
-      outcome: check.outcome,
-      url: check.url,
-    }));
+    // Where checks are reported rather than read from the host, the reports are the checks.
+    const stored: StoredCheck[] | undefined =
+      repository.checksSource !== 'host'
+        ? await reportedAsChecks(repository.id, hosted.headSha)
+        : checks?.map((check) => ({
+            kind: check.kind,
+            name: check.name,
+            status: check.status,
+            conclusion: check.conclusion,
+            outcome: check.outcome,
+            url: check.url,
+          }));
     const values = {
       issueId: link?.id ?? null,
       linkedBy: link?.by ?? null,
@@ -1708,7 +1728,11 @@ export function createGitService(deps: GitServiceDeps) {
           : mergeabilityOf(hosted.mergeableState),
       hostMergeState: hosted.mergeableState ?? existing?.hostMergeState ?? null,
       ciState: stored
-        ? ciStateOf(stored, repository.requiredChecks)
+        ? ciStateOf(
+            stored,
+            repository.requiredChecks,
+            repository.referenceChecks,
+          )
         : (existing?.ciState ?? 'missing'),
       checks: JSON.stringify(stored ?? existing?.checks ?? []),
       mergeCommitSha:
@@ -1807,6 +1831,442 @@ export function createGitService(deps: GitServiceDeps) {
       }
     }
     return store(repository, hosted, checks, undefined, opened);
+  }
+
+  /** The latest report of each name on a commit, as the checks of its pull requests. */
+  async function reportedAsChecks(
+    repositoryId: string,
+    sha: string,
+  ): Promise<StoredCheck[]> {
+    const rows: Row[] = await conn()
+      .query.selectFrom(REPORTED_CHECKS)
+      .selectAll()
+      .where('repositoryId', '=', repositoryId)
+      .where('sha', '=', sha)
+      .orderBy('name')
+      .execute();
+    return rows.map((row) => {
+      const status = str(row.status);
+      return {
+        kind: 'checkRun' as const,
+        name: str(row.name),
+        status: status === 'pending' ? 'in_progress' : 'completed',
+        conclusion: status === 'pending' ? null : status,
+        outcome:
+          status === 'success'
+            ? ('success' as const)
+            : status === 'failure'
+              ? ('failure' as const)
+              : ('pending' as const),
+        url: strOrNull(row.url),
+      };
+    });
+  }
+
+  /**
+   * Records a report and applies it to the open pull requests at that commit; the latest report of a name on a commit
+   * replaces the one before.
+   */
+  async function reportCheck(input: {
+    readonly repositoryId: string;
+    readonly sha: string;
+    readonly name: string;
+    readonly status: 'pending' | 'success' | 'failure';
+    readonly source: 'ci' | 'agent';
+    readonly url: string | null;
+    readonly summary: string | null;
+    readonly runId: string | null;
+  }) {
+    const repository = await repositoryRecord(input.repositoryId);
+    const now = new Date();
+    await deps.database.transaction(async (tx) => {
+      await tx.query
+        .deleteFrom(REPORTED_CHECKS)
+        .where('repositoryId', '=', input.repositoryId)
+        .where('sha', '=', input.sha)
+        .where('name', '=', input.name)
+        .execute();
+      await tx.query
+        .insertInto(REPORTED_CHECKS)
+        .values({ id: randomUUID(), ...input, reportedAt: now })
+        .execute();
+    });
+    const checks = await reportedAsChecks(input.repositoryId, input.sha);
+    const rows: Row[] = await conn()
+      .query.selectFrom(PULL_REQUESTS)
+      .select(['id', 'number'])
+      .where('repositoryId', '=', input.repositoryId)
+      .where('headSha', '=', input.sha)
+      .where('state', '=', 'open')
+      .execute();
+    if (rows.length > 0)
+      await conn()
+        .query.updateTable(PULL_REQUESTS)
+        .set({
+          checks: JSON.stringify(checks),
+          ciState: ciStateOf(
+            checks,
+            repository.requiredChecks,
+            repository.referenceChecks,
+          ),
+          updatedAt: now,
+        })
+        .where(
+          'id',
+          'in',
+          rows.map((row) => str(row.id)),
+        )
+        .execute();
+    return {
+      repo: repository.fullName,
+      sha: input.sha,
+      name: input.name,
+      status: input.status,
+      source: input.source,
+      url: input.url,
+      summary: input.summary,
+      runId: input.runId,
+      reportedAt: now.toISOString(),
+      pullRequests: rows.map((row) => ({
+        repo: repository.fullName,
+        number: num(row.number),
+      })),
+    };
+  }
+
+  /** The commit a source reported on last, with each check's latest report. */
+  async function reportedChecksOf(
+    repositoryId: string,
+    source: 'ci' | 'agent' | null,
+  ) {
+    const repository = await repositoryRecord(repositoryId);
+    const wanted =
+      source ??
+      (repository.checksSource === 'external'
+        ? 'ci'
+        : repository.checksSource === 'agent'
+          ? 'agent'
+          : null);
+    const empty = { source: null, sha: null, lastReportAt: null, checks: [] };
+    if (!wanted) return empty;
+    const latest: Row | undefined = await conn()
+      .query.selectFrom(REPORTED_CHECKS)
+      .select(['sha', 'reportedAt'])
+      .where('repositoryId', '=', repositoryId)
+      .where('source', '=', wanted)
+      .orderBy('reportedAt', 'desc')
+      .limit(1)
+      .executeTakeFirst();
+    if (!latest) return empty;
+    const rows: Row[] = await conn()
+      .query.selectFrom(REPORTED_CHECKS)
+      .selectAll()
+      .where('repositoryId', '=', repositoryId)
+      .where('source', '=', wanted)
+      .where('sha', '=', str(latest.sha))
+      .orderBy('name')
+      .execute();
+    return {
+      source: wanted,
+      sha: str(latest.sha),
+      lastReportAt: iso(latest.reportedAt),
+      checks: rows.map((row) => ({
+        name: str(row.name),
+        status: str(row.status) as 'pending' | 'success' | 'failure',
+        url: strOrNull(row.url),
+        reportedAt: iso(row.reportedAt) ?? '',
+      })),
+    };
+  }
+
+  /** The commit a report or a question names: a pull request's head, a SHA, or a branch's head on the host. */
+  async function resolveCommit(
+    repositoryId: string,
+    ref: {
+      readonly changeRequest?: number;
+      readonly sha?: string;
+      readonly branch?: string;
+    },
+  ): Promise<string | null> {
+    const repository = await repositoryRecord(repositoryId);
+    if (ref.changeRequest !== undefined) {
+      const row: Row | undefined = await conn()
+        .query.selectFrom(PULL_REQUESTS)
+        .select(['headSha'])
+        .where('repositoryId', '=', repositoryId)
+        .where('number', '=', ref.changeRequest)
+        .executeTakeFirst();
+      return row ? str(row.headSha) : null;
+    }
+    if (ref.sha) return ref.sha;
+    if (!ref.branch) return null;
+    try {
+      const client = await clientOf(
+        await connectionRecord(repository.connectionId),
+      );
+      return await client.branchHead(repository.fullName, ref.branch);
+    } catch (error) {
+      throw hostError(error, { repo: repository.fullName });
+    }
+  }
+
+  /** A commit's checks now: reported ones where the repository's source says so, else the host's. */
+  async function commitChecks(repositoryId: string, sha: string) {
+    const repository = await repositoryRecord(repositoryId);
+    const reference = new Set(repository.referenceChecks);
+    if (repository.checksSource !== 'host') {
+      const checks = await reportedAsChecks(repositoryId, sha);
+      const state = ciStateOf(
+        checks,
+        repository.requiredChecks,
+        repository.referenceChecks,
+      );
+      return {
+        sha,
+        state:
+          state === 'passed'
+            ? ('success' as const)
+            : state === 'failed'
+              ? ('failure' as const)
+              : state === 'pending'
+                ? ('pending' as const)
+                : ('none' as const),
+        checks: checks.map((check) => ({
+          kind: check.kind,
+          name: check.name,
+          status: check.status,
+          conclusion: check.conclusion,
+          url: check.url,
+          source:
+            repository.checksSource === 'external'
+              ? ('ci' as const)
+              : ('agent' as const),
+          reference: reference.has(check.name),
+        })),
+      };
+    }
+    try {
+      const client = await clientOf(
+        await connectionRecord(repository.connectionId),
+      );
+      const checks = await client.checks(repository.fullName, sha);
+      const state = ciStateOf(
+        checks,
+        repository.requiredChecks,
+        repository.referenceChecks,
+      );
+      return {
+        sha,
+        state:
+          state === 'passed'
+            ? ('success' as const)
+            : state === 'failed'
+              ? ('failure' as const)
+              : state === 'pending'
+                ? ('pending' as const)
+                : ('none' as const),
+        checks: checks.map((check) => ({
+          kind: check.kind,
+          name: check.name,
+          status: check.status,
+          conclusion: check.conclusion,
+          url: check.url,
+          reference: reference.has(check.name),
+        })),
+      };
+    } catch (error) {
+      throw hostError(error, { repo: repository.fullName });
+    }
+  }
+
+  /** What a project manager may change on a repository; a field left out stays. */
+  async function updateRepository(
+    id: string,
+    input: {
+      readonly checksSource?: ChecksSource;
+      readonly referenceChecks?: readonly string[];
+      readonly branchPrefix?: string;
+    },
+  ): Promise<GitRepositoryView> {
+    await repositoryRecord(id);
+    await conn()
+      .query.updateTable(REPOSITORIES)
+      .set({
+        ...(input.checksSource ? { checksSource: input.checksSource } : {}),
+        ...(input.referenceChecks
+          ? { referenceChecks: JSON.stringify(input.referenceChecks) }
+          : {}),
+        ...(input.branchPrefix ? { branchPrefix: input.branchPrefix } : {}),
+        updatedAt: new Date(),
+      })
+      .where('id', '=', id)
+      .execute();
+    return getRepository(id);
+  }
+
+  async function setAutoComplete(
+    id: string,
+    disabled: boolean,
+  ): Promise<GitPullRequestView> {
+    await pullRecord(id);
+    await conn()
+      .query.updateTable(PULL_REQUESTS)
+      .set({ autoCompleteDisabled: disabled, updatedAt: new Date() })
+      .where('id', '=', id)
+      .execute();
+    return getPullRequest(id);
+  }
+
+  /** Takes a pull request off its issue; polling does not link it back. */
+  async function unlinkPullRequest(id: string): Promise<void> {
+    await pullRecord(id);
+    await conn()
+      .query.updateTable(PULL_REQUESTS)
+      .set({ issueId: null, linkedBy: UNLINKED, updatedAt: new Date() })
+      .where('id', '=', id)
+      .execute();
+  }
+
+  /** Records a pull request merged without asking the host, as for one merged outside it. */
+  async function markMerged(
+    id: string,
+    byUserId: string,
+  ): Promise<GitPullRequestView> {
+    const before = await pullRecord(id);
+    if (before.state === 'merged') return getPullRequest(id);
+    const repository = await repositoryRecord(before.repositoryId);
+    const now = new Date();
+    await conn()
+      .query.updateTable(PULL_REQUESTS)
+      .set({
+        state: 'merged',
+        mergedAt: now,
+        mergedById: byUserId,
+        closedAt: now,
+        updatedAt: now,
+      })
+      .where('id', '=', id)
+      .execute();
+    await onMerged(await pullRecord(id), repository, {
+      type: 'user',
+      id: byUserId,
+    });
+    return getPullRequest(id);
+  }
+
+  /** Which linked repositories go through a connection, with their projects. */
+  async function connectionUsage(connectionId: string) {
+    await connectionRecord(connectionId);
+    return (await listRepositories()).filter(
+      (repository) => repository.connectionId === connectionId,
+    );
+  }
+
+  /** Renames a connection or replaces its token; a field left out stays. */
+  async function updateConnection(
+    id: string,
+    input: { readonly name?: string; readonly token?: string },
+  ): Promise<GitConnectionView> {
+    const record = await connectionRecord(id);
+    if (input.token !== undefined && record.kind !== 'token')
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'GIT_CONNECTION_NOT_TOKEN',
+        'Only a token connection has a token to replace.',
+      );
+    let account: string | undefined;
+    if (input.token !== undefined)
+      try {
+        account = (
+          await createGitHubClient({
+            token: input.token,
+            apiBaseUrl: record.apiBaseUrl,
+          }).viewer()
+        ).login;
+      } catch (error) {
+        throw hostError(error, {});
+      }
+    await conn()
+      .query.updateTable(CONNECTIONS)
+      .set({
+        ...(input.name ? { name: input.name } : {}),
+        ...(input.token !== undefined
+          ? {
+              account: account || null,
+              tokenSealed: deps.secrets().seal(input.token, {
+                purpose: TOKEN_SECRET_PURPOSE,
+                aad: [id],
+              }),
+            }
+          : {}),
+        updatedAt: new Date(),
+      })
+      .where('id', '=', id)
+      .execute();
+    return getConnection(id);
+  }
+
+  /** People's own host tokens: never read back, kept so their work can be attributed to them. */
+  async function listAuthorizations(userId: string) {
+    const rows: Row[] = await conn()
+      .query.selectFrom(AUTHORIZATIONS)
+      .selectAll()
+      .where('userId', '=', userId)
+      .execute();
+    return { connections: await listConnections(), rows };
+  }
+
+  async function useToken(
+    userId: string,
+    connectionId: string,
+    token: string,
+  ): Promise<{ login: string; connectedAt: string }> {
+    const record = await connectionRecord(connectionId);
+    let login: string;
+    try {
+      login = (
+        await createGitHubClient({
+          token,
+          apiBaseUrl: record.apiBaseUrl,
+        }).viewer()
+      ).login;
+    } catch (error) {
+      throw hostError(error, {});
+    }
+    const now = new Date();
+    await deps.database.transaction(async (tx) => {
+      await tx.query
+        .deleteFrom(AUTHORIZATIONS)
+        .where('userId', '=', userId)
+        .where('connectionId', '=', connectionId)
+        .execute();
+      await tx.query
+        .insertInto(AUTHORIZATIONS)
+        .values({
+          userId,
+          connectionId,
+          tokenSealed: deps.secrets().seal(token, {
+            purpose: PERSONAL_TOKEN_PURPOSE,
+            aad: [userId, connectionId],
+          }),
+          login,
+          method: 'token',
+          connectedAt: now,
+        })
+        .execute();
+    });
+    return { login, connectedAt: now.toISOString() };
+  }
+
+  async function forgetAuthorization(
+    userId: string,
+    connectionId: string,
+  ): Promise<void> {
+    await conn()
+      .query.deleteFrom(AUTHORIZATIONS)
+      .where('userId', '=', userId)
+      .where('connectionId', '=', connectionId)
+      .execute();
   }
 
   /** The repository a project's runs start in: the one attached as primary, else the first attached. */
@@ -2264,6 +2724,19 @@ export function createGitService(deps: GitServiceDeps) {
     onTagPush,
     onWebhookEvent,
     linkRepository,
+    updateRepository,
+    updateConnection,
+    connectionUsage,
+    reportCheck,
+    reportedChecksOf,
+    resolveCommit,
+    commitChecks,
+    setAutoComplete,
+    unlinkPullRequest,
+    markMerged,
+    listAuthorizations,
+    useToken,
+    forgetAuthorization,
     attachToProject,
     primaryRepository: async (projectId: string) => {
       const record = await primaryRepositoryOf(projectId);

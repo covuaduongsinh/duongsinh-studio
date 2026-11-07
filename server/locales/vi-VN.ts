@@ -105,6 +105,9 @@ const viVN: AppServerResource = {
     },
   },
   studioOrgKeys: {
+    checksTitle: 'Báo kết quả check',
+    checksDescription: 'Cho CI báo kết quả check của repo lấy check từ CI.',
+    report: 'Báo kết quả check',
     section: 'Studio',
     settingsTitle: 'Khoá API của tổ chức',
     read: 'Xem',

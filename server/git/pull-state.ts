@@ -34,10 +34,12 @@ export const FORCEABLE_BLOCKERS: ReadonlySet<MergeBlocker> = new Set([
 export function ciStateOf(
   checks: readonly Pick<GitHubCheck, 'name' | 'outcome'>[],
   required: readonly string[],
+  /** Shown beside the others, deciding nothing. */
+  reference: readonly string[] = [],
 ): CiState {
   const relevant = required.length
     ? checks.filter((check) => required.includes(check.name))
-    : checks;
+    : checks.filter((check) => !reference.includes(check.name));
   if (relevant.some((check) => check.outcome === 'failure')) return 'failed';
   if (relevant.some((check) => check.outcome === 'pending')) return 'pending';
   if (required.some((name) => !checks.some((check) => check.name === name)))
