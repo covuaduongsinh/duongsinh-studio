@@ -60,6 +60,15 @@ const AutopilotSettingsSchema = z
   })
   .meta({ ref: 'StudioAutopilotSettings' });
 
+/** A path pattern inside the repository; a web address there matches no changed file and silently disables the guard. */
+const SensitivePath = z
+  .string()
+  .trim()
+  .min(1)
+  .refine((value) => !/^[a-z][a-z0-9+.-]*:\/\//iu.test(value), {
+    message: 'A sensitive path is a path in the repository, not a URL.',
+  });
+
 const UpdateAutopilotSettingsBody = z
   .object({
     enabled: z.boolean().optional(),
@@ -67,7 +76,10 @@ const UpdateAutopilotSettingsBody = z
     maxMergesPerDay: z.number().int().min(1).nullable().optional(),
     maxActiveIssues: z.number().int().min(1).nullable().optional(),
     stallMinutes: z.number().int().min(1).optional(),
-    sensitivePaths: z.array(z.string()).nullable().optional(),
+    sensitivePaths: z.array(SensitivePath).nullable().optional().meta({
+      description:
+        'Repository path patterns such as `database/**`. Null or empty means the defaults; a URL is refused.',
+    }),
     sensitivePolicy: z.enum(['extraReview', 'human']).optional(),
     pausedReason: z.string().nullable().optional(),
   })

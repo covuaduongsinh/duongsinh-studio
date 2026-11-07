@@ -343,7 +343,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       // If unable to query files from host, default to empty
     }
 
-    const sensitivePatterns = settings?.sensitivePaths ?? DEFAULT_SENSITIVE_PATHS;
+    // An empty list is "use the defaults", as null is: no project means to have no sensitive paths at all.
+    const sensitivePatterns = settings?.sensitivePaths?.length
+      ? settings.sensitivePaths
+      : DEFAULT_SENSITIVE_PATHS;
     const touchedSensitive = changedFiles.filter((f) => isSensitive(f, sensitivePatterns));
 
     let securityReview: ReviewView | undefined;

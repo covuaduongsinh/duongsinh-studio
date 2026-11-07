@@ -81,6 +81,22 @@ test('autopilot REST routes: settings, pause, resume, events, stop-all and perso
   expect(updatedSettings.sensitivePolicy).toBe('extraReview');
   expect(updatedSettings.sensitivePaths).toEqual(['database/**', '.github/**']);
 
+  // A web address is not a path in the repository: refused, and the stored list stays.
+  const withUrl = await admin.fetch(
+    `/projects/${project.id}/autopilot`,
+    json(
+      { sensitivePaths: ['database/**', 'https://github.com/acme/app'] },
+      'PUT',
+    ),
+  );
+  expect(withUrl.status).toBe(400);
+  expect(
+    (
+      (await (await admin.fetch(`/projects/${project.id}/autopilot`)).json())
+        .data as { sensitivePaths: string[] }
+    ).sensitivePaths,
+  ).toEqual(['database/**', '.github/**']);
+
   // 4. POST pause autopilot
   const pauseRes = await admin.fetch(
     `/projects/${project.id}/autopilot/pause`,

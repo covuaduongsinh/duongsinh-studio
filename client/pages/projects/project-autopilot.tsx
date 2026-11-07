@@ -140,6 +140,11 @@ function ProjectAutopilotForm({
 
   const handleSaveSettings = (event: FormEvent): void => {
     event.preventDefault();
+    // Empty means the defaults, sent as null so the server never stores a list that disables the guard.
+    const paths = sensitivePaths
+      .split('\n')
+      .map((path) => path.trim())
+      .filter(Boolean);
     const payload: AutopilotUpdateInput = {
       enabled,
       mergeMethod,
@@ -148,10 +153,7 @@ function ProjectAutopilotForm({
         : null,
       stallMinutes: Number(stallMinutes) || 30,
       sensitivePolicy,
-      sensitivePaths: sensitivePaths
-        .split('\n')
-        .map((p) => p.trim())
-        .filter(Boolean),
+      sensitivePaths: paths.length > 0 ? paths : null,
     };
 
     updateMutation.mutate(payload, {

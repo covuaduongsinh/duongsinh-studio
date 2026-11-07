@@ -267,6 +267,12 @@ test('evaluates 7 autopilot conditions and merges when eligible', async ({
   const evalSensitive = await evaluator.evaluate(issue.id);
   expect(evalSensitive.eligible).toBe(false);
   expect(evalSensitive.reasons.some((r) => r.includes('security'))).toBe(true);
+  // An empty list means the defaults, not "nothing is sensitive".
+  await evaluator.saveSettings(project.id, { enabled: true, sensitivePaths: [] });
+  const evalEmptyList = await evaluator.evaluate(issue.id);
+  expect(evalEmptyList.eligible).toBe(false);
+  expect(evalEmptyList.reasons.some((r) => r.includes('security'))).toBe(true);
+  await evaluator.saveSettings(project.id, { enabled: true, sensitivePaths: null });
 
   // Add security review -> becomes eligible again!
   await conn.query
