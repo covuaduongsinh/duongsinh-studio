@@ -9,16 +9,16 @@ Bước S5.1 của kế hoạch `docs/plans/2026-11-02-nocobase-studio-s5-phat-h
 
 ## Cách chạy
 
-| Thành phần | Ở đâu |
-|---|---|
-| Project Dokploy | `duongsinh-studio` → compose `studio` (nguồn "raw", nội dung = `deploy/dokploy/docker-compose.yml`) |
-| Tên miền | `https://studio.dsc.edu.vn` → service `app`, cổng 13000, HTTPS Let's Encrypt (Traefik của Dokploy) |
-| App | image `node:24.15.0-bookworm-slim` chạy `node dist/server/standalone.js` dưới user 1000, `mem_limit 1536m`, `cpus 1.5`, `NODE_OPTIONS=--max-old-space-size=1024`, đường dẫn `/main` |
-| Bản phát hành | `/srv/duongsinh-studio/releases/<sha>/dist` (chỉ đọc), chọn bằng biến `STUDIO_RELEASE=<sha>` |
-| Cấu hình | `/srv/duongsinh-studio/config.yml` (chỉ đọc) = `deploy/dokploy/config.yml`, không có bí mật |
-| Dữ liệu tệp | `/srv/duongsinh-studio/storage` (chủ sở hữu 1000:1000): KB, tệp đính kèm, `runners/dist` (CLI + runner để cài) |
-| Cơ sở dữ liệu | service `db` = `postgres:16-alpine`, volume `studio-pg`, `mem_limit 384m`, `shared_buffers=64MB`, `max_connections=30` |
-| Bí mật | tab Environment của compose trên Dokploy; bản sao cho chủ dự án: WSL `~/code/secrets/studio-prod.secret` (chmod 600) |
+| Thành phần      | Ở đâu                                                                                                                                                                               |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Project Dokploy | `duongsinh-studio` → compose `studio` (nguồn "raw", nội dung = `deploy/dokploy/docker-compose.yml`)                                                                                 |
+| Tên miền        | `https://studio.dsc.edu.vn` → service `app`, cổng 13000, HTTPS Let's Encrypt (Traefik của Dokploy)                                                                                  |
+| App             | image `node:24.15.0-bookworm-slim` chạy `node dist/server/standalone.js` dưới user 1000, `mem_limit 1536m`, `cpus 1.5`, `NODE_OPTIONS=--max-old-space-size=1024`, đường dẫn `/main` |
+| Bản phát hành   | `/srv/duongsinh-studio/releases/<sha>/dist` (chỉ đọc), chọn bằng biến `STUDIO_RELEASE=<sha>`                                                                                        |
+| Cấu hình        | `/srv/duongsinh-studio/config.yml` (chỉ đọc) = `deploy/dokploy/config.yml`, không có bí mật                                                                                         |
+| Dữ liệu tệp     | `/srv/duongsinh-studio/storage` (chủ sở hữu 1000:1000): KB, tệp đính kèm, `runners/dist` (CLI + runner để cài)                                                                      |
+| Cơ sở dữ liệu   | service `db` = `postgres:16-alpine`, volume `studio-pg`, `mem_limit 384m`, `shared_buffers=64MB`, `max_connections=30`                                                              |
+| Bí mật          | tab Environment của compose trên Dokploy; bản sao cho chủ dự án: WSL `~/code/secrets/studio-prod.secret` (chmod 600)                                                                |
 
 Biến môi trường bắt buộc (tên, không có giá trị): `STUDIO_RELEASE`, `DB_PASSWORD`, `SECRETS_KEYS`,
 `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD`; tuỳ chọn `APP_PUBLIC_ORIGIN`, `DB_DATABASE`, `DB_USERNAME`,
@@ -170,15 +170,14 @@ Xem `docs/plans/2026-11-02-khao-sat-vps-s5.md` (repo `D:\code\nocobase`) cho s�
 
 Đặt trong biến môi trường của compose studio qua Dokploy, giá trị bí mật giữ ở file trong `~/code/secrets/`, không commit:
 
-| Biến | Ý nghĩa |
-| --- | --- |
+| Biến                   | Ý nghĩa                                                                                                  |
+| ---------------------- | -------------------------------------------------------------------------------------------------------- |
 | `WEB_PUSH_PRIVATE_KEY` | Khoá VAPID P-256, 32 byte hex, sinh một lần và **không đổi**: đổi khoá thì mọi thiết bị phải đăng ký lại |
-| `WEB_PUSH_CONTACT` | `mailto:` liên hệ gửi kèm web push |
-| `STUDIO_EMAIL_ENABLED` | `true` để bật email; để trống thì không gửi gì |
-| `STUDIO_SMTP_USER` | Tài khoản Gmail gửi đi |
-| `STUDIO_SMTP_PASSWORD` | App Password của tài khoản đó |
-| `STUDIO_SMTP_FROM` | Địa chỉ người gửi |
+| `WEB_PUSH_CONTACT`     | `mailto:` liên hệ gửi kèm web push                                                                       |
+| `STUDIO_EMAIL_ENABLED` | `true` để bật email; để trống thì không gửi gì                                                           |
+| `STUDIO_SMTP_USER`     | Tài khoản Gmail gửi đi                                                                                   |
+| `STUDIO_SMTP_PASSWORD` | App Password của tài khoản đó                                                                            |
+| `STUDIO_SMTP_FROM`     | Địa chỉ người gửi                                                                                        |
 
 Kênh SMTP mặc định là `smtp.gmail.com:465`. Cần `APP_PUBLIC_ORIGIN` đúng để liên kết trong email có đủ đường dẫn. Lần gửi thật
 đầu tiên phải hỏi chủ dự án trước và chỉ gửi tới chủ dự án.
-
