@@ -331,6 +331,8 @@ Tổng khoảng **11 ngày làm việc** của agent nếu có K2.3 (0,5 + 2,5 +
 | Q7  | Review chéo                                                                     | **Giữ Claude Opus.** 12/12 phiếu khác mô hình tác giả; Codex sẵn sàng trên runner, có thể bật sau mà không cần đổi mã. Không bật DeepSeek                                                                                                 |
 | Q8  | Kế hoạch trên repo công khai `covuaduongsinh/nocobase` (phát hiện thêm)         | **Đọc lại trước, rồi chuyển repo sang riêng tư nếu không cần công khai.** Không phát hiện khoá, nhưng có IP VPS, kiến trúc và vài dòng thông tin liên hệ. Quét tự động có thể bỏ sót                                                      |
 
+**Đã chốt 07/11/2026, đều theo khuyến nghị:** Q1 cách (a) · Q2 gắn `nocofen` ngay, Dương Sinh App khi mở việc lại, không gắn Sandbox và Dương Sinh NocoBase · Q3 có CI, bằng token người tạo · Q4 rclone trong tuần này · Q5 Gmail App Password sau K3.1 · Q6 100 lượt và 1.000.000 token đầu ra mỗi ngày, xem lại sau một tuần · Q7 giữ Claude Opus · Q8 chủ dự án đọc lại rồi chuyển `covuaduongsinh/nocobase` sang riêng tư. Toàn bộ kế hoạch vẫn chờ duyệt.
+
 ## 7. Tiến độ
 
 - [ ] K0 — Vận hành
