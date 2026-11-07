@@ -2321,7 +2321,8 @@ export function createGitService(deps: GitServiceDeps) {
         name: input.name,
         private: input.private,
         description: input.description ?? null,
-        autoInit: input.empty !== true,
+        // Always initialised: a repository with no commit has no branch, and the runner's checkout of it fails.
+        autoInit: true,
       });
     } catch (error) {
       if (error instanceof GitHubError && error.status === 422)

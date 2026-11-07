@@ -38,6 +38,7 @@ import {
   PROJECT_MANAGER_ID,
 } from '../agents/ids.js';
 import { gitServiceToken } from '../providers/git.js';
+import { readTemplateRelease } from '../setups/template-version.js';
 import {
   projectDefaultSkills,
   setProjectDefaultSkills,
@@ -413,7 +414,9 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
             init.method === 'prompt'
               ? init.prompt
               : t('studioSetups.templateIssue', {
-                  template: init.template ?? 'default',
+                  template: readTemplateRelease().package,
+                  version: readTemplateRelease().version,
+                  name: body.name,
                 });
           if (!available) message = t('studioSetups.managerUnavailable');
           initIssue = await projects().issues.create(viewer, {

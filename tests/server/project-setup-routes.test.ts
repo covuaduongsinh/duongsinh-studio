@@ -400,7 +400,7 @@ test(
     expect(
       ((await blank.json()).data as { initIssueId: unknown }).initIssueId,
     ).toBeNull();
-    expect(created.at(-1)?.auto_init).toBe(false);
+    expect(created.at(-1)?.auto_init).toBe(true);
 
     // A person who may not link repositories changes nothing.
     expect(
