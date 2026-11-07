@@ -1,6 +1,6 @@
 # Triển khai Dương Sinh Studio lên VPS (studio.dsc.edu.vn)
 
-Bước S5.1 của kế hoạch `docs/plans/2026-11-02-nocobase-studio-s5-phat-hanh.md` (repo `D:\code\nocobase`). VPS
+Bước S5.1 của kế hoạch `docs/plans/archive/2026-11-02-nocobase-studio-s5-phat-hanh.md`. VPS
 217.15.160.118 **dùng chung với production NocoBase 2** (`nocobase.dsc.edu.vn`) và nhiều dịch vụ khác, nên:
 
 - không build gì trên VPS — bản phát hành build trên máy dev rồi chép lên;
@@ -34,10 +34,16 @@ pnpm build --target linux-x64 --node-version 24
 SHA=$(git rev-parse --short HEAD)
 tar --exclude='*/.bin' --exclude='dist/.env' -czf ~/code/release/studio-$SHA.tar.gz dist config.example.yml
 pnpm nocobase dist check
-scp -i /mnt/c/Users/duongsinh/.ssh/id_ed25519 ~/code/release/studio-$SHA.tar.gz root@217.15.160.118:/srv/duongsinh-studio/incoming/
-ssh -i /mnt/c/Users/duongsinh/.ssh/id_ed25519 root@217.15.160.118 \
+scp -i ~/.ssh/vps_key ~/code/release/studio-$SHA.tar.gz root@217.15.160.118:/srv/duongsinh-studio/incoming/
+ssh -i ~/.ssh/vps_key root@217.15.160.118 \
   "mkdir -p /srv/duongsinh-studio/releases/$SHA && tar -xzf /srv/duongsinh-studio/incoming/studio-$SHA.tar.gz -C /srv/duongsinh-studio/releases/$SHA && chown -R 1000:1000 /srv/duongsinh-studio/releases/$SHA"
 ```
+
+Trước khi đổi bản chạy:
+
+1. Chờ không còn run `running` (`ag_runs`), vì khởi động lại làm mất lượt đang chạy; hỏi chủ dự án nếu còn.
+2. Tạm dừng tự lái của các dự án đang bật (Dương Sinh App, Sandbox) với lý do `Cập nhật Studio (<sha>)`; bật lại sau khi
+   kiểm xong. Các lần cập nhật U7, U8 đều làm vậy (`ds_autopilot_events`).
 
 Sao lưu DB (mục dưới), rồi trên Dokploy: compose `studio` → Environment → đổi `STUDIO_RELEASE=<sha>` → Deploy. Migration
 chạy tự động khi app khởi động (`migrations.autoRun`). Kiểm: `https://studio.dsc.edu.vn/main/api/healthz` trả `ok: true`,
@@ -65,7 +71,8 @@ gần nhất trong `releases/`.
 Dokploy chưa có đích sao lưu (S3) nào (`destination.all` rỗng), nên dùng script riêng `deploy/dokploy/backup.sh`, cài ở
 `/srv/duongsinh-studio/backup.sh`, chạy qua `/etc/cron.d/duongsinh-studio-backup` lúc 03:15 giờ Việt Nam (VPS đang `+01:00`,
 nên dòng cron ghi `15 21`). Mỗi lần: `pg_dump -Fc` từ container `db` → `backups/studio-<ngày>.dump`, cùng
-`storage-<ngày>.tar.gz`, log ở `backups/backup.log`. Giữ 14 bản hằng ngày; các dump `studio-before-*` chụp trước mỗi lần cập
+`storage-<ngày>.tar.gz`, log ở `backups/backup.log`. Tính đến 07/11/2026, cron **chưa chạy lần nào** (lần đầu 03:15 ngày
+08/11 giờ Việt Nam; bản hằng ngày duy nhất là bản chạy tay); kiểm `backup.log` sau lần đó trước khi tin vào nó. Giữ 14 bản hằng ngày; các dump `studio-before-*` chụp trước mỗi lần cập
 nhật và `studio-initial.dump` không bị vòng dọn này xoá, dọn tay khi cần.
 
 **Chưa đẩy ra ngoài VPS** (chủ dự án hoãn ngày 07/11/2026). Bật bằng cách cấu hình một remote rclone chỉ cho Studio (`rclone
@@ -151,7 +158,7 @@ Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng n�
 
 **Runner dùng chung trên VPS (S5.3, 03/11/2026):** `vps-studio-runner` (trust `team`, 1 lượt mỗi lần) chạy dưới user hệ
 thống `studio-runner` (không sudo, không nhóm `docker`, mật khẩu khoá; `loginctl enable-linger`). Giới hạn cả user bằng
-`systemctl set-property user-1002.slice MemoryMax=2G MemorySwapMax=1G CPUQuota=150%`. Claude Code + Codex cài bằng
+`systemctl set-property user-1002.slice MemoryMax=2621440000 MemorySwapMax=536870912 CPUQuota=300%` (2,5 GiB RAM, 512 MiB swap, 3 nhân; đo thực tế 07/11/2026, bản cũ ghi 2G/1G/150% đã sai). Claude Code + Codex cài bằng
 `npm -g` với prefix `~/.local` của user đó; chủ dự án tự đăng nhập (`ssh root@…` → `su - studio-runner` → `claude`,
 `codex login --device-auth`). Connector claude.ai bị tắt cho user này (`~/.claude/settings.json` →
 `env.ENABLE_CLAUDEAI_MCP_SERVERS=false`). Dịch vụ: `systemctl --user` `nocobase-runner.service` (khi `su -` phải đặt
@@ -164,7 +171,7 @@ Nâng runner: sau khi server lên bản mới, chép thư mục phiên bản và
 
 ## Tài nguyên đo được
 
-Xem `docs/plans/2026-11-02-khao-sat-vps-s5.md` (repo `D:\code\nocobase`) cho số liệu VPS trước/sau khi triển khai.
+Xem `docs/plans/archive/2026-11-02-khao-sat-vps-s5.md` cho số liệu VPS trước/sau khi triển khai.
 
 ## Email và web push (U7)
 

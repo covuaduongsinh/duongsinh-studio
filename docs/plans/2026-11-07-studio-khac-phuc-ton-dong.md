@@ -339,6 +339,10 @@ Tổng khoảng **11 ngày làm việc** của agent nếu có K2.3 (0,5 + 2,5 +
 - [ ] K1 — Khởi tạo dự án đúng chuẩn
 - [ ] K2 — Skill luật ứng dụng và giới hạn runner
 - [ ] K3 — Việc còn mở
-- [ ] K4 — Tài liệu
+- [x] K4 — Tài liệu (07/11/2026)
+  - Chép 7 file (2.796 dòng, khớp mục 1.5) từ bản cục bộ vào `docs/plans/archive/`; quét: 0 mẫu khoá, 0 số điện thoại, 1 email mẫu `studio@dsc.edu.vn`. Thêm vào `.prettierignore`.
+  - Sửa đường dẫn trong `trien-khai-vps.md`, `chenh-lech-upstream.md`, `.agents/rules/duongsinh-studio.md`, hai kế hoạch 06/11 và `scripts/compare-studio-api.mjs` (nay tính theo vị trí file; đọc được 186 route từ phụ lục mới). Còn lại các nhắc tới mã upstream `D:\code\nocobase` là chủ ý.
+  - `trien-khai-vps.md`: sửa thông số runner, đường dẫn khoá SSH, thêm bước chờ hết run và tạm dừng tự lái, ghi cron chưa chạy lần nào. `.agents/rules`: thêm mục "Projects created from Studio".
+  - Kiểm: `tests/project/agents-md.test.ts` 3/3; prettier sạch cho `trien-khai-vps.md`, rules, script. Ba tài liệu (`chenh-lech-upstream.md` và hai kế hoạch 06/11) đã lệch định dạng từ trước, không sửa trong đợt này.
 
 (Ghi ngày, commit, số liệu cổng kiểm tra, bản production, việc còn mở dưới từng dòng khi xong.)
