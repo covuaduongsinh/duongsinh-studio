@@ -16,6 +16,12 @@ import locales from '../../client/locales/index.js';
 import { TooltipProvider } from '../../client/components/ui/tooltip';
 import InboxPage from '../../client/pages/inbox.tsx';
 
+// Budgets have their own tests (`budgets.test.tsx`); this page's viewer may not see them.
+vi.mock('@nocobase/app-plugin-authorization/client', async (original) => ({
+  ...(await original<Record<string, unknown>>()),
+  useCan: () => ({ can: false, loading: false }),
+}));
+
 const messages = [
   {
     id: 'm1',

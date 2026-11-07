@@ -156,3 +156,20 @@ Nâng runner: sau khi server lên bản mới, chép thư mục phiên bản và
 ## Tài nguyên đo được
 
 Xem `docs/plans/2026-11-02-khao-sat-vps-s5.md` (repo `D:\code\nocobase`) cho số liệu VPS trước/sau khi triển khai.
+
+## Email và web push (U7)
+
+Đặt trong biến môi trường của compose studio qua Dokploy, giá trị bí mật giữ ở file trong `~/code/secrets/`, không commit:
+
+| Biến | Ý nghĩa |
+| --- | --- |
+| `WEB_PUSH_PRIVATE_KEY` | Khoá VAPID P-256, 32 byte hex, sinh một lần và **không đổi**: đổi khoá thì mọi thiết bị phải đăng ký lại |
+| `WEB_PUSH_CONTACT` | `mailto:` liên hệ gửi kèm web push |
+| `STUDIO_EMAIL_ENABLED` | `true` để bật email; để trống thì không gửi gì |
+| `STUDIO_SMTP_USER` | Tài khoản Gmail gửi đi |
+| `STUDIO_SMTP_PASSWORD` | App Password của tài khoản đó |
+| `STUDIO_SMTP_FROM` | Địa chỉ người gửi |
+
+Kênh SMTP mặc định là `smtp.gmail.com:465`. Cần `APP_PUBLIC_ORIGIN` đúng để liên kết trong email có đủ đường dẫn. Lần gửi thật
+đầu tiên phải hỏi chủ dự án trước và chỉ gửi tới chủ dự án.
+

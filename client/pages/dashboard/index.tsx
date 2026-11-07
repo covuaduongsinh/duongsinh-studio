@@ -35,6 +35,8 @@ import {
   type ReportDays,
 } from '#hooks/use-reports';
 
+import { BudgetUsage } from './budget-usage.js';
+
 import { RunsChart } from './runs-chart.js';
 import { Sparkline } from './sparkline.js';
 
@@ -381,6 +383,8 @@ export default function DashboardPage(): ReactElement {
             className='h-40 w-full'
           />
         ) : null}
+
+        <BudgetUsage />
 
         {agents.data ? (
           <Card>

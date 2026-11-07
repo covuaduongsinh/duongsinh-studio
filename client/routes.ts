@@ -12,7 +12,9 @@ import {
   LayoutDashboard,
   Home,
   InboxIcon,
+  BellRing,
   KeyRound,
+  Wallet,
   Library,
   PackageIcon,
   PackagePlus,
@@ -327,6 +329,37 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
       icon: KeyRound,
     },
     componentLoader: () => import('./pages/settings/organization-keys.js'),
+  },
+  {
+    // Limits of runs and tokens. The server also checks this on every request.
+    name: 'settingsBudgets',
+    parent: 'settingsSystem',
+    path: '/budgets',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'studio.budgets' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.budgets',
+      description: 'navigation.budgetsDescription',
+      icon: Wallet,
+    },
+    componentLoader: () => import('./pages/settings/budgets.js'),
+  },
+  {
+    // Each person's own choices, so everyone signed in may open it.
+    name: 'settingsMyNotifications',
+    parent: 'settingsAccount',
+    path: '/my-notifications',
+    auth: 'required',
+    authz: 'skip',
+    navigation: {
+      title: 'navigation.myNotifications',
+      description: 'navigation.myNotificationsDescription',
+      icon: BellRing,
+    },
+    componentLoader: () => import('./pages/settings/my-notifications.js'),
   },
 ]);
 

@@ -1,3 +1,5 @@
+import type { BudgetService } from '../budgets/service.js';
+import { budgetServiceToken } from './outbound.js';
 import type { Application } from '@nocobase/app-server/application';
 import {
   agentsToken,
@@ -79,6 +81,7 @@ interface Wake {
 export function createAgentKind(deps: {
   readonly agents: Agents;
   readonly projects: Projects;
+  readonly budgets: () => BudgetService;
 }): PrincipalKind {
   const { agents, projects } = deps;
 
@@ -142,7 +145,9 @@ export function createAgentKind(deps: {
     const since = new Date(
       Math.max(
         Date.now() - COMMENT_RUN_WINDOW_MS,
-        grant?.continuedAt ? new Date(grant.continuedAt as string | Date).getTime() : 0,
+        grant?.continuedAt
+          ? new Date(grant.continuedAt as string | Date).getTime()
+          : 0,
       ),
     );
     const inputs = await agents.runs.inputsSince(
@@ -181,6 +186,13 @@ export function createAgentKind(deps: {
     )
       return attempt({ started: false, skipped: 'limited' });
     if (tx.rehearsal) return attempt({ started: true });
+    if (
+      await deps.budgets().blocking(tx.conn, {
+        agentId,
+        projectId: issue.projectId ?? null,
+      })
+    )
+      return attempt({ started: false, skipped: 'limited' });
     const causedByRunId =
       work.actor.type === AGENT_KIND ? work.actor.trace?.runId : undefined;
     const result = await agents.runs.enqueue(
@@ -434,6 +446,7 @@ export default class AgentExecutorProvider extends ServiceProvider<Application> 
       createAgentKind({
         agents: container.resolve(agentsToken),
         projects: container.resolve(projectsToken),
+        budgets: () => container.resolve(budgetServiceToken),
       }),
     );
   }

@@ -22,6 +22,7 @@ import agentSessions from '@nocobase/app-plugin-agent-sessions/client';
 import knowledge from '@nocobase/app-plugin-knowledge/client';
 import releases from '@nocobase/app-plugin-releases/client';
 import projects from '@nocobase/app-plugin-projects/client';
+import notificationWebPush from '@nocobase/app-plugin-notification-web-push/client';
 
 // Array order is contribution order. A plugin is enabled by appearing in this
 // list; removing its entry and its import disables it.
@@ -51,6 +52,7 @@ const clientPlugins: AppClientPlugins = defineClientPlugins([
   // The application routes the plugin's pages itself (`client/routes.ts`): its `/projects` gains the application's
   // project page as a child, and `/issues` hosts the plugin's New issue dialog and plan page.
   projects({ routes: false }),
+  notificationWebPush(),
 ]);
 
 export default clientPlugins;

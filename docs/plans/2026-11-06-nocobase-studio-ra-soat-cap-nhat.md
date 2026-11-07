@@ -322,6 +322,9 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
   - Production `96aba37`. Ca thật trên Sandbox: DS-23 (skill vào brief, tự lái merge PR #7); báo check bằng khoá tổ chức có phạm vi (nguồn `host` từ chối, nguồn `external` nhận, đã trả về `host` và xoá khoá). Tải bản build trên production lộ lỗi URL thiếu `/main`, đã sửa ở commit sau, chưa kiểm chứng lại. `projectSetups`, `newRepo`, `kb/offers` chưa có ca thật.
   - Còn thiếu, chủ ý để lại: `delegations`, `intakeDrafts`, `agentSessions/.../context` (tuỳ chọn); OAuth và device flow của `git/authorizations`; `git/marks|projects|repositoryCards|connections/reach`; `previews/logs|preference|variables`; `deploys` về pipeline và môi trường theo App Host; `testApps`; `webhooks/{provider}/...` (Studio dùng đường `github` cố định).
 - [ ] U7 — Thông báo ra ngoài + ngân sách
+  - Quyết định Q4 chốt 07/11/2026: Email qua Gmail với App Password (mặc định "Cần tôi quyết định" + báo cáo tuần, chỉ thành viên Studio; hỏi trước lần gửi thật đầu tiên); có Web push; có Ngân sách lượt và token (lúc đầu không đặt hạn mức, 80 % cảnh báo, 100 % chặn xếp hàng, có "Mở chặn"). U8 chỉ chọn Sao lưu Google Drive; không làm UptimeRobot.
+  - Mã đã xong (07/11/2026): channel `studio-email` (tắt đến khi có tài khoản), web push (`pushConfig`, `webPush`), `/notificationPreferences`, cảnh báo quyết định mới mỗi 5 phút không gửi dồn, báo cáo tuần và digest gửi cả email; `/budgets` + `dsBudgets`/`dsBudgetEvents`, chặn ở cả bốn chỗ xếp hàng run, Settings → Ngân sách, Settings → Thông báo của tôi, thẻ "Mở chặn" trong Hộp thư, mức dùng trên Dashboard. Cổng: lint, typecheck, locales xanh; 160/160 file, 731 test (`account-permissions` có 3 test quá thời gian một lần khi máy bận, chạy riêng 5/5).
+  - Chưa làm: chưa lên production, chưa có khoá VAPID và tài khoản Gmail thật, chưa gửi thật lần nào.
 - [ ] U8 — Vận hành
 
 (Ghi ngày, commit, số liệu cổng kiểm tra, bản production, việc còn mở dưới từng dòng khi xong.)

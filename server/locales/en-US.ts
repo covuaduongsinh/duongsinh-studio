@@ -113,6 +113,18 @@ const enUS = {
   studioBuilds: {
     externalDriver: 'Outside Studio',
   },
+  studioBudgets: {
+    blockedTitle: 'The budget is used up: {{scope}}',
+    warnedTitle: 'The budget is nearly used up: {{scope}}',
+    usedBody: 'Used {{runs}} runs and {{tokens}} tokens {{period}}.',
+    scopeGlobal: 'all of Studio',
+    periodDay: 'today',
+    periodMonth: 'this month',
+    settingsTitle: 'Budgets',
+  },
+  studioOutbound: {
+    decisionTitle: 'Decision on {{identifier}}',
+  },
   studioOrgKeys: {
     checksTitle: 'Report checks',
     checksDescription:

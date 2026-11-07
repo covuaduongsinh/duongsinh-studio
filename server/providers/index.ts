@@ -7,6 +7,7 @@ import ProjectManagerProvider from './project-manager.js';
 import AgentExecutorProvider from './agent-executor.js';
 import IssueSubjectProvider from './issue-subject.js';
 import BuildStorageProvider from './build-storage.js';
+import OutboundProvider from './outbound.js';
 import OrganizationKeysProvider from './organization-keys.js';
 import ProjectDefaultsProvider from './project-defaults.js';
 import GitProvider from './git.js';
@@ -51,6 +52,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   OrganizationKeysProvider,
   // Keeps Apps and their builds while the App Host stays off (U6).
   BuildStorageProvider,
+  // Email, web push and budgets (U7).
+  OutboundProvider,
 ];
 
 export default serviceProviders;

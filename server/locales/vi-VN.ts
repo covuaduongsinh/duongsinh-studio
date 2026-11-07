@@ -107,6 +107,18 @@ const viVN: AppServerResource = {
   studioBuilds: {
     externalDriver: 'Ngoài Studio',
   },
+  studioBudgets: {
+    blockedTitle: 'Ngân sách đã hết: {{scope}}',
+    warnedTitle: 'Ngân sách sắp hết: {{scope}}',
+    usedBody: 'Đã dùng {{runs}} lượt chạy và {{tokens}} token {{period}}.',
+    scopeGlobal: 'toàn bộ Studio',
+    periodDay: 'hôm nay',
+    periodMonth: 'tháng này',
+    settingsTitle: 'Ngân sách',
+  },
+  studioOutbound: {
+    decisionTitle: 'Cần bạn quyết định: {{identifier}}',
+  },
   studioOrgKeys: {
     checksTitle: 'Báo kết quả check',
     checksDescription: 'Cho CI báo kết quả check của repo lấy check từ CI.',

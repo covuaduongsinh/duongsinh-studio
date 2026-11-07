@@ -1,3 +1,4 @@
+import { budgetServiceToken, outboundToken } from './outbound.js';
 import type { Application } from '@nocobase/app-server/application';
 import { APP_NS } from '@nocobase/i18n';
 import { i18nToken } from '@nocobase/app-server/i18n';
@@ -64,7 +65,7 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
     return {
       runs: {
         enqueue: async (params: Record<string, unknown>) => {
-          const subject = params.subject as { id: string };
+          const subject = params.subject as { id: string; kind?: string };
           const issue = await container
             .resolve(databaseManagerToken)
             .connection()
@@ -83,6 +84,14 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
               actor: { kind: 'system', id: 'system', name: 'Tự lái' },
             },
           };
+          // Its callers log this and try again on a later round.
+          if (
+            subject?.kind === 'issue' &&
+            (await container
+              .resolve(budgetServiceToken)
+              .stopsIssue(subject.id, String(params.agentId)))
+          )
+            throw new Error('The budget for this work is used up.');
           return container.resolve(agentsToken).runs.enqueue(request as never);
         },
         workload: (query: { subjectKind: string; limit?: number }) =>
@@ -146,6 +155,10 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
         database: resolver.resolve(databaseManagerToken),
         evaluator: resolver.resolve(autopilotServiceToken),
         agents: this.agentRuns(),
+        budgetStops: async (issueId, agentId) =>
+          (await resolver
+            .resolve(budgetServiceToken)
+            .stopsIssue(issueId, agentId)) !== null,
         quotaThrottle: (projectId) =>
           resolver
             .resolve(autopilotStallDetectorToken)
@@ -167,9 +180,31 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
       createAutopilotDigest({
         database: resolver.resolve(databaseManagerToken),
         owners: () => this.ownerIds(),
-        notify: (notice) => this.notifyInbox(notice),
+        notify: async (notice) => {
+          await this.notifyInbox(notice);
+          await this.reachOutside(notice);
+        },
       }),
     );
+  }
+
+  /** The same report by email, for whoever keeps that choice on. */
+  private async reachOutside(notice: {
+    readonly to: readonly string[];
+    readonly key: string;
+    readonly title: string;
+    readonly body: string;
+    readonly path: string;
+  }): Promise<void> {
+    const outbound = this.app.container.resolve(outboundToken);
+    for (const userId of notice.to)
+      await outbound.deliver(userId, {
+        key: notice.key,
+        kind: 'report',
+        title: notice.title,
+        body: notice.body,
+        path: notice.path,
+      });
   }
 
   override async boot(): Promise<void> {
@@ -292,6 +327,28 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
     });
 
     await this.executor.addJob({
+      name: 'decision-alerts',
+      options: { cron: '*/5 * * * *', tz: 'Asia/Ho_Chi_Minh' },
+      payload: {},
+      execute: async () => {
+        try {
+          const i18n = container.resolve(i18nToken);
+          const locale = i18n.getDefaultLocale();
+          await i18n.ensureLocaleLoaded(locale);
+          const t = i18n.getFixedT(APP_NS, locale);
+          await container.resolve(outboundToken).sendDecisionAlerts({
+            title: (identifier) =>
+              t('studioOutbound.decisionTitle', { identifier }),
+            body: ({ title, needsYou }) =>
+              needsYou ? `${title}\n\n${needsYou}` : title,
+          });
+        } catch (error) {
+          console.warn('Decision alerts error:', error);
+        }
+      },
+    });
+
+    await this.executor.addJob({
       name: 'reports-weekly',
       options: { cron: '0 8 * * 1', tz: 'Asia/Ho_Chi_Minh' },
       payload: {},
@@ -300,7 +357,10 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
           await sendWeeklyReport({
             figures: () => reportFiguresOf(container),
             owners: () => this.ownerIds(),
-            notify: (notice) => this.notifyInbox(notice),
+            notify: async (notice) => {
+              await this.notifyInbox(notice);
+              await this.reachOutside(notice);
+            },
             translate: async () => {
               const i18n = container.resolve(i18nToken);
               const locale = i18n.getDefaultLocale();

@@ -51,6 +51,7 @@ describe('default Foundation integration', () => {
         [
           ['settingsUsers', '/settings/users'],
           ['permissionManagement', '/settings/roles'],
+          ['settingsMyNotifications', '/settings/my-notifications'],
         ],
       ],
       [
@@ -66,6 +67,7 @@ describe('default Foundation integration', () => {
         [
           ['settingsGit', '/settings/git'],
           ['settingsOrganizationKeys', '/settings/organization-keys'],
+          ['settingsBudgets', '/settings/budgets'],
           ['foundation', '/foundation'],
         ],
       ],

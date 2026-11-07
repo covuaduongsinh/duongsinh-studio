@@ -303,6 +303,7 @@ const settingsAuthorizations = [
     name,
     authorizedAs: 'settings:authorization.default-access',
   })),
+  { name: 'settingsMyNotifications', authorizedAs: null },
   { name: 'settingsIssuePrefix', authorizedAs: 'settings:pm.general' },
   { name: 'settingsIssueLabels', authorizedAs: 'settings:pm.labels' },
   {
@@ -311,6 +312,7 @@ const settingsAuthorizations = [
   },
   { name: 'settingsGit', authorizedAs: 'settings:pm.members' },
   { name: 'settingsOrganizationKeys', authorizedAs: 'settings:studio.apiKeys' },
+  { name: 'settingsBudgets', authorizedAs: 'settings:studio.budgets' },
 ];
 
 /** This application's own contribution, registered the way the client runtime registers it. */

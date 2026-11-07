@@ -99,6 +99,18 @@ const zhCN: AppServerResource = {
   studioBuilds: {
     externalDriver: 'Studio 之外',
   },
+  studioBudgets: {
+    blockedTitle: '预算已用完：{{scope}}',
+    warnedTitle: '预算即将用完：{{scope}}',
+    usedBody: '{{period}}已使用 {{runs}} 次运行和 {{tokens}} 个令牌。',
+    scopeGlobal: '整个 Studio',
+    periodDay: '今天',
+    periodMonth: '本月',
+    settingsTitle: '预算',
+  },
+  studioOutbound: {
+    decisionTitle: '需要你决定：{{identifier}}',
+  },
   studioOrgKeys: {
     checksTitle: '上报检查',
     checksDescription: '允许 CI 上报其仓库的检查结果。',

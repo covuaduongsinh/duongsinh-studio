@@ -1,3 +1,4 @@
+import { budgetServiceToken } from '../providers/outbound.js';
 import {
   authenticationToken,
   type AuthEnv,
@@ -453,6 +454,18 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
       viewer: Viewer,
       text: string,
     ) => {
+      if (
+        await app.container
+          .resolve(budgetServiceToken)
+          .stopsIssue(issue.id, agentId)
+      )
+        throw new ApiError({
+          status: 'FAILED_PRECONDITION',
+          reason: 'BUDGET_EXHAUSTED',
+          domain: 'studio',
+          message:
+            'The budget for this work is used up: release it or wait for the next period.',
+        });
       const name =
         (await agentNames([viewer.userId])).get(viewer.userId) ?? viewer.userId;
       return agents().runs.enqueue({

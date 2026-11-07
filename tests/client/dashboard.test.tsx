@@ -6,11 +6,17 @@ import {
 } from '@nocobase/app-testing/client';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import packageMetadata from '../../package.json' with { type: 'json' };
 import enUS from '../../client/locales/en-US.js';
 import DashboardPage from '../../client/pages/dashboard/index.js';
+
+// Budgets have their own tests (`budgets.test.tsx`); this page's viewer may not see them.
+vi.mock('@nocobase/app-plugin-authorization/client', async (original) => ({
+  ...(await original<Record<string, unknown>>()),
+  useCan: () => ({ can: false, loading: false }),
+}));
 
 const delivery = {
   days: 30,

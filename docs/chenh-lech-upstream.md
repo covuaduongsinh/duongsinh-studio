@@ -554,3 +554,21 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **`builds/*`, `repositoryDeployments/*`, khác demo:** `testApps` và tạo App theo `plan` chưa làm; `apps` của `repositoryDeployments` chỉ gồm vai trò staging và production; CI file chỉ sinh cho GitHub Actions, build theo nhánh, chưa có preview theo pull request; khoá CI là organization key có `releases.apps` và `studio.checks`, phạm vi toàn bộ App chứ không riêng App của repo (Studio chưa nối nguồn bản ghi); tự tải lên qua `curl` với ticket, chưa qua lệnh CLI. `releaseId` của `deploys/productionMarks` vẫn là id phiên bản từ tag, chưa phải bản build.
 - **`deploys/releases/{id}`** trả dữ liệu của plugin, thiếu `deployments`, `variables`, `runningIn` theo hình của demo. **Link tải** chỉ owner tạo được, chỉ lưu hash của token.
 - **Admin được thêm `upload.all` trên App** (seed `202611100002_ds_roles_builds`), vì organization key không vượt quá vai trò Admin.
+
+## 29. U7 — Thông báo ra ngoài và ngân sách (07/11/2026)
+
+- **Email là channel riêng `studio-email`, không phải `system-email`.** README của `notification-providers` gợi ý tên
+  `system-email`, nhưng plugin Users coi riêng việc có khai tên đó là "lời mời đã cấu hình email", kể cả khi `enabled: false`,
+  nên trang mẫu thông báo bật sai (`tests/server/notification-templates.test.ts` phát hiện). Biến môi trường vì thế cũng riêng:
+  `STUDIO_EMAIL_ENABLED`, `STUDIO_SMTP_USER`, `STUDIO_SMTP_PASSWORD`, `STUDIO_SMTP_FROM`. Lời mời người dùng vẫn đi theo
+  `MAILERS_SYSTEM_*`, không đổi. Kế hoạch U7 ghi "mailer `system`" — lệch có chủ ý.
+- **Ngân sách và tuỳ chọn thông báo là phần riêng của Dương Sinh**, demo không có route tương ứng nên không tính vào số route
+  demo: `/budgets` (kèm `scopeOptions`, `release`), `/notificationPreferences`, bốn bảng `dsNotificationPreferences`,
+  `dsDecisionAlerts`, `dsBudgets`, `dsBudgetEvents`. Plugin `agents` không có điểm móc trước `runs.enqueue`, nên việc chặn nằm ở
+  bốn chỗ xếp hàng của ứng dụng: `agent-executor`, `issue-work` (trả `BUDGET_EXHAUSTED`), wrapper của tự lái, và `scheduler`
+  (không mở việc nếu ngân sách đang chặn). Run do plugin tự xếp hàng ngoài các đường này (nếu có về sau) không bị chặn.
+- **Kỳ ngân sách đổi lúc 0 giờ giờ Việt Nam** (cố định UTC+7), không theo UTC của máy chủ.
+- **Quyết định cần báo là `needsYou` và `in_review` chưa xong**, phần còn lại của Hộp thư (run lỗi, PR) chưa gửi ra ngoài.
+  Lần quét đầu tiên cho mỗi người chỉ đánh dấu mốc, không gửi dồn.
+- **Trang "Thông báo của tôi" dùng `authz: 'skip'`**, vì đây là lựa chọn của chính mỗi người; server tự kiểm từng route.
+

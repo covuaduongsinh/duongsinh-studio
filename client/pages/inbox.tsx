@@ -1,5 +1,6 @@
 import type { ReactElement } from 'react';
 
+import { BudgetStops } from '#components/budget-stops';
 import { InboxPage as InboxBlock } from '#extensions/nocobase-inbox/inbox-page';
 import {
   defaultInboxRegistry,
@@ -24,5 +25,10 @@ const registry: InboxRegistry = {
  * button. Every message reads as a notification; production marks waiting on the owner come from their own feed.
  */
 export default function InboxPage(): ReactElement {
-  return <InboxBlock registry={registry} source={studioInboxSource} />;
+  return (
+    <>
+      <BudgetStops />
+      <InboxBlock registry={registry} source={studioInboxSource} />
+    </>
+  );
 }

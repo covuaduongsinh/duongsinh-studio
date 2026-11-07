@@ -32,6 +32,8 @@ export interface AutopilotSchedulerDeps {
       readonly enqueue: (params: Record<string, unknown>) => Promise<unknown>;
     };
   };
+  /** Whether a budget stops this work; nothing opens only to wait on it. */
+  readonly budgetStops?: (issueId: string, agentId: string) => Promise<boolean>;
   /** While a project's runs wait on tool quota, it opens no more than this allows (`stall.ts`). */
   readonly quotaThrottle?: (
     projectId: string,
@@ -310,6 +312,8 @@ export function createAutopilotScheduler(
     const openedIssueIds: string[] = [];
 
     for (const issue of toOpen) {
+      if (await deps.budgetStops?.(issue.id, PROJECT_MANAGER_AGENT_ID))
+        continue;
       const now = new Date();
 
       // Update issue to in_progress with project manager agent
