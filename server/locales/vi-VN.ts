@@ -104,6 +104,12 @@ const viVN: AppServerResource = {
       },
     },
   },
+  studioOrgKeys: {
+    section: 'Studio',
+    settingsTitle: 'Khoá API của tổ chức',
+    read: 'Xem',
+    manage: 'Quản lý',
+  },
   studioSetups: {
     issueTitle: 'Khởi tạo dự án',
     templateIssue:

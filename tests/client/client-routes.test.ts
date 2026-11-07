@@ -305,6 +305,7 @@ const settingsAuthorizations = [
   { name: 'settingsIssuePrefix', authorizedAs: 'settings:pm.general' },
   { name: 'settingsIssueLabels', authorizedAs: 'settings:pm.labels' },
   { name: 'settingsGit', authorizedAs: 'settings:pm.members' },
+  { name: 'settingsOrganizationKeys', authorizedAs: 'settings:studio.apiKeys' },
 ];
 
 /** This application's own contribution, registered the way the client runtime registers it. */

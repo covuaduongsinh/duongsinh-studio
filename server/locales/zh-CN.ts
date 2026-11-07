@@ -96,6 +96,12 @@ const zhCN: AppServerResource = {
       },
     },
   },
+  studioOrgKeys: {
+    section: 'Studio',
+    settingsTitle: '组织 API 密钥',
+    read: '查看',
+    manage: '管理',
+  },
   studioSetups: {
     issueTitle: '初始化项目',
     templateIssue:

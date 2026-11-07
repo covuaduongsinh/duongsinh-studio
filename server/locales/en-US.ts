@@ -110,6 +110,12 @@ const enUS = {
       },
     },
   },
+  studioOrgKeys: {
+    section: 'Studio',
+    settingsTitle: 'Organization API keys',
+    read: 'View',
+    manage: 'Manage',
+  },
   studioSetups: {
     issueTitle: 'Initialize project',
     templateIssue:

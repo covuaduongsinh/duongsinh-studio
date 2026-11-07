@@ -6,6 +6,7 @@ import AgentActionsProvider from './agent-actions.js';
 import ProjectManagerProvider from './project-manager.js';
 import AgentExecutorProvider from './agent-executor.js';
 import IssueSubjectProvider from './issue-subject.js';
+import OrganizationKeysProvider from './organization-keys.js';
 import ProjectDefaultsProvider from './project-defaults.js';
 import GitProvider from './git.js';
 import MemoryProvider from './memory.js';
@@ -45,6 +46,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   AutopilotProvider,
   // Projects as a skill scope, the skills new projects start with, and Studio's own skills (U6).
   ProjectDefaultsProvider,
+  // The account organization API keys belong to (U6).
+  OrganizationKeysProvider,
 ];
 
 export default serviceProviders;

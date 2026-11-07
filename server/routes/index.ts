@@ -8,6 +8,7 @@ import { inboxRoutes } from './inbox.js';
 import { issueWorkRoutes } from './issue-work.js';
 import { kbRoutes } from './kb.js';
 import { projectManagerRoutes } from './project-manager.js';
+import { organizationKeyRoutes } from './organization-keys.js';
 import { projectMemoryRoutes } from './project-memory.js';
 import { projectSetupRoutes } from './project-setups.js';
 import { reportRoutes } from './reports.js';
@@ -24,6 +25,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   inboxRoutes,
   reportRoutes,
   projectSetupRoutes,
+  organizationKeyRoutes,
   webhookRoutes,
   projectMemoryRoutes,
   kbRoutes,

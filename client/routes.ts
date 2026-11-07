@@ -12,6 +12,7 @@ import {
   LayoutDashboard,
   Home,
   InboxIcon,
+  KeyRound,
   Library,
   PackageIcon,
   ServerCog,
@@ -282,6 +283,23 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
       icon: GitBranch,
     },
     componentLoader: () => import('./pages/settings/git.js'),
+  },
+  {
+    // API keys of the organization, for CI and other machines. The server also refuses every key here.
+    name: 'settingsOrganizationKeys',
+    parent: 'settingsSystem',
+    path: '/organization-keys',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'studio.apiKeys' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.organizationKeys',
+      description: 'navigation.organizationKeysDescription',
+      icon: KeyRound,
+    },
+    componentLoader: () => import('./pages/settings/organization-keys.js'),
   },
 ]);
 
