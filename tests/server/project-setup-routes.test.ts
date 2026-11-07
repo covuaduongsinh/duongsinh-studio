@@ -30,6 +30,7 @@ const PASSWORD = 'Studio-test-123!';
 const API = 'https://github.test/api';
 const TOKEN = 'ghp_test_token';
 
+const pushed: { repo: string; path: string; content: string }[] = [];
 const created: { name: string; private: boolean; auto_init: boolean }[] = [];
 
 /** GitHub as far as linking `acme/sandbox` asks it. */
@@ -93,6 +94,17 @@ function fakeGitHub(): void {
           },
           201,
         );
+      }
+      if (init?.method === 'PUT' && path.includes('/contents/')) {
+        const [, , owner, repo, , ...file] = path.split('/');
+        if (repo === 'ci-loi') return answer({ message: 'Forbidden' }, 403);
+        const sent = JSON.parse(String(init.body)) as { content: string };
+        pushed.push({
+          repo: `${owner}/${repo}`,
+          path: file.join('/'),
+          content: Buffer.from(sent.content, 'base64').toString('utf8'),
+        });
+        return answer({ content: {} }, 201);
       }
       if (path.startsWith('/repos/ds-bot/') && !path.endsWith('/pulls'))
         return answer({
@@ -415,6 +427,38 @@ test(
       ((await blank.json()).data as { initIssueId: unknown }).initIssueId,
     ).toBeNull();
     expect(created.at(-1)?.auto_init).toBe(true);
+
+    // CI: pushed with the creator's own token; a refusal is reported beside the project and never undoes it.
+    const withCi = async (name: string) =>
+      admin.fetch(
+        '/projectSetups',
+        json({
+          name: `CI ${name}`,
+          codeLocation: 'newRepo',
+          ci: true,
+          newRepo: {
+            connectionId,
+            name,
+            private: true,
+            init: { method: 'empty' },
+          },
+        }),
+      );
+    const okCi = await withCi('ci-tot');
+    expect(okCi.status).toBe(201);
+    expect(
+      ((await okCi.json()).data as { deployError: unknown }).deployError,
+    ).toBeNull();
+    expect(pushed.at(-1)).toMatchObject({
+      repo: 'ds-bot/ci-tot',
+      path: '.github/workflows/ds-check.yml',
+    });
+    expect(pushed.at(-1)?.content).toContain('pnpm check');
+    const badCi = await withCi('ci-loi');
+    expect(badCi.status).toBe(201);
+    expect(
+      ((await badCi.json()).data as { deployError: string | null }).deployError,
+    ).toBeTruthy();
 
     // A repository the App cannot reach is reported as made but not installed, and no project is left behind.
     const projectsNow = await countProjects();

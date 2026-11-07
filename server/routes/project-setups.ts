@@ -38,6 +38,7 @@ import {
   PROJECT_MANAGER_ID,
 } from '../agents/ids.js';
 import { gitServiceToken } from '../providers/git.js';
+import { CI_WORKFLOW, CI_WORKFLOW_PATH } from '../setups/ci-workflow.js';
 import { readTemplateRelease } from '../setups/template-version.js';
 import {
   projectDefaultSkills,
@@ -440,6 +441,37 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
         let initIssue: { id: string; identifier: string } | null = null;
         let message: string | null = null;
         const t = await translate();
+
+        // CI for a repository made here: pushed with the creator's own token (the App may not write workflows). A failure never
+        // undoes the setup; it is reported beside the project.
+        let ciError: string | null = null;
+        let ciPushed = false;
+        if (body.ci && body.codeLocation === 'newRepo' && repository) {
+          const made = repository;
+          try {
+            await guardedGit(() =>
+              git().writeFileAsPerson(
+                viewer.userId,
+                made.connectionId,
+                made.repo,
+                {
+                  path: CI_WORKFLOW_PATH,
+                  content: CI_WORKFLOW,
+                  message: 'ci: add the pull request check',
+                  branch: made.defaultBranch,
+                },
+              ),
+            );
+            ciPushed = true;
+          } catch (failure) {
+            ciError = t('studioSetups.ciNotPushed', {
+              reason: (failure instanceof Error
+                ? failure.message
+                : 'unknown'
+              ).replace(/\.$/, ''),
+            });
+          }
+        }
         if (init && init.method !== 'empty') {
           const available = await agents().agents.findWorkable(
             conn(),
@@ -488,7 +520,8 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
             })
             .execute();
 
-        const deployAsked = Boolean(body.deploy) || Boolean(body.ci);
+        const deployAsked =
+          Boolean(body.deploy) || (Boolean(body.ci) && !ciPushed);
         return context.json(
           {
             data: {
@@ -501,7 +534,8 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
               initIssueIdentifier: initIssue?.identifier ?? null,
               init: await initOf(project.id),
               apps: [],
-              deployError: deployAsked ? t('studioSetups.deployLater') : null,
+              deployError:
+                ciError ?? (deployAsked ? t('studioSetups.deployLater') : null),
             },
             ...(message ? { meta: { message } } : {}),
           },

@@ -126,6 +126,8 @@ const zhCN: AppServerResource = {
       '使用 NocoBase 3 模板 `{{template}}@{{version}}`（必须是此版本，不用 `latest`）初始化项目 `{{name}}`。若 `node -v` 低于 24 或 `pnpm -v` 低于 11，请停止并报告。仓库已有一个 README 提交。\n\n1. 在仓库之外的临时目录运行：`pnpm create @nocobase/app <name> --template={{template}}@{{version}} --no-install`（不加 `@beta`）。\n2. 将所有文件（含隐藏文件）移入仓库根目录并保留 `.git`。删除 GitHub 生成的 `README.md`，保留模板的 `README.MD`。\n3. `pnpm install`、`pnpm add @nocobase/db-postgres`、`pnpm nocobase config init --dialect sqlite`、`pnpm nocobase config check`。\n4. 不提交 `config.yml`、`.env`、`storage/`。写入 `docs/nguon-goc.md`：模板、版本、日期、“由 create-app 创建，未从其他应用复制”。\n5. 将初始提交推到默认分支，不强制推送；之后的工作在独立分支进行。\n6. 遵循 `ds-app-rules` 技能：不在共享 runner 上运行全仓库检查。报告已创建的内容。',
     managerUnavailable:
       '项目经理尚未配置，此任务正在等待。请先配置，再开始任务。',
+    ciNotPushed:
+      '项目已创建，但未能推送 CI：{{reason}}。请连接个人令牌（含 Workflows 权限），再添加 .github/workflows/ds-check.yml。',
     deployLater: '部署设置尚未应用：请在项目的发布中连接应用。',
   },
   studioReports: {

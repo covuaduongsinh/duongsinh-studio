@@ -134,6 +134,8 @@ const viVN: AppServerResource = {
       'Khởi tạo dự án `{{name}}` từ mẫu NocoBase 3 `{{template}}@{{version}}` (đúng phiên bản này, không dùng `latest`). Dừng và báo lại nếu `node -v` dưới 24 hoặc `pnpm -v` dưới 11. Repo đã có sẵn một commit README.\n\n1. Ở một thư mục tạm NGOÀI repo: `pnpm create @nocobase/app <tên> --template={{template}}@{{version}} --no-install` (không thêm `@beta`).\n2. Chuyển mọi file, kể cả file ẩn, vào gốc repo, giữ `.git`. Xoá `README.md` do GitHub tạo, giữ `README.MD` của mẫu.\n3. `pnpm install`, `pnpm add @nocobase/db-postgres`, `pnpm nocobase config init --dialect sqlite`, `pnpm nocobase config check`.\n4. Không commit `config.yml`, `.env`, `storage/`. Ghi `docs/nguon-goc.md`: mẫu, phiên bản, ngày tạo, "tạo bằng create-app, không sao chép từ app khác".\n5. Commit mốc gốc lên nhánh mặc định, không force-push; mọi việc sau làm trên nhánh riêng.\n6. Theo skill `ds-app-rules`: không chạy kiểm tra toàn repo trên runner dùng chung. Báo lại những gì đã tạo.',
     managerUnavailable:
       'Trưởng nhóm agent chưa được cấu hình nên việc này đang chờ. Hãy cấu hình rồi bắt đầu việc.',
+    ciNotPushed:
+      'Dự án đã tạo nhưng chưa đẩy được CI: {{reason}}. Nối token cá nhân (có quyền Workflows) rồi thêm tệp .github/workflows/ds-check.yml.',
     deployLater:
       'Chưa áp dụng thiết lập triển khai: hãy nối ứng dụng ở mục phát hành của dự án.',
   },

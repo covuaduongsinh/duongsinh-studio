@@ -141,6 +141,8 @@ const enUS = {
       'Set up project `{{name}}` from the NocoBase 3 template `{{template}}@{{version}}` (exactly this version, never `latest`). Stop and report if `node -v` is below 24 or `pnpm -v` is below 11. The repository already has a README commit.\n\n1. In a temporary directory OUTSIDE the repository: `pnpm create @nocobase/app <name> --template={{template}}@{{version}} --no-install` (no `@beta`).\n2. Move every file, hidden ones included, into the repository root and keep `.git`. Delete the `README.md` GitHub created and keep the template\'s `README.MD`.\n3. `pnpm install`, `pnpm add @nocobase/db-postgres`, `pnpm nocobase config init --dialect sqlite`, `pnpm nocobase config check`.\n4. Do not commit `config.yml`, `.env` or `storage/`. Write `docs/nguon-goc.md`: template, version, date, "created with create-app, not copied from another app".\n5. Commit the root milestone to the default branch without force-pushing; do all later work on a branch.\n6. Follow the `ds-app-rules` skill: no repository-wide checks on the shared runner. Report what was created.',
     managerUnavailable:
       'The project manager is not configured, so this task waits. Configure it, then start the task.',
+    ciNotPushed:
+      'The project was created but CI was not pushed: {{reason}}. Connect your personal token (with Workflows permission) and add .github/workflows/ds-check.yml.',
     deployLater:
       'Deploy settings are not applied yet: connect the App from the releases of the project.',
   },

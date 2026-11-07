@@ -72,6 +72,16 @@ export interface GitHubClient {
     readonly description: string | null;
     readonly autoInit: boolean;
   }): Promise<GitHubRepository>;
+  /** Creates a file on a branch with one commit; the file must not exist yet. */
+  putFile(
+    fullName: string,
+    input: {
+      readonly path: string;
+      readonly content: string;
+      readonly message: string;
+      readonly branch: string;
+    },
+  ): Promise<void>;
   /** One page of the repositories the token reaches, with whether there are more. */
   repositories(
     source: 'installation' | 'user',
@@ -449,6 +459,17 @@ export function createGitHubClient(options: {
         }),
       );
       return { sha: text(answer.sha) };
+    },
+    async putFile(fullName, input) {
+      await call(
+        'PUT',
+        `${repoPath(fullName)}/contents/${input.path.split('/').map(encodeURIComponent).join('/')}`,
+        {
+          message: input.message,
+          content: Buffer.from(input.content, 'utf8').toString('base64'),
+          branch: input.branch,
+        },
+      );
     },
     async comment(fullName, number, body) {
       await call('POST', `${repoPath(fullName)}/issues/${number}/comments`, {

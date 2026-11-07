@@ -341,7 +341,7 @@ Tổng khoảng **11 ngày làm việc** của agent nếu có K2.3 (0,5 + 2,5 +
   - K1.7 xong (`chenh-lech-upstream.md` mục 30). K1.6: hai lỗi mới tự hiện vì trang đã in `error.message`; chưa hiện phiên bản template.
   - Còn: ca thật `ds-setup-probe` (production).
 - [ ] K2 — Skill luật ứng dụng và giới hạn runner
-  - Xong trong mã: K2.1 (`ds-app-rules` + `ds-development` trỏ tới). Còn: K2.2 gắn cho `nocofen` (production), K2.3 CI.
+  - Xong trong mã: K2.1 (`ds-app-rules` + `ds-development` trỏ tới). K2.3 xong trong mã: `ci: true` trên `newRepo` đẩy `.github/workflows/ds-check.yml` (`server/setups/ci-workflow.ts`) bằng token cá nhân của người tạo (`writeFileAsPerson`; kết nối App mà thiếu token thì tạo project vẫn thành công và `deployError` báo chưa đẩy được CI). Chưa đo thời gian chạy trên GitHub. Còn: K2.2 gắn cho `nocofen` (production).
 - [ ] K3 — Việc còn mở
   - Xong trong mã: K3.2 (`stepOf` dịch câu hệ thống sang tiếng Việt, `tests/server/progress-step.test.ts`), K3.6 phần mã (URL bị từ chối 400, danh sách rỗng thành `null`). K3.3 xong (`taskGroups` nhận `cursor`, trả `nextCursor`; test phân trang trong `inbox-routes`). K3.1 xong trong mã: thẻ quyết định của Studio không còn nút đánh dấu/xoá (`inbox-actions.ts`, có chú thích vì sửa extension UI Library), `decisionsOn` thêm `takeOver` và `limited` (nhãn 3 ngôn ngữ). K3.4 một phần: `issueProgress` có `personalRunnerRequests`, `waiting`, `managerWait`; `issuePanels` chưa thêm `versionProgress`, `decisions`, `offers`, `previews` vì chưa có nguồn dữ liệu thật để trả. Còn: dữ liệu `nocofen` trên production, K3.5.
 - [x] K4 — Tài liệu (07/11/2026)
