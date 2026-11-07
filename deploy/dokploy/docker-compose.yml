@@ -39,6 +39,13 @@ services:
       DOKPLOY_URL: ${DOKPLOY_URL:-}
       DOKPLOY_API_KEY: ${DOKPLOY_API_KEY:-}
       DOKPLOY_PROJECT_ID: ${DOKPLOY_PROJECT_ID:-}
+      # Web push and email (U7): empty means off; see docs/trien-khai-vps.md.
+      WEB_PUSH_PRIVATE_KEY: ${WEB_PUSH_PRIVATE_KEY:-}
+      WEB_PUSH_CONTACT: ${WEB_PUSH_CONTACT:-https://studio.dsc.edu.vn}
+      STUDIO_EMAIL_ENABLED: ${STUDIO_EMAIL_ENABLED:-false}
+      STUDIO_SMTP_USER: ${STUDIO_SMTP_USER:-}
+      STUDIO_SMTP_PASSWORD: ${STUDIO_SMTP_PASSWORD:-}
+      STUDIO_SMTP_FROM: ${STUDIO_SMTP_FROM:-}
     volumes:
       - /srv/duongsinh-studio/releases/${STUDIO_RELEASE:?STUDIO_RELEASE is required}/dist:/app/dist:ro
       - /srv/duongsinh-studio/config.yml:/app/config.yml:ro
