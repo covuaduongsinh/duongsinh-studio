@@ -17,6 +17,8 @@ import {
   type Viewer,
 } from '@nocobase/app-plugin-projects/server/tokens';
 import type { Application } from '@nocobase/app-server/application';
+import { i18nToken } from '@nocobase/app-server/i18n';
+import { APP_NS } from '@nocobase/i18n';
 import {
   ApiError,
   apiErrorResponses,
@@ -43,6 +45,7 @@ import {
   stepOf,
   undecidedFailedRun,
   type ProgressRun,
+  type StepKey,
 } from '../progress/service.js';
 
 type Env = AuthEnv & AuthorizationEnv;
@@ -385,6 +388,16 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
       };
     };
 
+    /** Studio's own hand-over lines in the application's default language, for `step`. */
+    const stepWords = async () => {
+      const i18n = container.resolve(i18nToken);
+      const locale = i18n.getDefaultLocale();
+      await i18n.ensureLocaleLoaded(locale);
+      const t = i18n.getFixedT(APP_NS, locale);
+      return (key: StepKey, issue: string) =>
+        t(`studioProgress.steps.${key}`, { issue });
+    };
+
     const progressOf = async (viewer: Viewer, issue: IssueRow) => {
       const runs = (await runsOf(issue.id)) as unknown as (ProgressRun & {
         runnerName?: string | null;
@@ -430,7 +443,7 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
         undecidedFailedRunId: failed,
         commentRunsHeld: held !== null,
         agentName: (id) => names.get(id) ?? id,
-        step: stepOf(firstInput?.text),
+        step: stepOf(firstInput?.text, await stepWords()),
         explanationCommentId: managerComment?.id
           ? str(managerComment.id)
           : null,

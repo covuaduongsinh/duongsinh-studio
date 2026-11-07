@@ -144,9 +144,13 @@ test(
     ).data as {
       state: string;
       agent: { id: string };
+      step: string | null;
     };
     expect(queued.state).toBe('queued');
     expect(queued.agent.id).toBe(coder.id);
+    // The hand-over the agent got in English reads in the application's language.
+    expect(queued.step).toContain(issue.identifier);
+    expect(queued.step).not.toContain('work on it');
     const board = (await (await admin.fetch('/agentBoard')).json()).data as {
       rows: { state: string; issue: { id: string }; mine: boolean }[];
       summary: { queued: number };

@@ -128,6 +128,14 @@ const viVN: AppServerResource = {
     read: 'Xem',
     manage: 'Quản lý',
   },
+  studioProgress: {
+    steps: {
+      entered: 'Bắt đầu làm {{issue}}.',
+      handed: 'Nhận {{issue}} khi việc đang làm dở.',
+      unblocked: '{{issue}} hết vướng, làm tiếp.',
+      retry: 'Chạy lại phần việc của lượt trước.',
+    },
+  },
   studioSetups: {
     issueTitle: 'Khởi tạo dự án',
     templateIssue:

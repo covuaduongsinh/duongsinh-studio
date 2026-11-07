@@ -120,6 +120,14 @@ const zhCN: AppServerResource = {
     read: '查看',
     manage: '管理',
   },
+  studioProgress: {
+    steps: {
+      entered: '开始处理 {{issue}}。',
+      handed: '在进行中接手 {{issue}}。',
+      unblocked: '{{issue}} 不再受阻，继续处理。',
+      retry: '重试上一次运行的工作。',
+    },
+  },
   studioSetups: {
     issueTitle: '初始化项目',
     templateIssue:

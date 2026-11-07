@@ -135,6 +135,14 @@ const enUS = {
     read: 'View',
     manage: 'Manage',
   },
+  studioProgress: {
+    steps: {
+      entered: 'Starting on {{issue}}.',
+      handed: 'Taking over {{issue}} while it is in progress.',
+      unblocked: '{{issue}} is no longer held: carrying on.',
+      retry: 'Retrying the work of the previous run.',
+    },
+  },
   studioSetups: {
     issueTitle: 'Initialize project',
     templateIssue:

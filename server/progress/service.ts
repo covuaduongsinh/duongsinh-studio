@@ -67,13 +67,37 @@ export function isFinishedStatus(statusKey: string): boolean {
   return FINISHED.has(statusKey);
 }
 
-/** The first line of a hand-over, as the demo's `step` shows it. */
-export function stepOf(text: string | null | undefined): string | null {
+/** Hand-overs Studio and the agents plugin write in English for the agent, which `step` shows in the reader's words. */
+export type StepKey = 'entered' | 'handed' | 'unblocked' | 'retry';
+
+const KNOWN_STEPS: readonly (readonly [RegExp, StepKey])[] = [
+  // `server/providers/agent-executor.ts`
+  [/^(\S+) is in progress: work on it\.$/u, 'entered'],
+  [/^(\S+) was handed to you while in progress: work on it\.$/u, 'handed'],
+  [/^Nothing holds (\S+) any more: work on it\.$/u, 'unblocked'],
+  // The agents plugin's retry input (`runs/run.service.js`)
+  [/^Retry the work of the previous run\.$/u, 'retry'],
+];
+
+/**
+ * The first line of a hand-over, as the demo's `step` shows it. A line Studio or the plugin wrote is given to `word`
+ * with its issue identifier, so it reads in the application's language; what the agent was sent stays as it was.
+ */
+export function stepOf(
+  text: string | null | undefined,
+  word?: (key: StepKey, issue: string) => string,
+): string | null {
   const line = text
     ?.split('\n')
     .map((part) => part.trim())
     .find((part) => part.length > 0 && !part.startsWith('[@'));
-  return line ? line.slice(0, 200) : null;
+  if (!line) return null;
+  if (word)
+    for (const [pattern, key] of KNOWN_STEPS) {
+      const match = pattern.exec(line);
+      if (match) return word(key, match[1] ?? '').slice(0, 200);
+    }
+  return line.slice(0, 200);
 }
 
 export function computeProgress(facts: ProgressFacts): IssueProgress {
