@@ -1,7 +1,8 @@
 # Dương Sinh Studio: application-specific decisions
 
 This application is Dương Sinh Studio, a self-built agent orchestration platform for Công ty CP Cờ vua Dương Sinh. Plans from
-2026-11-06 onward live in `docs/plans/`; earlier ones stay in `D:\code\nocobase\docs\plans\` (read-only reference). Vietnamese
+2026-11-06 onward live in `docs/plans/`; the earlier ones still referenced are copied verbatim into `docs/plans/archive/`
+(history: read, never edit; the originals are in the `covuaduongsinh/nocobase` repository). Vietnamese
 operating notes live in `docs/`; moving to a newer NocoBase follows `docs/nang-cap.md`.
 
 ## Toolchain constraints
@@ -34,6 +35,16 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
 - For a contributor, "related" issues include every issue without a project. Private work belongs in a project with
   `visibility: 'members'`.
 - Record every mismatch between a published `@nocobase/*@beta` package and its README in `docs/chenh-lech-upstream.md`.
+
+## Agent runs
+
+- The shared runner `vps-studio-runner` is capped by its systemd slice (2.5 GiB memory, 512 MiB swap, 300 % CPU; see
+  `docs/trien-khai-vps.md`, section Runner). Work given to it must never run a whole-repository check (`pnpm check`,
+  `pnpm lint`, `pnpm test`, `pnpm build`, `pnpm typecheck`, a bare `tsc` or `vitest run`) or leave `pnpm dev` running;
+  one scoped command at a time (`pnpm exec vitest run <file>`, `pnpm exec eslint <file>`), committing after each step.
+  A whole-repository check there can exhaust the slice and cost the run its lease.
+- Intake turns every bullet line of a description into its own issue (DS-25…DS-56 came from one long prompt and were
+  cancelled together). Give a long brief to one issue as its description, not to intake.
 
 ## Tests
 

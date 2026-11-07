@@ -27,5 +27,9 @@ database/*/seeds/
 !.agents/rules/
 .claude/skills/
 
+# Plans written before 2026-11-06 in the `covuaduongsinh/nocobase` repository, copied verbatim as history. Reformatting them
+# would make them differ from the originals that other documents cite.
+docs/plans/archive/
+
 # Internal packages run their own formatting through check:packages.
 packages/

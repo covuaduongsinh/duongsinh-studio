@@ -1,7 +1,7 @@
 # Chênh lệch giữa gói đã publish và tài liệu/kế hoạch
 
 Ghi lại mỗi lần gói `@nocobase/*@beta` lệch với README đã đọc hoặc với kế hoạch
-(`D:\code\nocobase\docs\plans\2026-11-01-nocobase-studio-ke-hoach-phat-trien.md`).
+(`docs/plans/archive/2026-11-01-nocobase-studio-ke-hoach-phat-trien.md`).
 Mốc đối chiếu nguồn: `upstream/v3-develop` commit `04922adec1` (2026-10-31).
 
 ## Phiên bản đã lắp (S0, 01/11/2026)

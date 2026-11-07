@@ -339,6 +339,19 @@ Tổng khoảng **11 ngày làm việc** của agent nếu có K2.3 (0,5 + 2,5 +
 - [ ] K1 — Khởi tạo dự án đúng chuẩn
 - [ ] K2 — Skill luật ứng dụng và giới hạn runner
 - [ ] K3 — Việc còn mở
-- [ ] K4 — Tài liệu
+- [x] K4 — Tài liệu (07/11/2026, nhánh `docs/k4-tai-lieu`)
+  - Chép nguyên văn 7 kế hoạch (2.796 dòng, `cat … | wc -l`) vào `docs/plans/archive/`, thêm vào `.prettierignore`. Quét
+    mẫu khoá (`ghp_`, `github_pat_`, `gho_`, private key, `AKIA`, `sk-`, `xox[bp]-`) và gán giá trị cho
+    `password|token|secret|api_key`: 0 giá trị bí mật; 9 dòng khớp đều là mô tả API (`hasToken: boolean`, tên lệnh).
+  - Sửa đường dẫn ở `.agents/rules/duongsinh-studio.md`, `docs/chenh-lech-upstream.md`, `docs/trien-khai-vps.md`, kế hoạch và
+    prompt 06/11, `scripts/compare-studio-api.mjs` (đường dẫn tính từ vị trí script). Chạy với swagger rỗng: đọc được 186
+    route demo. Các dòng `D:\code\nocobase` còn lại chỉ nói về mã upstream hoặc là lịch sử rà soát.
+  - `docs/trien-khai-vps.md`: khoá `~/.ssh/vps_key`; bước chờ hết run, tạm dừng tự lái, dump `studio-before-*`; thông số
+    runner thật; cron chưa chạy lần nào trước 03:15 ngày 08/11; remote mã hoá và `SECRETS_KEYS`. Kết quả K0 ghi sau.
+  - `.agents/rules/duongsinh-studio.md`: thêm mục Agent runs (giới hạn runner, intake). Cách (a) và `ds-app-rules` ghi
+    cùng commit của K1 và K2, để rules chỉ mô tả cái đã có.
+  - Kiểm: `prettier --check` các file đổi; `vitest run tests/project/agents-md.test.ts` 3/3; `eslint` script đạt. Ba file vốn
+    chưa đúng Prettier ở `main` (kế hoạch và prompt 06/11, `docs/chenh-lech-upstream.md`): giữ định dạng cũ, chỉ sửa dòng
+    đường dẫn.
 
 (Ghi ngày, commit, số liệu cổng kiểm tra, bản production, việc còn mở dưới từng dòng khi xong.)

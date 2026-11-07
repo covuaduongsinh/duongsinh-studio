@@ -24,9 +24,9 @@ chủ dự án **ngay đầu phiên** bằng câu hỏi có lựa chọn, nêu k
   `AGENTS.md`, `.agents/rules/duongsinh-studio.md`, `docs/chenh-lech-upstream.md` (đủ 22 mục), `docs/trien-khai-vps.md`,
   `docs/thuat-ngu.md`, `docs/moi-truong-dev.md`, và các file mã nêu trong từng bước của kế hoạch (`server/providers/agent-actions.ts`,
   `server/autopilot/*.ts`, `server/config/{mail,notification}.ts`, `server/routes/*.ts`, `client/routes.ts`).
-- Hợp đồng đối chiếu (repo `D:\code\nocobase`, **chỉ đọc**, trong WSL là `/mnt/d/code/nocobase`): `docs/plans/2026-11-01-nocobase-studio-dac-ta-demo-api.md`,
-  `docs/plans/2026-11-01-nocobase-studio-phu-luc-api-cli.md` (186 route Studio + 389 lệnh + schema), kế hoạch tổng
-  `docs/plans/2026-11-01-nocobase-studio-ke-hoach-phat-trien.md` (mục 10 Tiến độ), S6 `2026-11-03-nocobase-studio-s6-hoan-thien.md`
+- Hợp đồng đối chiếu (bản sao nguyên văn ở `docs/plans/archive/`, **chỉ đọc**): `docs/plans/archive/2026-11-01-nocobase-studio-dac-ta-demo-api.md`,
+  `docs/plans/archive/2026-11-01-nocobase-studio-phu-luc-api-cli.md` (186 route Studio + 389 lệnh + schema), kế hoạch tổng
+  `docs/plans/archive/2026-11-01-nocobase-studio-ke-hoach-phat-trien.md` (mục 10 Tiến độ), S6 `2026-11-03-nocobase-studio-s6-hoan-thien.md`
   (chỉ tham chiếu; U4–U8 đã gộp), autopilot `2026-11-04-studio-autopilot.md`.
 - Mã upstream NocoBase 3: `D:\code\nocobase`, ref `upstream/v3-develop` = `7c25f885` (06/11/2026), **chỉ đọc** bằng
   `git show upstream/v3-develop:<path>`; CHANGELOG của gói đã cài đọc trong `node_modules/@nocobase/*/CHANGELOG.md`.

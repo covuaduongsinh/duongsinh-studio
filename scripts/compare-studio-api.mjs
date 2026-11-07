@@ -6,14 +6,20 @@
 // The key for a URL comes from DS_STUDIO_API_KEY and goes in a header only. Routes under a group listed in
 // DEFERRED are reported apart, so a deliberate gap never reads as forgotten.
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 const arg = (name, fallback) => {
   const at = process.argv.indexOf(`--${name}`);
   return at >= 0 ? process.argv[at + 1] : fallback;
 };
 
-const APPENDIX =
-  '/mnt/d/code/nocobase/docs/plans/2026-11-01-nocobase-studio-phu-luc-api-cli.md';
+// Resolved from this script, so it works from any working directory and on any machine with the repository.
+const APPENDIX = fileURLToPath(
+  new URL(
+    '../docs/plans/archive/2026-11-01-nocobase-studio-phu-luc-api-cli.md',
+    import.meta.url,
+  ),
+);
 const DEFAULT_SWAGGER = 'http://127.0.0.1:13100/main/api/swagger';
 
 /** Deliberately not built yet, with where the decision is written. Empty: every gap is work still to do. */
