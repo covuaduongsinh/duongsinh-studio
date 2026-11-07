@@ -217,6 +217,18 @@ const enUS = {
     },
     secretOnce: 'Copy this secret now. It will not be shown again.',
   },
+  kbOffers: {
+    title: 'Keep as knowledge?',
+    accept: 'Keep',
+    reject: 'Decline',
+    failed: 'The decision could not be saved.',
+    status: {
+      pending: 'Waiting for a decision',
+      saving: 'Saving',
+      saved: 'Saved',
+      declined: 'Declined',
+    },
+  },
   followUps: {
     title: 'Follow-ups',
     description:

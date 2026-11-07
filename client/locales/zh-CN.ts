@@ -208,6 +208,18 @@ const zhCN: AppResource = {
     },
     secretOnce: '请立即复制此密钥，它不会再次显示。',
   },
+  kbOffers: {
+    title: '保存为知识？',
+    accept: '保存',
+    reject: '不保存',
+    failed: '无法保存决定。',
+    status: {
+      pending: '等待决定',
+      saving: '正在保存',
+      saved: '已保存',
+      declined: '已拒绝',
+    },
+  },
   followUps: {
     title: '跟进',
     description: '你参与的未完成任务，以及上次查看后的新内容。',

@@ -4,6 +4,7 @@
  * `useIssueUpdate`, `useIssuePageActions` and the activity hooks), and hosts the plugin's "New sub-issue" dialog
  * (`issueDetailChildRoutes`) at its outlet.
  */
+import { IssueKbOffers } from './issue-kb-offers.js';
 import { IssueProgressPanel } from './issue-progress.js';
 import { IssueRuns } from './issue-runs.js';
 import { useChatContextSource } from '@nocobase/app-plugin-agents/client/chat';
@@ -366,6 +367,7 @@ function IssueDetailView({
               canEdit={canEditIssues(viewer)}
               onChanged={refetchAfterMerge}
             />
+            <IssueKbOffers issueId={detail.id} />
             <IssuePullRequests
               issueId={detail.id}
               canMerge={canCloseIssue(viewer, detail)}

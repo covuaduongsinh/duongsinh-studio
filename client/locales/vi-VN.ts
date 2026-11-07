@@ -211,6 +211,18 @@ const viVN: AppResource = {
     },
     secretOnce: 'Hãy sao chép khoá này ngay. Khoá sẽ không hiện lại.',
   },
+  kbOffers: {
+    title: 'Lưu vào tri thức?',
+    accept: 'Lưu',
+    reject: 'Không lưu',
+    failed: 'Không lưu được quyết định.',
+    status: {
+      pending: 'Đang chờ quyết định',
+      saving: 'Đang lưu',
+      saved: 'Đã lưu',
+      declined: 'Đã từ chối',
+    },
+  },
   followUps: {
     title: 'Theo dõi',
     description:

@@ -6,7 +6,18 @@ import {
   authorizationToken,
   type AuthorizationEnv,
 } from '@nocobase/app-plugin-authorization';
-import { runIdentityOf } from '@nocobase/app-plugin-agents/server/tokens';
+import {
+  agentsToken,
+  runIdentityOf,
+} from '@nocobase/app-plugin-agents/server/tokens';
+import { databaseManagerToken } from '@nocobase/db';
+import { randomUUID } from 'node:crypto';
+import {
+  DomainError,
+  type Viewer,
+} from '@nocobase/app-plugin-projects/server/tokens';
+import { ISSUE_SUBJECT } from '../agents/ids.js';
+import { str, strOrNull, type Row } from '../git/rows.js';
 import {
   knowledgeToken,
   type KnowledgeReader,
@@ -57,13 +68,10 @@ export const REPLACED_PLUGIN_COMMANDS: readonly string[] = [
 ];
 
 const SpaceQuery = z.object({
-  scope: z
-    .enum([SYSTEM_SCOPE, PROJECT_SCOPE])
-    .optional()
-    .meta({
-      description:
-        '`system` (the shared space) or `project`; every readable space when left out.',
-    }),
+  scope: z.enum([SYSTEM_SCOPE, PROJECT_SCOPE]).optional().meta({
+    description:
+      '`system` (the shared space) or `project`; every readable space when left out.',
+  }),
   owner: z
     .string()
     .max(64)
@@ -80,14 +88,10 @@ const SearchQuery = SpaceQuery.extend({
   limit: z.coerce.number().int().min(1).max(SEARCH_LIMIT_MAX).optional(),
 });
 const DocParams = z.object({
-  doc: z
-    .string()
-    .min(1)
-    .max(200)
-    .meta({
-      description:
-        'A document id, or its slug in `--scope`/`--owner` (the system space by default).',
-    }),
+  doc: z.string().min(1).max(200).meta({
+    description:
+      'A document id, or its slug in `--scope`/`--owner` (the system space by default).',
+  }),
 });
 
 const loose = z.looseObject({});
@@ -126,6 +130,56 @@ const invalid = (message: string) =>
     reason: 'INVALID_SCOPE',
     domain: DOMAIN,
     message,
+  });
+
+const OFFERS = 'dsKbOffers';
+const OFFERS_PER_RUN = 3;
+const DOC_LIST_LIMIT = 200;
+const SYSTEM_SPACE_NAME = 'system';
+const PROPOSE_ACTION = 'kb.knowledge/propose';
+const DocItem = z
+  .object({
+    id: z.string(),
+    slug: z.string(),
+    title: z.string(),
+    kind: z.enum(['folder', 'article', 'file']),
+    filename: z.string().optional(),
+    space: z.string(),
+    version: z.number().int(),
+    summary: z.string(),
+    parentId: z.string().nullable().optional(),
+    children: z.number().int().optional(),
+    url: z.string(),
+  })
+  .meta({ ref: 'StudioKbListItem' });
+
+const OfferStatus = z.enum(['pending', 'saving', 'saved', 'declined']);
+const OfferSchema = z.object({
+  id: z.string(),
+  issueId: z.string(),
+  attachmentId: z.string(),
+  reason: z.string(),
+  status: OfferStatus,
+  targetScope: z.enum(['project', 'system']).nullable(),
+  targetScopeId: z.string().nullable(),
+  decidedById: z.string().nullable(),
+  docId: z.string().nullable(),
+});
+const OfferParams = z.object({ offerId: z.string().min(1) });
+
+const offerDenied = () =>
+  new ApiError({
+    status: 'PERMISSION_DENIED',
+    reason: 'OFFER_DECISION_DENIED',
+    domain: DOMAIN,
+    message: 'Only who sent the file or who owns the issue decides.',
+  });
+const offerDecided = (status: string) =>
+  new ApiError({
+    status: 'FAILED_PRECONDITION',
+    reason: 'OFFER_ALREADY_DECIDED',
+    domain: DOMAIN,
+    message: `This offer is ${status} already.`,
   });
 
 /** The space a `--scope`/`--owner` pair names, or undefined when neither is given. */
@@ -216,6 +270,41 @@ export const kbRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
       ];
     };
 
+    const conn = () => container.resolve(databaseManagerToken).connection();
+
+    /** A person acting for themselves: offers are decided by people, never by a run or a scoped key. */
+    const peopleViewer = async (context: Context<Env>): Promise<Viewer> => {
+      const session = context.get('auth');
+      if (!session)
+        throw new ApiError({
+          status: 'UNAUTHENTICATED',
+          reason: 'UNAUTHENTICATED',
+          domain: 'authentication',
+          message: 'Sign in first.',
+        });
+      if (runIdentityOf(session)?.run)
+        throw new ApiError({
+          status: 'PERMISSION_DENIED',
+          reason: 'RUN_NOT_ALLOWED',
+          domain: DOMAIN,
+          message: 'People decide this, not agent runs.',
+        });
+      if (await auth.isScopedSession(session, context.req.raw))
+        throw new ApiError({
+          status: 'PERMISSION_DENIED',
+          reason: 'SCOPED_KEY_FORBIDDEN',
+          domain: 'authentication',
+          message: 'This endpoint does not accept scoped API keys.',
+        });
+      return {
+        userId: session.user.id,
+        actor: { type: 'user', id: session.user.id },
+        permissions: await container
+          .resolve(projectsAccessToken)
+          .permissionsOf(context.get('authz').identity),
+      };
+    };
+
     const kb = new Hono<Env>();
     for (const path of ['/', '/*'])
       kb.use(path, auth.required({ scopedKeys: true }), authz.middleware());
@@ -304,6 +393,457 @@ export const kbRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
             data: await knowledge().docs.resolve(reader, SYSTEM_SPACE, doc),
           });
         }
+      },
+    );
+
+    kb.get(
+      '/docs',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'List knowledge documents',
+        description:
+          'The documents the caller reads in the spaces read (with the system’s), each with the page that shows it. `q` keeps those matching the words, best first; `parent` one document’s children. A bounded list, not paged.',
+        operationId: 'studioListKnowledge',
+        security: PERSON_OR_RUN,
+        ...cliRoute({ command: 'kb list', action: READ_ACTION }),
+        responses: {
+          '200': dataResponse(z.array(DocItem)),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator(
+        'query',
+        z.object({
+          q: z.string().min(1).optional(),
+          parent: z.string().min(1).optional(),
+          projectId: z.string().min(1).optional(),
+        }),
+      ),
+      async (context) => {
+        const { q, parent, projectId } = context.req.valid('query');
+        const reader = await readerOf(context);
+        const spaces = projectId
+          ? chainOf({ scope: PROJECT_SCOPE, scopeId: projectId })
+          : await directorySpaces(context);
+        const listed: z.infer<typeof DocItem>[] = [];
+        for (const space of spaces) {
+          const tree = await knowledge().docs.tree(reader, space);
+          const name =
+            space.scope === PROJECT_SCOPE ? space.scopeId : SYSTEM_SPACE_NAME;
+          for (const doc of tree.spaces.flatMap((item) => item.docs))
+            if (!parent || doc.parentId === parent)
+              listed.push({
+                id: doc.id,
+                slug: doc.slug,
+                title: doc.title,
+                kind: doc.kind,
+                ...(doc.file ? { filename: doc.file.filename } : {}),
+                space: name,
+                version: doc.version,
+                summary: doc.summary,
+                parentId: doc.parentId,
+                children: doc.childCount,
+                url: `/knowledge/docs/${doc.id}`,
+              });
+        }
+        const words = q
+          ?.toLocaleLowerCase()
+          .split(/\s+/u)
+          .filter((word) => word.length > 0);
+        const matched = words
+          ? listed
+              .map((doc) => {
+                const text =
+                  `${doc.title} ${doc.summary} ${doc.slug}`.toLocaleLowerCase();
+                return {
+                  doc,
+                  score: words.filter((word) => text.includes(word)).length,
+                };
+              })
+              .filter(({ score }) => score > 0)
+              .sort((a, b) => b.score - a.score)
+              .map(({ doc }) => doc)
+          : listed;
+        const data = matched.slice(0, DOC_LIST_LIMIT);
+        return context.json({ data, meta: { total: data.length } });
+      },
+    );
+
+    kb.get(
+      '/docs/:doc/file',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Download a knowledge file',
+        description:
+          'A file’s original bytes by slug or id, as an attachment; `kb read` gives its extracted text.',
+        operationId: 'studioDownloadKnowledge',
+        security: PERSON_OR_RUN,
+        ...cliRoute({ command: 'kb download', action: READ_ACTION }),
+        responses: {
+          '200': { description: 'The file’s bytes.' },
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', DocParams),
+      apiValidator(
+        'query',
+        z.object({ version: z.coerce.number().int().positive().optional() }),
+      ),
+      async (context) => {
+        const { doc } = context.req.valid('param');
+        const { version } = context.req.valid('query');
+        const content = await knowledge().files.content(
+          await readerOf(context),
+          doc,
+          version === undefined ? {} : { version },
+        );
+        return new Response(content.body, {
+          headers: {
+            'content-type': content.file.mimeType,
+            'content-disposition': `attachment; filename*=UTF-8''${encodeURIComponent(content.file.filename)}`,
+          },
+        });
+      },
+    );
+
+    /** What the projects plugin hides from someone answers as not found, rather than as a failure. */
+    const seenByPerson = async <T>(read: () => Promise<T>): Promise<T> => {
+      try {
+        return await read();
+      } catch (failure) {
+        if (failure instanceof DomainError)
+          throw new ApiError({
+            status: 'NOT_FOUND',
+            reason: 'OFFER_NOT_FOUND',
+            domain: DOMAIN,
+            message: 'No such issue or file.',
+          });
+        throw failure;
+      }
+    };
+
+    /** The people who decide about an offer: who sent the file, or who owns the issue now. */
+    const offerRights = async (context: Context<Env>, offer: Row) => {
+      const viewer = await peopleViewer(context);
+      const issue = await seenByPerson(() =>
+        container
+          .resolve(projectsToken)
+          .issueQueries.visible(viewer, str(offer.issueId)),
+      );
+      const attachment = await seenByPerson(() =>
+        container
+          .resolve(projectsToken)
+          .attachments.get(viewer, str(offer.attachmentId)),
+      );
+      return {
+        viewer,
+        issue,
+        attachment,
+        canDecide:
+          issue.ownerUserId === viewer.userId ||
+          (attachment.uploader.type === 'user' &&
+            attachment.uploader.id === viewer.userId),
+      };
+    };
+
+    const offerOf = (row: Row) => ({
+      id: str(row.id),
+      issueId: str(row.issueId),
+      attachmentId: str(row.attachmentId),
+      reason: str(row.reason),
+      status: OfferStatus.parse(str(row.status)),
+      targetScope: strOrNull(row.targetScope) as 'project' | 'system' | null,
+      targetScopeId: strOrNull(row.targetScopeId),
+      decidedById: strOrNull(row.decidedById),
+      docId: strOrNull(row.docId),
+    });
+
+    const offerRow = async (id: string): Promise<Row> => {
+      const row: Row | undefined = await conn()
+        .query.selectFrom(OFFERS)
+        .selectAll()
+        .where('id', '=', id)
+        .executeTakeFirst();
+      if (!row)
+        throw new ApiError({
+          status: 'NOT_FOUND',
+          reason: 'OFFER_NOT_FOUND',
+          domain: DOMAIN,
+          message: 'No such offer.',
+        });
+      return row;
+    };
+
+    kb.post(
+      '/offers',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Suggest keeping a file as knowledge',
+        description:
+          'Only a task run can suggest an original file uploaded by a person on that task. At most three new suggestions per run; repeated requests return the existing suggestion. This never pauses work or sends notifications. Continue working without waiting for a reply.',
+        operationId: 'studioOfferKnowledge',
+        security: [{ runToken: [] }],
+        ...cliRoute({ command: 'kb offer', action: PROPOSE_ACTION }),
+        responses: {
+          '201': dataResponse(OfferSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator(
+        'json',
+        z.object({
+          attachmentId: z.string().min(1),
+          reason: z.string().trim().min(1).max(2_000),
+        }),
+      ),
+      async (context) => {
+        const session = context.get('auth');
+        const run = session ? runIdentityOf(session) : null;
+        if (!run?.run || run.run.run.subjectKind !== ISSUE_SUBJECT)
+          throw new ApiError({
+            status: 'PERMISSION_DENIED',
+            reason: 'RUN_REQUIRED',
+            domain: DOMAIN,
+            message: 'Only an agent’s run on an issue suggests a file.',
+          });
+        if (
+          !(await container.resolve(agentsToken).gate.allowed(run)).has(
+            PROPOSE_ACTION,
+          )
+        )
+          throw new ApiError({
+            status: 'PERMISSION_DENIED',
+            reason: 'ACTION_NOT_ALLOWED',
+            domain: DOMAIN,
+            message: `This agent lacks ${PROPOSE_ACTION}.`,
+          });
+        const issueId = run.run.run.subjectId;
+        const runId = run.run.run.id;
+        const { attachmentId, reason } = context.req.valid('json');
+        const attachment: Row | undefined = await conn()
+          .query.selectFrom('pmAttachments')
+          .select(['issueId', 'uploaderType'])
+          .where('id', '=', attachmentId)
+          .executeTakeFirst();
+        if (
+          !attachment ||
+          str(attachment.issueId) !== issueId ||
+          str(attachment.uploaderType) !== 'user'
+        )
+          throw new ApiError({
+            status: 'NOT_FOUND',
+            reason: 'ATTACHMENT_NOT_FOUND',
+            domain: DOMAIN,
+            message: 'No file a person sent on this issue has that id.',
+          });
+        const existing: Row | undefined = await conn()
+          .query.selectFrom(OFFERS)
+          .selectAll()
+          .where('issueId', '=', issueId)
+          .where('attachmentId', '=', attachmentId)
+          .executeTakeFirst();
+        if (existing) return context.json({ data: offerOf(existing) }, 201);
+        const fromRun = await conn()
+          .query.selectFrom(OFFERS)
+          .select(['id'])
+          .where('runId', '=', runId)
+          .execute();
+        if (fromRun.length >= OFFERS_PER_RUN)
+          throw new ApiError({
+            status: 'FAILED_PRECONDITION',
+            reason: 'OFFER_LIMIT_REACHED',
+            domain: DOMAIN,
+            message: `A run suggests at most ${OFFERS_PER_RUN} files.`,
+          });
+        const id = randomUUID();
+        await conn()
+          .query.insertInto(OFFERS)
+          .values({
+            id,
+            issueId,
+            attachmentId,
+            runId,
+            reason,
+            status: 'pending',
+            createdAt: new Date(),
+          })
+          .execute();
+        return context.json({ data: offerOf(await offerRow(id)) }, 201);
+      },
+    );
+
+    kb.get(
+      '/offers',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'What agents suggest keeping from an issue',
+        description:
+          'One batch for issue and comment attachments, with current uploader/owner decision rights. Removed files are excluded.',
+        operationId: 'studioListKnowledgeOffers',
+        security: PERSON,
+        ...cliRoute(false),
+        responses: {
+          '200': dataResponse(
+            z.array(OfferSchema.extend({ canDecide: z.boolean() })),
+          ),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('query', z.object({ issueId: z.string().min(1) })),
+      async (context) => {
+        const { issueId } = context.req.valid('query');
+        const viewer = await peopleViewer(context);
+        const issue = await seenByPerson(() =>
+          container
+            .resolve(projectsToken)
+            .issueQueries.visible(viewer, issueId),
+        );
+        const rows: Row[] = await conn()
+          .query.selectFrom(OFFERS)
+          .selectAll()
+          .where('issueId', '=', issue.id)
+          .orderBy('createdAt')
+          .execute();
+        const live: Row[] = rows.length
+          ? await conn()
+              .query.selectFrom('pmAttachments')
+              .select(['id', 'uploaderType', 'uploaderId'])
+              .where(
+                'id',
+                'in',
+                rows.map((row) => str(row.attachmentId)),
+              )
+              .execute()
+          : [];
+        const files = new Map(live.map((row) => [str(row.id), row]));
+        return context.json({
+          data: rows.flatMap((row) => {
+            const file = files.get(str(row.attachmentId));
+            if (!file) return [];
+            return [
+              {
+                ...offerOf(row),
+                canDecide:
+                  issue.ownerUserId === viewer.userId ||
+                  (str(file.uploaderType) === 'user' &&
+                    str(file.uploaderId) === viewer.userId),
+              },
+            ];
+          }),
+        });
+      },
+    );
+
+    kb.post(
+      '/offers/:offerId/accept',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Keep the suggested file as knowledge',
+        description:
+          'Only the human uploader or current task owner can decide. Saving checks the confirming person’s edit access and uses that person as author. A saving result must not be automatically retried; reconcile uncertain uploads manually.',
+        operationId: 'studioAcceptKnowledgeOffer',
+        security: PERSON,
+        ...cliRoute(false),
+        responses: {
+          '200': dataResponse(OfferSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', OfferParams),
+      apiValidator(
+        'json',
+        z.object({ scope: z.enum(['project', 'system']).optional() }),
+      ),
+      async (context) => {
+        const row = await offerRow(context.req.valid('param').offerId);
+        const { viewer, issue, attachment, canDecide } = await offerRights(
+          context,
+          row,
+        );
+        if (!canDecide) throw offerDenied();
+        if (str(row.status) !== 'pending') throw offerDecided(str(row.status));
+        const scope =
+          context.req.valid('json').scope ??
+          (issue.projectId ? 'project' : 'system');
+        if (scope === 'project' && !issue.projectId)
+          throw new ApiError({
+            status: 'INVALID_ARGUMENT',
+            reason: 'ISSUE_HAS_NO_PROJECT',
+            domain: DOMAIN,
+            message: 'This issue has no project to keep the file in.',
+          });
+        const scopeId = scope === 'project' ? (issue.projectId ?? '') : '';
+        const reader = { userId: viewer.userId };
+        // Claimed first: saving a file twice is worse than an offer left `saving` to reconcile by hand.
+        const claimed = await conn()
+          .query.updateTable(OFFERS)
+          .set({
+            status: 'saving',
+            targetScope: scope,
+            targetScopeId: scopeId,
+            decidedById: viewer.userId,
+            decidedAt: new Date(),
+          })
+          .where('id', '=', str(row.id))
+          .where('status', '=', 'pending')
+          .execute();
+        if ((claimed.updatedCount ?? 1) === 0) throw offerDecided('saving');
+        const content = await container
+          .resolve(projectsToken)
+          .attachments.content(viewer, attachment.id);
+        const bytes = await new Response(content.body).blob();
+        const doc = await knowledge().files.upload(
+          reader,
+          { scope, scopeId },
+          new File([bytes], attachment.filename, {
+            type: attachment.mimeType,
+          }),
+        );
+        await conn()
+          .query.updateTable(OFFERS)
+          .set({ status: 'saved', docId: doc.id })
+          .where('id', '=', str(row.id))
+          .execute();
+        return context.json({ data: offerOf(await offerRow(str(row.id))) });
+      },
+    );
+
+    kb.post(
+      '/offers/:offerId/reject',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Decline the suggested file',
+        description:
+          'Only the human uploader or current task owner can decide.',
+        operationId: 'studioRejectKnowledgeOffer',
+        security: PERSON,
+        ...cliRoute(false),
+        responses: {
+          '200': dataResponse(OfferSchema),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', OfferParams),
+      async (context) => {
+        const row = await offerRow(context.req.valid('param').offerId);
+        const { viewer, canDecide } = await offerRights(context, row);
+        if (!canDecide) throw offerDenied();
+        if (str(row.status) !== 'pending') throw offerDecided(str(row.status));
+        await conn()
+          .query.updateTable(OFFERS)
+          .set({
+            status: 'declined',
+            decidedById: viewer.userId,
+            decidedAt: new Date(),
+          })
+          .where('id', '=', str(row.id))
+          .execute();
+        return context.json({ data: offerOf(await offerRow(str(row.id))) });
       },
     );
 
