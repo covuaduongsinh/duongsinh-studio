@@ -467,7 +467,7 @@ export function createAutopilotStallDetector(
                 agentId: PROJECT_MANAGER_AGENT_ID,
                 subject: { kind: 'issue', id: issueId },
                 input: {
-                  type: 'prompt',
+                  type: 'custom',
                   actor: { type: 'system', id: AUTOPILOT_USER_ID },
                   text: `Tự lái phát hiện công việc ${issueIdentifier} bị đứng hơn ${stallMinutes} phút. Vui lòng kiểm tra tiến độ, yêu cầu push workspace dở (nếu có: ${unpushedOn.join(', ') || 'không'}) và tiếp tục giao việc.`,
                   payload: {

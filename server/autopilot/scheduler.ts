@@ -379,7 +379,7 @@ export function createAutopilotScheduler(
             agentId: PROJECT_MANAGER_AGENT_ID,
             subject: { kind: 'issue', id: issue.id },
             input: {
-              type: 'prompt',
+              type: 'custom',
               actor: { type: 'system', id: AUTOPILOT_USER_ID },
               text: `Tự lái đã mở công việc ${issue.identifier ?? issue.id}. Hãy bắt đầu phân tích và thực hiện.`,
               payload: {

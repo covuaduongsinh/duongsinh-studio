@@ -37,8 +37,8 @@ test(
     // Setup evaluator & scheduler
     const evaluator = createAutopilotEvaluator({
       database: db,
-      git: () => ({ listPullRequests: vi.fn().mockResolvedValue([]) } as any),
-      reviews: () => ({ latestFor: vi.fn().mockResolvedValue(null) } as any),
+      git: () => ({ listPullRequests: vi.fn().mockResolvedValue([]) }) as any,
+      reviews: () => ({ latestFor: vi.fn().mockResolvedValue(null) }) as any,
     });
 
     const enqueueMock = vi.fn().mockResolvedValue({ id: 'run-1' });
@@ -127,7 +127,9 @@ test(
 
     // Before setting epic flag: both childId and childNoFlagId are not eligible
     expect(await scheduler.isIssueEligibleForAutoStart(childId)).toBe(false);
-    expect(await scheduler.isIssueEligibleForAutoStart(childNoFlagId)).toBe(false);
+    expect(await scheduler.isIssueEligibleForAutoStart(childNoFlagId)).toBe(
+      false,
+    );
 
     // Give epic the auto-start flag
     await scheduler.setIssueFlag(epicId, {
@@ -138,7 +140,9 @@ test(
     // Now childId inherits allowAutoStart from epic
     expect(await scheduler.isIssueEligibleForAutoStart(childId)).toBe(true);
     // Orphan issue still false
-    expect(await scheduler.isIssueEligibleForAutoStart(childNoFlagId)).toBe(false);
+    expect(await scheduler.isIssueEligibleForAutoStart(childNoFlagId)).toBe(
+      false,
+    );
 
     // 4. Test priority ranking and dependencies
     // Setup Issue A (blocker) and Issue B (blocked by A)
@@ -264,6 +268,9 @@ test(
     expect(comments[0].content).toContain('Tự lái đã tự động mở công việc này');
 
     // Verify agent run enqueued
+    expect(enqueueMock.mock.calls[0]?.[0]).toMatchObject({
+      input: { type: 'custom' },
+    });
     expect(enqueueMock).toHaveBeenCalledWith(
       expect.objectContaining({
         agentId: PROJECT_MANAGER_AGENT_ID,
@@ -273,7 +280,9 @@ test(
 
     // Verify audit event recorded
     const events = await evaluator.listEvents({ projectId, limit: 10 });
-    const openEvent = events.find((e) => e.kind === 'opened' && e.issueId === urgentId);
+    const openEvent = events.find(
+      (e) => e.kind === 'opened' && e.issueId === urgentId,
+    );
     expect(openEvent).toBeDefined();
 
     // 6. Complete blockerId => blockedId is now unblocked

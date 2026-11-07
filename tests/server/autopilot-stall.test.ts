@@ -6,9 +6,7 @@ import {
 } from '@nocobase/app-plugin-authentication/testing';
 import { databaseManagerToken } from '@nocobase/db';
 import { createAutopilotEvaluator } from '../../server/autopilot/evaluator.js';
-import {
-  createAutopilotStallDetector,
-} from '../../server/autopilot/stall.js';
+import { createAutopilotStallDetector } from '../../server/autopilot/stall.js';
 import { createStandaloneServer } from '../../server/standalone.js';
 import { PROJECT_MANAGER_AGENT_ID } from '../../server/autopilot/scheduler.js';
 
@@ -36,8 +34,8 @@ test(
 
     const evaluator = createAutopilotEvaluator({
       database: db,
-      git: () => ({ listPullRequests: vi.fn().mockResolvedValue([]) } as any),
-      reviews: () => ({ latestFor: vi.fn().mockResolvedValue(null) } as any),
+      git: () => ({ listPullRequests: vi.fn().mockResolvedValue([]) }) as any,
+      reviews: () => ({ latestFor: vi.fn().mockResolvedValue(null) }) as any,
     });
 
     const enqueueMock = vi.fn().mockResolvedValue({ id: 'woken-run-1' });
@@ -169,6 +167,9 @@ test(
     expect(firstScan.stalledIssueIds).toEqual([stalledIssueId]);
 
     // Verify Project Manager agent was woken with stalled trigger and unpushed runner info
+    expect(enqueueMock.mock.calls[0]?.[0]).toMatchObject({
+      input: { type: 'custom' },
+    });
     expect(enqueueMock).toHaveBeenCalledWith(
       expect.objectContaining({
         agentId: PROJECT_MANAGER_AGENT_ID,
@@ -190,11 +191,15 @@ test(
       .where('issueId', '=', stalledIssueId)
       .execute();
     expect(comments.length).toBeGreaterThan(0);
-    expect(comments[0].content).toContain('Phát hiện công việc có dấu hiệu bị đứng');
+    expect(comments[0].content).toContain(
+      'Phát hiện công việc có dấu hiệu bị đứng',
+    );
 
     // Verify audit event 'stalled' recorded
     let events = await evaluator.listEvents({ projectId, limit: 10 });
-    const stallEvent = events.find((e) => e.kind === 'stalled' && e.issueId === stalledIssueId);
+    const stallEvent = events.find(
+      (e) => e.kind === 'stalled' && e.issueId === stalledIssueId,
+    );
     expect(stallEvent).toBeDefined();
 
     // Issue still remains 'in_progress' after 1st stall
@@ -220,7 +225,9 @@ test(
       .where('id', '=', stalledIssueId)
       .executeTakeFirst();
     expect(issueRow?.statusKey).toBe('blocked');
-    expect(issueRow?.needsYou).toContain('Tự lái: Phát hiện việc bị đứng 2 lần liên tiếp');
+    expect(issueRow?.needsYou).toContain(
+      'Tự lái: Phát hiện việc bị đứng 2 lần liên tiếp',
+    );
 
     // Verify Inbox notification was sent to owners
     expect(notifyMock).toHaveBeenCalledWith(
@@ -232,7 +239,9 @@ test(
 
     // Verify audit event 'blocked' recorded
     events = await evaluator.listEvents({ projectId, limit: 10 });
-    const blockedEvent = events.find((e) => e.kind === 'blocked' && e.issueId === stalledIssueId);
+    const blockedEvent = events.find(
+      (e) => e.kind === 'blocked' && e.issueId === stalledIssueId,
+    );
     expect(blockedEvent).toBeDefined();
 
     // 3. Test toolQuota handling: backoff, concurrency throttle, and delayed retry
@@ -255,11 +264,15 @@ test(
       })
       .execute();
 
-    const quotaResult = await stallDetector.handleQuotaFailure(projectId, quotaIssueId, {
-      runId: 'run-quota-1',
-      failureReason: 'toolQuota',
-      message: 'Claude Max hourly rate limit exceeded',
-    });
+    const quotaResult = await stallDetector.handleQuotaFailure(
+      projectId,
+      quotaIssueId,
+      {
+        runId: 'run-quota-1',
+        failureReason: 'toolQuota',
+        message: 'Claude Max hourly rate limit exceeded',
+      },
+    );
 
     expect(quotaResult.throttled).toBe(true);
     expect(quotaResult.retryDelayMs).toBeGreaterThanOrEqual(30 * 60 * 1000); // at least 30m

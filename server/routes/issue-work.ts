@@ -475,7 +475,7 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
         responsibleUserId: issue.ownerUserId,
         requestedByUserId: viewer.userId,
         input: {
-          type: 'prompt',
+          type: 'custom',
           actor: { kind: 'user', id: viewer.userId, name },
           text,
           payload: {
