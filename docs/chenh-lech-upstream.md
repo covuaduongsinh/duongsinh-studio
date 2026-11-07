@@ -589,3 +589,14 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
   tạo project), `GIT_REPOSITORY_NOT_INSTALLED` khi repo mới đã tạo bằng token cá nhân nhưng kết nối (App chỉ chọn một số repo)
   không với tới. Repo đó không bị xoá tự động.
 - **Route riêng `GET /projectSetupTemplate`** (ngoài hợp đồng demo) cho trang Thiết lập dự án hiện mẫu và phiên bản.
+
+## 31. K2 — Skill `ds-app-rules` và CI cho repo mới (07/11/2026)
+
+- **Skill dựng sẵn thứ sáu, `ds-app-rules`** (phạm vi `project`): luật ứng dụng và giới hạn runner, thay cho việc chép vào mô
+  tả từng công việc. Như năm skill kia, nó chỉ được tạo khi thư viện chưa có slug đó, nên lần khởi động đầu sau khi cập nhật
+  sẽ tạo nó và thêm vào skill mặc định của dự án mới; dự án đã có phải gắn tay (đọc danh sách đang gắn rồi gộp, vì `attach`
+  thay cả danh sách). Bản `ds-development` trên production không đổi theo mã; muốn đổi thì sửa trong thư viện skill.
+- **CI `ds-check` không mở rộng quyền của GitHub App.** App không có quyền `workflows`, nên Studio đẩy
+  `.github/workflows/ds-check.yml` bằng token cá nhân của người tạo, qua Contents API, ngay sau khi tạo repo. Lựa chọn này là
+  `ci: { workflow: "ds-check" }` trong `POST /projectSetups`, riêng của Studio; `ci` theo nghĩa của demo (CI triển khai) vẫn
+  chưa áp dụng và trả `deployError` như trước. Kết quả CI đọc qua `checks_source = host` có sẵn.

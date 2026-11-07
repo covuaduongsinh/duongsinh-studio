@@ -54,3 +54,10 @@ User-facing copy is Vietnamese first (`vi-VN`), with `en-US` kept complete.
   (`server/setups/template-version.ts`); never hard-code a version or fall back to `latest`.
 - Repositories Studio creates always get a first commit, and `existingRepo` without one is refused (`GIT_REPOSITORY_EMPTY`),
   because a run cannot check out an empty repository. See `docs/chenh-lech-upstream.md` section 30.
+- Rules every NocoBase 3 project's agents must follow (origin, permissions, data, licences, theme, runner limits, what to
+  paste before handing over) live in the built-in skill `ds-app-rules` (`server/agents/builtin-skills.ts`), not in issue
+  descriptions. Built-in skills are created only when their slug is missing, so editing one here reaches new
+  installations only; an installation's copy changes through its skill library, with the owner's approval.
+- A new repository can get `.github/workflows/ds-check.yml` (`server/setups/check-workflow.ts`), committed with the
+  creator's own token because the GitHub App has no workflows permission. Without that token the setup still succeeds and
+  `deployError` says CI was not added.

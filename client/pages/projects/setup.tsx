@@ -55,7 +55,12 @@ export default function ProjectSetupPage(): ReactElement {
   const [method, setMethod] = useState<Method>('empty');
   const [prompt, setPrompt] = useState('');
   const [token, setToken] = useState('');
-  const [notice, setNotice] = useState<string | null>(null);
+  const [withCheck, setWithCheck] = useState(true);
+  // A project made with something to tell: the page stays so the notes are read, with a way on to the project.
+  const [made, setMade] = useState<{
+    projectId: string;
+    notes: string[];
+  } | null>(null);
 
   const gitErrorText = useGitErrorText();
   const connectionId = connectionChoice ?? connections.data?.[0]?.id ?? null;
@@ -94,6 +99,7 @@ export default function ProjectSetupPage(): ReactElement {
           private: privateRepo,
           init,
         },
+        ...(withCheck ? { ci: { workflow: 'ds-check' as const } } : {}),
       };
     return {
       ...base,
@@ -113,8 +119,12 @@ export default function ProjectSetupPage(): ReactElement {
     if (!input) return;
     setup.mutate(input, {
       onSuccess: (answer) => {
-        if (answer.meta?.message) setNotice(answer.meta.message);
-        void navigate(`/projects/${answer.data.projectId}`);
+        const notes = [answer.meta?.message, answer.data.deployError].filter(
+          (note): note is string => typeof note === 'string' && note !== '',
+        );
+        if (notes.length === 0)
+          void navigate(`/projects/${answer.data.projectId}`);
+        else setMade({ projectId: answer.data.projectId, notes });
       },
     });
   };
@@ -242,6 +252,25 @@ export default function ProjectSetupPage(): ReactElement {
                 </Label>
               </div>
             ) : null}
+            {location === 'newRepo' ? (
+              <div className='flex flex-col gap-1'>
+                <div className='flex items-center gap-2'>
+                  <Checkbox
+                    id='setup-check'
+                    checked={withCheck}
+                    onCheckedChange={(checked) =>
+                      setWithCheck(checked === true)
+                    }
+                  />
+                  <Label htmlFor='setup-check'>
+                    {t('projectSetup.checkWorkflow')}
+                  </Label>
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  {t('projectSetup.checkWorkflowHint')}
+                </p>
+              </div>
+            ) : null}
             <fieldset className='flex flex-col gap-2'>
               <legend className='mb-1 text-sm font-medium'>
                 {t('projectSetup.init')}
@@ -310,7 +339,22 @@ export default function ProjectSetupPage(): ReactElement {
             {t('projectSetup.tokenFailed')}
           </p>
         ) : null}
-        {notice ? <p className='text-sm'>{notice}</p> : null}
+        {made ? (
+          <div className='flex flex-col items-start gap-2' role='status'>
+            {made.notes.map((note) => (
+              <p className='text-sm' key={note}>
+                {note}
+              </p>
+            ))}
+            <Button
+              type='button'
+              variant='secondary'
+              onClick={() => void navigate(`/projects/${made.projectId}`)}
+            >
+              {t('projectSetup.open')}
+            </Button>
+          </div>
+        ) : null}
 
         <div>
           <Button

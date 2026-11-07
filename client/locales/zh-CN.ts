@@ -315,6 +315,10 @@ const zhCN: AppResource = {
     failed: '无法设置项目。',
     tokenFailed: '该令牌未被接受。',
     create: '创建项目',
+    open: '打开项目',
+    checkWorkflow: '添加拉取请求检查（ds-check）',
+    checkWorkflowHint:
+      '在 GitHub 上为每个拉取请求运行 pnpm check、许可证检查和敏感文件检查。使用你的令牌推送，需要 Workflows 权限。',
     templateVersion:
       '模板 {{packageName}}@{{version}}，即 Studio 使用的版本。仓库总会有第一个提交。',
     errors: {

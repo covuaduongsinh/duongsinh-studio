@@ -127,6 +127,10 @@ const zhCN: AppServerResource = {
     managerUnavailable:
       '项目经理尚未配置，此任务正在等待。请先配置，再开始任务。',
     deployLater: '部署设置尚未应用：请在项目的发布中连接应用。',
+    ciNoToken:
+      '项目已创建，但未添加 CI：你尚未连接自己的 GitHub 令牌（`git authorization use-token`）。请手动添加 `.github/workflows/ds-check.yml`，或连接令牌后重新设置。',
+    ciRefused:
+      '项目已创建，但 GitHub 拒绝了 CI 文件：你的令牌需要 Workflows 权限（读写）。请手动添加 `.github/workflows/ds-check.yml`。',
   },
   studioReports: {
     actions: {

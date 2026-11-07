@@ -143,6 +143,10 @@ const enUS = {
       'The project manager is not configured, so this task waits. Configure it, then start the task.',
     deployLater:
       'Deploy settings are not applied yet: connect the App from the releases of the project.',
+    ciNoToken:
+      'The project was created without CI: you have not connected your own GitHub token (`git authorization use-token`). Add `.github/workflows/ds-check.yml` by hand, or connect a token and set it up again.',
+    ciRefused:
+      'The project was created, but GitHub refused the CI file: your token needs the Workflows permission (read and write). Add `.github/workflows/ds-check.yml` by hand.',
   },
   studioReports: {
     actions: {

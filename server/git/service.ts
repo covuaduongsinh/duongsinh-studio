@@ -2358,6 +2358,37 @@ export function createGitService(deps: GitServiceDeps) {
     }
   }
 
+  /**
+   * Commits a new file to `branch` with the person's own token, never the connection's: used for a workflow file, which
+   * the App's token may not write. Says what happened instead of throwing, so a refusal never undoes what was made:
+   * `noToken` when the person has none for this connection, `refused` when GitHub said no (the token lacks the
+   * workflows permission, or the file is there already).
+   */
+  async function createFileAsPerson(
+    userId: string,
+    connectionId: string,
+    fullName: string,
+    input: {
+      readonly path: string;
+      readonly content: string;
+      readonly message: string;
+      readonly branch: string;
+    },
+  ): Promise<'created' | 'noToken' | 'refused'> {
+    const client = await personalClient(
+      userId,
+      await connectionRecord(connectionId),
+    );
+    if (!client) return 'noToken';
+    try {
+      await client.createFile(fullName, input);
+      return 'created';
+    } catch (error) {
+      if (error instanceof GitHubError) return 'refused';
+      throw error;
+    }
+  }
+
   /** One page of what a connection reaches on the host, narrowed by `q`. */
   async function hostRepositories(
     connectionId: string,
@@ -2866,6 +2897,7 @@ export function createGitService(deps: GitServiceDeps) {
     forgetAuthorization,
     createRepository,
     hasCommits,
+    createFileAsPerson,
     hostRepositories,
     attachToProject,
     primaryRepository: async (projectId: string) => {

@@ -320,6 +320,10 @@ const viVN: AppResource = {
     failed: 'Không thiết lập được dự án.',
     tokenFailed: 'Token này không được chấp nhận.',
     create: 'Tạo dự án',
+    open: 'Mở dự án',
+    checkWorkflow: 'Thêm CI kiểm tra pull request (ds-check)',
+    checkWorkflowHint:
+      'Chạy pnpm check, kiểm giấy phép và file nhạy cảm trên GitHub cho mỗi pull request. Đẩy bằng token của bạn, cần quyền Workflows.',
     templateVersion:
       'Mẫu {{packageName}}@{{version}}, đúng phiên bản Studio đang dùng. Repo luôn có commit đầu.',
     errors: {

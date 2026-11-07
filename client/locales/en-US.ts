@@ -327,6 +327,10 @@ const enUS = {
     failed: 'The project could not be set up.',
     tokenFailed: 'That token was not accepted.',
     create: 'Create project',
+    open: 'Open project',
+    checkWorkflow: 'Add a pull request check (ds-check)',
+    checkWorkflowHint:
+      'Runs pnpm check, the licence check and the committed-file check on GitHub for every pull request. Pushed with your token, which needs the Workflows permission.',
     templateVersion:
       'Template {{packageName}}@{{version}}, the version Studio runs. The repository always gets a first commit.',
     errors: {

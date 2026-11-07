@@ -117,6 +117,19 @@ export interface GitHubClient {
   ): Promise<GitHubContentEntry[]>;
   /** A file's text at `ref` (UTF-8). */
   file(fullName: string, path: string, ref: string): Promise<GitHubFile>;
+  /**
+   * Commits a new file (UTF-8) to `branch` through the contents API; GitHub answers 422 when the path exists there. A
+   * file under `.github/workflows/` needs a token with the workflows permission, which Studio's App does not have.
+   */
+  createFile(
+    fullName: string,
+    input: {
+      readonly path: string;
+      readonly content: string;
+      readonly message: string;
+      readonly branch: string;
+    },
+  ): Promise<{ readonly commitSha: string | null }>;
   /** The repository's tags, newest first as GitHub lists them (at most `perPage`, up to 100). */
   tags(fullName: string, perPage: number): Promise<GitHubTag[]>;
   /** How `head` relates to `base`, with the commits `head` has that `base` lacks (up to 250). */
@@ -494,6 +507,21 @@ export function createGitHubClient(options: {
           size: typeof entry.size === 'number' ? entry.size : 0,
         };
       });
+    },
+    async createFile(fullName, input) {
+      const at = `${repoPath(fullName)}/contents/${input.path
+        .split('/')
+        .filter(Boolean)
+        .map(encodeURIComponent)
+        .join('/')}`;
+      const answer = record(
+        await call('PUT', at, {
+          message: input.message,
+          content: Buffer.from(input.content, 'utf8').toString('base64'),
+          branch: input.branch,
+        }),
+      );
+      return { commitSha: text(record(answer.commit).sha) };
     },
     async file(fullName, path, ref) {
       const answer = record(

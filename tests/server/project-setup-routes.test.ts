@@ -10,6 +10,7 @@ import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
 import { CONTRIBUTOR_SET_KEY } from '../../server/access/roles.js';
 import { BUILTIN_SKILLS } from '../../server/agents/builtin-skills.js';
 import { PROJECT_MANAGER_ID } from '../../server/agents/ids.js';
+import { CHECK_WORKFLOW } from '../../server/setups/check-workflow.js';
 import { createStandaloneServer } from '../../server/standalone.js';
 
 const test = createAppTest({
@@ -32,6 +33,12 @@ const API = 'https://github.test/api';
 const TOKEN = 'ghp_test_token';
 
 const created: { name: string; private: boolean; auto_init: boolean }[] = [];
+interface FilePut {
+  path: string;
+  authorization: string;
+  body: { message: string; content: string; branch: string };
+}
+const filesPut: FilePut[] = [];
 
 /** GitHub as far as linking `acme/sandbox` asks it. */
 function fakeGitHub(): void {
@@ -92,6 +99,17 @@ function fakeGitHub(): void {
           },
           201,
         );
+      }
+      if (init?.method === 'PUT' && path.includes('/contents/')) {
+        const headers = new Headers(init.headers);
+        filesPut.push({
+          path,
+          authorization: headers.get('authorization') ?? '',
+          body: JSON.parse(String(init.body)) as FilePut['body'],
+        });
+        if (path.includes('/ci-tu-choi/'))
+          return answer({ message: 'Resource not accessible' }, 403);
+        return answer({ commit: { sha: 'b'.repeat(40) } }, 201);
       }
       // Created with the person's token, outside what the connection reaches.
       if (path === '/repos/ds-bot/ngoai-app')
@@ -474,6 +492,83 @@ test(
     );
     expect(created.at(-1)?.name).toBe('ngoai-app');
     expect(await countProjects()).toBe(unreachedBefore);
+
+    // Studio's check workflow: pushed only with the person's own token, and its absence never fails the setup.
+    const withCheck = (name: string) =>
+      admin.fetch(
+        '/projectSetups',
+        json({
+          name: `Dự án ${name}`,
+          codeLocation: 'newRepo',
+          newRepo: {
+            connectionId,
+            name,
+            private: true,
+            init: { method: 'empty' },
+          },
+          ci: { workflow: 'ds-check' },
+        }),
+      );
+    const noToken = await withCheck('ci-chua-token');
+    expect(noToken.status).toBe(201);
+    expect(
+      ((await noToken.json()).data as { deployError: string | null })
+        .deployError,
+    ).toContain('ds-check.yml');
+    expect(filesPut).toHaveLength(0);
+
+    expect(
+      (
+        await admin.fetch(
+          `/git/authorizations/${connectionId}/useToken`,
+          json({ token: 'ghp_person_token' }),
+        )
+      ).status,
+    ).toBe(200);
+    const checked = await withCheck('ci-co-token');
+    expect(checked.status).toBe(201);
+    expect(
+      ((await checked.json()).data as { deployError: string | null })
+        .deployError,
+    ).toBeNull();
+    const put = filesPut.at(-1);
+    expect(put?.path).toBe(
+      '/repos/ds-bot/ci-co-token/contents/.github/workflows/ds-check.yml',
+    );
+    expect(put?.authorization).toBe('Bearer ghp_person_token');
+    expect(put?.body.branch).toBe('main');
+    expect(
+      Buffer.from(put?.body.content ?? '', 'base64').toString('utf8'),
+    ).toBe(CHECK_WORKFLOW);
+
+    const refused = await withCheck('ci-tu-choi');
+    expect(refused.status).toBe(201);
+    expect(
+      ((await refused.json()).data as { deployError: string | null })
+        .deployError,
+    ).toContain('Workflows');
+
+    // Any other `ci` is the demo's deploy CI, still not applied: nothing is pushed.
+    const pushes = filesPut.length;
+    const other = await admin.fetch(
+      '/projectSetups',
+      json({
+        name: 'Dự án ci khác',
+        codeLocation: 'newRepo',
+        newRepo: {
+          connectionId,
+          name: 'ci-khac',
+          private: true,
+          init: { method: 'empty' },
+        },
+        ci: { provider: 'github' },
+      }),
+    );
+    expect(other.status).toBe(201);
+    expect(
+      ((await other.json()).data as { deployError: string | null }).deployError,
+    ).toBeTruthy();
+    expect(filesPut).toHaveLength(pushes);
 
     // A person who may not link repositories changes nothing.
     expect(

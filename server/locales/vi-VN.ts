@@ -136,6 +136,10 @@ const viVN: AppServerResource = {
       'Trưởng nhóm agent chưa được cấu hình nên việc này đang chờ. Hãy cấu hình rồi bắt đầu việc.',
     deployLater:
       'Chưa áp dụng thiết lập triển khai: hãy nối ứng dụng ở mục phát hành của dự án.',
+    ciNoToken:
+      'Đã tạo dự án nhưng chưa thêm CI: bạn chưa nối token GitHub của mình (`git authorization use-token`). Thêm `.github/workflows/ds-check.yml` bằng tay hoặc nối token rồi tạo lại.',
+    ciRefused:
+      'Đã tạo dự án nhưng GitHub không cho thêm CI: token của bạn cần quyền Workflows (đọc và ghi). Thêm `.github/workflows/ds-check.yml` bằng tay.',
   },
   studioReports: {
     actions: {

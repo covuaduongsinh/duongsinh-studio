@@ -42,11 +42,17 @@ export type ProjectSetupInput = {
         readonly private: boolean;
         readonly init: ProjectInitChoice;
       };
+      /** Studio's own check on the new repository's pull requests, committed with the person's token. */
+      readonly ci?: { readonly workflow: 'ds-check' };
     }
 );
 
 export interface ProjectSetupAnswer {
-  readonly data: { readonly projectId: string };
+  readonly data: {
+    readonly projectId: string;
+    /** Why a deploy or CI choice was not applied; the project exists either way. */
+    readonly deployError?: string | null;
+  };
   readonly meta?: { readonly message?: string };
 }
 

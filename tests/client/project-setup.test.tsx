@@ -139,6 +139,42 @@ describe('project setup', () => {
     );
   });
 
+  it('asks for the check workflow on a new repository and keeps its note on screen', async () => {
+    const note = 'GitHub refused the CI file.';
+    answer = (call) =>
+      call.method === 'POST'
+        ? { data: { projectId: 'p3', deployError: note } }
+        : status;
+    render(<ProjectSetupPage />);
+    await userEvent.type(await screen.findByLabelText('Name'), 'Có CI');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'A new repository' }),
+    );
+    await userEvent.type(screen.getByLabelText('Repository name'), 'co-ci');
+    const check = screen.getByRole('checkbox', {
+      name: enUS.projectSetup.checkWorkflow,
+    });
+    expect(check.getAttribute('aria-checked')).toBe('true');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Create project' }),
+    );
+    expect(await screen.findByText(note)).toBeTruthy();
+    expect(navigated.to).toEqual([]);
+    expect(JSON.stringify(sentTo('projectSetups')[0])).toContain(
+      '"ci":{"workflow":"ds-check"}',
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Open project' }));
+    expect(navigated.to).toEqual(['/projects/p3']);
+
+    // Unticked, nothing about CI is sent.
+    await userEvent.click(check);
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Create project' }),
+    );
+    await waitFor(() => expect(sentTo('projectSetups')).toHaveLength(2));
+    expect(JSON.stringify(sentTo('projectSetups')[1])).not.toContain('"ci"');
+  });
+
   const refusal = (reason: string) =>
     new Response(
       JSON.stringify({

@@ -44,6 +44,10 @@ import {
 } from '../providers/project-defaults.js';
 import { str, strOrNull, type Row } from '../git/rows.js';
 import { GitError, type GitRepositoryView } from '../git/service.js';
+import {
+  CHECK_WORKFLOW,
+  CHECK_WORKFLOW_PATH,
+} from '../setups/check-workflow.js';
 import { appTemplate } from '../setups/template-version.js';
 
 type Env = AuthEnv & AuthorizationEnv;
@@ -148,6 +152,8 @@ const SetupAnswer = z.object({
 });
 
 const SkillIds = z.object({ skillIds: z.array(z.string()) });
+
+const CheckCi = z.strictObject({ workflow: z.literal('ds-check') });
 
 const Template = z
   .object({ packageName: z.string(), version: z.string() })
@@ -335,7 +341,7 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
         summary: 'Set a project up',
         operationId: 'projectSetupsCreate',
         description:
-          'For whoever may create projects. Creates the project with its repository (a new one, an existing one, or none), and the "Initialize project" issue when the directory is initialized. The repository comes first, so one the host refuses leaves no project behind; linking asks for its own permission. A new repository under a personal GitHub account needs the caller’s own token (`git authorization use-token`). If the project manager cannot start the initialization, creation succeeds with the issue blocked and `meta.message` says what to configure.',
+          'For whoever may create projects. Creates the project with its repository (a new one, an existing one, or none), and the "Initialize project" issue when the directory is initialized. The repository comes first, so one the host refuses leaves no project behind; linking asks for its own permission. A new repository under a personal GitHub account needs the caller’s own token (`git authorization use-token`). If the project manager cannot start the initialization, creation succeeds with the issue blocked and `meta.message` says what to configure. With a new repository, `ci: { workflow: "ds-check" }` (Studio-only) commits `.github/workflows/ds-check.yml` with the caller’s own token, which needs the Workflows permission; when it cannot, the project is still made and `deployError` says why. Any other `ci` or `deploy` is not applied yet.',
         security: PERSON,
         ...cliRoute({ command: 'project setup create' }),
         responses: {
@@ -390,6 +396,13 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
           init?.method === 'nocobase' ? await appTemplate() : null;
         if (init?.method === 'nocobase' && !template) throw noTemplate();
 
+        // `ci: { workflow: 'ds-check' }` on a new repository: Studio's own check on its pull requests. Any other `ci` is
+        // the demo's deploy CI, which is not applied here yet.
+        const checkWorkflow =
+          body.codeLocation === 'newRepo' && CheckCi.safeParse(body.ci).success;
+        // Set inside the git callback below; the cast keeps TypeScript from narrowing it to null here.
+        let ciOutcome = null as 'created' | 'noToken' | 'refused' | null;
+
         // The repository first: it is what can still say no, and a link made for nothing harms no one.
         let repository: GitRepositoryView | null = null;
         if (body.codeLocation === 'newRepo' && body.newRepo) {
@@ -410,6 +423,19 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
                 ...(newRepo.owner ? { owner: newRepo.owner } : {}),
               },
             );
+            // Before linking, so a repository the connection cannot reach still has its check when it is linked later.
+            if (checkWorkflow)
+              ciOutcome = await git().createFileAsPerson(
+                viewer.userId,
+                newRepo.connectionId,
+                made.fullName,
+                {
+                  path: CHECK_WORKFLOW_PATH,
+                  content: CHECK_WORKFLOW,
+                  message: 'ci: add the ds-check workflow',
+                  branch: made.defaultBranch,
+                },
+              );
             try {
               return await git().linkRepository({
                 connectionId: newRepo.connectionId,
@@ -520,7 +546,15 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
             })
             .execute();
 
-        const deployAsked = Boolean(body.deploy) || Boolean(body.ci);
+        const deployAsked =
+          Boolean(body.deploy) || (Boolean(body.ci) && !checkWorkflow);
+        const deployError = deployAsked
+          ? t('studioSetups.deployLater')
+          : ciOutcome === 'noToken'
+            ? t('studioSetups.ciNoToken')
+            : ciOutcome === 'refused'
+              ? t('studioSetups.ciRefused')
+              : null;
         return context.json(
           {
             data: {
@@ -533,7 +567,7 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
               initIssueIdentifier: initIssue?.identifier ?? null,
               init: await initOf(project.id),
               apps: [],
-              deployError: deployAsked ? t('studioSetups.deployLater') : null,
+              deployError,
             },
             ...(message ? { meta: { message } } : {}),
           },
