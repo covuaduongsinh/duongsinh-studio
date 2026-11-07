@@ -27,6 +27,7 @@ import {
   AGENT_KIND,
   ISSUE_SUBJECT,
   PROJECT_MANAGER_ID,
+  PROJECT_SCOPE,
   ISSUE_BRANCH_PREFIX,
   RUN_FINISHED_MESSAGE,
   appText,
@@ -325,7 +326,10 @@ function assemblyOf(
       allowedTransitions: [...issue.allowedTransitions],
     },
     dirs: coordinating ? [] : dirsOf(issue),
-    scopes: [],
+    // The project's skills and variables reach both the coordinator and whoever it hands work to.
+    scopes: issue.project
+      ? [{ scope: PROJECT_SCOPE, scopeId: issue.project.id }]
+      : [],
     // The project manager checks nothing out, so it never waits for the issue's working directory.
     ...(coordinating ? { workspaceKey: `pm-${issue.identifier}` } : {}),
     ...(readOnly ? { readOnly: true } : {}),

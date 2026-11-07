@@ -5,6 +5,9 @@ import type { LocaleResource } from '@nocobase/i18n';
 // on its issue. Use `overrides` to reword a plugin's.
 const enUS = {
   studioAgents: {
+    scopes: {
+      project: 'Project',
+    },
     subjects: {
       issue: 'Issue',
     },
@@ -106,6 +109,15 @@ const enUS = {
           'Put up, retry and take down the preview of an issue’s pull request. Whoever may edit issues holds it.',
       },
     },
+  },
+  studioSetups: {
+    issueTitle: 'Initialize project',
+    templateIssue:
+      'Set up this project from the `{{template}}` NocoBase application template (`pnpm create @nocobase/app --template {{template}}`), commit the first version to the default branch and report what was created.',
+    managerUnavailable:
+      'The project manager is not configured, so this task waits. Configure it, then start the task.',
+    deployLater:
+      'Deploy settings are not applied yet: connect the App from the releases of the project.',
   },
   studioReports: {
     actions: {

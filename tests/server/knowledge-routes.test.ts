@@ -231,7 +231,7 @@ test('knowledge spaces follow Studio roles for people, the directory and runs', 
     arch: 'x64',
     version: '0.0.0-test',
     protocolVersion: PROTOCOL_VERSION,
-    features: ['input', 'workspaceKey', 'checkout', 'mounts'],
+    features: ['input', 'workspaceKey', 'checkout', 'skills', 'mounts'],
     tools: [
       {
         kind: 'claude',

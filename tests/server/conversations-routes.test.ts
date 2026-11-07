@@ -95,7 +95,11 @@ test('Ask agent: a conversation pinned to an issue reads Studio’s rules and pr
       key: issue.identifier,
       url: `/issues/${issue.identifier}`,
     }),
-    expect.objectContaining({ kind: 'project', id: project.id, title: 'Dự án kín' }),
+    expect.objectContaining({
+      kind: 'project',
+      id: project.id,
+      title: 'Dự án kín',
+    }),
   ]);
   expect(
     (
@@ -165,7 +169,7 @@ test('Ask agent: a conversation pinned to an issue reads Studio’s rules and pr
     arch: 'x64',
     version: '0.0.0-test',
     protocolVersion: PROTOCOL_VERSION,
-    features: ['input', 'workspaceKey', 'checkout', 'mounts'],
+    features: ['input', 'workspaceKey', 'checkout', 'skills', 'mounts'],
     tools: [
       {
         kind: 'claude',

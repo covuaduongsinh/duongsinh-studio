@@ -466,7 +466,11 @@ export function createGitService(deps: GitServiceDeps) {
   >();
   /** Adds a listener for `pull_request` and `workflow_run` deliveries; answers what removes it. */
   function onWebhookEvent(
-    listener: (repositoryId: string, event: string, payload: Row) => Promise<void>,
+    listener: (
+      repositoryId: string,
+      event: string,
+      payload: Row,
+    ) => Promise<void>,
   ): () => void {
     webhookListeners.add(listener);
     return () => {
@@ -517,10 +521,7 @@ export function createGitService(deps: GitServiceDeps) {
     return row ? appOf(row) : null;
   };
 
-  const appView = (
-    record: ConnectionRecord,
-    app: AppRecord,
-  ): GitAppView => {
+  const appView = (record: ConnectionRecord, app: AppRecord): GitAppView => {
     const web = webUrlOf(record.apiBaseUrl);
     const base = deps.publicBaseUrl?.() ?? null;
     return {
@@ -720,7 +721,10 @@ export function createGitService(deps: GitServiceDeps) {
       .orderBy('createdAt', 'asc')
       .execute();
     const apps = new Map<string, AppRecord>();
-    const appRows: Row[] = await conn().query.selectFrom(APPS).selectAll().execute();
+    const appRows: Row[] = await conn()
+      .query.selectFrom(APPS)
+      .selectAll()
+      .execute();
     for (const row of appRows) apps.set(str(row.connectionId), appOf(row));
     return rows
       .map(connectionOf)
@@ -1002,7 +1006,8 @@ export function createGitService(deps: GitServiceDeps) {
     );
     let installation: AppInstallation;
     try {
-      if (installationId) installation = await api.installation(jwt, installationId);
+      if (installationId)
+        installation = await api.installation(jwt, installationId);
       else {
         const all = await api.installations(jwt);
         if (all.length === 0)
@@ -1027,7 +1032,10 @@ export function createGitService(deps: GitServiceDeps) {
     await writeInstallation(connectionId, installation);
     await conn()
       .query.updateTable(CONNECTIONS)
-      .set({ account: installation.account ?? record.account, updatedAt: new Date() })
+      .set({
+        account: installation.account ?? record.account,
+        updatedAt: new Date(),
+      })
       .where('id', '=', connectionId)
       .execute();
     return getConnection(connectionId);
@@ -1074,7 +1082,10 @@ export function createGitService(deps: GitServiceDeps) {
       const action = str(payload.action);
       if (action === 'deleted') await writeInstallation(record.id, null);
       else if (action !== 'suspend')
-        await writeInstallation(record.id, installationOf(payload.installation));
+        await writeInstallation(
+          record.id,
+          installationOf(payload.installation),
+        );
       return `installation.${action}`;
     }
     if (event === 'installation_repositories') {
@@ -1102,7 +1113,10 @@ export function createGitService(deps: GitServiceDeps) {
         try {
           await listener(repository.id, event, payload);
         } catch (error) {
-          report(`A ${event} listener failed for ${repository.fullName}`, error);
+          report(
+            `A ${event} listener failed for ${repository.fullName}`,
+            error,
+          );
         }
       }
     const numbers = new Set<number>();
@@ -1115,7 +1129,8 @@ export function createGitService(deps: GitServiceDeps) {
       event === 'workflow_run'
     ) {
       const subject = object(event);
-      for (const number of numbersOf(subject.pull_requests)) numbers.add(number);
+      for (const number of numbersOf(subject.pull_requests))
+        numbers.add(number);
       const sha = str(subject.head_sha);
       if (sha)
         for (const number of await pullNumbersAt(repository.id, sha))
@@ -1182,7 +1197,9 @@ export function createGitService(deps: GitServiceDeps) {
     }
     let payload: Row;
     try {
-      const parsed: unknown = JSON.parse(Buffer.from(input.body).toString('utf8'));
+      const parsed: unknown = JSON.parse(
+        Buffer.from(input.body).toString('utf8'),
+      );
       payload =
         typeof parsed === 'object' && parsed !== null ? (parsed as Row) : {};
     } catch {
@@ -1518,10 +1535,12 @@ export function createGitService(deps: GitServiceDeps) {
     updatedAt: pull.updatedAt,
   });
 
-  async function listPullRequests(filter: {
-    readonly issueId?: string;
-    readonly repositoryId?: string;
-  } = {}): Promise<GitPullRequestView[]> {
+  async function listPullRequests(
+    filter: {
+      readonly issueId?: string;
+      readonly repositoryId?: string;
+    } = {},
+  ): Promise<GitPullRequestView[]> {
     let query = conn().query.selectFrom(PULL_REQUESTS).selectAll();
     if (filter.issueId) query = query.where('issueId', '=', filter.issueId);
     if (filter.repositoryId)
@@ -2034,9 +2053,7 @@ export function createGitService(deps: GitServiceDeps) {
     let client: GitHubClient;
     let pull: PullRecord;
     try {
-      client = await clientOf(
-        await connectionRecord(repository.connectionId),
-      );
+      client = await clientOf(await connectionRecord(repository.connectionId));
       pull = await refreshPull(repository, client, before.number);
     } catch (error) {
       throw hostError(error, { repo: repository.fullName });
@@ -2137,7 +2154,11 @@ export function createGitService(deps: GitServiceDeps) {
         `${REPOSITORIES}.id`,
         `${PROJECT_REPOSITORIES}.repositoryId`,
       )
-      .innerJoin(CONNECTIONS, `${CONNECTIONS}.id`, `${REPOSITORIES}.connectionId`)
+      .innerJoin(
+        CONNECTIONS,
+        `${CONNECTIONS}.id`,
+        `${REPOSITORIES}.connectionId`,
+      )
       .select([
         `${REPOSITORIES}.cloneUrl as cloneUrl`,
         `${REPOSITORIES}.fullName as fullName`,
@@ -2244,6 +2265,10 @@ export function createGitService(deps: GitServiceDeps) {
     onWebhookEvent,
     linkRepository,
     attachToProject,
+    primaryRepository: async (projectId: string) => {
+      const record = await primaryRepositoryOf(projectId);
+      return record ? getRepository(record.id) : null;
+    },
     projectsOf,
     listPullRequests,
     getPullRequest,

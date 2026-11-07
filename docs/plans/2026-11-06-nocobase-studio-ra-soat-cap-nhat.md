@@ -312,10 +312,10 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
   - Không viết lại trang `/inbox` như kế hoạch: khối Inbox của UI Library đã có tab và hợp đồng `InboxSource`, Studio chỉ cắm nguồn dữ liệu.
   - `compare-studio-api.mjs`: 73/186 route Studio của demo đã có, còn thiếu 113.
   - Việc còn mở: quyết định loại `takeOver` (bàn giao owner) và giới hạn lượt chạy mới hiện trên trang công việc, chưa vào Hộp thư; `/taskGroups` chưa phân trang theo `cursor` (tối đa 200 việc); chưa có trang riêng cho bảng nhóm, "Chờ bạn" hiện qua badge và Hộp thư; nút đánh dấu/xoá trên thẻ quyết định gọi plugin với id tổng hợp nên có thể báo lỗi; một số thông báo cũ vẫn bằng tiếng Anh.
-- [x] U5 — Dashboard (07/11/2026, chưa lên production)
+- [x] U5 — Dashboard (07/11/2026, production `58ce502`; so tay với DB: 14 việc xong, 141 lượt chạy, thành công 133/139)
   - 6 route `reports/*` (`server/routes/reports.ts`), tính từ dịch vụ báo cáo của plugin (`agents.reporting`, `projects.reports`) trong `server/reports/service.ts`; trang `/dashboard` với 4 thẻ KPI, khối hiệu quả agent, biểu đồ lượt chạy (có bảng số), Cần chú ý và bảng dự án; báo cáo tuần 8:00 thứ Hai vào Hộp thư của owner.
   - `compare-studio-api.mjs`: 79/186 route Studio của demo đã có, còn thiếu 107.
-  - Việc còn mở: chưa so tay số liệu với DS-1/DS-2 trên production (làm sau khi lên production); ngưỡng `statuses` của `reports/metrics` do Studio tự chọn; `humanLoad` chỉ tính quyết định run lỗi và bàn giao owner; báo cáo tuần chưa nhận lần gửi thật nào (lịch 8:00 thứ Hai).
+  - Việc còn mở: ngưỡng `statuses` của `reports/metrics` do Studio tự chọn; `humanLoad` chỉ tính quyết định run lỗi và bàn giao owner; báo cáo tuần chưa nhận lần gửi thật nào (lịch 8:00 thứ Hai).
 - [ ] U6 — Thiết lập dự án, khoá tổ chức, git, tri thức, nợ S6.7
 - [ ] U7 — Thông báo ra ngoài + ngân sách
 - [ ] U8 — Vận hành

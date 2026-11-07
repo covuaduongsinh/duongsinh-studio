@@ -9,6 +9,7 @@ import { issueWorkRoutes } from './issue-work.js';
 import { kbRoutes } from './kb.js';
 import { projectManagerRoutes } from './project-manager.js';
 import { projectMemoryRoutes } from './project-memory.js';
+import { projectSetupRoutes } from './project-setups.js';
 import { reportRoutes } from './reports.js';
 import { reviewRoutes } from './reviews.js';
 import { webhookRoutes } from './webhooks.js';
@@ -22,6 +23,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   issueWorkRoutes,
   inboxRoutes,
   reportRoutes,
+  projectSetupRoutes,
   webhookRoutes,
   projectMemoryRoutes,
   kbRoutes,

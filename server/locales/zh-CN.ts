@@ -2,6 +2,9 @@ import type { AppServerResource } from './en-US.js';
 
 const zhCN: AppServerResource = {
   studioAgents: {
+    scopes: {
+      project: '项目',
+    },
     subjects: {
       issue: '任务',
     },
@@ -92,6 +95,14 @@ const zhCN: AppServerResource = {
           '创建、重试和撤下任务拉取请求的预览。可编辑任务的人都拥有此权限。',
       },
     },
+  },
+  studioSetups: {
+    issueTitle: '初始化项目',
+    templateIssue:
+      '使用 NocoBase 应用模板 `{{template}}` 初始化此项目（`pnpm create @nocobase/app --template {{template}}`），将第一个版本提交到默认分支，并报告创建的内容。',
+    managerUnavailable:
+      '项目经理尚未配置，此任务正在等待。请先配置，再开始任务。',
+    deployLater: '部署设置尚未应用：请在项目的发布中连接应用。',
   },
   studioReports: {
     actions: {

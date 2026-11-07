@@ -406,7 +406,8 @@ export function createReportFigures(sources: ReportSources) {
           'repo.fullName as repo',
         ])
         .where('pull.state', '=', 'open')
-        .where('pull.issueId', 'is not', null)
+        .innerJoin('pmIssues as issue', 'issue.id', 'pull.issueId')
+        .where('issue.statusKey', 'not in', ['done', 'cancelled'])
         .where(
           'pull.createdAt',
           '<',

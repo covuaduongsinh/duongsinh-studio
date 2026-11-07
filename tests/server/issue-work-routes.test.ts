@@ -169,7 +169,7 @@ test(
       arch: 'x64',
       version: '0.0.0-test',
       protocolVersion: PROTOCOL_VERSION,
-      features: ['input', 'workspaceKey', 'checkout'],
+      features: ['input', 'workspaceKey', 'checkout', 'skills'],
       tools: [
         {
           kind: 'claude',

@@ -91,7 +91,9 @@ function fakeGitHub(headSha = 'sha-head-123') {
   vi.stubGlobal(
     'fetch',
     async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-      const url = new URL(typeof input === 'string' || input instanceof URL ? input : input.url);
+      const url = new URL(
+        typeof input === 'string' || input instanceof URL ? input : input.url,
+      );
       if (!url.href.startsWith(API)) return original(input, init);
       const method = init?.method ?? 'GET';
       const path = url.pathname.slice('/api'.length);
@@ -174,7 +176,10 @@ test('structured review submission, validation gates, security reviews, and list
   const git = app.container.resolve(gitServiceToken);
   await git.syncRepository(repository.id);
   const pullRequestsRes = await admin.fetch('/git/pullRequests');
-  const pullRequests = (await pullRequestsRes.json()).data as { id: string; headSha: string }[];
+  const pullRequests = (await pullRequestsRes.json()).data as {
+    id: string;
+    headSha: string;
+  }[];
   expect(pullRequests.length).toBeGreaterThan(0);
   const pullRequest = pullRequests[0];
   expect(pullRequest.headSha).toBe(HEAD_SHA);
@@ -241,7 +246,7 @@ test('structured review submission, validation gates, security reviews, and list
     arch: 'x64',
     version: '0.0.0-test',
     protocolVersion: PROTOCOL_VERSION,
-    features: ['input', 'workspaceKey', 'checkout'],
+    features: ['input', 'workspaceKey', 'checkout', 'skills'],
     tools: [
       {
         kind: 'claude',
@@ -283,7 +288,9 @@ test('structured review submission, validation gates, security reviews, and list
 
   const [nonReadOnlyPayload] = await agents.claims.claim(runner, 1);
   expect(nonReadOnlyPayload).toBeDefined();
-  const nonReadOnlyToken = String(nonReadOnlyPayload.cli.credential.content.token);
+  const nonReadOnlyToken = String(
+    nonReadOnlyPayload.cli.credential.content.token,
+  );
 
   const nonReadOnlySubmitRes = await request('/reviews', {
     method: 'POST',
@@ -480,22 +487,34 @@ test('structured review submission, validation gates, security reviews, and list
 
   // 9. Test latestFor query via service
   const reviewsService = app.container.resolve(reviewsServiceToken);
-  const latestCode = await reviewsService.latestFor(pullRequest.id, HEAD_SHA, 'code');
+  const latestCode = await reviewsService.latestFor(
+    pullRequest.id,
+    HEAD_SHA,
+    'code',
+  );
   expect(latestCode).toBeDefined();
   expect(latestCode?.kind).toBe('code');
   expect(latestCode?.verdict).toBe('approve');
 
-  const latestSec = await reviewsService.latestFor(pullRequest.id, HEAD_SHA, 'security');
+  const latestSec = await reviewsService.latestFor(
+    pullRequest.id,
+    HEAD_SHA,
+    'security',
+  );
   expect(latestSec).toBeDefined();
   expect(latestSec?.kind).toBe('security');
 
   // 10. List reviews via GET /api/git/pullRequests/:id/reviews
-  const listRes = await admin.fetch(`/git/pullRequests/${pullRequest.id}/reviews`);
+  const listRes = await admin.fetch(
+    `/git/pullRequests/${pullRequest.id}/reviews`,
+  );
   expect(listRes.status).toBe(200);
   const listJson = await listRes.json();
   expect(listJson.data.length).toBe(2);
 
-  const listCodeRes = await admin.fetch(`/git/pullRequests/${pullRequest.id}/reviews?kind=code`);
+  const listCodeRes = await admin.fetch(
+    `/git/pullRequests/${pullRequest.id}/reviews?kind=code`,
+  );
   expect(listCodeRes.status).toBe(200);
   const listCodeJson = await listCodeRes.json();
   expect(listCodeJson.data.length).toBe(1);

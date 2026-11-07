@@ -4,6 +4,9 @@ import overrides from './overrides/vi-VN.js';
 
 const viVN: AppServerResource = {
   studioAgents: {
+    scopes: {
+      project: 'Dự án',
+    },
     subjects: {
       issue: 'Công việc',
     },
@@ -100,6 +103,15 @@ const viVN: AppServerResource = {
           'Dựng, dựng lại và gỡ preview cho pull request của công việc. Ai được sửa công việc thì có quyền này.',
       },
     },
+  },
+  studioSetups: {
+    issueTitle: 'Khởi tạo dự án',
+    templateIssue:
+      'Khởi tạo dự án này từ mẫu ứng dụng NocoBase `{{template}}` (`pnpm create @nocobase/app --template {{template}}`), commit phiên bản đầu vào nhánh mặc định và báo lại những gì đã tạo.',
+    managerUnavailable:
+      'Trưởng nhóm agent chưa được cấu hình nên việc này đang chờ. Hãy cấu hình rồi bắt đầu việc.',
+    deployLater:
+      'Chưa áp dụng thiết lập triển khai: hãy nối ứng dụng ở mục phát hành của dự án.',
   },
   studioReports: {
     actions: {
