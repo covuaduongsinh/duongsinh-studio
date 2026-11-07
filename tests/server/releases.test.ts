@@ -352,6 +352,101 @@ test('versions from tags, where issues are, and who may mark staging and product
   });
   expect(await versions(contributor)).toEqual([]);
 
+  // The demo's contract over the same records: a version with its issues and counts, and who sees it.
+  for (const path of [
+    `/deploys/versions/${v10.id}`,
+    `/deploys/versions/${v10.id}/tasks`,
+    `/deploys/versions/${v10.id}/deployments`,
+    `/deploys/releaseLines/${repository.id}`,
+    `/deploys/deploymentRecords`,
+    `/deploys/hubCounts`,
+    `/deploys/unreleasedTasks`,
+    `/deploys/pendingVersionTasks`,
+    `/deploys/versionProgress?issueIds=${first.id}`,
+    `/deploys/projects/${project.id}/unreleasedIssues`,
+    `/previews/status?issueId=${first.id}`,
+  ])
+    expect((await request(path)).status).toBe(401);
+  const detail = (
+    await (await owner.fetch(`/deploys/versions/${v10.id}`)).json()
+  ).data as { tag: string; deploymentCount: number };
+  expect(detail).toMatchObject({ tag: 'v1.0', deploymentCount: 0 });
+  expect((await contributor.fetch(`/deploys/versions/${v10.id}`)).status).toBe(
+    404,
+  );
+  const tasks = (await (
+    await owner.fetch(`/deploys/versions/${v10.id}/tasks`)
+  ).json()) as {
+    data: { id: string; where: string; published: number }[];
+    meta: { total: number };
+  };
+  expect(tasks.meta.total).toBe(1);
+  expect(tasks.data[0]).toMatchObject({
+    id: first.id,
+    where: 'released',
+    published: 1,
+  });
+  expect(
+    (await (await owner.fetch('/deploys/hubCounts')).json()).data,
+  ).toMatchObject({
+    tagVersions: 2,
+    pendingVersionTasks: 0,
+    test: 0,
+    releases: 0,
+    unreleased: 2,
+  });
+  const unreleased = (await (
+    await owner.fetch(`/deploys/projects/${project.id}/unreleasedIssues`)
+  ).json()) as { data: { items: { id: string }[] } };
+  expect(unreleased.data.items.map((item) => item.id).sort()).toEqual(
+    [first.id, second.id].sort(),
+  );
+  const theirs = (await (
+    await contributor.fetch(`/deploys/projects/${project.id}/unreleasedIssues`)
+  ).json()) as { data: { items: unknown[] } };
+  expect(theirs.data.items).toEqual([]);
+  const line = (
+    await (await owner.fetch(`/deploys/releaseLines/${repository.id}`)).json()
+  ).data as { lines: { id: string; pattern: string }[]; canManage: boolean };
+  expect(line.lines[0]?.pattern).toBe('v*');
+  expect(line.canManage).toBe(true);
+  expect(
+    (
+      await owner.fetch(
+        `/deploys/releaseLines/${repository.id}`,
+        json({ lines: [] }, 'PUT'),
+      )
+    ).status,
+  ).toBe(400);
+  expect(
+    (
+      await contributor.fetch(
+        `/deploys/releaseLines/${repository.id}`,
+        json({ lines: [{ id: 'a', pattern: 'v*' }] }, 'PUT'),
+      )
+    ).status,
+  ).toBe(403);
+  expect(
+    (await (await owner.fetch(`/previews/status?issueId=${first.id}`)).json())
+      .data,
+  ).toMatchObject({ issueId: first.id, previews: [], blocker: null });
+  expect(
+    (await contributor.fetch(`/previews/status?issueId=${first.id}`)).status,
+  ).toBe(404);
+  // Recording a deployment: production is the owner's here too.
+  const recordOn = (who: typeof owner, environmentId: string) =>
+    who.fetch(
+      '/deploys/deploymentRecords',
+      json({
+        projectId: project.id,
+        environmentId,
+        version: 'v1.0',
+        note: 'Ghi lại',
+      }),
+    );
+  expect((await recordOn(admin, 'production')).status).toBe(403);
+  expect((await recordOn(contributor, 'staging')).status).toBe(403);
+
   // Production is the owner's: an administrator and a contributor are refused; staging is an administrator's.
   const markBody = (environmentKey: string, note = 'Deploy bằng Dokploy') =>
     json({ environmentKey, note });
