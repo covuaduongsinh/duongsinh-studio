@@ -361,6 +361,7 @@ const enUS = {
       answer: 'Needs your answer',
       failed: 'A run failed',
       takeOver: 'Handed to you',
+      authorize: 'Run limit reached',
     },
   },
   common: { cancel: 'Cancel' },

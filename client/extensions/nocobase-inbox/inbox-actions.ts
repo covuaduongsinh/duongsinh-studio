@@ -17,5 +17,7 @@ export const INBOX_ACTION_ICON: Readonly<Record<InboxAction, LucideIcon>> = {
 };
 
 export function inboxActionsFor(entry: InboxEntry): readonly InboxAction[] {
+  // Dương Sinh Studio: an entry with no in-app message behind it has nothing the plugin could mark or delete.
+  if (entry.inApp === false) return [];
   return [entry.item.readAt ? 'unread' : 'read', 'delete'];
 }

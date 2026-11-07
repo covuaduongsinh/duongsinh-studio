@@ -53,6 +53,13 @@ export interface InboxEntry {
   readonly item: InboxItem;
   /** Null for an item the source knows nothing about: shown as information. */
   readonly notice: InboxNotice | null;
+  /**
+   * Dương Sinh Studio: false for an entry a source lists as waiting without an in-app message behind it (a decision
+   * read from its issue's state). The plugin knows nothing under its id, so it offers no read or delete action; it
+   * leaves the list once decided. Added because the block's actions have no per-source hook; see
+   * `.agents/rules/duongsinh-studio.md`, section Inbox.
+   */
+  readonly inApp?: boolean;
 }
 
 /** The kind of an item the source knows nothing about. */

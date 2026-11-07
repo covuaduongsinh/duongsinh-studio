@@ -231,31 +231,38 @@ function ItemCard({
             {sentence ? ` · ${sentence}` : null}
           </span>
         </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant='ghost'
-                size='icon-xs'
-                disabled={busy}
-                className='absolute top-2 right-2 opacity-0 group-hover:opacity-100 group-has-focus-visible:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100'
-                aria-label={t('inbox.actionsFor', {
-                  title,
-                  defaultValue: 'Actions for {{title}}',
-                })}
-              />
-            }
-          >
-            <MoreHorizontalIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end' className='w-auto min-w-40'>
-            <DropdownMenuGroup>{menuItems(DropdownMenuItem)}</DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Dương Sinh Studio: an entry with no actions (`inboxActionsFor`) shows no empty menu. */}
+        {actions.length > 0 ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant='ghost'
+                  size='icon-xs'
+                  disabled={busy}
+                  className='absolute top-2 right-2 opacity-0 group-hover:opacity-100 group-has-focus-visible:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100'
+                  aria-label={t('inbox.actionsFor', {
+                    title,
+                    defaultValue: 'Actions for {{title}}',
+                  })}
+                />
+              }
+            >
+              <MoreHorizontalIcon />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end' className='w-auto min-w-40'>
+              <DropdownMenuGroup>
+                {menuItems(DropdownMenuItem)}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
       </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>{menuItems(ContextMenuItem)}</ContextMenuGroup>
-      </ContextMenuContent>
+      {actions.length > 0 ? (
+        <ContextMenuContent>
+          <ContextMenuGroup>{menuItems(ContextMenuItem)}</ContextMenuGroup>
+        </ContextMenuContent>
+      ) : null}
     </ContextMenu>
   );
 }

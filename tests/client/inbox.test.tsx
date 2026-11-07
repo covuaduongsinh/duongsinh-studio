@@ -130,6 +130,7 @@ it('lists what waits on the viewer, and opens it on its issue', async () => {
         resolvedAt: null,
         outcome: null,
       },
+      inApp: false,
     },
   ];
   try {
@@ -146,6 +147,17 @@ it('lists what waits on the viewer, and opens it on its issue', async () => {
         path: 'notificationInApp/messages/decision-1/markRead',
       }),
     );
+    // Nor does it offer read or delete, which the plugin would refuse; a stored message still does.
+    expect(
+      screen.queryByRole('button', {
+        name: 'Actions for PM-1 Trang đăng nhập',
+      }),
+    ).toBeNull();
+    const menus = (
+      await screen.findAllByRole('button', { name: /^Actions for / })
+    ).map((button) => button.getAttribute('aria-label'));
+    expect(menus).toContain('Actions for Weekly report is ready');
+    expect(menus).not.toContain('Actions for PM-1 Trang đăng nhập');
   } finally {
     waiting = null;
   }

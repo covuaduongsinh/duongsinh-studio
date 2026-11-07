@@ -37,6 +37,12 @@ import {
   undecidedFailedRun,
   type ProgressRun,
 } from '../progress/service.js';
+import {
+  handoffWaiting,
+  heldCommentRun,
+  lastHandoff,
+  type ActivityRow,
+} from '../progress/waits.js';
 
 type Env = AuthEnv & AuthorizationEnv;
 type Ctx = Context<Env>;
@@ -49,6 +55,7 @@ const PERSON: Record<string, string[]>[] = [
 ];
 const ISSUE_LIMIT = 200;
 const DECISION_SCAN = 50;
+const ACTIVITY_LIMIT = 100;
 const MAX_UNREAD = 99;
 
 type Wait = 'takeOver' | 'failed' | 'answer' | 'accept' | 'authorize' | 'plan';
@@ -133,6 +140,10 @@ const WaitingEntry = z.object({
     createdAt: z.string(),
   }),
   notice: InboxNoticeSchema,
+  inApp: z.literal(false).meta({
+    description:
+      'Studio-only. A decision read from its issue, not a stored in-app message: it cannot be marked read or deleted, and leaves once decided.',
+  }),
 });
 
 const WaitsSchema = z.array(
@@ -221,6 +232,19 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
       };
     };
 
+    const activitiesOf = async (
+      viewer: Viewer,
+      issueId: string,
+    ): Promise<readonly ActivityRow[]> => {
+      const page = (await projects().issueQueries.activities(viewer, issueId, {
+        limit: ACTIVITY_LIMIT,
+      })) as unknown as {
+        items?: readonly ActivityRow[];
+        data?: readonly ActivityRow[];
+      };
+      return page.items ?? page.data ?? [];
+    };
+
     /** What this person owes each of their open issues, read from the issues' own state. */
     const decisionsOn = async (
       viewer: Viewer,
@@ -245,6 +269,30 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
             key: `answer:${issue.id}`,
             since: issue.updatedAt,
             detail: issue.needsYou,
+          });
+        // Handed over by someone else and not yet accepted or rejected; comment runs the limit holds back.
+        const activities = await activitiesOf(viewer, issue.id);
+        const handoff = lastHandoff(activities);
+        if (
+          handoff &&
+          handoff.details.to === viewer.userId &&
+          (await handoffWaiting(conn(), handoff))
+        )
+          decisions.push({
+            wait: 'takeOver',
+            issue,
+            key: `takeOver:${handoff.id}`,
+            since: handoff.createdAt,
+            detail: null,
+          });
+        const held = await heldCommentRun(conn(), activities, issue.id);
+        if (held)
+          decisions.push({
+            wait: 'authorize',
+            issue,
+            key: `authorize:${held.id}`,
+            since: held.createdAt,
+            detail: null,
           });
         const runs = (await agents().runs.list({
           subjectKind: ISSUE,
@@ -340,6 +388,8 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
           resolvedAt: null,
           outcome: null,
         },
+        // No in-app message stands behind it, so the plugin has nothing to mark or delete under its id.
+        inApp: false as const,
       };
     };
 

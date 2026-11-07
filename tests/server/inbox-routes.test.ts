@@ -6,6 +6,7 @@ import {
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
 import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
+import { databaseManagerToken } from '@nocobase/db';
 import { CONTRIBUTOR_SET_KEY } from '../../server/access/roles.js';
 import { AGENT_KIND } from '../../server/agents/ids.js';
 import { createStandaloneServer } from '../../server/standalone.js';
@@ -43,6 +44,7 @@ test(
   async ({ testApp, app, request }) => {
     const admin = await signIn(testApp, DEFAULT_ADMIN_CREDENTIALS);
     const agents = app.container.resolve(agentsToken);
+    const conn = app.container.resolve(databaseManagerToken).connection();
     const session = (await (await admin.fetch('/auth/get-session')).json()) as {
       user: { id: string };
     };
@@ -247,5 +249,87 @@ test(
         .status,
     ).toBe(404);
     expect(session.user.id).toBeTruthy();
+
+    // Decisions are read from issues, not stored as in-app messages: nothing to mark read or delete under their ids.
+    const waitingOf = async (who: typeof admin) =>
+      (await (await who.fetch('/inbox/waiting')).json())
+        .data as (WaitingEntry & {
+        inApp?: boolean;
+        notice: { decisionKey: string; subject: { id: string } };
+      })[];
+    expect(
+      (await waitingOf(admin)).every((entry) => entry.inApp === false),
+    ).toBe(true);
+
+    // Handed to someone by another person: a decision for the new owner only, gone once they accept it.
+    const contributorId = ((await member.json()) as { data: { id: string } })
+      .data.id;
+    const handed = await newIssue('Bàn giao');
+    const transferred = await admin.fetch(
+      `/projects/issues/${handed.id}`,
+      json({ ownerUserId: contributorId, revision: handed.revision }, 'PATCH'),
+    );
+    expect(transferred.status).toBe(200);
+    const takeOver = (await waitingOf(contributor)).filter(
+      (entry) => entry.notice.subject.id === handed.id,
+    );
+    expect(takeOver.map((entry) => entry.notice.type)).toEqual(['takeOver']);
+    expect(takeOver[0]?.inApp).toBe(false);
+    expect(
+      (await waitingOf(admin)).some(
+        (entry) => entry.notice.subject.id === handed.id,
+      ),
+    ).toBe(false);
+    const handoff = (
+      await (await contributor.fetch(`/issueOwnerHandoffs/${handed.id}`)).json()
+    ).data as { handoff: { notificationKey: string } };
+    expect(
+      (
+        await contributor.fetch(
+          `/issueOwnerHandoffs/${handed.id}/accept`,
+          json({ notificationKey: handoff.handoff.notificationKey }),
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (await waitingOf(contributor)).some(
+        (entry) => entry.notice.subject.id === handed.id,
+      ),
+    ).toBe(false);
+
+    // Comment runs held back by the limit: a decision for the owner, gone once they let the runs continue.
+    const limited = await newIssue('Giới hạn lượt');
+    await conn.repository('pmActivities').createOne({
+      values: {
+        id: '990000000000001',
+        issueId: limited.id,
+        actorType: 'system',
+        actorId: null,
+        action: 'work_skipped',
+        details: { reason: 'limited', trigger: 'comment' },
+        createdAt: new Date(),
+      },
+    });
+    const held = (await waitingOf(admin)).filter(
+      (entry) => entry.notice.subject.id === limited.id,
+    );
+    expect(held.map((entry) => entry.notice.type)).toEqual(['authorize']);
+    const limit = (
+      await (await admin.fetch(`/issueCommentRuns/${limited.id}`)).json()
+    ).data as { token: string } | null;
+    expect(limit?.token).toBeTruthy();
+    expect(
+      (
+        await admin.fetch(
+          `/issueCommentRuns/${limited.id}/continue`,
+          json({ token: limit?.token }),
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (await waitingOf(admin)).some(
+        (entry) => entry.notice.subject.id === limited.id,
+      ),
+    ).toBe(false);
   },
 );

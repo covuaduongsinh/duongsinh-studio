@@ -29,6 +29,11 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
   get no role unless an administrator sets `defaultRole` (`PUT /api/access/settings`, null by default); `admit` then
   gives it once, and `/api/access/members` shows every holder. Never bind a placeholder that grants everyone every
   permission. `tests/server/projects-access.test.ts` and `tests/server/access-routes.test.ts` guard the boundaries.
+- Inbox: Studio's decisions (`/api/inbox/waiting`, `server/routes/inbox.ts`) are read from issue state, not stored as
+  in-app messages, and carry `inApp: false`. The UI Library inbox block has no per-source hook for its read and delete
+  actions, so `client/extensions/nocobase-inbox/` was changed (`model.ts` `InboxEntry.inApp`, `inbox-actions.ts`,
+  `inbox-item.tsx`) to offer no actions for such entries; keep these changes when the block is upgraded.
+  `tests/client/inbox.test.tsx` fails without them.
 - Seeds cannot import the application's own relative modules (the seed loader resolves only packages), so a seed
   spells out its data the way a migration does.
 - For a contributor, "related" issues include every issue without a project. Private work belongs in a project with

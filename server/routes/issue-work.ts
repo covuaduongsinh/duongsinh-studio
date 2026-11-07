@@ -47,6 +47,12 @@ import {
   type ProgressRun,
   type StepKey,
 } from '../progress/service.js';
+import {
+  COMMENT_RUN_WINDOW_HOURS,
+  heldCommentRun as heldCommentRunOf,
+  lastHandoff,
+  type ActivityRow,
+} from '../progress/waits.js';
 
 type Env = AuthEnv & AuthorizationEnv;
 type Ctx = Context<Env>;
@@ -54,7 +60,6 @@ type Ctx = Context<Env>;
 const DOMAIN = 'studio';
 const ISSUE = 'issue';
 const ACTIVITY_LIMIT = 100;
-const COMMENT_RUN_WINDOW_HOURS = 24;
 const MENTION_AGENT = /mention:\/\/agent\/([\w.-]+)/g;
 
 const PERSON: Record<string, string[]>[] = [
@@ -189,15 +194,6 @@ interface IssueRow {
   readonly executor: { readonly type: string; readonly id: string } | null;
 }
 
-interface ActivityRow {
-  readonly id: string;
-  readonly action: string;
-  readonly actorId: string | null;
-  readonly actorType: string;
-  readonly createdAt: string;
-  readonly details: Readonly<Record<string, unknown>>;
-}
-
 /**
  * What an issue's work is waiting for and the decisions about it (the demo's `issueProgress`, `issueRuns`, `agentBoard`,
  * `failedRuns`, `issueCommentRuns`, `issueOwnerHandoffs`, `issuePanels`, `sendBack`). Every route checks that the
@@ -300,29 +296,11 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
     };
 
     /** The newest comment run the limit held back since the owner last let them continue. */
-    const heldCommentRun = async (
+    const heldCommentRun = (
       activities: readonly ActivityRow[],
       issueId: string,
-    ): Promise<ActivityRow | null> => {
-      const grant = await conn()
-        .query.selectFrom('dsCommentRunGrants')
-        .select('continuedAt')
-        .where('issueId', '=', issueId)
-        .executeTakeFirst();
-      const since = grant?.continuedAt
-        ? new Date(str(grant.continuedAt)).getTime()
-        : 0;
-      const windowStart = Date.now() - COMMENT_RUN_WINDOW_HOURS * 3_600_000;
-      return (
-        activities.find(
-          (activity) =>
-            activity.action === 'work_skipped' &&
-            activity.details.reason === 'limited' &&
-            new Date(activity.createdAt).getTime() >
-              Math.max(since, windowStart),
-        ) ?? null
-      );
-    };
+    ): Promise<ActivityRow | null> =>
+      heldCommentRunOf(conn(), activities, issueId);
 
     const commentRunLimit = async (
       activities: readonly ActivityRow[],
@@ -343,13 +321,7 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
       issue: IssueRow,
       activities: readonly ActivityRow[],
     ) => {
-      const moved = activities.find(
-        (activity) =>
-          activity.action === 'owner_changed' &&
-          typeof activity.details.from === 'string' &&
-          typeof activity.details.to === 'string' &&
-          activity.actorId !== activity.details.to,
-      );
+      const moved = lastHandoff(activities);
       if (!moved)
         return {
           handoff: null,
