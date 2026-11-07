@@ -45,6 +45,15 @@ chạy tự động khi app khởi động (`migrations.autoRun`). Kiểm: `http
 
 Nếu `config.yml` đổi: chép `deploy/dokploy/config.yml` lên `/srv/duongsinh-studio/config.yml` rồi Deploy lại.
 
+## Dọn bản phát hành
+
+Trên VPS giữ 3 thư mục mới nhất trong `releases/` (bản đang chạy và hai bản để quay lui) và không giữ tarball trong `incoming/`
+sau khi đã giải nén. Trước khi xoá, xem bản đang mount: `docker inspect -f '{{range .Mounts}}{{.Source}} {{end}}'
+duongsinh-studio-tluxoy-app-1`. Việc này làm tay sau mỗi lần cập nhật, chưa có lịch tự động.
+
+Dữ liệu sự kiện và brief của run hết hạn sau 14 ngày theo mặc định của `agents.runs.retentionDays` (giữ nguyên, không khai trong
+`config.yml`); bản ghi run, usage và số liệu Dashboard không bị xoá.
+
 ## Quay lui
 
 Đặt lại `STUDIO_RELEASE` về sha cũ (thư mục cũ còn trong `releases/`) và Deploy. Nếu bản mới đã chạy migration làm
@@ -53,19 +62,19 @@ gần nhất trong `releases/`.
 
 ## Sao lưu và khôi phục
 
-Dokploy chưa có đích sao lưu (S3) nào (`destination.all` rỗng), nên chưa bật sao lưu tự động của Dokploy. Script
-`deploy/dokploy/backup.sh` (chỉ cho project này, giữ 14 bản) làm: `pg_dump -Fc` từ container `db` →
-`/srv/duongsinh-studio/backups/studio-<ngày>.dump`, cùng `storage-<ngày>.tar.gz`.
+Dokploy chưa có đích sao lưu (S3) nào (`destination.all` rỗng), nên dùng script riêng `deploy/dokploy/backup.sh`, cài ở
+`/srv/duongsinh-studio/backup.sh`, chạy qua `/etc/cron.d/duongsinh-studio-backup` lúc 03:15 giờ Việt Nam (VPS đang `+01:00`,
+nên dòng cron ghi `15 21`). Mỗi lần: `pg_dump -Fc` từ container `db` → `backups/studio-<ngày>.dump`, cùng
+`storage-<ngày>.tar.gz`, log ở `backups/backup.log`. Giữ 14 bản hằng ngày; các dump `studio-before-*` chụp trước mỗi lần cập
+nhật và `studio-initial.dump` không bị vòng dọn này xoá, dọn tay khi cần.
 
-**Chưa cài lịch chạy tự động** (thêm cron trên VPS là thay đổi lâu dài, cần chủ dự án tự làm). Chủ dự án chạy một lần:
+**Chưa đẩy ra ngoài VPS** (chủ dự án hoãn ngày 07/11/2026). Bật bằng cách cấu hình một remote rclone chỉ cho Studio (`rclone
+config`, scope `drive.file`, tên `studio-backup`) rồi tạo `/srv/duongsinh-studio/backup.env` (quyền 600) với
+`REMOTE=studio-backup:duongsinh-studio`; khi đó script chép lên, kiểm lại, và giữ 30 ngày ở đó. Remote `gdrive-dsc:` đang có
+trên VPS thuộc sao lưu của production NocoBase, không dùng chung.
 
-```bash
-scp deploy/dokploy/backup.sh root@217.15.160.118:/srv/duongsinh-studio/backup.sh
-ssh root@217.15.160.118 'chmod 700 /srv/duongsinh-studio/backup.sh && printf "30 2 * * * root /srv/duongsinh-studio/backup.sh >> /srv/duongsinh-studio/backups/backup.log 2>&1\n" > /etc/cron.d/duongsinh-studio-backup'
-```
-
-Đã có một bản sao lưu thủ công lúc cài: `/srv/duongsinh-studio/backups/studio-initial.dump` (đọc lại được bằng
-`pg_restore --list`). Bản sao lưu nằm cùng máy với dữ liệu: khi có đích S3/Drive thì thêm bước đẩy ra ngoài.
+Đã thử khôi phục 07/11/2026: nạp dump hằng ngày vào database tạm `restore_probe` trong container `db`, số bảng và số dòng
+`pm_issues`, `ag_runs`, `ds_budgets` khớp bản đang chạy, rồi xoá database tạm.
 
 Khôi phục DB (dừng app trước):
 

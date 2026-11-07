@@ -321,10 +321,15 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
   - Thêm sau mốc đó: `newRepo` (token cá nhân, không xin thêm quyền App), `deploys/*` và `previews/*` đọc từ bản ghi có sẵn, trang Thiết lập dự án, trang Skill của dự án mới, liên kết trên trang project, `repositoryDeployments`/`builds`/`releaseDownloads` (có route, **chưa bật Host** theo quyết định 07/11/2026). `compare-studio-api.mjs`: 158/186, còn thiếu 28.
   - Production `96aba37`. Ca thật trên Sandbox: DS-23 (skill vào brief, tự lái merge PR #7); báo check bằng khoá tổ chức có phạm vi (nguồn `host` từ chối, nguồn `external` nhận, đã trả về `host` và xoá khoá). Tải bản build trên production lộ lỗi URL thiếu `/main`, đã sửa ở commit sau, chưa kiểm chứng lại. `projectSetups`, `newRepo`, `kb/offers` chưa có ca thật.
   - Còn thiếu, chủ ý để lại: `delegations`, `intakeDrafts`, `agentSessions/.../context` (tuỳ chọn); OAuth và device flow của `git/authorizations`; `git/marks|projects|repositoryCards|connections/reach`; `previews/logs|preference|variables`; `deploys` về pipeline và môi trường theo App Host; `testApps`; `webhooks/{provider}/...` (Studio dùng đường `github` cố định).
-- [ ] U7 — Thông báo ra ngoài + ngân sách
+- [x] U7 — Thông báo ra ngoài + ngân sách (07/11/2026; email chưa bật)
   - Quyết định Q4 chốt 07/11/2026: Email qua Gmail với App Password (mặc định "Cần tôi quyết định" + báo cáo tuần, chỉ thành viên Studio; hỏi trước lần gửi thật đầu tiên); có Web push; có Ngân sách lượt và token (lúc đầu không đặt hạn mức, 80 % cảnh báo, 100 % chặn xếp hàng, có "Mở chặn"). U8 chỉ chọn Sao lưu Google Drive; không làm UptimeRobot.
   - Mã đã xong (07/11/2026): channel `studio-email` (tắt đến khi có tài khoản), web push (`pushConfig`, `webPush`), `/notificationPreferences`, cảnh báo quyết định mới mỗi 5 phút không gửi dồn, báo cáo tuần và digest gửi cả email; `/budgets` + `dsBudgets`/`dsBudgetEvents`, chặn ở cả bốn chỗ xếp hàng run, Settings → Ngân sách, Settings → Thông báo của tôi, thẻ "Mở chặn" trong Hộp thư, mức dùng trên Dashboard. Cổng: lint, typecheck, locales xanh; 160/160 file, 731 test (`account-permissions` có 3 test quá thời gian một lần khi máy bận, chạy riêng 5/5).
-  - Chưa làm: chưa lên production, chưa có khoá VAPID và tài khoản Gmail thật, chưa gửi thật lần nào.
-- [ ] U8 — Vận hành
+  - Production `c93ebeb`, có khoá VAPID. Ca thật trên Sandbox: tải lên và tải xuống bản build qua đường dẫn có `/main`, cùng byte.
+  - Còn mở: **email tắt** vì chủ dự án hoãn đưa tài khoản Gmail (cần `~/code/secrets/studio-gmail.secret` rồi đặt `STUDIO_EMAIL_ENABLED`, `STUDIO_SMTP_*`; hỏi trước lần gửi thật đầu tiên); chưa thiết bị nào đăng ký web push, chưa gửi push thật; chưa đặt hạn mức ngân sách nào, nên việc chặn mới được kiểm chứng bằng test và trên dev; run lỗi và PR chưa gửi ra ngoài.
+- [x] U8 — Vận hành (07/11/2026; phần cần chủ dự án để sau)
+  - Đã xong: cron sao lưu hằng ngày 03:15 giờ Việt Nam, giữ 14 bản, đã thử khôi phục vào database tạm và số liệu khớp; dọn `incoming/*.tar.gz` và giữ 3 bản phát hành (giải phóng khoảng 7 GB); `agents.runs.retentionDays` giữ mặc định 14; cập nhật `docs/trien-khai-vps.md`.
+  - Chủ dự án hoãn ngày 07/11/2026: đẩy sao lưu lên Google Drive (script đã sẵn, chỉ thiếu remote rclone và `backup.env`); xoay khoá Dokploy.
+  - Không làm theo quyết định của chủ dự án: UptimeRobot, giám sát healthz và runner nội bộ.
+  - Mirror `D:\code\duongsinh-studio`: chủ dự án tự `git pull`.
 
 (Ghi ngày, commit, số liệu cổng kiểm tra, bản production, việc còn mở dưới từng dòng khi xong.)

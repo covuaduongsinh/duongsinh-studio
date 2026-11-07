@@ -20,5 +20,5 @@ if [ -n "$REMOTE" ]; then
   rclone check "$DEST" "$REMOTE" --include "studio-$DAY.dump" --include "storage-$DAY.tar.gz" --one-way --log-level ERROR
   rclone delete "$REMOTE" --min-age 30d --log-level ERROR || echo "duongsinh-studio backup: could not prune $REMOTE" >&2
 fi
-ls -1t "$DEST"/studio-*.dump 2>/dev/null | tail -n +15 | xargs -r rm -f
-ls -1t "$DEST"/storage-*.tar.gz 2>/dev/null | tail -n +15 | xargs -r rm -f
+ls -1t "$DEST"/studio-2*.dump 2>/dev/null | tail -n +15 | xargs -r rm -f
+ls -1t "$DEST"/storage-2*.tar.gz 2>/dev/null | tail -n +15 | xargs -r rm -f
