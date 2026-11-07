@@ -354,6 +354,7 @@ const viVN: AppResource = {
       answer: 'Cần bạn trả lời',
       failed: 'Lượt chạy bị lỗi',
       takeOver: 'Được bàn giao cho bạn',
+      limited: 'Giới hạn lượt chạy: chờ bạn cho tiếp tục',
     },
   },
   common: { cancel: 'Huỷ' },

@@ -255,9 +255,18 @@ test(
     ).data as {
       state: string;
       failedRunId: string;
+      personalRunnerRequests: unknown[];
+      waiting: { kind: string; runId: string } | null;
+      managerWait: { waiting: boolean };
     };
     expect(failed.state).toBe('needsDecision');
     expect(failed.failedRunId).toBe(payload.run.id);
+    expect(failed.waiting).toEqual({
+      kind: 'failedRun',
+      runId: payload.run.id,
+    });
+    expect(failed.personalRunnerRequests).toEqual([]);
+    expect(failed.managerWait.waiting).toBe(false);
     expect(
       (
         await contributor.fetch(
