@@ -316,9 +316,11 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
   - 6 route `reports/*` (`server/routes/reports.ts`), tính từ dịch vụ báo cáo của plugin (`agents.reporting`, `projects.reports`) trong `server/reports/service.ts`; trang `/dashboard` với 4 thẻ KPI, khối hiệu quả agent, biểu đồ lượt chạy (có bảng số), Cần chú ý và bảng dự án; báo cáo tuần 8:00 thứ Hai vào Hộp thư của owner.
   - `compare-studio-api.mjs`: 79/186 route Studio của demo đã có, còn thiếu 107.
   - Việc còn mở: ngưỡng `statuses` của `reports/metrics` do Studio tự chọn; `humanLoad` chỉ tính quyết định run lỗi và bàn giao owner; báo cáo tuần chưa nhận lần gửi thật nào (lịch 8:00 thứ Hai).
-- [ ] U6 — Thiết lập dự án, khoá tổ chức, git, tri thức, nợ S6.7
+- [x] U6 — Thiết lập dự án, khoá tổ chức, git, tri thức, nợ S6.7 (07/11/2026)
   - Đã xong (07/11/2026): `projectSetups`, `projectDefaultSkills` + 5 skill `ds-*`, `organizationKeys` + trang cài đặt, git theo hợp đồng (`git/checks`, `commitChecks`, `resources`, `authorizations/useToken`, PR PATCH/DELETE/checks/checkMerge/markMerged), `kb/offers`, `kb/docs`. 118/186 route Studio của demo đã có.
-  - Còn lại: `newRepo` (cần xin thêm quyền GitHub App), tab và form trang project, `deploys/*` và `previews/*` còn thiếu, `repositoryDeployments`/`builds`/`releaseDownloads` (theo Q5), `delegations`/`intakeDrafts`/`context` (tuỳ chọn).
+  - Thêm sau mốc đó: `newRepo` (token cá nhân, không xin thêm quyền App), `deploys/*` và `previews/*` đọc từ bản ghi có sẵn, trang Thiết lập dự án, trang Skill của dự án mới, liên kết trên trang project, `repositoryDeployments`/`builds`/`releaseDownloads` (có route, **chưa bật Host** theo quyết định 07/11/2026). `compare-studio-api.mjs`: 158/186, còn thiếu 28.
+  - Ca thật: DS-23 trên Sandbox, skill vào brief, tự lái merge PR #7. `projectSetups`, `organizationKeys`, `kb/offers`, `git/checks`, `builds` mới thử bằng test và trên dev, chưa có ca thật trên production.
+  - Còn thiếu, chủ ý để lại: `delegations`, `intakeDrafts`, `agentSessions/.../context` (tuỳ chọn); OAuth và device flow của `git/authorizations`; `git/marks|projects|repositoryCards|connections/reach`; `previews/logs|preference|variables`; `deploys` về pipeline và môi trường theo App Host; `testApps`; `webhooks/{provider}/...` (Studio dùng đường `github` cố định).
 - [ ] U7 — Thông báo ra ngoài + ngân sách
 - [ ] U8 — Vận hành
 
