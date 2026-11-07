@@ -317,6 +317,8 @@ phạm vi" ở mục 1.5, 2 và 3-U6.
   - `compare-studio-api.mjs`: 79/186 route Studio của demo đã có, còn thiếu 107.
   - Việc còn mở: ngưỡng `statuses` của `reports/metrics` do Studio tự chọn; `humanLoad` chỉ tính quyết định run lỗi và bàn giao owner; báo cáo tuần chưa nhận lần gửi thật nào (lịch 8:00 thứ Hai).
 - [ ] U6 — Thiết lập dự án, khoá tổ chức, git, tri thức, nợ S6.7
+  - Đã xong (07/11/2026): `projectSetups`, `projectDefaultSkills` + 5 skill `ds-*`, `organizationKeys` + trang cài đặt, git theo hợp đồng (`git/checks`, `commitChecks`, `resources`, `authorizations/useToken`, PR PATCH/DELETE/checks/checkMerge/markMerged), `kb/offers`, `kb/docs`. 118/186 route Studio của demo đã có.
+  - Còn lại: `newRepo` (cần xin thêm quyền GitHub App), tab và form trang project, `deploys/*` và `previews/*` còn thiếu, `repositoryDeployments`/`builds`/`releaseDownloads` (theo Q5), `delegations`/`intakeDrafts`/`context` (tuỳ chọn).
 - [ ] U7 — Thông báo ra ngoài + ngân sách
 - [ ] U8 — Vận hành
 

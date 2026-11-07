@@ -220,6 +220,24 @@ const zhCN: AppResource = {
       declined: '已拒绝',
     },
   },
+  studioOrgKeys: {
+    checksTitle: '上报检查',
+    checksDescription: '允许 CI 上报其仓库的检查结果。',
+    report: '上报检查',
+    section: 'Studio',
+    settingsTitle: '组织 API 密钥',
+    read: '查看',
+    manage: '管理',
+  },
+  studioReports: {
+    actions: {
+      groupTitle: '报告',
+      read: {
+        title: '读取报告',
+        description: '代唤醒智能体的人读取交付、成本和验收数据。',
+      },
+    },
+  },
   followUps: {
     title: '跟进',
     description: '你参与的未完成任务，以及上次查看后的新内容。',

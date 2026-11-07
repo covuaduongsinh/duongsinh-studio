@@ -548,3 +548,4 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **`git/authorizations`:** chỉ có `useToken`. Token cá nhân được lưu kín nhưng chưa dùng để commit đứng tên người đó; OAuth và device flow để sau.
 - **`referenceChecks`:** check tham chiếu hiện ra nhưng không tính vào CI. `git/resources` chỉ đọc được bởi người thấy project, chặt hơn `git/repositories` hiện có (người đọc được agent thấy mọi repo).
 - **Sửa kèm:** `reports/attention` bỏ PR của công việc đã xong khỏi danh sách chờ review.
+- **`kb/offers`:** lưu bằng hành động `kb.knowledge/propose` (demo gọi là `offer`). Duyệt trên trang công việc, không vào Hộp thư, đúng mô tả của demo là không gửi thông báo. `kb/docs?q=` lọc theo tiêu đề, tóm tắt và slug, không dùng tìm kiếm toàn văn; muốn tìm trong nội dung thì dùng `kb search`.

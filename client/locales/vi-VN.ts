@@ -223,6 +223,25 @@ const viVN: AppResource = {
       declined: 'Đã từ chối',
     },
   },
+  studioOrgKeys: {
+    checksTitle: 'Báo kết quả check',
+    checksDescription: 'Cho CI báo kết quả check của repo lấy check từ CI.',
+    report: 'Báo kết quả check',
+    section: 'Studio',
+    settingsTitle: 'Khoá API của tổ chức',
+    read: 'Xem',
+    manage: 'Quản lý',
+  },
+  studioReports: {
+    actions: {
+      groupTitle: 'Báo cáo',
+      read: {
+        title: 'Đọc báo cáo',
+        description:
+          'Đọc số liệu giao việc, chi phí và nghiệm thu thay cho người đã gọi agent.',
+      },
+    },
+  },
   followUps: {
     title: 'Theo dõi',
     description:

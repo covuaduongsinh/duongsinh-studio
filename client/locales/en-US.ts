@@ -229,6 +229,26 @@ const enUS = {
       declined: 'Declined',
     },
   },
+  studioOrgKeys: {
+    checksTitle: 'Report checks',
+    checksDescription:
+      'Lets CI report the checks of a repository whose checks come from it.',
+    report: 'Report checks',
+    section: 'Studio',
+    settingsTitle: 'Organization API keys',
+    read: 'View',
+    manage: 'Manage',
+  },
+  studioReports: {
+    actions: {
+      groupTitle: 'Reports',
+      read: {
+        title: 'Read reports',
+        description:
+          'Read delivery, cost and acceptance figures for the person who woke the agent.',
+      },
+    },
+  },
   followUps: {
     title: 'Follow-ups',
     description:
