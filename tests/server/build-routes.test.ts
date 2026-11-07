@@ -11,6 +11,7 @@ import {
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
 import { CONTRIBUTOR_SET_KEY } from '../../server/access/roles.js';
+import { publicBaseUrlOf } from '../../server/providers/git.js';
 import { createStandaloneServer } from '../../server/standalone.js';
 
 const test = createAppTest({
@@ -77,7 +78,7 @@ afterEach(() => {
 test(
   'CI reports and uploads a build, Studio keeps it without running it, and a link downloads the same bytes',
   { timeout: 240_000 },
-  async ({ testApp, request }) => {
+  async ({ testApp, app, request }) => {
     for (const path of [
       '/repositoryDeployments?appId=a',
       '/repositoryDeployments/x',
@@ -259,7 +260,10 @@ test(
         })
       ).json()
     ).data as { buildId: string; url: string; token: string };
-    expect(ticket.url).toContain(`/builds/${ticket.buildId}/uploadArtifact`);
+    // Called from outside, so it carries the deployment's base path, which a request's own URL has lost.
+    expect(ticket.url).toBe(
+      `${publicBaseUrlOf(app)}/api/builds/${ticket.buildId}/uploadArtifact`,
+    );
     const folder = mkdtempSync(path.join(tmpdir(), 'ds-build-'));
     mkdirSync(path.join(folder, 'dist/server'), { recursive: true });
     writeFileSync(path.join(folder, 'dist/server/embedded.js'), 'export {};');
@@ -333,6 +337,9 @@ test(
       ).json()
     ).data as { url: string; expiresAt: string };
     expect(Date.parse(link.expiresAt)).toBeGreaterThan(Date.now());
+    expect(
+      link.url.startsWith(`${publicBaseUrlOf(app)}/api/releaseDownloads/`),
+    ).toBe(true);
     const downloadPath = link.url.slice(link.url.indexOf('/releaseDownloads/'));
     const downloaded = await request(downloadPath);
     expect(downloaded.status).toBe(200);

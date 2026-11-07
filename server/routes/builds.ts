@@ -35,7 +35,7 @@ import { z } from 'zod';
 import { str, strOrNull, type Row } from '../git/rows.js';
 import type { GitRepositoryView } from '../git/service.js';
 import { EXTERNAL_ENVIRONMENT } from '../providers/build-storage.js';
-import { gitServiceToken } from '../providers/git.js';
+import { gitServiceToken, publicBaseUrlOf } from '../providers/git.js';
 import { ORGANIZATION_KEYS_USER } from '../providers/organization-keys.js';
 import { releaseServiceToken } from '../providers/releases.js';
 
@@ -317,11 +317,13 @@ export const buildRoutes: AppApiRouteContribution<Application> =
       };
     };
 
-    /** The base of this API, as the caller reached it: what generated files and links call back. */
-    const apiBaseOf = (context: Ctx | Context): string => {
-      const url = new URL(context.req.url);
-      const at = url.pathname.indexOf('/api/');
-      return `${url.origin}${url.pathname.slice(0, at)}/api`;
+    /**
+     * The base of this API from outside. The router sees paths without the deployment's base path, so a request's own
+     * URL would lose it; the configured public base has it.
+     */
+    const apiBaseOf = (context: Ctx): string => {
+      const base = publicBaseUrlOf(app);
+      return `${base ?? new URL(context.req.url).origin}/api`;
     };
 
     const ciKeyRow = async (repositoryId: string): Promise<Row | undefined> =>
