@@ -131,7 +131,7 @@ const viVN: AppServerResource = {
   studioSetups: {
     issueTitle: 'Khởi tạo dự án',
     templateIssue:
-      'Khởi tạo dự án này từ mẫu ứng dụng NocoBase `{{template}}` (`pnpm create @nocobase/app --template {{template}}`), commit phiên bản đầu vào nhánh mặc định và báo lại những gì đã tạo.',
+      'Khởi tạo repository này từ mẫu ứng dụng NocoBase `{{- packageName}}@{{- version}}`, đúng phiên bản Studio đang dùng.\n\n1. Kiểm `node -v` ≥ 24 và `pnpm -v` ≥ 11; thiếu thì dừng và báo lại, không cài gì thêm.\n2. Trong một thư mục tạm ngoài repo: `pnpm create @nocobase/app {{- name}} --template={{- packageName}}@{{- version}} --no-install`. Không thêm `@beta`, không đổi phiên bản.\n3. Chuyển mọi file của ứng dụng vừa tạo, kể cả file ẩn, vào gốc repo; giữ nguyên `.git`. Xoá `README.md` do GitHub tạo, giữ `README.MD` của mẫu.\n4. Trong gốc repo: `pnpm install`, `pnpm add @nocobase/db-postgres`, `pnpm nocobase config init --dialect sqlite`, `pnpm nocobase config check`.\n5. Không commit `config.yml`, `.env`, `storage/`. Viết `docs/nguon-goc.md`: mẫu và phiên bản, ngày tạo, phiên bản các gói `@nocobase/*` chính, và câu "Tạo bằng create-app, không sao chép từ ứng dụng khác."\n6. Commit mốc gốc thẳng lên nhánh mặc định và push, không force-push. Mọi việc sau làm trên nhánh riêng.\n7. Không chạy kiểm tra toàn repo (`pnpm check`, `pnpm lint`, `pnpm test`, `pnpm build`, `pnpm typecheck`) và không để `pnpm dev` chạy.\n\nBáo lại: phiên bản Node và pnpm, danh sách file đã commit (`git ls-files`), nội dung `docs/nguon-goc.md`.',
     managerUnavailable:
       'Trưởng nhóm agent chưa được cấu hình nên việc này đang chờ. Hãy cấu hình rồi bắt đầu việc.',
     deployLater:

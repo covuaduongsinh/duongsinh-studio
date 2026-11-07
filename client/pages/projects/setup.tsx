@@ -14,10 +14,12 @@ import { Checkbox } from '#components/ui/checkbox';
 import { Input } from '#components/ui/input';
 import { Label } from '#components/ui/label';
 import { Textarea } from '#components/ui/textarea';
+import { isKnownGitReason, useGitErrorText } from '#hooks/use-git-error-text';
 import {
   useConnectPersonalToken,
   useGitConnectionChoices,
   useProjectSetup,
+  useProjectSetupTemplate,
   type ProjectInitChoice,
   type ProjectSetupInput,
 } from '#hooks/use-project-setup';
@@ -29,6 +31,14 @@ type Method = (typeof METHODS)[number];
 
 const reasonOf = (error: unknown): string | null =>
   error instanceof ApiClientError ? (error.reason ?? null) : null;
+
+/** Refusals of the setup itself, worded under `projectSetup.errors`; an error's `message` is never shown to people. */
+const SETUP_REASONS = new Set([
+  'GIT_REPOSITORY_EMPTY',
+  'GIT_REPOSITORY_NOT_INSTALLED',
+  'GIT_REPOSITORY_NAME_TAKEN',
+  'APP_TEMPLATE_UNKNOWN',
+]);
 
 export default function ProjectSetupPage(): ReactElement {
   const { t } = useTranslation();
@@ -47,9 +57,18 @@ export default function ProjectSetupPage(): ReactElement {
   const [token, setToken] = useState('');
   const [notice, setNotice] = useState<string | null>(null);
 
+  const gitErrorText = useGitErrorText();
   const connectionId = connectionChoice ?? connections.data?.[0]?.id ?? null;
   const needsRepo = location !== 'none';
-  const needsToken = reasonOf(setup.error) === 'GIT_PERSONAL_TOKEN_REQUIRED';
+  const template = useProjectSetupTemplate(needsRepo && method === 'nocobase');
+  const failure = reasonOf(setup.error);
+  const needsToken = failure === 'GIT_PERSONAL_TOKEN_REQUIRED';
+  const failureText =
+    failure && SETUP_REASONS.has(failure)
+      ? t(`projectSetup.errors.${failure}`)
+      : isKnownGitReason(failure)
+        ? gitErrorText(setup.error)
+        : t('projectSetup.failed');
   const ready =
     name.trim().length > 0 &&
     (!needsRepo || (connectionId !== null && repo.trim().length > 0)) &&
@@ -242,6 +261,18 @@ export default function ProjectSetupPage(): ReactElement {
                 ))}
               </div>
             </fieldset>
+            {method === 'nocobase' ? (
+              <p className='text-xs text-muted-foreground'>
+                {template.data
+                  ? t('projectSetup.templateVersion', {
+                      packageName: template.data.packageName,
+                      version: template.data.version,
+                    })
+                  : template.isError
+                    ? t('projectSetup.errors.APP_TEMPLATE_UNKNOWN')
+                    : null}
+              </p>
+            ) : null}
             {method === 'prompt' ? (
               <div className='flex flex-col gap-2'>
                 <Label htmlFor='setup-prompt'>{t('projectSetup.prompt')}</Label>
@@ -270,10 +301,8 @@ export default function ProjectSetupPage(): ReactElement {
             </p>
           </div>
         ) : setup.isError ? (
-          <p className='text-sm text-destructive'>
-            {setup.error instanceof ApiClientError
-              ? setup.error.message
-              : t('projectSetup.failed')}
+          <p className='text-sm text-destructive' role='alert'>
+            {failureText}
           </p>
         ) : null}
         {connect.isError ? (

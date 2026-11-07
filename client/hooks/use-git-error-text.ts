@@ -25,6 +25,11 @@ const KNOWN_REASONS = new Set([
   'GIT_APP_INSTALLATION_AMBIGUOUS',
 ]);
 
+/** Whether `reason` is one of the git refusals worded above, rather than a failure read as generic. */
+export function isKnownGitReason(reason: string | null | undefined): boolean {
+  return reason !== null && reason !== undefined && KNOWN_REASONS.has(reason);
+}
+
 /** A git API failure in the reader's language, by the error's `reason`. */
 export function useGitErrorText(): (error: unknown) => string {
   const { t } = useTranslation();

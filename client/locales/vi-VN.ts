@@ -320,6 +320,17 @@ const viVN: AppResource = {
     failed: 'Không thiết lập được dự án.',
     tokenFailed: 'Token này không được chấp nhận.',
     create: 'Tạo dự án',
+    templateVersion:
+      'Mẫu {{packageName}}@{{version}}, đúng phiên bản Studio đang dùng. Repo luôn có commit đầu.',
+    errors: {
+      GIT_REPOSITORY_EMPTY:
+        'Repo này chưa có commit nào nên agent không lấy mã về được. Hãy tạo một commit trên nhánh mặc định (ví dụ thêm README trên GitHub) rồi thử lại.',
+      GIT_REPOSITORY_NOT_INSTALLED:
+        'Repo mới đã được tạo nhưng GitHub App chưa với tới được. Hãy thêm repo vào danh sách repo của App trên GitHub, rồi thiết lập lại với "Repo có sẵn". Repo không bị xoá.',
+      GIT_REPOSITORY_NAME_TAKEN: 'GitHub đã có repo trùng tên này.',
+      APP_TEMPLATE_UNKNOWN:
+        'Bản cài đặt Studio này không ghi mẫu ứng dụng nào nên chưa khởi tạo theo mẫu được.',
+    },
   },
   projectDefaultSkills: {
     title: 'Skill của dự án mới',

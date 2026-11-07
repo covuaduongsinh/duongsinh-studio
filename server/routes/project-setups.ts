@@ -44,6 +44,7 @@ import {
 } from '../providers/project-defaults.js';
 import { str, strOrNull, type Row } from '../git/rows.js';
 import { GitError, type GitRepositoryView } from '../git/service.js';
+import { appTemplate } from '../setups/template-version.js';
 
 type Env = AuthEnv & AuthorizationEnv;
 type Ctx = Context<Env>;
@@ -56,7 +57,11 @@ const PERSON: Record<string, string[]>[] = [
 ];
 
 const error = (
-  status: 'PERMISSION_DENIED' | 'NOT_FOUND' | 'INVALID_ARGUMENT',
+  status:
+    | 'PERMISSION_DENIED'
+    | 'NOT_FOUND'
+    | 'INVALID_ARGUMENT'
+    | 'FAILED_PRECONDITION',
   reason: string,
   message: string,
 ): ApiError => new ApiError({ status, reason, domain: DOMAIN, message });
@@ -143,6 +148,17 @@ const SetupAnswer = z.object({
 });
 
 const SkillIds = z.object({ skillIds: z.array(z.string()) });
+
+const Template = z
+  .object({ packageName: z.string(), version: z.string() })
+  .meta({ ref: 'StudioAppTemplate' });
+
+const noTemplate = (): ApiError =>
+  error(
+    'FAILED_PRECONDITION',
+    'APP_TEMPLATE_UNKNOWN',
+    'This installation names no application template (nocobase.templatePackage and nocobase.defaultTemplateVersion in package.json).',
+  );
 
 /** The repository's `owner/name`, from what was picked or from its clone address. */
 function fullNameOf(repo: {
@@ -290,6 +306,27 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
     routes.use('/projectSetups', auth.required(), authz.middleware());
     routes.use('/projectSetups/*', auth.required(), authz.middleware());
     routes.use('/projectDefaultSkills', auth.required(), authz.middleware());
+    routes.use('/projectSetupTemplate', auth.required(), authz.middleware());
+
+    routes.get(
+      '/projectSetupTemplate',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Read the template a NocoBase project starts from',
+        operationId: 'projectSetupTemplateGet',
+        description:
+          'Studio-only, not part of the demo contract. For people signed in. The application template and version that `init.method: nocobase` hands to the "Initialize project" issue: the ones this installation was generated from, read from its `package.json`. 400 `APP_TEMPLATE_UNKNOWN` when the installation names none.',
+        security: PERSON,
+        ...cliRoute({ command: 'project setup template' }),
+        responses: { 200: dataResponse(Template), ...apiErrorResponses },
+      }),
+      async (context) => {
+        await viewerOf(context);
+        const template = await appTemplate();
+        if (!template) throw noTemplate();
+        return context.json({ data: template });
+      },
+    );
 
     routes.post(
       '/projectSetups',
@@ -347,6 +384,11 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
             : body.codeLocation === 'newRepo'
               ? body.newRepo?.init
               : undefined;
+        // The template's version is read before anything is made, so an installation that names none refuses outright
+        // rather than starting from whatever `latest` is that day.
+        const template =
+          init?.method === 'nocobase' ? await appTemplate() : null;
+        if (init?.method === 'nocobase' && !template) throw noTemplate();
 
         // The repository first: it is what can still say no, and a link made for nothing harms no one.
         let repository: GitRepositoryView | null = null;
@@ -365,19 +407,42 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
               {
                 name: newRepo.name,
                 private: newRepo.private,
-                empty: newRepo.init.method === 'empty',
                 ...(newRepo.owner ? { owner: newRepo.owner } : {}),
               },
             );
-            return git().linkRepository({
-              connectionId: newRepo.connectionId,
-              fullName: made.fullName,
-            });
+            try {
+              return await git().linkRepository({
+                connectionId: newRepo.connectionId,
+                fullName: made.fullName,
+              });
+            } catch (failure) {
+              // Made with the person's token, but the connection (an App limited to selected repositories) does not
+              // reach it. The repository stays: deleting it is the person's call, and it is what they will link next.
+              if (
+                failure instanceof GitError &&
+                failure.reason === 'GIT_REPOSITORY_UNREACHABLE'
+              )
+                throw new GitError(
+                  'FAILED_PRECONDITION',
+                  'GIT_REPOSITORY_NOT_INSTALLED',
+                  `${made.fullName} was created, but the connection cannot reach it: add it to the GitHub App's repositories, then set the project up with existingRepo.`,
+                  { repo: made.fullName },
+                );
+              throw failure;
+            }
           });
         }
         if (fullName && existing?.connectionId) {
           const connectionId = existing.connectionId;
           repository = await guardedGit(async () => {
+            // A run checks the repository out; one without a commit fails every run before the agent starts.
+            if (!(await git().hasCommits(connectionId, fullName)))
+              throw new GitError(
+                'FAILED_PRECONDITION',
+                'GIT_REPOSITORY_EMPTY',
+                `${fullName} has no commit yet: push one to its default branch (GitHub's "Add a README" is enough), then try again.`,
+                { repo: fullName },
+              );
             const linked = (await git().listRepositories()).find(
               (item) =>
                 item.connectionId === connectionId && item.repo === fullName,
@@ -413,7 +478,12 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
             init.method === 'prompt'
               ? init.prompt
               : t('studioSetups.templateIssue', {
-                  template: init.template ?? 'default',
+                  packageName: template?.packageName ?? '',
+                  version: template?.version ?? '',
+                  name:
+                    body.newRepo?.name ??
+                    (fullName ?? body.name).split('/').at(-1) ??
+                    body.name,
                 });
           if (!available) message = t('studioSetups.managerUnavailable');
           initIssue = await projects().issues.create(viewer, {

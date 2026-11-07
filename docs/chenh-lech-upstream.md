@@ -572,3 +572,20 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
   Lần quét đầu tiên cho mỗi người chỉ đánh dấu mốc, không gửi dồn.
 - **Trang "Thông báo của tôi" dùng `authz: 'skip'`**, vì đây là lựa chọn của chính mỗi người; server tự kiểm từng route.
 
+
+## 30. K1 — Khởi tạo dự án theo mẫu (07/11/2026)
+
+- **Chỉ có mẫu `default`.** `init.method: nocobase` chỉ nhận `template: 'default'`, chưa thêm `examples`. Phiên bản không còn
+  là `--template default` chung chung: công việc "Khởi tạo dự án" ghi `pnpm create @nocobase/app <tên>
+  --template=<nocobase.templatePackage>@<nocobase.defaultTemplateVersion> --no-install`, đọc lúc chạy từ `package.json` của
+  chính Studio (`server/setups/template-version.ts`, chạy được cả dev lẫn `dist`). Thiếu hai giá trị đó thì route trả 400
+  `APP_TEMPLATE_UNKNOWN`, không rơi về `latest`. README của `create-app` nói không cần thêm `@beta` khi đã ghi phiên bản.
+- **Cách (a): scaffold trong thư mục tạm rồi chuyển vào repo.** `create-app` từ chối thư mục không rỗng, mà repo sau khi
+  checkout luôn có `.git` (và README nếu có commit đầu). Agent tạo ứng dụng ở thư mục tạm ngoài repo, chuyển mọi file vào gốc
+  repo, giữ `.git`, xoá `README.md` của GitHub, giữ `README.MD` của mẫu, rồi commit mốc gốc lên nhánh mặc định.
+- **Repo mới luôn có commit đầu**, kể cả khi chọn "Không tạo" (`empty`): repo rỗng làm mọi run hỏng `checkoutFailed`. Trường
+  `empty` của `POST /git/connections/{id}/repositories` vẫn được nhận cho đúng hợp đồng demo nhưng không còn tác dụng.
+- **Hai lỗi riêng của Studio:** `GIT_REPOSITORY_EMPTY` khi `existingRepo` chưa có commit nào trên nhánh mặc định (kiểm trước khi
+  tạo project), `GIT_REPOSITORY_NOT_INSTALLED` khi repo mới đã tạo bằng token cá nhân nhưng kết nối (App chỉ chọn một số repo)
+  không với tới. Repo đó không bị xoá tự động.
+- **Route riêng `GET /projectSetupTemplate`** (ngoài hợp đồng demo) cho trang Thiết lập dự án hiện mẫu và phiên bản.

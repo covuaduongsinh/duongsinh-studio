@@ -123,7 +123,7 @@ const zhCN: AppServerResource = {
   studioSetups: {
     issueTitle: '初始化项目',
     templateIssue:
-      '使用 NocoBase 应用模板 `{{template}}` 初始化此项目（`pnpm create @nocobase/app --template {{template}}`），将第一个版本提交到默认分支，并报告创建的内容。',
+      '使用 NocoBase 应用模板 `{{- packageName}}@{{- version}}`（即 Studio 自身使用的版本）初始化此仓库。\n\n1. 检查 `node -v` ≥ 24、`pnpm -v` ≥ 11；不满足则停止并报告，不要安装任何东西。\n2. 在仓库之外的临时目录中运行：`pnpm create @nocobase/app {{- name}} --template={{- packageName}}@{{- version}} --no-install`。不要加 `@beta`，不要改版本。\n3. 将新应用的所有文件（包括隐藏文件）移到仓库根目录，保留 `.git`。删除 GitHub 创建的 `README.md`，保留模板的 `README.MD`。\n4. 在仓库根目录运行：`pnpm install`、`pnpm add @nocobase/db-postgres`、`pnpm nocobase config init --dialect sqlite`、`pnpm nocobase config check`。\n5. 不要提交 `config.yml`、`.env`、`storage/`。编写 `docs/nguon-goc.md`：模板及其版本、日期、主要 `@nocobase/*` 包的版本，以及“使用 create-app 创建，未从其他应用复制。”\n6. 将此基线直接提交到默认分支并推送，不要强制推送。之后的工作都在单独的分支上进行。\n7. 不要运行全仓库检查（`pnpm check`、`pnpm lint`、`pnpm test`、`pnpm build`、`pnpm typecheck`），也不要让 `pnpm dev` 一直运行。\n\n报告 Node 和 pnpm 版本、已提交的文件（`git ls-files`）以及 `docs/nguon-goc.md` 的内容。',
     managerUnavailable:
       '项目经理尚未配置，此任务正在等待。请先配置，再开始任务。',
     deployLater: '部署设置尚未应用：请在项目的发布中连接应用。',

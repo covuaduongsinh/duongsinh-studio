@@ -45,3 +45,12 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
 ## Language
 
 User-facing copy is Vietnamese first (`vi-VN`), with `en-US` kept complete.
+
+## Project setup
+
+- A project initialized from the NocoBase template follows approach (a): the agent scaffolds with `create-app` in a temporary
+  directory outside the repository (it refuses a non-empty one), moves the files in keeping `.git`, and commits the
+  baseline to the default branch. The template and version come from this application's own `package.json`
+  (`server/setups/template-version.ts`); never hard-code a version or fall back to `latest`.
+- Repositories Studio creates always get a first commit, and `existingRepo` without one is refused (`GIT_REPOSITORY_EMPTY`),
+  because a run cannot check out an empty repository. See `docs/chenh-lech-upstream.md` section 30.

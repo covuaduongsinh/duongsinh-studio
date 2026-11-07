@@ -138,6 +138,71 @@ describe('project setup', () => {
       'ghp_personal',
     );
   });
+
+  const refusal = (reason: string) =>
+    new Response(
+      JSON.stringify({
+        error: {
+          code: 400,
+          status: 'FAILED_PRECONDITION',
+          reason,
+          domain: 'studio',
+          message: 'Developer text that is never shown.',
+        },
+      }),
+      { status: 400, headers: { 'content-type': 'application/json' } },
+    );
+
+  it('shows the template version and words the refusals of a repository', async () => {
+    const reasons = ['GIT_REPOSITORY_EMPTY', 'GIT_REPOSITORY_NOT_INSTALLED'];
+    answer = (call) => {
+      if (String(call.path).endsWith('projectSetupTemplate'))
+        return {
+          data: {
+            packageName: '@nocobase/app-template-default',
+            version: '1.0.0-beta.88',
+          },
+        };
+      if (call.method !== 'POST') return status;
+      return refusal(reasons.shift() ?? 'SOMETHING_ELSE');
+    };
+    render(<ProjectSetupPage />);
+    await userEvent.type(await screen.findByLabelText('Name'), 'Theo mẫu');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'An existing repository' }),
+    );
+    await userEvent.type(screen.getByLabelText('owner/name'), 'acme/blank');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'From the NocoBase template' }),
+    );
+    expect(
+      await screen.findByText(
+        /Template @nocobase\/app-template-default@1\.0\.0-beta\.88/,
+      ),
+    ).toBeTruthy();
+
+    const create = screen.getByRole('button', { name: 'Create project' });
+    await userEvent.click(create);
+    expect((await screen.findByRole('alert')).textContent).toBe(
+      enUS.projectSetup.errors.GIT_REPOSITORY_EMPTY,
+    );
+    await userEvent.click(create);
+    await waitFor(() =>
+      expect(screen.getByRole('alert').textContent).toBe(
+        enUS.projectSetup.errors.GIT_REPOSITORY_NOT_INSTALLED,
+      ),
+    );
+    await userEvent.click(create);
+    await waitFor(() =>
+      expect(screen.getByRole('alert').textContent).toBe(
+        enUS.projectSetup.failed,
+      ),
+    );
+    expect(screen.queryByText('Developer text that is never shown.')).toBe(
+      null,
+    );
+    expect(navigated.to).toEqual([]);
+  });
 });
 
 describe('skills of new projects', () => {

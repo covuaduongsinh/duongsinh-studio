@@ -1431,7 +1431,7 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
         tags: ['Studio'],
         summary: 'Create a repository on the code host',
         description:
-          'For whoever manages the connections. `empty` creates it without an initial commit. Under a personal GitHub account this uses the caller’s own token (400 `GIT_PERSONAL_TOKEN_REQUIRED` until they connect one); an App’s token reaches only organizations.',
+          'For whoever manages the connections. The repository always gets an initial commit, because runs cannot check out an empty one; `empty` is still accepted for the demo contract and changes nothing. Under a personal GitHub account this uses the caller’s own token (400 `GIT_PERSONAL_TOKEN_REQUIRED` until they connect one); an App’s token reaches only organizations.',
         operationId: 'studioGitCreateRepository',
         ...cliRoute({ command: 'git repo create' }),
         responses: {
@@ -1463,7 +1463,6 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
             ...(body.description !== undefined
               ? { description: body.description }
               : {}),
-            ...(body.empty !== undefined ? { empty: body.empty } : {}),
           }),
         );
         return context.json({ data: { repo: hostRepositoryOf(repo) } }, 201);

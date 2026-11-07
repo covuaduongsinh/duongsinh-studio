@@ -315,6 +315,17 @@ const zhCN: AppResource = {
     failed: '无法设置项目。',
     tokenFailed: '该令牌未被接受。',
     create: '创建项目',
+    templateVersion:
+      '模板 {{packageName}}@{{version}}，即 Studio 使用的版本。仓库总会有第一个提交。',
+    errors: {
+      GIT_REPOSITORY_EMPTY:
+        '该仓库还没有任何提交，智能体无法检出。请在默认分支上创建一个提交（例如在 GitHub 上添加 README），然后重试。',
+      GIT_REPOSITORY_NOT_INSTALLED:
+        '新仓库已创建，但 GitHub App 无法访问它。请在 GitHub 上把它加入该 App 的仓库列表，然后以“已有仓库”重新设置项目。仓库没有被删除。',
+      GIT_REPOSITORY_NAME_TAKEN: 'GitHub 上已有同名仓库。',
+      APP_TEMPLATE_UNKNOWN:
+        '此 Studio 安装未指定应用模板，无法按模板创建项目。',
+    },
   },
   projectDefaultSkills: {
     title: '新项目的技能',

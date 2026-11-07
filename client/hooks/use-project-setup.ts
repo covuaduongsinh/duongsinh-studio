@@ -66,6 +66,31 @@ export function useGitConnectionChoices(): UseQueryResult<
   });
 }
 
+export interface AppTemplateChoice {
+  readonly packageName: string;
+  readonly version: string;
+}
+
+/** The template and version a NocoBase project starts from, as this installation names them. */
+export function useProjectSetupTemplate(
+  enabled: boolean,
+): UseQueryResult<AppTemplateChoice> {
+  const api = useApiClient();
+  return useQuery({
+    queryKey: ['project-setup-template'],
+    enabled,
+    retry: false,
+    staleTime: Infinity,
+    queryFn: async ({ signal }) =>
+      (
+        await api.request<{ data: AppTemplateChoice }>({
+          path: 'projectSetupTemplate',
+          signal,
+        })
+      ).data,
+  });
+}
+
 export function useProjectSetup(): UseMutationResult<
   ProjectSetupAnswer,
   unknown,

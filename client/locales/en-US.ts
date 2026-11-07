@@ -327,6 +327,18 @@ const enUS = {
     failed: 'The project could not be set up.',
     tokenFailed: 'That token was not accepted.',
     create: 'Create project',
+    templateVersion:
+      'Template {{packageName}}@{{version}}, the version Studio runs. The repository always gets a first commit.',
+    errors: {
+      GIT_REPOSITORY_EMPTY:
+        'This repository has no commit yet, so agents cannot check it out. Make one on its default branch (adding a README on GitHub is enough), then try again.',
+      GIT_REPOSITORY_NOT_INSTALLED:
+        'The new repository was created, but the GitHub App cannot reach it. Add it to the App’s repositories on GitHub, then set the project up again with "An existing repository". The repository was not deleted.',
+      GIT_REPOSITORY_NAME_TAKEN:
+        'GitHub already has a repository with this name.',
+      APP_TEMPLATE_UNKNOWN:
+        'This Studio installation names no application template, so it cannot start a project from one.',
+    },
   },
   projectDefaultSkills: {
     title: 'Skills of new projects',

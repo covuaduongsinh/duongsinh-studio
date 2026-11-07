@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { afterEach, expect, vi } from 'vitest';
 import { createAppTest } from '@nocobase/app-testing/server';
 import {
@@ -59,6 +60,18 @@ function fakeGitHub(): void {
           permissions: { push: true },
         });
       if (path === '/repos/acme/sandbox/pulls') return answer([]);
+      if (path === '/repos/acme/sandbox/branches/main')
+        return answer({ name: 'main', commit: { sha: 'a'.repeat(40) } });
+      // A repository GitHub knows but that has no commit: its default branch does not exist yet.
+      if (path === '/repos/acme/blank')
+        return answer({
+          id: 44,
+          full_name: 'acme/blank',
+          default_branch: 'main',
+          clone_url: 'https://github.test/acme/blank.git',
+          html_url: 'https://github.test/acme/blank',
+          permissions: { push: true },
+        });
       if (path === '/user/repos' && init?.method === 'POST') {
         const body = JSON.parse(String(init.body)) as {
           name: string;
@@ -80,6 +93,9 @@ function fakeGitHub(): void {
           201,
         );
       }
+      // Created with the person's token, outside what the connection reaches.
+      if (path === '/repos/ds-bot/ngoai-app')
+        return answer({ message: 'Not Found' }, 404);
       if (path.startsWith('/repos/ds-bot/') && !path.endsWith('/pulls'))
         return answer({
           id: 43,
@@ -113,7 +129,11 @@ test(
   'a project is set up in one step, with its initial issue and the default skills reaching its runs',
   { timeout: 240_000 },
   async ({ testApp, app, request }) => {
-    for (const path of ['/projectDefaultSkills', '/projectSetups/x'])
+    for (const path of [
+      '/projectDefaultSkills',
+      '/projectSetups/x',
+      '/projectSetupTemplate',
+    ])
       expect((await request(path)).status).toBe(401);
     expect((await request('/projectSetups', json({}))).status).toBe(401);
 
@@ -366,6 +386,49 @@ test(
       await (await admin.fetch(`/projects/${setup.data.projectId}`)).json()
     ).data as { setupIssueId: string };
     expect(project.setupIssueId).toBe(setup.data.initIssueId);
+    // The issue names the template at this installation's own version, never a bare `--template default`.
+    const { nocobase } = JSON.parse(
+      await readFile(new URL('../../package.json', import.meta.url), 'utf8'),
+    ) as {
+      nocobase: { templatePackage: string; defaultTemplateVersion: string };
+    };
+    const pinned = `${nocobase.templatePackage}@${nocobase.defaultTemplateVersion}`;
+    expect(
+      (await (await admin.fetch('/projectSetupTemplate')).json()).data,
+    ).toEqual({
+      packageName: nocobase.templatePackage,
+      version: nocobase.defaultTemplateVersion,
+    });
+    const templateIssue = (
+      await (
+        await admin.fetch(`/projects/issues/${setup.data.initIssueId}`)
+      ).json()
+    ).data as { description: string };
+    expect(templateIssue.description).toContain(
+      `pnpm create @nocobase/app sandbox --template=${pinned} --no-install`,
+    );
+    expect(templateIssue.description).not.toContain('--template default');
+    expect(templateIssue.description).not.toContain('&#x2F;');
+
+    // An existing repository without a commit is refused before any project is made.
+    const projectsBeforeBlank = await countProjects();
+    const blankRepo = await admin.fetch(
+      '/projectSetups',
+      json({
+        name: 'Repo rỗng',
+        codeLocation: 'existingRepo',
+        existingRepo: {
+          connectionId,
+          fullName: 'acme/blank',
+          cloneUrl: 'https://github.test/acme/blank.git',
+          defaultBranch: 'main',
+          init: { method: 'nocobase' },
+        },
+      }),
+    );
+    expect(blankRepo.status).toBe(400);
+    expect((await blankRepo.json()).error.reason).toBe('GIT_REPOSITORY_EMPTY');
+    expect(await countProjects()).toBe(projectsBeforeBlank);
     // A new repository: made on the host first, so a name it refuses leaves no project behind.
     const projectsBefore = await countProjects();
     const newRepo = (name: string, init: object) =>
@@ -395,12 +458,22 @@ test(
       private: true,
       auto_init: true,
     });
+    // Even "empty" gets a first commit: runs cannot check out a repository without one.
     const blank = await newRepo('du-an-trong', { method: 'empty' });
     expect(blank.status).toBe(201);
     expect(
       ((await blank.json()).data as { initIssueId: unknown }).initIssueId,
     ).toBeNull();
-    expect(created.at(-1)?.auto_init).toBe(false);
+    expect(created.at(-1)?.auto_init).toBe(true);
+    // Created, but out of the connection's reach: its own refusal, the repository left in place, no project made.
+    const unreachedBefore = await countProjects();
+    const unreached = await newRepo('ngoai-app', { method: 'nocobase' });
+    expect(unreached.status).toBe(400);
+    expect((await unreached.json()).error.reason).toBe(
+      'GIT_REPOSITORY_NOT_INSTALLED',
+    );
+    expect(created.at(-1)?.name).toBe('ngoai-app');
+    expect(await countProjects()).toBe(unreachedBefore);
 
     // A person who may not link repositories changes nothing.
     expect(

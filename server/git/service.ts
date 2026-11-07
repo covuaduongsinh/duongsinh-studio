@@ -2291,7 +2291,6 @@ export function createGitService(deps: GitServiceDeps) {
       readonly name: string;
       readonly private: boolean;
       readonly description?: string | null;
-      readonly empty?: boolean;
     },
   ) {
     const record = await connectionRecord(connectionId);
@@ -2321,7 +2320,9 @@ export function createGitService(deps: GitServiceDeps) {
         name: input.name,
         private: input.private,
         description: input.description ?? null,
-        autoInit: input.empty !== true,
+        // Always with a first commit, even when asked for an empty project: a run checks the repository out, and an
+        // empty one fails every run with `checkoutFailed` before the agent can do anything.
+        autoInit: true,
       });
     } catch (error) {
       if (error instanceof GitHubError && error.status === 422)
@@ -2331,6 +2332,29 @@ export function createGitService(deps: GitServiceDeps) {
           `GitHub refused the name ${input.name}: ${error.message}`,
         );
       throw hostError(error, { repo: input.name });
+    }
+  }
+
+  /**
+   * Whether `fullName`'s default branch has a commit, as the connection sees it. A repository GitHub answers for but
+   * whose default branch it does not know is empty; one it does not answer for is a refusal like any other.
+   */
+  async function hasCommits(
+    connectionId: string,
+    fullName: string,
+  ): Promise<boolean> {
+    const client = await clientOf(await connectionRecord(connectionId));
+    try {
+      const hosted = await client.repository(fullName);
+      try {
+        await client.branchHead(hosted.fullName, hosted.defaultBranch);
+        return true;
+      } catch (error) {
+        if (error instanceof GitHubError && error.status === 404) return false;
+        throw error;
+      }
+    } catch (error) {
+      throw hostError(error, { repo: fullName });
     }
   }
 
@@ -2841,6 +2865,7 @@ export function createGitService(deps: GitServiceDeps) {
     useToken,
     forgetAuthorization,
     createRepository,
+    hasCommits,
     hostRepositories,
     attachToProject,
     primaryRepository: async (projectId: string) => {
