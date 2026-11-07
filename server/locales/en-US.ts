@@ -110,6 +110,9 @@ const enUS = {
       },
     },
   },
+  studioBuilds: {
+    externalDriver: 'Outside Studio',
+  },
   studioOrgKeys: {
     checksTitle: 'Report checks',
     checksDescription:

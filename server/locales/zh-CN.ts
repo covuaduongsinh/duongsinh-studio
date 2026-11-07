@@ -96,6 +96,9 @@ const zhCN: AppServerResource = {
       },
     },
   },
+  studioBuilds: {
+    externalDriver: 'Studio 之外',
+  },
   studioOrgKeys: {
     checksTitle: '上报检查',
     checksDescription: '允许 CI 上报其仓库的检查结果。',

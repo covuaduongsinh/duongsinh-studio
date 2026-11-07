@@ -104,6 +104,9 @@ const viVN: AppServerResource = {
       },
     },
   },
+  studioBuilds: {
+    externalDriver: 'Ngoài Studio',
+  },
   studioOrgKeys: {
     checksTitle: 'Báo kết quả check',
     checksDescription: 'Cho CI báo kết quả check của repo lấy check từ CI.',

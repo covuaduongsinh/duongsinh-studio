@@ -6,6 +6,7 @@ import AgentActionsProvider from './agent-actions.js';
 import ProjectManagerProvider from './project-manager.js';
 import AgentExecutorProvider from './agent-executor.js';
 import IssueSubjectProvider from './issue-subject.js';
+import BuildStorageProvider from './build-storage.js';
 import OrganizationKeysProvider from './organization-keys.js';
 import ProjectDefaultsProvider from './project-defaults.js';
 import GitProvider from './git.js';
@@ -48,6 +49,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   ProjectDefaultsProvider,
   // The account organization API keys belong to (U6).
   OrganizationKeysProvider,
+  // Keeps Apps and their builds while the App Host stays off (U6).
+  BuildStorageProvider,
 ];
 
 export default serviceProviders;
