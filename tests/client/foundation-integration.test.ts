@@ -58,6 +58,7 @@ describe('default Foundation integration', () => {
         [
           ['settingsIssuePrefix', '/settings/issue-prefix'],
           ['settingsIssueLabels', '/settings/issue-labels'],
+          ['settingsProjectDefaultSkills', '/settings/project-default-skills'],
         ],
       ],
       [

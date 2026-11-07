@@ -15,6 +15,8 @@ import {
   KeyRound,
   Library,
   PackageIcon,
+  PackagePlus,
+  Sparkles,
   ServerCog,
   ListTodo,
   Server,
@@ -201,6 +203,15 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     componentLoader: () => import('./pages/knowledge/index.js'),
   },
   {
+    // A project with its repository and first issue, in one step. The server checks who may create and link each.
+    name: 'project-setup',
+    path: '/project-setup',
+    auth: 'required',
+    authz: pmPage('pm-projects'),
+    navigation: { title: 'navigation.projectSetup', icon: PackagePlus },
+    componentLoader: () => import('./pages/projects/setup.js'),
+  },
+  {
     // Where Dương Sinh's work is: previews, staging, versions of each repository and what waits for production
     // (`server/routes/deploys.ts`). Behind the releases plugin's page grant, which the built-in roles hold.
     name: 'releases-hub',
@@ -265,6 +276,22 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
       icon: Tags,
     },
     componentLoader: () => import('./pages/settings/projects-labels.js'),
+  },
+  {
+    name: 'settingsProjectDefaultSkills',
+    parent: 'settingsBusiness',
+    path: '/project-default-skills',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'agents.agents' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.projectDefaultSkills',
+      description: 'navigation.projectDefaultSkillsDescription',
+      icon: Sparkles,
+    },
+    componentLoader: () => import('./pages/settings/project-default-skills.js'),
   },
   {
     // GitHub connections and linked repositories. Every endpoint of `server/routes/git.ts` the page calls requires an

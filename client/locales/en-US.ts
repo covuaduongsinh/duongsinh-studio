@@ -249,6 +249,45 @@ const enUS = {
       },
     },
   },
+  projectSetup: {
+    title: 'Set up a project',
+    description: 'A project with its repository and first issue, in one step.',
+    name: 'Name',
+    projectDescription: 'Description',
+    code: 'Code',
+    location: {
+      none: 'No repository',
+      existingRepo: 'An existing repository',
+      newRepo: 'A new repository',
+    },
+    connection: 'Connection',
+    noConnection: 'No code host is connected yet: connect one in Settings.',
+    repoName: 'Repository name',
+    repoFullName: 'owner/name',
+    private: 'Private',
+    init: 'First issue',
+    method: {
+      empty: 'No first issue',
+      nocobase: 'From the NocoBase template',
+      prompt: 'From my description',
+    },
+    prompt: 'What to set up',
+    token: 'Your GitHub token',
+    tokenHint:
+      'GitHub creates a repository under a personal account only with your own token. It is kept sealed and never shown again.',
+    failed: 'The project could not be set up.',
+    tokenFailed: 'That token was not accepted.',
+    create: 'Create project',
+  },
+  projectDefaultSkills: {
+    title: 'Skills of new projects',
+    description:
+      'A project created from now on starts with these. Existing projects keep their own.',
+    failed: 'The skills could not be read.',
+    empty: 'The skill library is empty.',
+    saveFailed: 'The list could not be saved.',
+    save: 'Save',
+  },
   followUps: {
     title: 'Follow-ups',
     description:
@@ -285,6 +324,10 @@ const enUS = {
     organizationKeys: 'Organization API keys',
     organizationKeysDescription:
       'Keys that belong to the organization, for CI and other machines.',
+    projectSetup: 'Set up a project',
+    projectDefaultSkills: 'Skills of new projects',
+    projectDefaultSkillsDescription:
+      'What a project created from now on starts with.',
     followUps: 'Follow-ups',
     projects: 'Projects',
     issuePrefix: 'Issue prefix',
@@ -572,6 +615,8 @@ const enUS = {
     },
   },
   projectDetail: {
+    more: 'Also of this project',
+    releases: 'Releases',
     breadcrumb: 'Project details',
     loadFailed: 'The project could not be loaded.',
     notFound: 'This project does not exist, or you cannot see it.',

@@ -211,6 +211,7 @@ describe('app client routes', () => {
       // Stage S4: the knowledge page, behind the knowledge plugin's own page grant.
       { name: 'knowledge', authorizedAs: 'knowledge' },
       // Stage S5.4: Releases and Hosted environments, behind the releases plugin's page grant.
+      { name: 'project-setup', authorizedAs: 'pm-projects' },
       { name: 'releases-hub', authorizedAs: 'rel-apps' },
       { name: 'hosted-environments', authorizedAs: 'rel-apps' },
       // Stage S4: a conversation with an agent as a page, and the links that open the chat panel. The agents plugin
@@ -304,6 +305,10 @@ const settingsAuthorizations = [
   })),
   { name: 'settingsIssuePrefix', authorizedAs: 'settings:pm.general' },
   { name: 'settingsIssueLabels', authorizedAs: 'settings:pm.labels' },
+  {
+    name: 'settingsProjectDefaultSkills',
+    authorizedAs: 'settings:agents.agents',
+  },
   { name: 'settingsGit', authorizedAs: 'settings:pm.members' },
   { name: 'settingsOrganizationKeys', authorizedAs: 'settings:studio.apiKeys' },
 ];

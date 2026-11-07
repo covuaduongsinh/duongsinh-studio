@@ -69,6 +69,7 @@ import {
   useStatusPresenter,
 } from '../issues/presentation.js';
 import { ProjectCode } from './project-code.js';
+import { ProjectLinks } from './project-links.js';
 import {
   ProjectAutopilot,
   ProjectAutopilotBadge,
@@ -342,6 +343,7 @@ function ProjectDetailView({
               labels={labels}
             />
             <ProjectCode projectId={project.id} />
+            <ProjectLinks projectId={project.id} />
             <ProjectAutopilot projectId={project.id} />
             <ProjectMembersEditor
               visibility={project.visibility}

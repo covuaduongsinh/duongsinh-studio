@@ -242,6 +242,45 @@ const viVN: AppResource = {
       },
     },
   },
+  projectSetup: {
+    title: 'Thiết lập dự án',
+    description: 'Tạo dự án cùng repo và công việc đầu tiên trong một bước.',
+    name: 'Tên',
+    projectDescription: 'Mô tả',
+    code: 'Mã nguồn',
+    location: {
+      none: 'Không có repo',
+      existingRepo: 'Repo có sẵn',
+      newRepo: 'Repo mới',
+    },
+    connection: 'Kết nối',
+    noConnection: 'Chưa nối nơi lưu mã nguồn: hãy nối trong Cài đặt.',
+    repoName: 'Tên repo',
+    repoFullName: 'chủ/tên',
+    private: 'Riêng tư',
+    init: 'Công việc đầu tiên',
+    method: {
+      empty: 'Không tạo',
+      nocobase: 'Theo mẫu NocoBase',
+      prompt: 'Theo mô tả của tôi',
+    },
+    prompt: 'Cần dựng gì',
+    token: 'Token GitHub của bạn',
+    tokenHint:
+      'GitHub chỉ tạo repo trong tài khoản cá nhân bằng token của chính bạn. Token được lưu kín và không hiện lại.',
+    failed: 'Không thiết lập được dự án.',
+    tokenFailed: 'Token này không được chấp nhận.',
+    create: 'Tạo dự án',
+  },
+  projectDefaultSkills: {
+    title: 'Skill của dự án mới',
+    description:
+      'Dự án tạo từ nay sẽ có sẵn các skill này. Dự án đã có giữ nguyên.',
+    failed: 'Không đọc được danh sách skill.',
+    empty: 'Thư viện skill đang trống.',
+    saveFailed: 'Không lưu được danh sách.',
+    save: 'Lưu',
+  },
   followUps: {
     title: 'Theo dõi',
     description:
@@ -288,6 +327,10 @@ const viVN: AppResource = {
     organizationKeys: 'Khoá API tổ chức',
     organizationKeysDescription:
       'Khoá thuộc về tổ chức, dùng cho CI và các máy khác.',
+    projectSetup: 'Thiết lập dự án',
+    projectDefaultSkills: 'Skill của dự án mới',
+    projectDefaultSkillsDescription:
+      'Dự án tạo từ nay sẽ có sẵn các skill này.',
     followUps: 'Theo dõi',
     projects: 'Dự án',
     issuePrefix: 'Tiền tố công việc',
@@ -574,6 +617,8 @@ const viVN: AppResource = {
     },
   },
   projectDetail: {
+    more: 'Thêm của dự án này',
+    releases: 'Phát hành',
     breadcrumb: 'Chi tiết dự án',
     loadFailed: 'Không tải được dự án.',
     notFound: 'Dự án này không tồn tại, hoặc bạn không có quyền xem.',

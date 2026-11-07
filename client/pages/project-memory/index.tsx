@@ -2,6 +2,7 @@
  * `/project-memory`: what agents wrote down in each repository's `.nb-studio/memory/` (owner feedback, project
  * decisions, references), as the default branch holds it. Read-only: memories change through pull requests.
  */
+import { useSearchParams } from 'react-router';
 import { useTranslation } from '@nocobase/i18n/client';
 import { BrainIcon, ExternalLinkIcon, SearchIcon } from 'lucide-react';
 import { useMemo, useState, type ReactElement } from 'react';
@@ -54,11 +55,16 @@ const UNITS: readonly (readonly [Intl.RelativeTimeFormatUnit, number])[] = [
 ];
 
 /** "3 minutes ago" in `locale`; "now" under a minute. */
-function relativeTime(at: string, locale: string, now: number = Date.now()): string {
+function relativeTime(
+  at: string,
+  locale: string,
+  now: number = Date.now(),
+): string {
   const seconds = Math.round((new Date(at).getTime() - now) / 1000);
   const format = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
   for (const [unit, size] of UNITS)
-    if (Math.abs(seconds) >= size) return format.format(Math.round(seconds / size), unit);
+    if (Math.abs(seconds) >= size)
+      return format.format(Math.round(seconds / size), unit);
   return format.format(0, 'second');
 }
 
@@ -80,9 +86,17 @@ function Picker({
       <label htmlFor={id} className='text-xs font-medium text-muted-foreground'>
         {label}
       </label>
-      <Select items={[...items]} value={value} onValueChange={(next: string | null) => next && onChange(next)}>
+      <Select
+        items={[...items]}
+        value={value}
+        onValueChange={(next: string | null) => next && onChange(next)}
+      >
         <SelectTrigger id={id} className='w-full min-w-48'>
-          <SelectValue>{(current: string | null) => items.find((item) => item.value === current)?.label ?? ''}</SelectValue>
+          <SelectValue>
+            {(current: string | null) =>
+              items.find((item) => item.value === current)?.label ?? ''
+            }
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {items.map((item) => (
@@ -114,14 +128,26 @@ function MemoryCard({
         <span className='flex items-start justify-between gap-3'>
           <span className='font-medium'>{memory.name}</span>
           <span className='flex shrink-0 items-center gap-1.5'>
-            {memory.oversize ? <Badge variant='destructive'>{t('projectMemory.oversize')}</Badge> : null}
-            <Badge variant='secondary'>{memory.type ? t(`projectMemory.types.${memory.type}`) : t('projectMemory.types.unknown')}</Badge>
+            {memory.oversize ? (
+              <Badge variant='destructive'>{t('projectMemory.oversize')}</Badge>
+            ) : null}
+            <Badge variant='secondary'>
+              {memory.type
+                ? t(`projectMemory.types.${memory.type}`)
+                : t('projectMemory.types.unknown')}
+            </Badge>
           </span>
         </span>
-        {memory.description ? <span className='text-sm text-muted-foreground'>{memory.description}</span> : null}
+        {memory.description ? (
+          <span className='text-sm text-muted-foreground'>
+            {memory.description}
+          </span>
+        ) : null}
         <span className='text-xs text-muted-foreground'>
           {memory.modified ? (
-            <time dateTime={memory.modified}>{relativeTime(memory.modified, i18n.language)}</time>
+            <time dateTime={memory.modified}>
+              {relativeTime(memory.modified, i18n.language)}
+            </time>
           ) : null}
           {memory.modified ? ' · ' : null}
           <span className='font-mono'>{memory.slug}</span>
@@ -145,7 +171,10 @@ function MemoryDrawer({
   const { t } = useTranslation();
   const file = useMemoryFile(projectId, repoId, memory?.path ?? null);
   return (
-    <Sheet open={memory !== null} onOpenChange={(open: boolean) => (open ? undefined : onClose())}>
+    <Sheet
+      open={memory !== null}
+      onOpenChange={(open: boolean) => (open ? undefined : onClose())}
+    >
       <SheetContent className='w-full overflow-y-auto sm:max-w-xl'>
         <SheetHeader>
           <SheetTitle>{memory?.name ?? ''}</SheetTitle>
@@ -181,16 +210,29 @@ function MemoryDrawer({
 export default function ProjectMemoryPage(): ReactElement {
   const { t, i18n } = useTranslation();
   const list = useProjectMemoryList();
-  const [projectChoice, setProjectChoice] = useState<string | null>(null);
+  // A project's page links here with its id.
+  const [params] = useSearchParams();
+  const [projectChoice, setProjectChoice] = useState<string | null>(
+    params.get('project'),
+  );
   const [repoChoice, setRepoChoice] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('all');
   const [search, setSearch] = useState('');
   const [open, setOpen] = useState<MemorySummary | null>(null);
 
   const projects = list.data ?? [];
-  const project = projects.find((item) => item.project.id === projectChoice) ?? projects[0] ?? null;
-  const repo = project?.repos.find((item) => item.id === repoChoice) ?? project?.repos[0] ?? null;
-  const memory = useRepositoryMemory(project?.project.id ?? null, repo?.id ?? null);
+  const project =
+    projects.find((item) => item.project.id === projectChoice) ??
+    projects[0] ??
+    null;
+  const repo =
+    project?.repos.find((item) => item.id === repoChoice) ??
+    project?.repos[0] ??
+    null;
+  const memory = useRepositoryMemory(
+    project?.project.id ?? null,
+    repo?.id ?? null,
+  );
 
   const counts = useMemo(() => {
     const all = memory.data?.memories ?? [];
@@ -207,7 +249,9 @@ export default function ProjectMemoryPage(): ReactElement {
       (item) =>
         (tab === 'all' || item.type === tab) &&
         (!needle ||
-          `${item.name} ${item.description} ${item.slug}`.toLocaleLowerCase(i18n.language).includes(needle)),
+          `${item.name} ${item.description} ${item.slug}`
+            .toLocaleLowerCase(i18n.language)
+            .includes(needle)),
     );
   }, [memory.data, tab, search, i18n.language]);
 
@@ -227,7 +271,9 @@ export default function ProjectMemoryPage(): ReactElement {
             <BrainIcon />
           </EmptyMedia>
           <EmptyTitle>{t('projectMemory.noRepositories')}</EmptyTitle>
-          <EmptyDescription>{t('projectMemory.noRepositoriesHint')}</EmptyDescription>
+          <EmptyDescription>
+            {t('projectMemory.noRepositoriesHint')}
+          </EmptyDescription>
         </EmptyHeader>
       </Empty>
     );
@@ -238,7 +284,10 @@ export default function ProjectMemoryPage(): ReactElement {
           <Picker
             id='project-memory-project'
             label={t('projectMemory.project')}
-            items={projects.map((item) => ({ value: item.project.id, label: item.project.name }))}
+            items={projects.map((item) => ({
+              value: item.project.id,
+              label: item.project.name,
+            }))}
             value={project.project.id}
             onChange={(value) => {
               setProjectChoice(value);
@@ -248,7 +297,10 @@ export default function ProjectMemoryPage(): ReactElement {
           <Picker
             id='project-memory-repository'
             label={t('projectMemory.repository')}
-            items={project.repos.map((item) => ({ value: item.id, label: item.name }))}
+            items={project.repos.map((item) => ({
+              value: item.id,
+              label: item.name,
+            }))}
             value={repo.id}
             onChange={setRepoChoice}
           />
@@ -262,10 +314,15 @@ export default function ProjectMemoryPage(): ReactElement {
         ) : (
           <>
             <p className='flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground'>
-              {memory.data.ref ? <span>{t('projectMemory.from', { ref: memory.data.ref })}</span> : null}
+              {memory.data.ref ? (
+                <span>{t('projectMemory.from', { ref: memory.data.ref })}</span>
+              ) : null}
               {memory.data.checkedAt ? (
                 <span>
-                  · {t('projectMemory.checked', { time: relativeTime(memory.data.checkedAt, i18n.language) })}
+                  ·{' '}
+                  {t('projectMemory.checked', {
+                    time: relativeTime(memory.data.checkedAt, i18n.language),
+                  })}
                 </span>
               ) : null}
               <span>
@@ -273,7 +330,12 @@ export default function ProjectMemoryPage(): ReactElement {
               </span>
               <span>
                 ·{' '}
-                <a href={memory.data.webUrl} target='_blank' rel='noreferrer' className='inline-flex items-center gap-1 hover:underline'>
+                <a
+                  href={memory.data.webUrl}
+                  target='_blank'
+                  rel='noreferrer'
+                  className='inline-flex items-center gap-1 hover:underline'
+                >
                   {t('projectMemory.viewRepository')}
                   <ExternalLinkIcon aria-hidden='true' className='size-3.5' />
                 </a>
@@ -286,12 +348,18 @@ export default function ProjectMemoryPage(): ReactElement {
             ) : null}
             {memory.data.total > memory.data.limit ? (
               <p className='text-sm text-muted-foreground'>
-                {t('projectMemory.overLimit', { total: memory.data.total, limit: memory.data.limit })}
+                {t('projectMemory.overLimit', {
+                  total: memory.data.total,
+                  limit: memory.data.limit,
+                })}
               </p>
             ) : null}
             <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
               <Tabs value={tab} onValueChange={(value: Tab) => setTab(value)}>
-                <TabsList variant='line' aria-label={t('projectMemory.typesLabel')}>
+                <TabsList
+                  variant='line'
+                  aria-label={t('projectMemory.typesLabel')}
+                >
                   {(['all', ...MEMORY_TYPES] as const).map((key) => (
                     <TabsTrigger key={key} value={key}>
                       {t(`projectMemory.tabs.${key}`)} {counts[key]}
@@ -316,16 +384,30 @@ export default function ProjectMemoryPage(): ReactElement {
             </div>
             {shown.length === 0 ? (
               <p className='text-sm text-muted-foreground'>
-                {memory.data.memories.length === 0 ? t('projectMemory.empty') : t('projectMemory.noMatch')}
+                {memory.data.memories.length === 0
+                  ? t('projectMemory.empty')
+                  : t('projectMemory.noMatch')}
               </p>
             ) : (
-              <ul className='grid gap-3 md:grid-cols-2' aria-label={t('projectMemory.title')}>
+              <ul
+                className='grid gap-3 md:grid-cols-2'
+                aria-label={t('projectMemory.title')}
+              >
                 {shown.map((item) => (
-                  <MemoryCard key={item.path} memory={item} onOpen={() => setOpen(item)} />
+                  <MemoryCard
+                    key={item.path}
+                    memory={item}
+                    onOpen={() => setOpen(item)}
+                  />
                 ))}
               </ul>
             )}
-            <MemoryDrawer projectId={project.project.id} repoId={repo.id} memory={open} onClose={() => setOpen(null)} />
+            <MemoryDrawer
+              projectId={project.project.id}
+              repoId={repo.id}
+              memory={open}
+              onClose={() => setOpen(null)}
+            />
           </>
         )}
       </div>
@@ -333,7 +415,10 @@ export default function ProjectMemoryPage(): ReactElement {
 
   return (
     <PageContainer>
-      <PageHeader title={t('projectMemory.title')} description={t('projectMemory.description')} />
+      <PageHeader
+        title={t('projectMemory.title')}
+        description={t('projectMemory.description')}
+      />
       {body}
     </PageContainer>
   );
