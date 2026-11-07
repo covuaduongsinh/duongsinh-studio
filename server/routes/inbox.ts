@@ -1105,17 +1105,20 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
         ListFilters.extend({
           mode: z.enum(['split', 'table']).optional(),
           limit: z.coerce.number().int().min(1).max(200).optional(),
+          cursor: z.string().min(1).optional(),
         }),
       ),
       async (context) => {
         const viewer = await viewerOf(context);
-        const { mode, limit, ...filters } = context.req.valid('query');
-        const issues = pageItems(
-          await projects().issueQueries.page(viewer, {
-            ...filters,
-            limit: limit ?? ISSUE_LIMIT,
-          }),
-        );
+        const { mode, limit, cursor, ...filters } = context.req.valid('query');
+        const listed = await projects().issueQueries.page(viewer, {
+          ...filters,
+          limit: limit ?? ISSUE_LIMIT,
+          ...(cursor ? { cursor } : {}),
+        });
+        const issues = pageItems(listed);
+        const nextCursor =
+          (listed as { nextCursor?: string | null }).nextCursor ?? null;
         const rows = await rowsOf(viewer, issues);
         const groupOf = (row: (typeof rows)[number]): string => {
           const status = String(row.issue.statusKey);
@@ -1149,6 +1152,8 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
             membership: viewer.userId,
             mode: mode ?? 'split',
             groups,
+            // One issue list feeds every group, so the cursor of the next page of that list is shared by them all.
+            nextCursor,
             following: rows
               .filter((row) => row.followed)
               .map((row) => String(row.issue.id)),
