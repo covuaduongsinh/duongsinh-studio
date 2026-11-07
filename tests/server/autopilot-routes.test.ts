@@ -81,6 +81,22 @@ test('autopilot REST routes: settings, pause, resume, events, stop-all and perso
   expect(updatedSettings.sensitivePolicy).toBe('extraReview');
   expect(updatedSettings.sensitivePaths).toEqual(['database/**', '.github/**']);
 
+  // A URL is not a path and would replace the defaults; an empty list falls back to them.
+  const urlRes = await admin.fetch(
+    `/projects/${project.id}/autopilot`,
+    json({ sensitivePaths: ['https://github.com/acme/app'] }, 'PUT'),
+  );
+  expect(urlRes.status).toBe(400);
+  const emptyRes = await admin.fetch(
+    `/projects/${project.id}/autopilot`,
+    json({ sensitivePaths: [] }, 'PUT'),
+  );
+  expect(emptyRes.status).toBe(200);
+  expect(
+    ((await emptyRes.json()).data as { sensitivePaths: string[] | null })
+      .sensitivePaths,
+  ).toBeNull();
+
   // 4. POST pause autopilot
   const pauseRes = await admin.fetch(
     `/projects/${project.id}/autopilot/pause`,

@@ -67,7 +67,21 @@ const UpdateAutopilotSettingsBody = z
     maxMergesPerDay: z.number().int().min(1).nullable().optional(),
     maxActiveIssues: z.number().int().min(1).nullable().optional(),
     stallMinutes: z.number().int().min(1).optional(),
-    sensitivePaths: z.array(z.string()).nullable().optional(),
+    // Paths are glob patterns relative to the repository. A URL here (nocofen once had one) matches nothing yet replaces the
+    // defaults, silently turning off protection of `.github/workflows/**`. An empty list means "use the defaults".
+    sensitivePaths: z
+      .array(
+        z
+          .string()
+          .min(1)
+          .refine((path) => !/^[a-z][a-z0-9+.-]*:\/\//i.test(path), {
+            message:
+              'A sensitive path is a glob relative to the repository, not a URL.',
+          }),
+      )
+      .nullable()
+      .transform((paths) => (paths && paths.length === 0 ? null : paths))
+      .optional(),
     sensitivePolicy: z.enum(['extraReview', 'human']).optional(),
     pausedReason: z.string().nullable().optional(),
   })

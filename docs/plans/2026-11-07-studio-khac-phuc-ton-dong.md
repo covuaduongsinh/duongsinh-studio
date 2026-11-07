@@ -337,8 +337,12 @@ Tổng khoảng **11 ngày làm việc** của agent nếu có K2.3 (0,5 + 2,5 +
 
 - [ ] K0 — Vận hành
 - [ ] K1 — Khởi tạo dự án đúng chuẩn
+  - Xong trong mã (07/11/2026, chưa lên production): K1.1–K1.5 (ghim phiên bản từ `package.json`, mô tả mới 3 ngôn ngữ, repo luôn `auto_init`, từ chối `existingRepo` rỗng `GIT_REPOSITORY_EMPTY`, `GIT_REPOSITORY_NOT_INSTALLED`). Test: `template-version`, `project-setup-routes`.
+  - Còn: K1.6 (trang Thiết lập hiển thị phiên bản và hai lỗi mới), K1.7 (ghi `chenh-lech-upstream.md`), ca thật `ds-setup-probe`.
 - [ ] K2 — Skill luật ứng dụng và giới hạn runner
+  - Xong trong mã: K2.1 (`ds-app-rules` + `ds-development` trỏ tới). Còn: K2.2 gắn cho `nocofen` (production), K2.3 CI.
 - [ ] K3 — Việc còn mở
+  - Xong trong mã: K3.2 (`stepOf` dịch câu hệ thống sang tiếng Việt, `tests/server/progress-step.test.ts`), K3.6 phần mã (URL bị từ chối 400, danh sách rỗng thành `null`). Còn: dữ liệu `nocofen` trên production, K3.1, K3.3, K3.4, K3.5.
 - [x] K4 — Tài liệu (07/11/2026)
   - Chép 7 file (2.796 dòng, khớp mục 1.5) từ bản cục bộ vào `docs/plans/archive/`; quét: 0 mẫu khoá, 0 số điện thoại, 1 email mẫu `studio@dsc.edu.vn`. Thêm vào `.prettierignore`.
   - Sửa đường dẫn trong `trien-khai-vps.md`, `chenh-lech-upstream.md`, `.agents/rules/duongsinh-studio.md`, hai kế hoạch 06/11 và `scripts/compare-studio-api.mjs` (nay tính theo vị trí file; đọc được 186 route từ phụ lục mới). Còn lại các nhắc tới mã upstream `D:\code\nocobase` là chủ ý.

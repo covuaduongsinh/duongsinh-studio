@@ -73,7 +73,38 @@ export function stepOf(text: string | null | undefined): string | null {
     ?.split('\n')
     .map((part) => part.trim())
     .find((part) => part.length > 0 && !part.startsWith('[@'));
-  return line ? line.slice(0, 200) : null;
+  return line ? viSystemLine(line).slice(0, 200) : null;
+}
+
+/**
+ * The sentences the executor and the runner plugin write for the agent are English (the agent reads them), but the
+ * progress line is for people. Known ones are shown in Vietnamese; anything else, a person's words included, is untouched.
+ */
+const SYSTEM_LINES: readonly [RegExp, (match: RegExpMatchArray) => string][] = [
+  [
+    /^(\S+) is in progress: work on it\.$/,
+    (m) => `${m[1]} đang thực hiện: hãy làm việc này.`,
+  ],
+  [
+    /^(\S+) was handed to you while in progress: work on it\.$/,
+    (m) => `${m[1]} được giao cho bạn khi đang thực hiện: hãy làm việc này.`,
+  ],
+  [
+    /^Nothing holds (\S+) any more: work on it\.$/,
+    (m) => `Không còn gì chặn ${m[1]}: hãy làm việc này.`,
+  ],
+  [
+    /^Retry the work of the previous run\.$/,
+    () => 'Thử lại việc của lượt chạy trước.',
+  ],
+];
+
+function viSystemLine(line: string): string {
+  for (const [pattern, render] of SYSTEM_LINES) {
+    const match = line.match(pattern);
+    if (match) return render(match);
+  }
+  return line;
 }
 
 export function computeProgress(facts: ProgressFacts): IssueProgress {
