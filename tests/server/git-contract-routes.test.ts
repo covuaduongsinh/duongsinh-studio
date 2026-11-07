@@ -7,6 +7,7 @@ import {
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
 import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
+import { databaseManagerToken } from '@nocobase/db';
 import { CONTRIBUTOR_SET_KEY } from '../../server/access/roles.js';
 import { AGENT_KIND } from '../../server/agents/ids.js';
 import { gitServiceToken } from '../../server/providers/git.js';
@@ -92,6 +93,37 @@ function fakeGitHub(branch: { name: string }): void {
           html_url: 'https://github.test/acme/sandbox',
           permissions: { push: true },
         });
+      if (path === '/user/repos' && init?.method === 'POST') {
+        // GitHub takes this only from a person's token.
+        if (auth !== `Bearer ${PERSONAL}`)
+          return answer(
+            { message: 'Resource not accessible by integration' },
+            403,
+          );
+        return answer(
+          {
+            id: 44,
+            full_name: 'me-on-github/moi',
+            default_branch: 'main',
+            clone_url: 'https://github.test/me-on-github/moi.git',
+            html_url: 'https://github.test/me-on-github/moi',
+            permissions: { push: true },
+          },
+          201,
+        );
+      }
+      if (path === '/user/repos')
+        return answer([
+          {
+            id: 42,
+            full_name: 'acme/sandbox',
+            default_branch: 'main',
+            clone_url: 'https://github.test/acme/sandbox.git',
+            html_url: 'https://github.test/acme/sandbox',
+            permissions: { push: true },
+          },
+          { id: 45, full_name: 'acme/khac', permissions: {} },
+        ]);
       if (path === `${repo}/pulls`)
         return answer(url.searchParams.get('state') === 'open' ? [pull()] : []);
       if (path === `${repo}/pulls/5`) return answer(pull());
@@ -532,6 +564,92 @@ test(
       await (await admin.fetch(`/git/pullRequests?issueId=${issue.id}`)).json()
     ).data as Pull[];
     expect(relinked).toEqual([]);
+
+    // What a connection reaches, narrowed by name.
+    const reached = (
+      await (
+        await admin.fetch(
+          `/git/connections/${connection.id}/repositories?q=sandbox`,
+        )
+      ).json()
+    ).data as { fullName: string }[];
+    expect(reached.map((item) => item.fullName)).toEqual(['acme/sandbox']);
+    expect(
+      (
+        await contributor.fetch(
+          `/git/connections/${connection.id}/repositories`,
+        )
+      ).status,
+    ).toBe(403);
+
+    // An App under a personal account cannot create a repository without the person's own token.
+    const database = app.container.resolve(databaseManagerToken).connection();
+    const appConnection = randomUUID();
+    const now = new Date();
+    await database.query
+      .insertInto('dsGitConnections')
+      .values({
+        id: appConnection,
+        provider: 'github',
+        kind: 'app',
+        name: 'App',
+        apiBaseUrl: API,
+        createdById: ownerId,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .execute();
+    await database.query
+      .insertInto('dsGitApps')
+      .values({
+        connectionId: appConnection,
+        appId: '1',
+        slug: 'app',
+        htmlUrl: 'https://github.test/apps/app',
+        ownerLogin: 'me-on-github',
+        privateKeySealed: 'x',
+        webhookSecretSealed: 'x',
+        installationId: '1',
+        installationAccount: 'me-on-github',
+        installationTargetType: 'User',
+        permissions: JSON.stringify({}),
+        events: JSON.stringify([]),
+        createdAt: now,
+        updatedAt: now,
+      })
+      .execute();
+    const createOn = (id: string) =>
+      admin.fetch(
+        `/git/connections/${id}/repositories`,
+        json({ name: 'moi', private: true }),
+      );
+    const noToken = await createOn(appConnection);
+    expect(noToken.status).toBe(400);
+    expect(
+      ((await noToken.json()) as { error: { reason: string } }).error.reason,
+    ).toBe('GIT_PERSONAL_TOKEN_REQUIRED');
+    expect(
+      (
+        await admin.fetch(
+          `/git/authorizations/${appConnection}/useToken`,
+          json({ token: PERSONAL }),
+        )
+      ).status,
+    ).toBe(200);
+    const withToken = await createOn(appConnection);
+    expect(withToken.status).toBe(201);
+    expect(
+      ((await withToken.json()).data as { repo: { fullName: string } }).repo
+        .fullName,
+    ).toBe('me-on-github/moi');
+    expect(
+      (
+        await admin.fetch(`/git/authorizations/${appConnection}`, {
+          ...json({}, 'DELETE'),
+          body: undefined,
+        })
+      ).status,
+    ).toBe(204);
 
     // A personal token is checked on the host, kept sealed and never answered.
     const bad = await admin.fetch(

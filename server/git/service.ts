@@ -2258,6 +2258,109 @@ export function createGitService(deps: GitServiceDeps) {
     return { login, connectedAt: now.toISOString() };
   }
 
+  /** The caller's own token on a connection, or null when they have connected none. */
+  const personalClient = async (
+    userId: string,
+    record: ConnectionRecord,
+  ): Promise<GitHubClient | null> => {
+    const row: Row | undefined = await conn()
+      .query.selectFrom(AUTHORIZATIONS)
+      .select(['tokenSealed'])
+      .where('userId', '=', userId)
+      .where('connectionId', '=', record.id)
+      .executeTakeFirst();
+    if (!row) return null;
+    return createGitHubClient({
+      token: deps.secrets().open(str(row.tokenSealed), {
+        purpose: PERSONAL_TOKEN_PURPOSE,
+        aad: [userId, record.id],
+      }),
+      apiBaseUrl: record.apiBaseUrl,
+    });
+  };
+
+  /**
+   * Creates a repository on the host. An App's installation token can create one only in an organization, whatever its
+   * permissions; under a personal account GitHub takes only a person's token, so that case uses the caller's own.
+   */
+  async function createRepository(
+    userId: string,
+    connectionId: string,
+    input: {
+      readonly owner?: string | null;
+      readonly name: string;
+      readonly private: boolean;
+      readonly description?: string | null;
+      readonly empty?: boolean;
+    },
+  ) {
+    const record = await connectionRecord(connectionId);
+    const app = record.kind === 'app' ? await appRecord(connectionId) : null;
+    const organization =
+      app?.installationTargetType === 'Organization'
+        ? app.installationAccount
+        : null;
+    const personal = await personalClient(userId, record);
+    let client = personal;
+    if (!client) {
+      if (record.kind === 'app' && !organization)
+        throw new GitError(
+          'FAILED_PRECONDITION',
+          'GIT_PERSONAL_TOKEN_REQUIRED',
+          'GitHub creates a repository under a personal account only with that person’s token: connect yours with `git authorization use-token` first.',
+        );
+      client = await clientOf(record);
+    }
+    let owner = input.owner ?? organization ?? null;
+    try {
+      // Naming one's own account is the same as naming none; GitHub's organization path would refuse it.
+      if (owner && !organization && owner === (await client.viewer()).login)
+        owner = null;
+      return await client.createRepository({
+        owner,
+        name: input.name,
+        private: input.private,
+        description: input.description ?? null,
+        autoInit: input.empty !== true,
+      });
+    } catch (error) {
+      if (error instanceof GitHubError && error.status === 422)
+        throw new GitError(
+          'ALREADY_EXISTS',
+          'GIT_REPOSITORY_NAME_TAKEN',
+          `GitHub refused the name ${input.name}: ${error.message}`,
+        );
+      throw hostError(error, { repo: input.name });
+    }
+  }
+
+  /** One page of what a connection reaches on the host, narrowed by `q`. */
+  async function hostRepositories(
+    connectionId: string,
+    query: { readonly q?: string; readonly page: number },
+  ) {
+    const record = await connectionRecord(connectionId);
+    try {
+      const { items, more } = await (
+        await clientOf(record)
+      ).repositories(
+        record.kind === 'app' ? 'installation' : 'user',
+        query.page,
+      );
+      const words = query.q?.toLocaleLowerCase();
+      return {
+        items: words
+          ? items.filter((item) =>
+              item.fullName.toLocaleLowerCase().includes(words),
+            )
+          : items,
+        more,
+      };
+    } catch (error) {
+      throw hostError(error, {});
+    }
+  }
+
   async function forgetAuthorization(
     userId: string,
     connectionId: string,
@@ -2737,6 +2840,8 @@ export function createGitService(deps: GitServiceDeps) {
     listAuthorizations,
     useToken,
     forgetAuthorization,
+    createRepository,
+    hostRepositories,
     attachToProject,
     primaryRepository: async (projectId: string) => {
       const record = await primaryRepositoryOf(projectId);

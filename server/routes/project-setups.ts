@@ -162,8 +162,7 @@ function fullNameOf(repo: {
 
 /**
  * Setting a project up in one step (the demo's `projectSetups`) and the skills new projects start with
- * (`projectDefaultSkills`). Everything is checked before anything is made. Studio does not create repositories on
- * GitHub, which would ask the App for more permission, so `newRepo` is refused for now (`docs/chenh-lech-upstream.md`).
+ * (`projectDefaultSkills`). Everything that can be checked is checked before anything is made.
  */
 export const projectSetupRoutes: AppApiRouteContribution<Application> =
   defineApiRoutes((app) => {
@@ -299,7 +298,7 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
         summary: 'Set a project up',
         operationId: 'projectSetupsCreate',
         description:
-          'For whoever may create projects. Creates the project and links its repository (an existing one, or none), and the "Initialize project" issue when the directory is initialized. Everything is checked before anything is made; linking a repository asks for its own permission. If the project manager cannot start the initialization, creation succeeds with the issue blocked and `meta.message` says what to configure. Studio does not create repositories on the host: `newRepo` answers 400 `NEW_REPO_UNAVAILABLE`.',
+          'For whoever may create projects. Creates the project with its repository (a new one, an existing one, or none), and the "Initialize project" issue when the directory is initialized. The repository comes first, so one the host refuses leaves no project behind; linking asks for its own permission. A new repository under a personal GitHub account needs the caller’s own token (`git authorization use-token`). If the project manager cannot start the initialization, creation succeeds with the issue blocked and `meta.message` says what to configure.',
         security: PERSON,
         ...cliRoute({ command: 'project setup create' }),
         responses: {
@@ -311,11 +310,11 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
       async (context) => {
         const body = context.req.valid('json');
         const viewer = await viewerOf(context);
-        if (body.codeLocation === 'newRepo')
+        if (body.codeLocation === 'newRepo' && !body.newRepo)
           throw error(
             'INVALID_ARGUMENT',
-            'NEW_REPO_UNAVAILABLE',
-            'Studio does not create repositories yet: create it on GitHub, then use existingRepo.',
+            'NEW_REPO_REQUIRED',
+            'codeLocation newRepo needs newRepo.',
           );
         const existing = body.existingRepo;
         if (body.codeLocation === 'existingRepo') {
@@ -343,10 +342,39 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
             ? fullNameOf(existing)
             : null;
         const init =
-          body.codeLocation === 'existingRepo' ? existing?.init : undefined;
+          body.codeLocation === 'existingRepo'
+            ? existing?.init
+            : body.codeLocation === 'newRepo'
+              ? body.newRepo?.init
+              : undefined;
 
         // The repository first: it is what can still say no, and a link made for nothing harms no one.
         let repository: GitRepositoryView | null = null;
+        if (body.codeLocation === 'newRepo' && body.newRepo) {
+          if (!(await can(context, 'pm.members', 'define-roles')))
+            throw error(
+              'PERMISSION_DENIED',
+              'ACCESS_DENIED',
+              'An administrator creates and links repositories.',
+            );
+          const { newRepo } = body;
+          repository = await guardedGit(async () => {
+            const made = await git().createRepository(
+              viewer.userId,
+              newRepo.connectionId,
+              {
+                name: newRepo.name,
+                private: newRepo.private,
+                empty: newRepo.init.method === 'empty',
+                ...(newRepo.owner ? { owner: newRepo.owner } : {}),
+              },
+            );
+            return git().linkRepository({
+              connectionId: newRepo.connectionId,
+              fullName: made.fullName,
+            });
+          });
+        }
         if (fullName && existing?.connectionId) {
           const connectionId = existing.connectionId;
           repository = await guardedGit(async () => {

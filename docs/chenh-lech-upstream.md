@@ -539,7 +539,7 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 
 ## 28. U6 — Thiết lập dự án, khoá tổ chức, git theo hợp đồng (07/11/2026)
 
-- **`projectSetups`:** tạo project, nối repo có sẵn và tạo issue "Khởi tạo dự án" giao trưởng nhóm agent. `newRepo` trả 400 `NEW_REPO_UNAVAILABLE`, vì tạo repo trên GitHub cần xin thêm quyền cho GitHub App. `deploy` và `ci` chưa áp dụng, trả `deployError`. Repo được nối trước khi tạo project, nên repo không với tới được thì không để lại project thừa.
+- **`projectSetups`:** tạo project, nối repo có sẵn và tạo issue "Khởi tạo dự án" giao trưởng nhóm agent. `newRepo` tạo repo bằng token cá nhân của người gọi khi App cài trên tài khoản cá nhân, vì GitHub không nhận token cài đặt của App ở `POST /user/repos`; trên organization thì dùng token cài đặt, cần quyền Administration của App. `deploy` và `ci` chưa áp dụng, trả `deployError`. Repo được nối trước khi tạo project, nên repo không với tới được thì không để lại project thừa.
 - **Skill:** `project` là scope skill và biến; skill của project đi vào run qua `issue-subject.ts`. Năm skill `ds-*` (`server/agents/builtin-skills.ts`) được tạo một lần nếu chưa có; `ds-comment-style` ở scope global nên có trong mọi run. Runner phải có tính năng `skills`; runner thật đã có.
 - **`organizationKeys`:** khoá thuộc tài khoản dịch vụ `studio-organization-keys` mang vai trò Admin, nên khoá tối đa bằng Admin trong phạm vi của nó, kể cả khi owner tạo. `managedBy` luôn `null` cho đến khi có app-host. Không chọn được từng bản ghi trong một nhóm phạm vi, vì Studio chưa nối nguồn bản ghi của plugin.
 - **Nhóm phạm vi khoá:** Studio nạp nhóm của plugin projects, agents, releases vào registry. Trước đó danh sách rỗng, nên khoá cá nhân có phạm vi cũng không dùng được.

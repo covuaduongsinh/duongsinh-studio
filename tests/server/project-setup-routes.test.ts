@@ -30,6 +30,8 @@ const PASSWORD = 'Studio-test-123!';
 const API = 'https://github.test/api';
 const TOKEN = 'ghp_test_token';
 
+const created: { name: string; private: boolean; auto_init: boolean }[] = [];
+
 /** GitHub as far as linking `acme/sandbox` asks it. */
 function fakeGitHub(): void {
   const original = globalThis.fetch;
@@ -57,6 +59,37 @@ function fakeGitHub(): void {
           permissions: { push: true },
         });
       if (path === '/repos/acme/sandbox/pulls') return answer([]);
+      if (path === '/user/repos' && init?.method === 'POST') {
+        const body = JSON.parse(String(init.body)) as {
+          name: string;
+          private: boolean;
+          auto_init: boolean;
+        };
+        created.push(body);
+        if (body.name === 'da-co')
+          return answer({ message: 'name exists' }, 422);
+        return answer(
+          {
+            id: 43,
+            full_name: `ds-bot/${body.name}`,
+            default_branch: 'main',
+            clone_url: `https://github.test/ds-bot/${body.name}.git`,
+            html_url: `https://github.test/ds-bot/${body.name}`,
+            permissions: { push: true },
+          },
+          201,
+        );
+      }
+      if (path.startsWith('/repos/ds-bot/') && !path.endsWith('/pulls'))
+        return answer({
+          id: 43,
+          full_name: path.slice('/repos/'.length),
+          default_branch: 'main',
+          clone_url: `https://github.test/${path.slice('/repos/'.length)}.git`,
+          html_url: `https://github.test/${path.slice('/repos/'.length)}`,
+          permissions: { push: true },
+        });
+      if (path.startsWith('/repos/ds-bot/')) return answer([]);
       return answer({ message: 'Not Found' }, 404);
     },
   );
@@ -164,11 +197,19 @@ test(
       (
         await admin.fetch(
           '/projectSetups',
+          json({ name: 'Thiếu repo', codeLocation: 'newRepo' }),
+        )
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await admin.fetch(
+          '/projectSetups',
           json({
-            name: 'Có repo mới',
+            name: 'Kết nối lạ',
             codeLocation: 'newRepo',
             newRepo: {
-              connectionId: 'c',
+              connectionId: 'nowhere',
               name: 'r',
               private: true,
               init: { method: 'empty' },
@@ -176,7 +217,7 @@ test(
           }),
         )
       ).status,
-    ).toBe(400);
+    ).toBe(404);
     expect(
       (
         await admin.fetch(
@@ -325,6 +366,42 @@ test(
       await (await admin.fetch(`/projects/${setup.data.projectId}`)).json()
     ).data as { setupIssueId: string };
     expect(project.setupIssueId).toBe(setup.data.initIssueId);
+    // A new repository: made on the host first, so a name it refuses leaves no project behind.
+    const projectsBefore = await countProjects();
+    const newRepo = (name: string, init: object) =>
+      admin.fetch(
+        '/projectSetups',
+        json({
+          name: `Dự án ${name}`,
+          codeLocation: 'newRepo',
+          newRepo: { connectionId, name, private: true, init },
+        }),
+      );
+    expect((await newRepo('da-co', { method: 'empty' })).status).toBe(409);
+    expect(await countProjects()).toBe(projectsBefore);
+    const fresh = await newRepo('du-an-moi', {
+      method: 'prompt',
+      prompt: 'Dựng khung',
+    });
+    expect(fresh.status).toBe(201);
+    const freshData = (await fresh.json()).data as {
+      repo: { fullName: string };
+      initIssueId: string | null;
+    };
+    expect(freshData.repo.fullName).toBe('ds-bot/du-an-moi');
+    expect(freshData.initIssueId).toBeTruthy();
+    expect(created.at(-1)).toMatchObject({
+      name: 'du-an-moi',
+      private: true,
+      auto_init: true,
+    });
+    const blank = await newRepo('du-an-trong', { method: 'empty' });
+    expect(blank.status).toBe(201);
+    expect(
+      ((await blank.json()).data as { initIssueId: unknown }).initIssueId,
+    ).toBeNull();
+    expect(created.at(-1)?.auto_init).toBe(false);
+
     // A person who may not link repositories changes nothing.
     expect(
       (

@@ -61,6 +61,25 @@ export interface GitHubCheck {
 export interface GitHubClient {
   viewer(): Promise<{ readonly login: string }>;
   repository(fullName: string): Promise<GitHubRepository>;
+  /**
+   * Creates a repository: in the organization `owner`, or with no owner under the account the token belongs to. GitHub
+   * takes the second only from a person's token, never from an App's installation token.
+   */
+  createRepository(input: {
+    readonly owner: string | null;
+    readonly name: string;
+    readonly private: boolean;
+    readonly description: string | null;
+    readonly autoInit: boolean;
+  }): Promise<GitHubRepository>;
+  /** One page of the repositories the token reaches, with whether there are more. */
+  repositories(
+    source: 'installation' | 'user',
+    page: number,
+  ): Promise<{
+    readonly items: readonly GitHubRepository[];
+    readonly more: boolean;
+  }>;
   pulls(
     fullName: string,
     state: 'open' | 'closed',
@@ -229,6 +248,22 @@ function statusOf(value: unknown): GitHubCheck {
   };
 }
 
+function repositoryOf(value: unknown, fullName: string): GitHubRepository {
+  const repo = record(value);
+  const name = text(repo.full_name) ?? fullName;
+  return {
+    id:
+      typeof repo.id === 'number' || typeof repo.id === 'string'
+        ? String(repo.id)
+        : '',
+    fullName: name,
+    defaultBranch: text(repo.default_branch) ?? 'main',
+    cloneUrl: text(repo.clone_url) ?? `https://github.com/${name}.git`,
+    webUrl: text(repo.html_url) ?? `https://github.com/${name}`,
+    canPush: record(repo.permissions).push === true,
+  };
+}
+
 export function createGitHubClient(options: {
   readonly token: string;
   readonly apiBaseUrl?: string;
@@ -284,17 +319,42 @@ export function createGitHubClient(options: {
       return { login: text(record(await call('GET', '/user')).login) ?? '' };
     },
     async repository(fullName) {
-      const repo = record(await call('GET', repoPath(fullName)));
+      return repositoryOf(await call('GET', repoPath(fullName)), fullName);
+    },
+    async createRepository(input) {
+      const fullName = `${input.owner ?? ''}/${input.name}`;
+      return repositoryOf(
+        await call(
+          'POST',
+          input.owner
+            ? `/orgs/${encodeURIComponent(input.owner)}/repos`
+            : '/user/repos',
+          {
+            name: input.name,
+            private: input.private,
+            auto_init: input.autoInit,
+            ...(input.description ? { description: input.description } : {}),
+          },
+        ),
+        fullName,
+      );
+    },
+    async repositories(source, page) {
+      const perPage = 100;
+      const answer = await call(
+        'GET',
+        source === 'installation'
+          ? `/installation/repositories?per_page=${perPage}&page=${page}`
+          : `/user/repos?per_page=${perPage}&page=${page}&sort=updated`,
+      );
+      const list: unknown[] = Array.isArray(answer)
+        ? answer
+        : Array.isArray(record(answer).repositories)
+          ? (record(answer).repositories as unknown[])
+          : [];
       return {
-        id:
-          typeof repo.id === 'number' || typeof repo.id === 'string'
-            ? String(repo.id)
-            : '',
-        fullName: text(repo.full_name) ?? fullName,
-        defaultBranch: text(repo.default_branch) ?? 'main',
-        cloneUrl: text(repo.clone_url) ?? `https://github.com/${fullName}.git`,
-        webUrl: text(repo.html_url) ?? `https://github.com/${fullName}`,
-        canPush: record(repo.permissions).push === true,
+        items: list.map((item) => repositoryOf(item, '')),
+        more: list.length === perPage,
       };
     },
     async pulls(fullName, state, perPage) {
@@ -313,7 +373,10 @@ export function createGitHubClient(options: {
     },
     async pullFiles(fullName, number) {
       const answer = items(
-        await call('GET', `${repoPath(fullName)}/pulls/${number}/files?per_page=100`),
+        await call(
+          'GET',
+          `${repoPath(fullName)}/pulls/${number}/files?per_page=100`,
+        ),
       );
       return answer
         .map((entry) => text(record(entry).filename) ?? '')
@@ -422,17 +485,26 @@ export function createGitHubClient(options: {
           name: text(entry.name) ?? '',
           path: text(entry.path) ?? '',
           type:
-            entry.type === 'file' ? 'file' : entry.type === 'dir' ? 'dir' : 'other',
+            entry.type === 'file'
+              ? 'file'
+              : entry.type === 'dir'
+                ? 'dir'
+                : 'other',
           sha: text(entry.sha) ?? '',
           size: typeof entry.size === 'number' ? entry.size : 0,
         };
       });
     },
     async file(fullName, path, ref) {
-      const answer = record(await call('GET', contentsPath(fullName, path, ref)));
+      const answer = record(
+        await call('GET', contentsPath(fullName, path, ref)),
+      );
       const content = text(answer.content);
       if (answer.type !== 'file' || content === null)
-        throw new GitHubError(404, `${fullName}:${path} is not a file at ${ref}.`);
+        throw new GitHubError(
+          404,
+          `${fullName}:${path} is not a file at ${ref}.`,
+        );
       return {
         path: text(answer.path) ?? path,
         sha: text(answer.sha) ?? '',

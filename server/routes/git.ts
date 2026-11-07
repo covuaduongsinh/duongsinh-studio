@@ -257,6 +257,17 @@ const ConnectionChoice = z
   })
   .meta({ ref: 'StudioGitConnectionChoice' });
 
+const HostRepository = z
+  .object({
+    id: z.string(),
+    fullName: z.string(),
+    defaultBranch: z.string(),
+    cloneUrl: z.string(),
+    webUrl: z.string(),
+    canPush: z.boolean(),
+  })
+  .meta({ ref: 'StudioGitRepository' });
+
 const AuthorizationSchema = z
   .object({
     connectionId: z.string(),
@@ -468,6 +479,22 @@ const choiceOf = (connection: GitConnectionView) => ({
   kind: connection.kind,
   name: connection.name,
   account: connection.account,
+});
+
+const hostRepositoryOf = (repo: {
+  readonly id: string;
+  readonly fullName: string;
+  readonly defaultBranch: string;
+  readonly cloneUrl: string;
+  readonly webUrl: string;
+  readonly canPush: boolean;
+}) => ({
+  id: repo.id,
+  fullName: repo.fullName,
+  defaultBranch: repo.defaultBranch,
+  cloneUrl: repo.cloneUrl,
+  webUrl: repo.webUrl,
+  canPush: repo.canPush,
 });
 
 const authorizationOf = (row: Row) => ({
@@ -1354,6 +1381,92 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
             });
           }
         return context.json({ data, meta: { total: data.length } });
+      },
+    );
+
+    git.get(
+      '/connections/:connectionId/repositories',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'What a connection reaches on the code host',
+        description:
+          'For whoever manages the connections; read live from the code host, narrowed by name with `q`. `meta.nextPageToken` is present while there are more.',
+        operationId: 'studioGitHostRepositories',
+        ...cliRoute({ command: 'git repo list' }),
+        responses: {
+          '200': dataResponse(z.array(HostRepository)),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ConnectionParams),
+      apiValidator(
+        'query',
+        z.object({
+          q: z.string().optional(),
+          pageToken: z.coerce.number().int().positive().optional(),
+        }),
+      ),
+      async (context) => {
+        await requireAdmin(context);
+        const { connectionId } = context.req.valid('param');
+        const { q, pageToken } = context.req.valid('query');
+        const page = pageToken ?? 1;
+        const { items, more } = await guarded(context, () =>
+          service().hostRepositories(connectionId, {
+            page,
+            ...(q ? { q } : {}),
+          }),
+        );
+        return context.json({
+          data: items.map(hostRepositoryOf),
+          meta: more ? { nextPageToken: String(page + 1) } : {},
+        });
+      },
+    );
+
+    git.post(
+      '/connections/:connectionId/repositories',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Create a repository on the code host',
+        description:
+          'For whoever manages the connections. `empty` creates it without an initial commit. Under a personal GitHub account this uses the caller’s own token (400 `GIT_PERSONAL_TOKEN_REQUIRED` until they connect one); an App’s token reaches only organizations.',
+        operationId: 'studioGitCreateRepository',
+        ...cliRoute({ command: 'git repo create' }),
+        responses: {
+          '201': dataResponse(z.object({ repo: HostRepository })),
+          ...apiErrorResponses,
+          '404': apiErrorResponse(404),
+        },
+      }),
+      apiValidator('param', ConnectionParams),
+      apiValidator(
+        'json',
+        z.object({
+          owner: z.string().min(1).optional(),
+          name: z.string().min(1).max(100),
+          private: z.boolean(),
+          description: z.string().nullable().optional(),
+          empty: z.boolean().optional(),
+        }),
+      ),
+      async (context) => {
+        const userId = await requireAdmin(context);
+        const { connectionId } = context.req.valid('param');
+        const body = context.req.valid('json');
+        const repo = await guarded(context, () =>
+          service().createRepository(userId, connectionId, {
+            name: body.name,
+            private: body.private,
+            ...(body.owner ? { owner: body.owner } : {}),
+            ...(body.description !== undefined
+              ? { description: body.description }
+              : {}),
+            ...(body.empty !== undefined ? { empty: body.empty } : {}),
+          }),
+        );
+        return context.json({ data: { repo: hostRepositoryOf(repo) } }, 201);
       },
     );
 
