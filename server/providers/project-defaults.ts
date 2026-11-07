@@ -42,6 +42,32 @@ export async function setProjectDefaultSkills(
 }
 
 /**
+ * Creates each of Studio's own skills whose slug the library lacks, adding it to the global skills or to the defaults of
+ * new projects by its reach. Skills already there are left exactly as the team keeps them, so a release that edits a
+ * builtin's text never overwrites an installation's copy, and running this again creates nothing.
+ */
+export async function ensureBuiltinSkills(
+  agents: Agents,
+  conn: DatabaseConnection,
+): Promise<void> {
+  const existing = new Set(
+    (await agents.skills.list()).map((item) => item.slug),
+  );
+  const defaults = await projectDefaultSkills(conn);
+  const globals = await agents.skills.attached(GLOBAL_SKILL_TARGET);
+  for (const builtin of BUILTIN_SKILLS) {
+    if (existing.has(builtin.slug)) continue;
+    const created = await agents.skills.create(null, {
+      content: builtin.content,
+    });
+    if (builtin.reach === 'global') globals.push(created.id);
+    else defaults.push(created.id);
+  }
+  await agents.skills.attach(GLOBAL_SKILL_TARGET, globals);
+  await setProjectDefaultSkills(conn, defaults);
+}
+
+/**
  * Makes projects a scope of skills and variables, copies the default skills to each new project, and creates Studio's
  * own skills once. A skill the team later edits or removes stays as they left it, because it is created only when
  * missing and only then attached.
@@ -102,30 +128,9 @@ export default class ProjectDefaultsProvider extends ServiceProvider<Application
   }
 
   private async ensureBuiltinSkills(agents: Agents): Promise<void> {
-    const { container } = this.app;
-    const conn = container.resolve(databaseManagerToken).connection();
-    if (
-      !(await container
-        .resolve(databaseManagerToken)
-        .collections()
-        .getPhysical(DEFAULT_SKILLS))
-    )
-      return;
-    const existing = new Set(
-      (await agents.skills.list()).map((item) => item.slug),
-    );
-    const defaults = await projectDefaultSkills(conn);
-    const globals = await agents.skills.attached(GLOBAL_SKILL_TARGET);
-    for (const builtin of BUILTIN_SKILLS) {
-      if (existing.has(builtin.slug)) continue;
-      const created = await agents.skills.create(null, {
-        content: builtin.content,
-      });
-      if (builtin.reach === 'global') globals.push(created.id);
-      else defaults.push(created.id);
-    }
-    await agents.skills.attach(GLOBAL_SKILL_TARGET, globals);
-    await setProjectDefaultSkills(conn, defaults);
+    const databases = this.app.container.resolve(databaseManagerToken);
+    if (!(await databases.collections().getPhysical(DEFAULT_SKILLS))) return;
+    await ensureBuiltinSkills(agents, databases.connection());
   }
 
   override async shutdown(): Promise<void> {

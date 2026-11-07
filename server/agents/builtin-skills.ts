@@ -71,7 +71,7 @@ Với đoạn chạy thường xuyên, tránh truy vấn lặp theo từng dòng
 
 ## Kiểm chứng
 
-Thêm test cho đúng hành vi vừa đổi. Chạy kiểm tra trong phạm vi file bị ảnh hưởng và báo kết quả thật; không báo xong khi còn test đỏ, test bị bỏ qua hay chưa chạy thử.
+Thêm test cho đúng hành vi vừa đổi. Chạy kiểm tra trong phạm vi file bị ảnh hưởng và báo kết quả thật; không báo xong khi còn test đỏ, test bị bỏ qua hay chưa chạy thử. Trên runner dùng chung, theo giới hạn trong skill \`ds-app-rules\`: không chạy kiểm tra toàn repo, mỗi lúc một lệnh theo file.
 
 ## CI lỗi
 
@@ -121,6 +121,50 @@ Không sửa code ở bước này. Viết ngắn, theo đúng năm mục:
 ## Kết luận
 
 Mỗi mục nêu file, dòng và hậu quả cụ thể. Nộp phiếu review có cấu trúc, rồi kết thúc bằng đúng một trong hai câu: "Có thể merge" hoặc "Chưa thể merge".
+`,
+  ),
+  skill(
+    'ds-app-rules',
+    'project',
+    'Luật bắt buộc khi làm ứng dụng NocoBase 3 của Dương Sinh: nguồn gốc, quyền, dữ liệu, giấy phép, giao diện, giới hạn runner và những gì phải dán trước khi bàn giao. Dùng trong mọi công việc đổi code của repo NocoBase 3.',
+    `
+# Luật ứng dụng Dương Sinh
+
+Chỉ áp dụng cho repo NocoBase 3 (có \`nocobase.templatePackage\` trong \`package.json\`). Repo khác, như NocoBase 2 hay sandbox, thì bỏ qua skill này.
+
+## Nguồn gốc
+
+- Chỉ xây trên mẫu tạo bằng \`create-app\`. Không sao chép mã từ NocoCRM hay ứng dụng khác.
+- Không đổi phiên bản \`@nocobase/*\`. Nâng cấp chỉ qua skill \`nocobase-app-upgrade\` của repo.
+
+## Quyền và dữ liệu
+
+- Mọi route có \`auth.required()\` và kiểm quyền rõ ràng; mọi trang có \`authz\`. Gán vai trò cho người cụ thể, không gán cho mọi người.
+- Không commit dữ liệu thật, mật khẩu, \`.env\`, \`config.yml\`, \`.sqlite\` hay file dump. Bí mật lấy từ biến môi trường hoặc Dokploy.
+- Dữ liệu học viên là của trẻ em: chỉ lưu thứ cần, không đưa vào seed, test hay log.
+- Chạy được trên cả SQLite và Postgres: boolean ghi \`true\`/\`false\`, không dùng hàm SQL riêng của một loại cơ sở dữ liệu.
+
+## Giấy phép
+
+Thư viện do ứng dụng thêm chỉ dùng MIT, BSD, Apache, ISC hoặc CC0. Cấm \`chessground\`, \`chessops\`, \`@lichess-org/pgn-viewer\`, \`tournament-pairings\`, và \`stockfish\` chạy trong trình duyệt. Bàn cờ dùng \`react-chessboard\` hoặc \`cm-chessboard\`; luật cờ dùng \`chess.js\`.
+
+## Giao diện
+
+Tiếng Việt (\`vi-VN\`) trước. Màu navy \`#2B3990\`, vàng \`#F5A623\`, font Roboto, đặt trong token theme chứ không viết thẳng vào trang. Tài liệu nằm trong \`docs/\` của repo.
+
+## Giới hạn runner
+
+Trên runner dùng chung, cấm \`pnpm check\`, \`pnpm lint\`, \`pnpm test\`, \`pnpm build\`, \`pnpm typecheck\`, \`tsc\` toàn repo, \`vitest run\` không chỉ rõ file, và để \`pnpm dev\` chạy lâu. Mỗi lúc chỉ một lệnh: \`pnpm exec vitest run <file>\`, \`pnpm exec eslint <file>\`, \`pnpm exec prettier --check <file>\`. Commit và push sau từng bước nhỏ.
+
+Ngoại lệ: riêng công việc "Khởi tạo dự án" được commit mốc gốc thẳng lên nhánh mặc định.
+
+## Trước khi bàn giao, dán output của
+
+- CI của pull request nếu repo có CI. Không có CI thì ghi rõ: "\`pnpm check\` chưa chạy, chủ dự án chạy trên máy dev."
+- \`grep -E "^\\s+'?(chessground|chessops|@lichess-org/pgn-viewer|tournament-pairings|stockfish)@" pnpm-lock.yaml\`: phải rỗng.
+- \`pnpm licenses list\` (không có \`--prod\`): nêu mọi giấy phép GPL hoặc AGPL không có lựa chọn \`OR\`. Giấy phép kép như của \`jszip\`, \`elkjs\` thì bỏ qua.
+- \`git ls-files | grep -iE "\\.sqlite|\\.env$|config\\.yml$|\\.dump"\`: phải rỗng. File cấu hình triển khai không chứa bí mật thì nêu tên và lý do.
+- Test route khi chưa đăng nhập trả 401, chạy theo từng file.
 `,
   ),
   skill(
