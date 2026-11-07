@@ -370,10 +370,26 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
                 ...(newRepo.owner ? { owner: newRepo.owner } : {}),
               },
             );
-            return git().linkRepository({
-              connectionId: newRepo.connectionId,
-              fullName: made.fullName,
-            });
+            try {
+              return await git().linkRepository({
+                connectionId: newRepo.connectionId,
+                fullName: made.fullName,
+              });
+            } catch (failure) {
+              // The repository now exists on the host but the App cannot reach it (an installation limited to chosen
+              // repositories). It is left alone: deleting is the owner's decision.
+              if (
+                failure instanceof GitError &&
+                failure.reason === 'GIT_REPOSITORY_UNREACHABLE'
+              )
+                throw new GitError(
+                  'FAILED_PRECONDITION',
+                  'GIT_REPOSITORY_NOT_INSTALLED',
+                  `${made.fullName} was created, but the GitHub App cannot reach it. Add it to the App's repositories, then set the project up with existingRepo.`,
+                  { repo: made.fullName },
+                );
+              throw failure;
+            }
           });
         }
         if (fullName && existing?.connectionId) {
@@ -383,9 +399,28 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
               (item) =>
                 item.connectionId === connectionId && item.repo === fullName,
             );
-            return (
-              linked ?? (await git().linkRepository({ connectionId, fullName }))
-            );
+            const view =
+              linked ??
+              (await git().linkRepository({ connectionId, fullName }));
+            // A repository with no commit has no branch, and the runner's checkout of it fails: refuse before any project exists.
+            try {
+              await git().resolveCommit(view.id, {
+                branch: view.defaultBranch,
+              });
+            } catch (failure) {
+              if (
+                failure instanceof GitError &&
+                failure.reason === 'GIT_REPOSITORY_UNREACHABLE'
+              )
+                throw new GitError(
+                  'INVALID_ARGUMENT',
+                  'GIT_REPOSITORY_EMPTY',
+                  `${fullName} has no commit. Add a README on its default branch, then try again.`,
+                  { repo: fullName },
+                );
+              throw failure;
+            }
+            return view;
           });
         }
 

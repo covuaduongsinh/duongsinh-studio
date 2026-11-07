@@ -59,6 +59,20 @@ function fakeGitHub(): void {
           permissions: { push: true },
         });
       if (path === '/repos/acme/sandbox/pulls') return answer([]);
+      if (path === '/repos/acme/sandbox/branches/main')
+        return answer({ commit: { sha: 'a'.repeat(40) } });
+      // A repository with no commit: it exists, but its branch does not.
+      if (path === '/repos/acme/rong')
+        return answer({
+          id: 44,
+          full_name: 'acme/rong',
+          default_branch: 'main',
+          clone_url: 'https://github.test/acme/rong.git',
+          html_url: 'https://github.test/acme/rong',
+          permissions: { push: true },
+        });
+      if (path === '/repos/ds-bot/khong-voi-toi')
+        return answer({ message: 'Not Found' }, 404);
       if (path === '/user/repos' && init?.method === 'POST') {
         const body = JSON.parse(String(init.body)) as {
           name: string;
@@ -401,6 +415,34 @@ test(
       ((await blank.json()).data as { initIssueId: unknown }).initIssueId,
     ).toBeNull();
     expect(created.at(-1)?.auto_init).toBe(true);
+
+    // A repository the App cannot reach is reported as made but not installed, and no project is left behind.
+    const projectsNow = await countProjects();
+    const unreachable = await newRepo('khong-voi-toi', { method: 'nocobase' });
+    expect(unreachable.status).toBe(400);
+    expect(JSON.stringify(await unreachable.json())).toContain(
+      'GIT_REPOSITORY_NOT_INSTALLED',
+    );
+    expect(await countProjects()).toBe(projectsNow);
+    // An existing repository with no commit is refused before the project exists.
+    const emptyRepo = await admin.fetch(
+      '/projectSetups',
+      json({
+        name: 'Repo rỗng',
+        codeLocation: 'existingRepo',
+        existingRepo: {
+          connectionId,
+          cloneUrl: 'https://github.test/acme/rong.git',
+          defaultBranch: 'main',
+          init: { method: 'nocobase' },
+        },
+      }),
+    );
+    expect(JSON.stringify(await emptyRepo.json())).toContain(
+      'GIT_REPOSITORY_EMPTY',
+    );
+    expect(emptyRepo.ok).toBe(false);
+    expect(await countProjects()).toBe(projectsNow);
 
     // A person who may not link repositories changes nothing.
     expect(
