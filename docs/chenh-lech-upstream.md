@@ -593,3 +593,11 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
   (400), không chỉ ẩn form. Người mới vào bằng link mời của owner (`/invite/:token` → `POST /api/users/invitations/accept`), đường này không đi qua `sign-up/email`
   nên vẫn tạo được tài khoản. `config.yml` và `server/config/auth.ts` của dev giữ mặc định vì nhiều test đăng ký trực tiếp.
 - Test: `tests/server/sign-up-closed.test.ts` (đăng ký bị từ chối, lời mời vẫn tạo tài khoản, cấu hình production có `disableSignUp: true`).
+
+## 32. Tệp tĩnh chỉ được phục vụ dưới `/assets/` (08/11/2026)
+
+- `@nocobase/app-server` (`dist/spa/static-assets.js`, `routes.js`) chỉ trả tệp thật cho đường dẫn dưới `assetsPath` (mặc định `/assets`). Một tệp để ở gốc `public/`
+  (ví dụ `manifest.webmanifest`, mà Vite vẫn chép vào `dist/client/`) **không bao giờ được phục vụ**: yêu cầu có đuôi tệp ngoài `/assets` đi xuống bộ xử lý còn lại và nhận `index.html`
+  với `200 text/html`, nên hỏng âm thầm. Lỗi này lọt qua test tĩnh và chỉ thấy trên production (manifest M0.2). Mọi tệp công khai của Studio phải nằm trong `public/assets/`.
+- `/assets` được trả với `cache-control: public, max-age=31536000, immutable` kể cả tệp không băm tên: đổi nội dung thì phải đổi tên tệp.
+- `content-types.js` không có `.webmanifest` (sẽ thành `application/octet-stream`), nên manifest dùng đuôi `.json`.
