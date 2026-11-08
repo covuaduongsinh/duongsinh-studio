@@ -55,6 +55,14 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
   description. Built-in skills are created once: `ensureBuiltinSkills` does not update an existing one.
 - Do not create issues from a long prompt through intake: each bullet line becomes its own issue (DS-25…DS-56 were made this way and cancelled).
 
+## Repository hygiene
+
+- Never commit a symbolic link. A worktree's `node_modules` once pointed at another checkout's and `git add -A` committed it (`1af8fb7`),
+  which broke `pnpm install` on every clone. `tests/project/tracked-files.test.ts` fails on any tracked symlink or `node_modules` path.
+- A worktree gets its own `node_modules` (`pnpm install --frozen-lockfile`, about 1.5 minutes), never a link to the main checkout's.
+- Stage by path (`git add <file>`), not `git add -A`, in a worktree.
+- When a pull request replaces others, close the replaced ones with "Superseded by #N" and delete their branches as soon as it merges.
+
 ## Language
 
 User-facing copy is Vietnamese first (`vi-VN`), with `en-US` kept complete.
