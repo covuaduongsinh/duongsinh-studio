@@ -79,7 +79,7 @@ export interface AutopilotStallDetector {
 
 const DEFAULT_STALL_MINUTES = 30;
 const INITIAL_QUOTA_BACKOFF_MS = 30 * 60 * 1000; // 30 minutes
-const MAX_QUOTA_BACKOFF_MS = 2 * 60 * 60 * 1000; // 2 hours
+export const MAX_QUOTA_BACKOFF_MS = 2 * 60 * 60 * 1000; // 2 hours
 
 export function createAutopilotStallDetector(
   deps: AutopilotStallDetectorDeps,
