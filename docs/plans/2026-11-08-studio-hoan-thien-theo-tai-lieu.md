@@ -1,0 +1,135 @@
+# Kế hoạch: hoàn thiện Dương Sinh Studio theo tài liệu NocoBase Studio — 08/11/2026
+
+> Trạng thái: **đã duyệt hướng đi (08/11/2026), Q1–Q4 và Q6 đã chốt, Q5 chờ sau M4.1**. Nguồn: 57 trang tài liệu chính thức NocoBase Studio (thư mục `C:\Users\duongsinh\Documents\nocobase studio`,
+> lấy ngày 08/11/2026) đối chiếu với `main` = `b898aa8`. Ba báo cáo chi tiết (mỗi tính năng một dòng, có bằng chứng file:dòng) nằm cùng thư mục:
+> `A-agents-runtimes-sessions.md`, `B-daily-work-inbox-admin.md`, `C-setup-ci-release-ops.md`.
+> Tên bước dùng chữ **M** để không trùng U (06/11), K (07/11), L (08/11).
+
+## 0. Kết luận
+
+- Phần lõi đã đủ và cùng hướng tài liệu: đội agent (Lead Agent + skill `ds-*`), công việc, tiến độ (Hiện tại / Kế tiếp / Cần bạn), thẻ run lỗi,
+  bàn giao, Hộp thư và badge, Dashboard, Usage, Tri thức, Ghi nhớ dự án, khoá tổ chức, ngân sách, tự lái, review chéo, CI cho repo mới và repo có sẵn.
+- Lỗ hổng lớn nhất: **app NocoBase 3 chưa có đường preview → staging → production**. Preview hiện chỉ dành cho repo NocoBase 2
+  (`server/previews/compose.ts`), driver phát hành là `external` không làm gì, `builds/deploy` luôn trả `APP_HOST_OFF`.
+- Ba lỗi hoặc rủi ro đã kiểm chứng trong mã:
+  1. `deploy/dokploy/config.yml` không đặt `auth.emailAndPassword.disableSignUp`, nên Better Auth mặc định **cho phép tự đăng ký**
+     (`useSignUpAvailable` của plugin authentication: chỉ ẩn khi `disableSignUp === true`). Chưa kiểm trên production thật.
+  2. `fallbackAfterSeconds = 120` của Lead Agent **không có tác dụng**: Studio không đăng ký `ModelSelectionPolicies`, plugin dùng 0
+     (`app-plugin-agents/dist/server/core/runs/claim.js`: `policy?.fallbackAfterSeconds ?? 0`).
+  3. Subject `issue` không khai `queuedExpiryMs` và `workspaces.settled`: run kẹt hàng đợi chờ mãi, thư mục làm việc của việc đã xong không tự dọn.
+
+### 0.1 Kiểm lại ba phát hiện bằng mã hiện tại (08/11/2026, `main` = `b898aa8`)
+
+Cả ba **đúng**; không phát hiện nào phải sửa. Bằng chứng:
+
+1. **Tự đăng ký đang mở, đã xác nhận trên production.** `deploy/dokploy/config.yml` chỉ có `emailAndPassword.enabled` và `autoSignIn`; `server/config/auth.ts`
+   cũng không đặt `disableSignUp`. Better Auth chỉ từ chối đăng ký khi `disableSignUp` là truthy (`better-auth` `sign-up/email`: `throw APIError.from("BAD_REQUEST"…)`),
+   nên chặn ở **server**, không chỉ ẩn form. Một GET chỉ đọc vào `https://studio.dsc.edu.vn/main/register` cho cấu hình công khai
+   `{"auth":{"emailAndPassword":{"enabled":true}}}` (không có `disableSignUp`) — tức Q1 = **có, đang mở**. Chưa có thao tác ghi nào lên production.
+2. **`fallbackAfterSeconds = 120` không có tác dụng.** `grep ModelSelectionPolicies` trong `server/` và `client/` không ra gì; plugin dùng
+   `policy?.fallbackAfterSeconds ?? 0` (`app-plugin-agents/dist/server/core/runs/claim.js:486`). Giá trị 120 chỉ nằm trong `server/agents/project-manager-settings.ts`.
+3. **Subject `issue` thiếu `queuedExpiryMs` và `workspaces.settled`.** `server/providers/issue-subject.ts` (`SubjectBinding`, dòng ~353–420) không khai cả hai;
+   plugin có cả hai (`sweeper.js:222` đọc `binding.queuedExpiryMs ?? 0`, nên không khai là không bao giờ hết hạn).
+
+Ghi chú khi làm: lần `git pull` kéo theo commit L0 (bỏ symlink `node_modules` bị commit nhầm) nên phải `CI=true pnpm install --frozen-lockfile` lại.
+
+## 1. Các bước
+
+### M0 — Gấp: an toàn và điện thoại (~0,75 ngày)
+
+1. **Tự đăng ký.** Chủ dự án mở `https://studio.dsc.edu.vn/main/register` trong cửa sổ ẩn danh; có form là đang mở. Sửa: `disableSignUp: true` trong
+   `deploy/dokploy/config.yml` (dev giữ nguyên nếu test cần). Test: đăng ký bị từ chối, lời mời `/invite/:token` vẫn tạo được tài khoản. Nếu
+   production đã có tài khoản lạ: liệt kê (chỉ đọc), báo chủ dự án, không tự xoá.
+2. **Manifest PWA** để web push chạy trên iPhone: `pushManifest` của plugin web-push, `<link rel="manifest">`, icon 192/512, `apple-touch-icon`,
+   `display: standalone`, tên "Dương Sinh Studio", màu navy. Viết hướng dẫn "Thêm vào màn hình chính → bật thông báo" cho iPhone và Android.
+3. Sửa `docs/trien-khai-vps.md`: CLI đã đăng nhập được bằng trình duyệt (`/device`); bỏ câu "tạo khoá ở trang tài khoản" (trang chưa có, xem M2).
+
+### M1 — Agent và runner chạy tin cậy (~2 ngày)
+
+1. `workspaces.settled` cho subject `issue` (`done`/`canceled` là xong) để runner tự dọn thư mục và `nocobase-runner gc --ended` có tác dụng.
+   Test ca `canceled` còn nhánh chưa push.
+2. `queuedExpiryMs` cho subject `issue`, lớn hơn backoff tối đa của tự lái (2 giờ); đề xuất 24 giờ. Run quá hạn đi vào thẻ "run lỗi" sẵn có và Hộp thư.
+   Sửa `stall.ts` để không coi run `queued` là đang chạy.
+3. Đưa độ ưu tiên của issue vào `runs.enqueue` (`priorityRank`): với 1 slot, việc khẩn chạy trước.
+4. Nối `fallbackAfterSeconds` bằng `ModelSelectionPolicies.register('ds-project-manager', …)`; thêm **giao diện cài đặt Lead Agent** (model chính/dự phòng,
+   thời gian chờ, nguyên tắc, giới hạn lượt chạy do comment, khôi phục mặc định) trên trang Agents hoặc Cài đặt, dùng `PATCH /projectManager` sẵn có.
+   Ghi `docs/chenh-lech-upstream.md` mục 9.
+
+### M2 — Sẵn sàng đón cộng tác viên (~2,5 ngày)
+
+1. Giao diện mời thành viên bằng `InviteDialog`/`InvitationsSection` của plugin projects; có nút sao chép link (chưa có email).
+2. Vai trò mặc định và owner đặt lại mật khẩu trên giao diện (`PUT /api/access/settings`, `POST /api/users/{id}/resetPassword`), hiện rõ ai nhận vai trò
+   mặc định (luật "Visible and manageable role assignments").
+3. Trang **Tài khoản của tôi**: hồ sơ, đổi mật khẩu, khoá API cá nhân (tạo, xoay, xoá, hiện bí mật một lần).
+4. Trang chủ thành "việc của tôi" (tóm tắt Cần tôi quyết định / Đang làm, từ `taskGroups/summary` và `inbox/waiting`), bớt một lần chạm trên điện thoại.
+
+### M3 — Giám sát run từ điện thoại (~2–4 ngày)
+
+1. Tab Lượt chạy: Stop, xem prompt đầy đủ, thời lượng, Retry (hook có sẵn của plugin agents).
+2. Biến chạy agent và skill theo dự án trên trang dự án (`ScopeVariables`, `ScopeSkills`), quyền chặt, có nhật ký khi xem bí mật.
+3. (Tuỳ chọn, 2–3 ngày) Trạng thái việc báo ngược về hội thoại đã sinh ra việc (`conversations.links.registerKind('issue')`): chỉ gửi thông báo,
+   không đánh thức agent để không tốn lượt.
+
+### M4 — Giao hàng app NocoBase 3: preview → staging → production (~9–13 ngày, làm sau khi duyệt bước thử)
+
+1. **Bước thử (1 ngày, chỉ đọc trên VPS):** đo RAM một app NocoBase 3 bản build (Studio đo được RSS 614 MB), RAM còn trống, quyết định DNS (wildcard
+   `*.preview.dsc.edu.vn` hay một subdomain mỗi app). Báo cáo rồi **dừng chờ duyệt**.
+2. **Driver Dokploy cho plugin `releases`** (thay `external`): mỗi App NocoBase 3 là một compose Dokploy (Node 24 + `dist` từ archive build;
+   staging dùng Postgres, preview dùng SQLite). Dùng lại allowlist an toàn của `server/previews/dokploy.ts` (chỉ compose do Studio tạo trong project của
+   Studio). Có ngay trang App/Environment, biến môi trường + chặn khi thiếu biến, lịch sử deploy, rollback, môi trường được bảo vệ có duyệt,
+   `maxApps` 1–2, tự dừng khi rảnh. 5–8 ngày.
+3. **PR preview cho app NocoBase 3**: trigger `pull_request` + nhãn `preview` (giữ opt-in), một chỗ mỗi lúc, lỗi dựng báo vào Hộp thư và push. 2–3 ngày.
+4. **Phát hành**: gắn artifact với version (`versionArtifacts`); "Cách phát hành" trên điện thoại (chọn commit đang chạy ở staging → xem việc gồm/thiếu →
+   tạo tag qua GitHub API, có xác nhận); hướng dẫn đưa production theo skill `nocobase-deployment`. **Không** để Studio tự chạm production NocoBase 2.
+5. Giao diện nguồn check, check advisory, release line trong mục Mã nguồn của dự án (hiện chỉ API/CLI). Chặn mở việc khác khi "Khởi tạo dự án" chưa xong.
+
+### M5 — Vận hành (phần lớn chờ chủ dự án)
+
+| Việc                                                                                            | Ai                                               | Ghi chú                                                             |
+| ----------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------- |
+| Sao lưu ra Google Drive (rclone, K0.3) + bản sao `SECRETS_KEYS` ngoài VPS                       | Chủ dự án cấp quyền, agent chạy thử và khôi phục | **Ưu tiên cao nhất ngoài mã**: một VPS đang giữ cả dữ liệu lẫn khoá |
+| Nối token GitHub cá nhân (có Workflows) → L3.3: CI cho `nocofen`, PR thử, tự lái merge khi xanh | Chủ dự án nối token, agent làm                   |                                                                     |
+| Gmail App Password → email lời mời, quên mật khẩu, cảnh báo                                     | Chủ dự án                                        | Sau M2 thì email mới có ích                                         |
+| Xoá khoá Dokploy cũ `studio`                                                                    | Chủ dự án                                        |                                                                     |
+| Nhắc khoá CI, khoá tổ chức, token sắp hết hạn vào Hộp thư                                       | Agent (0,5 ngày)                                 |                                                                     |
+| Tự động build bản phát hành Studio bằng GitHub Actions                                          | Agent (1–2 ngày), tuỳ chọn                       | Cân nhắc kỹ vì phải đưa bí mật SSH/Dokploy vào CI                   |
+
+## 2. Không làm (đã cân nhắc)
+
+GitLab/Gitea/GitHub Enterprise; Jenkins; agent tự báo check làm nguồn chính (runner bị cấm chạy kiểm tra toàn repo); App Host in-process hoặc Docker
+(RAM, và Docker socket tương đương quyền root trên VPS đang chạy production); Redis; S3; nhiều preview song song; preview mặc định cho mọi PR;
+chi phí theo USD; OAuth Git cá nhân, ghi công commit; view Split/Table và phím tắt (dùng điện thoại); runtime cá nhân và luồng xác nhận;
+thêm slot runner; hội thoại có checkout mã; My Agent/ACP; Switch runtime; skill theo repository; tìm kiếm ngữ nghĩa/OCR trong Tri thức;
+quyền theo thư mục trong Tri thức (làm khi có tài liệu nhạy cảm và có cộng tác viên).
+
+Cố ý khác tài liệu, giữ nguyên: tự lái tự merge; review chéo bằng Opus; preview theo nhãn `preview`; đánh thức do tự lái đảm nhận; một instance.
+
+## 3. Thứ tự và công sức
+
+M0 → M1 → M4.1 (dừng chờ duyệt) → M3; M2 sau M4 (Q3 = M4 trước). M5 làm song song khi chủ dự án sẵn sàng. Tổng khoảng 16–22 ngày làm của agent. Mỗi bước một nhánh,
+một PR, CI xanh, cập nhật mục Tiến độ. Production chỉ cập nhật khi chủ dự án đồng ý, theo `docs/trien-khai-vps.md`.
+
+## 4. Câu hỏi cần chủ dự án chốt
+
+| #   | Câu hỏi                                                          | Khuyến nghị                                                                                                                                          |
+| --- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q1  | `/main/register` trên production có form không?                  | **Đã trả lời (08/11/2026): có, đang mở.** Đo bằng GET chỉ đọc, xem mục 0.1. Làm M0.1 đầu tiên và đưa production khi chủ dự án đồng ý.                |
+| Q2  | Điện thoại dùng iPhone hay Android?                              | **Android.** M0.2 làm manifest chuẩn Android (cài vào màn hình chính, web push); chỉ thêm `apple-touch-icon` vì rẻ, **không** viết hướng dẫn iPhone. |
+| Q3  | Ưu tiên đón cộng tác viên (M2) hay giao hàng app NB3 (M4) trước? | **M4 trước.** Thứ tự: M0 → M1 → M4.1 (đo đạc, chỉ đọc) rồi **dừng chờ duyệt** → M3. M2 đẩy xuống sau M4.                                             |
+| Q4  | Hạn chờ hàng đợi `queuedExpiryMs`                                | **24 giờ.**                                                                                                                                          |
+| Q5  | DNS preview: wildcard hay từng subdomain?                        | Chưa hỏi, theo kế hoạch quyết sau bước đo M4.1 (khuyến nghị wildcard `*.preview.dsc.edu.vn`).                                                        |
+| Q6  | Có tự động build bản phát hành Studio trên CI không?             | **Chưa**, làm sau M4.                                                                                                                                |
+
+## 5. Tiến độ
+
+(Ghi ngày, PR, kết quả kiểm, bản production, việc còn mở dưới từng dòng khi xong.)
+
+- BƯỚC 0 xong (08/11/2026): kế hoạch và 3 báo cáo đã chép vào repo (`docs/plans/research/2026-11-08/`, thêm vào `.prettierignore`); ba phát hiện mục 0 đã kiểm đúng
+  (mục 0.1); Q1–Q4 và Q6 đã chốt. Việc còn mở: M0 trở đi. Stash `local-before-pull-2026-11-08` giữ thay đổi local cũ (đã nằm trên `main`, chỉ khác định dạng) — xoá được.
+
+- [ ] M0 — An toàn và điện thoại
+- [ ] M1 — Agent và runner tin cậy
+- [ ] M2 — Đón cộng tác viên
+- [ ] M3 — Giám sát run từ điện thoại
+- [ ] M4 — Giao hàng app NocoBase 3
+- [ ] M5 — Vận hành

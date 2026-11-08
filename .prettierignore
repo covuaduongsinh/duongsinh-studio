@@ -32,3 +32,6 @@ database/*/seeds/
 
 # Internal packages run their own formatting through check:packages.
 packages/
+
+# Research reports copied verbatim from the 2026-11-08 documentation review; they are evidence, not prose this application edits.
+docs/plans/research/
