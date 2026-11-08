@@ -112,7 +112,11 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
   - L3.1 xong trong mã (08/11/2026): `POST /projectSetups/{projectId}/ci` mở **pull request** (nhánh `ci/ds-check`, không bao giờ đẩy thẳng nhánh mặc định) thêm `.github/workflows/ds-check.yml` bằng token cá nhân của người bấm (`proposeFileAsPerson`; thêm `createBranch` cho client GitHub). Kiểm quyền (`pm.members` `define-roles`), `describeRoute`, lỗi `GIT_PERSONAL_TOKEN_REQUIRED` (400), `GIT_BRANCH_EXISTS` và `GIT_FILE_EXISTS` (409), `GIT_REPOSITORY_NOT_LINKED`. Test `project-setup-routes`: 401, 403, 404, thiếu token (mô phỏng bằng đổi kết nối thành kiểu App), 201, trùng 409. Nút "Thêm CI" ở mục Mã nguồn của trang project (chỉ quản trị viên), chuỗi vi-VN/en-US/zh-CN, test `tests/client/project-code-ci.test.tsx` (3 ca).
   - L3.2 xong: bước giấy phép chạy `pnpm licenses list --json` **không `--prod`**, fail với GPL/AGPL/LGPL không kèm `OR` (`jszip` và `elkjs` vẫn qua), vẫn chặn năm thư viện cờ GPL theo tên. `tests/server/ci-workflow.test.ts` chạy bước đó bằng bash thật (10 ca).
   - Còn L3.3: đẩy CI cho `nocofen`, mở PR thử, xác nhận Studio đọc check và tự lái merge được khi xanh. **HỎI** chủ dự án và cần token cá nhân của bạn nối vào Studio; chỉ làm được sau khi bản này lên production.
-- [ ] L4 — Hiệu năng Hộp thư
+- [x] L4 — Hiệu năng Hộp thư (08/11/2026)
+  - `decisionsOn` đọc `dsCommentRunGrants`, `dsOwnerHandoffDecisions` và `dsFailedRunDecisions` bằng **một** truy vấn `where in` mỗi bảng cho cả danh sách (trước: mỗi việc 1–2 truy vấn bảng, tối đa 50 việc), và đọc nhật ký hoạt động cùng danh sách run của mọi việc song song thay vì lần lượt. Thứ tự quyết định và nội dung trả về không đổi.
+  - `activities` vẫn gọi một lần cho mỗi việc đang mở của người xem: `takeOver` và `limited` chỉ suy ra được từ nhật ký đó, nên không có điều kiện rẻ hơn để bỏ qua; bảng `dsFailedRunDecisions` chỉ đọc khi có việc có run lỗi, và `dsOwnerHandoffDecisions` chỉ khi có bàn giao cho người xem.
+  - Test: `tests/server/inbox-routes.test.ts` đếm lần đọc từng bảng qua `GET /inbox/pending`; đã thử đỏ với bản cũ (`expected 2 to be 1`) và xanh với bản mới. Qua cùng `issue-work-actions`, `issue-work-routes`, `follow-ups`. Lint, typecheck, format sạch. Chưa đo thời gian thực tế trên production.
+  - Không làm: giảm tần suất `inbox/pending` 60 giây mỗi tab (không nằm trong yêu cầu, đổi hành vi hiển thị).
 - [ ] L5 — Việc còn mở của K0–K3
 
 (Ghi ngày, commit, PR, số liệu kiểm, việc còn mở dưới từng dòng khi xong.)

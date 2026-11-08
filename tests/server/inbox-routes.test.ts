@@ -1,11 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { createAppTest } from '@nocobase/app-testing/server';
 import {
   signIn,
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
 import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
+import { projectsToken } from '@nocobase/app-plugin-projects/server/tokens';
+import { databaseManagerToken } from '@nocobase/db';
 import { CONTRIBUTOR_SET_KEY } from '../../server/access/roles.js';
 import { AGENT_KIND } from '../../server/agents/ids.js';
 import { createStandaloneServer } from '../../server/standalone.js';
@@ -213,6 +215,30 @@ test(
     }
     expect(new Set(pagedIds).size).toBe(pagedIds.length);
     expect(pagedIds).toContain(accept.id);
+
+    // What waits on a person is computed for every owned open issue on each Inbox, badge and task-group request. The tables
+    // that hold the rest are read once for all of them, never once per issue, and the answer is the same.
+    const query = app.container
+      .resolve(databaseManagerToken)
+      .connection().query;
+    const selects = vi.spyOn(query, 'selectFrom');
+    const activities = vi.spyOn(
+      app.container.resolve(projectsToken).issueQueries,
+      'activities',
+    );
+    const pendingBadge = await admin.fetch('/inbox/pending');
+    expect(pendingBadge.status).toBe(200);
+    const tablesRead = (table: string) =>
+      selects.mock.calls.filter(([name]) => name === table).length;
+    expect(tablesRead('dsCommentRunGrants')).toBe(1);
+    expect(tablesRead('dsOwnerHandoffDecisions')).toBeLessThanOrEqual(1);
+    expect(tablesRead('dsFailedRunDecisions')).toBeLessThanOrEqual(1);
+    // The activity log is the only per-issue read left: a hand-off or a held comment run exists nowhere else.
+    const ownedOpen = pagedIds.length;
+    expect(ownedOpen).toBeGreaterThan(1);
+    expect(activities.mock.calls.length).toBeLessThanOrEqual(ownedOpen);
+    selects.mockRestore();
+    activities.mockRestore();
 
     const decisions = (
       await (await admin.fetch(`/taskGroups/${accept.id}/decisions`)).json()

@@ -252,10 +252,99 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
       viewer: Viewer,
       issues: readonly ListedIssue[],
     ): Promise<Decision[]> => {
+      const open = issues
+        .slice(0, DECISION_SCAN)
+        .filter(
+          (issue) =>
+            issue.ownerUserId === viewer.userId &&
+            !isFinishedStatus(issue.statusKey),
+        );
+      if (open.length === 0) return [];
+      const ids = open.map((issue) => issue.id);
+
+      // What each issue's own log and runs say, read side by side. The tables the rest needs are read once for all of the
+      // issues below, with `where in`, instead of once per issue: this runs on every Inbox, badge and task-group request.
+      const reads = await Promise.all(
+        open.map(async (issue) => {
+          const [activities, runs] = await Promise.all([
+            // Both owner hand-offs and held comment runs are read from the issue's own activity, as `issue-work` does.
+            projects().issueQueries.activities(viewer, issue.id, {
+              limit: 50,
+            }) as unknown as Promise<{
+              items?: readonly InboxActivity[];
+              data?: readonly InboxActivity[];
+            }>,
+            agents().runs.list({
+              subjectKind: ISSUE,
+              subjectId: issue.id,
+              limit: 20,
+            }) as unknown as Promise<ProgressRun[]>,
+          ]);
+          return { log: activities.items ?? activities.data ?? [], runs };
+        }),
+      );
+
+      // Hand-offs: the newest owner change that put the issue in this person's hands, and whether they answered it.
+      const movedOf = (log: readonly InboxActivity[]) => {
+        const moved = log.find(
+          (entry) =>
+            entry.action === 'owner_changed' &&
+            typeof entry.details.from === 'string' &&
+            typeof entry.details.to === 'string' &&
+            entry.actorId !== entry.details.to,
+        );
+        return moved && moved.details.to === viewer.userId ? moved : null;
+      };
+      const handoffIds = reads.flatMap(({ log }) => {
+        const moved = movedOf(log);
+        return moved ? [moved.id] : [];
+      });
+      const decidedHandoffs = new Set<string>(
+        handoffIds.length === 0
+          ? []
+          : (
+              await conn()
+                .query.selectFrom('dsOwnerHandoffDecisions')
+                .select('activityId')
+                .where('activityId', 'in', handoffIds)
+                .execute()
+            ).map((row) => str(row.activityId)),
+      );
+      const continuedAtOf = new Map<string, number>(
+        (
+          await conn()
+            .query.selectFrom('dsCommentRunGrants')
+            .select(['issueId', 'continuedAt'])
+            .where('issueId', 'in', ids)
+            .execute()
+        ).map((row) => [
+          str(row.issueId),
+          row.continuedAt ? new Date(str(row.continuedAt)).getTime() : 0,
+        ]),
+      );
+      // Failed runs are decided per run; only issues with a failed run need the table at all.
+      const failedIssueIds = open
+        .filter((_, index) =>
+          reads[index]?.runs.some((run) => run.status === 'failed'),
+        )
+        .map((issue) => issue.id);
+      const answeredOf = new Map<string, Set<string>>();
+      if (failedIssueIds.length > 0)
+        for (const row of await conn()
+          .query.selectFrom('dsFailedRunDecisions')
+          .select(['issueId', 'runId'])
+          .where('issueId', 'in', failedIssueIds)
+          .execute()) {
+          const key = str(row.issueId);
+          answeredOf.set(
+            key,
+            (answeredOf.get(key) ?? new Set<string>()).add(str(row.runId)),
+          );
+        }
+
       const decisions: Decision[] = [];
-      for (const issue of issues.slice(0, DECISION_SCAN)) {
-        if (issue.ownerUserId !== viewer.userId) continue;
-        if (isFinishedStatus(issue.statusKey)) continue;
+      open.forEach((issue, index) => {
+        const { log, runs } = reads[index] ?? { log: [], runs: [] };
         if (issue.statusKey === 'in_review')
           decisions.push({
             wait: 'accept',
@@ -272,52 +361,24 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
             since: issue.updatedAt,
             detail: issue.needsYou,
           });
-        // Both read the same way `issue-work` does: from the issue's own activity.
-        const activities = (await projects().issueQueries.activities(
-          viewer,
-          issue.id,
-          { limit: 50 },
-        )) as unknown as {
-          items?: readonly InboxActivity[];
-          data?: readonly InboxActivity[];
-        };
-        const log = activities.items ?? activities.data ?? [];
-        const moved = log.find(
-          (entry) =>
-            entry.action === 'owner_changed' &&
-            typeof entry.details.from === 'string' &&
-            typeof entry.details.to === 'string' &&
-            entry.actorId !== entry.details.to,
-        );
-        if (moved && moved.details.to === viewer.userId) {
-          const decided = await conn()
-            .query.selectFrom('dsOwnerHandoffDecisions')
-            .select('activityId')
-            .where('activityId', '=', moved.id)
-            .executeTakeFirst();
-          if (!decided)
-            decisions.push({
-              wait: 'takeOver',
-              issue,
-              key: `takeOver:${moved.id}`,
-              since: moved.createdAt,
-              detail: null,
-            });
-        }
-        const grant = await conn()
-          .query.selectFrom('dsCommentRunGrants')
-          .select('continuedAt')
-          .where('issueId', '=', issue.id)
-          .executeTakeFirst();
-        const continuedAt = grant?.continuedAt
-          ? new Date(str(grant.continuedAt)).getTime()
-          : 0;
+        const moved = movedOf(log);
+        if (moved && !decidedHandoffs.has(moved.id))
+          decisions.push({
+            wait: 'takeOver',
+            issue,
+            key: `takeOver:${moved.id}`,
+            since: moved.createdAt,
+            detail: null,
+          });
         const held = log.find(
           (entry) =>
             entry.action === 'work_skipped' &&
             entry.details.reason === 'limited' &&
             new Date(entry.createdAt).getTime() >
-              Math.max(continuedAt, Date.now() - COMMENT_RUN_WINDOW_MS),
+              Math.max(
+                continuedAtOf.get(issue.id) ?? 0,
+                Date.now() - COMMENT_RUN_WINDOW_MS,
+              ),
         );
         if (held)
           decisions.push({
@@ -327,34 +388,22 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
             since: held.createdAt,
             detail: null,
           });
-        const runs = (await agents().runs.list({
-          subjectKind: ISSUE,
-          subjectId: issue.id,
-          limit: 20,
-        })) as unknown as ProgressRun[];
-        if (runs.some((run) => run.status === 'failed')) {
-          const answered = await conn()
-            .query.selectFrom('dsFailedRunDecisions')
-            .select('runId')
-            .where('issueId', '=', issue.id)
-            .execute();
-          const failed = undecidedFailedRun(
-            runs,
-            new Set(answered.map((row) => str(row.runId))),
-          );
-          if (failed)
-            decisions.push({
-              wait: 'failed',
-              issue,
-              key: `failed:${failed}`,
-              since:
-                runs.find((run) => run.id === failed)?.finishedAt ??
-                issue.updatedAt,
-              detail: null,
-              runId: failed,
-            });
-        }
-      }
+        const failed = undecidedFailedRun(
+          runs,
+          answeredOf.get(issue.id) ?? new Set<string>(),
+        );
+        if (failed)
+          decisions.push({
+            wait: 'failed',
+            issue,
+            key: `failed:${failed}`,
+            since:
+              runs.find((run) => run.id === failed)?.finishedAt ??
+              issue.updatedAt,
+            detail: null,
+            runId: failed,
+          });
+      });
       return decisions.sort((a, b) => b.since.localeCompare(a.since));
     };
 
