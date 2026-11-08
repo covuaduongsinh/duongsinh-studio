@@ -90,6 +90,10 @@ const enUS = {
     sources: {
       askAgent: 'Ask agent',
     },
+    // What a conversation may be tied to (`conversations.links`).
+    linkKinds: {
+      issue: 'Issues',
+    },
     // The business action of an agent's Capabilities tab.
     actions: {
       groupTitle: 'Plans',

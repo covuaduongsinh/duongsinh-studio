@@ -22,12 +22,14 @@ import {
   ISSUE_KIND,
   PROJECT_KIND,
   conversationOfPlan,
+  createConversationIssueLinkKind,
   createConversationRules,
   createIssueContextResolver,
   createIssueLinkResolver,
   createIssueSessionIntegration,
   createProjectContextResolver,
   createSessionProjects,
+  issuesCreatedByPlan,
   planDecidedNews,
   planSourceOf,
   sessionInstructions,
@@ -113,6 +115,17 @@ export default class ConversationsProvider extends ServiceProvider<Application> 
     const agents = container.resolve(agentsToken);
     const pending: AgentsEvent[] = [];
     try {
+      // Tie what the plan created to the conversation, so each of its turns lists those issues and where they stand.
+      // In the decision's transaction like the news below; an issue already tied is simply not tied again.
+      for (const issueId of issuesCreatedByPlan(decided))
+        await agents.conversations.links.attach(
+          conversationId,
+          { kind: ISSUE_KIND, targetId: issueId },
+          {
+            origin: 'application',
+            outer: { conn: tx.conn, emit: (event) => pending.push(event) },
+          },
+        );
       await agents.conversations.deliver(
         { conn: tx.conn, emit: (event) => pending.push(event) },
         conversationId,
@@ -139,6 +152,13 @@ export default class ConversationsProvider extends ServiceProvider<Application> 
       for (const source of CONVERSATION_SOURCES)
         if (!conversations.sources.has(source.key))
           this.releases.push(conversations.sources.register(source));
+      // Conversations may be tied to issues (by their owner, or by the application for what a plan created).
+      if (!conversations.links.hasKind(ISSUE_KIND))
+        this.releases.push(
+          conversations.links.registerKind(
+            createConversationIssueLinkKind(reads),
+          ),
+        );
       this.releases.push(
         conversations.contextKinds.register(
           ISSUE_KIND,

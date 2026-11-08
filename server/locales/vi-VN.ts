@@ -85,6 +85,10 @@ const viVN: AppServerResource = {
     sources: {
       askAgent: 'Hỏi agent',
     },
+    // What a conversation may be tied to (`conversations.links`).
+    linkKinds: {
+      issue: 'Công việc',
+    },
     actions: {
       groupTitle: 'Kế hoạch',
       plansUse: {
