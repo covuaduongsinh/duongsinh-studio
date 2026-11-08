@@ -24,6 +24,7 @@ import { z } from 'zod';
 import { PROJECT_MANAGER_ID } from '../agents/ids.js';
 import { PROJECT_MANAGER_PRINCIPLES } from '../agents/project-manager-principles.js';
 import {
+  DEFAULT_PROJECT_MANAGER_SETTINGS,
   readProjectManagerSettings,
   writeProjectManagerSettings,
   type ProjectManagerSettings,
@@ -54,10 +55,30 @@ const ProjectManagerSchema = z
       description: 'Null follows `builtInPrinciples`.',
     }),
     builtInPrinciples: z.string(),
+    defaults: z
+      .object({
+        fallbackAfterSeconds: Seconds,
+        delegationQueueTimeoutSeconds: Seconds,
+        commentRunLimit: z.number().int(),
+        principles: z.null(),
+      })
+      .meta({ description: 'What “restore defaults” sets.' }),
   })
   .meta({ ref: 'StudioProjectManager' });
 
-const PatchBody = ProjectManagerSchema.omit({ builtInPrinciples: true })
+const AgentOptionSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    tool: z.string().nullable(),
+    model: z.string().nullable(),
+  })
+  .meta({ ref: 'StudioProjectManagerAgentOption' });
+
+const PatchBody = ProjectManagerSchema.omit({
+  builtInPrinciples: true,
+  defaults: true,
+})
   .partial()
   .strict();
 
@@ -128,6 +149,14 @@ export const projectManagerRoutes: AppApiRouteContribution<Application> =
     const view = (settings: ProjectManagerSettings) => ({
       ...settings,
       builtInPrinciples: PROJECT_MANAGER_PRINCIPLES,
+      defaults: {
+        fallbackAfterSeconds:
+          DEFAULT_PROJECT_MANAGER_SETTINGS.fallbackAfterSeconds,
+        delegationQueueTimeoutSeconds:
+          DEFAULT_PROJECT_MANAGER_SETTINGS.delegationQueueTimeoutSeconds,
+        commentRunLimit: DEFAULT_PROJECT_MANAGER_SETTINGS.commentRunLimit,
+        principles: null,
+      },
     });
 
     routes.use('*', auth.required(), authz.middleware());
@@ -147,6 +176,45 @@ export const projectManagerRoutes: AppApiRouteContribution<Application> =
         await requireAgents(context, 'read');
         return context.json({
           data: view(await readProjectManagerSettings(database.connection())),
+        });
+      },
+    );
+
+    routes.get(
+      '/agentOptions',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'The agents the project manager may run as',
+        description:
+          'Enabled agents with a tool and model, except the project manager itself: what the first choice and the fallback may be.',
+        operationId: 'studioProjectManagerAgentOptions',
+        responses: {
+          '200': dataResponse(z.array(AgentOptionSchema)),
+          ...apiErrorResponses,
+        },
+      }),
+      async (context) => {
+        await requireAgents(context, 'read');
+        const conn = agents().tx.read();
+        const active = await agents().agents.listActive(conn);
+        const workable = await Promise.all(
+          active
+            .filter((agent) => agent.id !== PROJECT_MANAGER_ID)
+            .map((agent) => agents().agents.findWorkable(conn, agent.id)),
+        );
+        return context.json({
+          data: workable.flatMap((agent) =>
+            agent
+              ? [
+                  {
+                    id: agent.id,
+                    name: agent.name,
+                    tool: agent.tool,
+                    model: agent.model,
+                  },
+                ]
+              : [],
+          ),
         });
       },
     );

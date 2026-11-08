@@ -312,6 +312,10 @@ const settingsAuthorizations = [
   },
   { name: 'settingsGit', authorizedAs: 'settings:pm.members' },
   { name: 'settingsOrganizationKeys', authorizedAs: 'settings:studio.apiKeys' },
+  {
+    name: 'settingsProjectManager',
+    authorizedAs: 'settings:agents.agents',
+  },
   { name: 'settingsBudgets', authorizedAs: 'settings:studio.budgets' },
 ];
 

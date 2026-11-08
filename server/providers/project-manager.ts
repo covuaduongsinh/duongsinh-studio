@@ -11,6 +11,7 @@ import { AGENT_DEFAULT_INSTRUCTIONS } from '../agents/agent-instructions.js';
 import { PROJECT_MANAGER_ID, appText } from '../agents/ids.js';
 import { PROJECT_MANAGER_PRINCIPLES } from '../agents/project-manager-principles.js';
 import {
+  DEFAULT_PROJECT_MANAGER_SETTINGS,
   readProjectManagerSettings,
   type ProjectManagerSettings,
 } from '../agents/project-manager-settings.js';
@@ -67,10 +68,32 @@ export default class ProjectManagerProvider extends ServiceProvider<Application>
       instructions: AGENT_DEFAULT_INSTRUCTIONS,
       actions: [...DEFAULT_AGENT_ACTIONS],
     }));
+    // The agents plugin waits `fallbackAfterSeconds` for the first-choice model before it falls back, but only for an agent
+    // that registered a selection policy (it uses 0 otherwise). The wait is read on every claim, so a change in the
+    // settings applies at once. The table is looked up once and only then read: a missing table inside a claim's
+    // transaction would abort it.
+    const database = container.resolve(databaseManagerToken);
+    let tableExists = false;
+    const releasePolicy = agents.selectionPolicies.register(
+      PROJECT_MANAGER_ID,
+      async (conn) => {
+        tableExists ||= Boolean(
+          await database.collections().getPhysical('dsProjectManager'),
+        );
+        const settings = tableExists
+          ? await readProjectManagerSettings(conn)
+          : DEFAULT_PROJECT_MANAGER_SETTINGS;
+        return { fallbackAfterSeconds: settings.fallbackAfterSeconds };
+      },
+    );
+    const releaseDefaults = this.release;
+    this.release = () => {
+      releasePolicy();
+      releaseDefaults?.();
+    };
     // Command hosts (`pnpm nocobase …`, which log to stderr) also boot providers, possibly before the tables exist; only
     // the serving process writes the agents, as the agents plugin does for its own startup work.
     if (this.app.consoleLogStream === 'stderr') return;
-    const database = container.resolve(databaseManagerToken);
     // An application started without this application's migrations (an embedded or scoped app, such as the template's
     // runtime tests) has the plugins' tables but not `dsProjectManager`; its project manager is synced once migrated.
     if (!(await database.collections().getPhysical('dsProjectManager'))) return;
