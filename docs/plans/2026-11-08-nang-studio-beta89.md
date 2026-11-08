@@ -370,14 +370,12 @@ Nếu phát hiện lỗi nghiêm trọng sau khi triển khai lên production:
 
 ## 8. Tiến độ
 
-(Mục này để trống, sẽ ghi nhận ngày, commit, kết quả cổng kiểm tra và bản phát hành production khi triển khai.)
-
-- [ ] N1 — Chuẩn bị và tạo nhánh nâng cấp
-- [ ] N2 — Cập nhật khai báo phụ thuộc trong `package.json`
-- [ ] N3 — Cài đặt gói và kiểm tra Registry (`pnpm install`)
-- [ ] N4 — Hợp nhất mã nguồn
-- [ ] N5 — Thử nghiệm di trú DB (dev mới & bản sao production Postgres)
-- [ ] N6 — Cổng kiểm tra chất lượng (Verification Gates)
-- [ ] N7 — Chốt mốc, tạo Pull Request và Merge
-- [ ] N8 — Triển khai lên Production VPS (WSL)
-- [ ] N9 — Kiểm chứng sau triển khai & Khôi phục tự lái
+- [x] **N1 — Chuẩn bị và tạo nhánh nâng cấp** (Hoàn thành 08/11/2026: tạo nhánh `template-upgrade-1.0.0-beta.89` từ `main`).
+- [x] **N2 — Cập nhật khai báo phụ thuộc trong `package.json`** (Hoàn thành 08/11/2026: template 1.0.0-beta.89, `defaultTemplateVersion: "1.0.0-beta.89"`, `app-client ^4.0.0-beta.9`, `agents 2.0.0-beta.6`, `projects 0.1.0-beta.26`, `releases 0.1.0-beta.19`, `agent-sessions 1.0.0-beta.19`, `foundation ^0.1.0-beta.16`, `users ^2.0.0-beta.16`, `realtime ^1.0.0-beta.1`, `app-skills 0.1.0-beta.60`).
+- [x] **N3 — Cài đặt gói và kiểm tra Registry (`pnpm install`)** (Hoàn thành 08/11/2026: lockfile cập nhật, `nocobase skills sync` đã chạy, không bị hạ cấp gói lõi).
+- [x] **N4 — Hợp nhất mã nguồn** (Hoàn thành 08/11/2026: sao chép 13 file mới, 51 file untouched, hợp nhất 4 file customized `client/layouts/app-layout.tsx`, `client/styles.css`, `.agents/rules/shell.md`, `AGENTS.md`).
+- [x] **N5 — Thử nghiệm di trú DB (dev mới & bản sao production Postgres)** (Hoàn thành 08/11/2026: `pnpm nocobase db apply` thực thi thành công migration duy nhất `202611080001_ag_conversation_shares`).
+- [x] **N6 — Cổng kiểm tra chất lượng (Verification Gates)** (Hoàn thành 08/11/2026: bổ sung các khóa vi-VN mới `navigation.backTo`, `pendingFeedback`, `taskProgress`, `status.refreshing`, `status.reloadPage`, `status.retryFailedDescription`; toàn bộ CI PR #33 gồm static, client tests, node tests đều xanh 100%).
+- [x] **N7 — Chốt mốc, tạo Pull Request và Merge** (Hoàn thành 08/11/2026: PR #33 được squash merge vào `main` tại commit `0320f6e`).
+- [x] **N8 — Triển khai lên Production VPS (WSL)** (Hoàn thành 08/11/2026: sao lưu database production sang `/srv/duongsinh-studio/backups/studio_20261108_194038_pre_beta89.dump`, tải tarball release `0320f6e` lên VPS, giải nén vào `/srv/duongsinh-studio/releases/0320f6e`, cập nhật `STUDIO_RELEASE="0320f6e"` trong `.env` Dokploy compose và khởi động lại app container).
+- [x] **N9 — Kiểm chứng sau triển khai & Khôi phục tự lái** (Hoàn thành 08/11/2026: healthz HTTP 200, `nocobase.dsc.edu.vn` HTTP 302 nguyên vẹn, bảng `ag_conversation_shares` đã tạo, container `duongsinh-studio-tluxoy-app-1` healthy, `vps-studio-runner` active).
