@@ -105,6 +105,9 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
   - Commit riêng chỉ đổi định dạng: 48 file, +2.683/−870 dòng; `tests/server/previews.test.ts` cần Prettier chạy hai lượt mới ổn định.
   - Các cổng chạy riêng từng bước trên máy dev (foreground/nền, một lệnh mỗi lúc): `check:packages` xanh; `lint` xanh (`--max-warnings 0`); `format:check` xanh; `typecheck` xanh (43,6 giây, ba tsconfig); `pnpm build` xanh (5 phút 19 giây); `vitest --project node`: 81 file, 192 test xanh (12 phút 4 giây); `vitest --project client`: 85 file, 549 qua, **2 timeout 30 giây** trong `header-hover.test.tsx` khi máy tải nặng; chạy lại riêng file đó: 3/3 qua. Chưa tách được nguyên nhân tải; ghi nhận là test chậm dễ timeout, để ý khi dựng CI (L2).
 - [ ] L2 — CI cho chính repo Studio
+  - Xong (08/11/2026): `.github/workflows/check.yml` (ba job: `static`, `test (node project)`, `test (client project)`; `timeout-minutes` 20/45/45, `concurrency` huỷ lần cũ). Chạy đầu tiên trên PR #10, cả ba **xanh**: `static` 2 phút 41 giây, test client 7 phút 10 giây, test node 7 phút 28 giây, chạy song song nên thời gian thực khoảng 7,5 phút; tổng khoảng 17,3 phút chạy, tính phí khoảng 19 phút (làm tròn lên mỗi job), tức ~0,11 USD mỗi lần theo giá 0,006 USD/phút. Hạn mức Free khoảng 2.000 phút mỗi tháng ≈ 100 lần chạy, dùng chung mọi repo riêng tư của tài khoản.
+  - `pnpm build` không đưa vào CI: khoảng 5 phút 19 giây trên máy dev, chỉ sinh gói phát hành, đã chạy tay trước mỗi lần phát hành.
+  - Chưa làm: branch protection cho `main` (**HỎI** chủ dự án; nên bật sau khi thấy check xanh thêm vài lần).
 - [ ] L3 — CI cho dự án dùng repo có sẵn
 - [ ] L4 — Hiệu năng Hộp thư
 - [ ] L5 — Việc còn mở của K0–K3
