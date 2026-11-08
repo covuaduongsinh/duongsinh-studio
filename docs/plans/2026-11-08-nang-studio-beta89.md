@@ -26,19 +26,19 @@
 
 Nguồn thông tin: NPM Registry (`npm view`, `npm pack` vào thư mục tạm ngoài repo), CHANGELOG và phân tích mã đóng gói (dist).
 
-| Gói | Đang lắp ở Studio | Bản TARGET mới | Nguồn / Loại thay đổi | Tác động chính & Ghi chú |
-| :--- | :--- | :--- | :--- | :--- |
-| `@nocobase/app-template-default` | `1.0.0-beta.88` | **`1.0.0-beta.89`** | Template | Cập nhật 70 file mã nguồn mẫu; nâng dải phụ thuộc lõi; đổi `defaultTemplateVersion`. |
-| `@nocobase/app-client` | `^4.0.0-beta.8` | **`^4.0.0-beta.9`** | Lõi Template | Hỗ trợ ngữ cảnh container route chung (`@nocobase/app-client/route-containers`), bảo vệ form khi kiểm tra quyền. |
-| `@nocobase/app-plugin-foundation` | `^0.1.0-beta.14` | **`^0.1.0-beta.16`** | Lõi Template | Tinh chỉnh nạp snapshot module foundation. |
-| `@nocobase/app-plugin-users` | `^2.0.0-beta.15` | **`^2.0.0-beta.16`** | Lõi Template | Đồng bộ peer client runtime và route presentation. |
-| `@nocobase/app-skills` | `0.1.0-beta.59` | **`0.1.0-beta.60`** | Lõi Template | Cập nhật bộ hướng dẫn nâng cấp (`nocobase-app-upgrade/references/realtime-upgrade.md`, v.v.). |
-| `@nocobase/realtime` | `^1.0.0-beta.0` | **`^1.0.0-beta.1`** | Lõi Template | Sửa cơ chế phục hồi snapshot và tái kết nối WebSocket; không đổi hợp đồng gọi của Studio. |
-| `@nocobase/app-plugin-agents` | `2.0.0-beta.5` (ghim) | **`2.0.0-beta.6`** | Studio ghim | **Tính năng mới (`1f98579`)**: Thêm snapshot chia sẻ hội thoại chỉ đọc cho người dùng cụ thể (`agConversationShares`). Thêm 1 migration mới. |
-| `@nocobase/app-plugin-projects` | `0.1.0-beta.25` (ghim) | **`0.1.0-beta.26`** | Studio ghim | Dịch các hành động trong dialog issue/sub-issue/project khi app host container route; bảo vệ form chưa lưu khi đổi quyền. |
-| `@nocobase/app-plugin-releases` | `0.1.0-beta.18` (ghim) | **`0.1.0-beta.19`** | Studio ghim | Huỷ deployment trước khi chuyển đổi; cô lập giải nén archive; heap budget cho preview host; hỗ trợ diagnostic context khi upload artifact (`3597c1e`). |
-| `@nocobase/app-plugin-agent-sessions` | `1.0.0-beta.18` (ghim) | **`1.0.0-beta.19`** | Studio ghim | Cải thiện độ bền khi agent trả về text hiển thị dài hoặc id lựa chọn không hợp lệ (`4f0370e`). |
-| `@nocobase/agent-runner` | `0.1.0-beta.23` | **`0.1.0-beta.23`** | Giữ nguyên | Không có bản mới trên npm; wire protocol `@nocobase/agent-protocol` giữ nguyên phiên bản 14. |
+| Gói                                   | Đang lắp ở Studio      | Bản TARGET mới       | Nguồn / Loại thay đổi | Tác động chính & Ghi chú                                                                                                                               |
+| :------------------------------------ | :--------------------- | :------------------- | :-------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@nocobase/app-template-default`      | `1.0.0-beta.88`        | **`1.0.0-beta.89`**  | Template              | Cập nhật 70 file mã nguồn mẫu; nâng dải phụ thuộc lõi; đổi `defaultTemplateVersion`.                                                                   |
+| `@nocobase/app-client`                | `^4.0.0-beta.8`        | **`^4.0.0-beta.9`**  | Lõi Template          | Hỗ trợ ngữ cảnh container route chung (`@nocobase/app-client/route-containers`), bảo vệ form khi kiểm tra quyền.                                       |
+| `@nocobase/app-plugin-foundation`     | `^0.1.0-beta.14`       | **`^0.1.0-beta.16`** | Lõi Template          | Tinh chỉnh nạp snapshot module foundation.                                                                                                             |
+| `@nocobase/app-plugin-users`          | `^2.0.0-beta.15`       | **`^2.0.0-beta.16`** | Lõi Template          | Đồng bộ peer client runtime và route presentation.                                                                                                     |
+| `@nocobase/app-skills`                | `0.1.0-beta.59`        | **`0.1.0-beta.60`**  | Lõi Template          | Cập nhật bộ hướng dẫn nâng cấp (`nocobase-app-upgrade/references/realtime-upgrade.md`, v.v.).                                                          |
+| `@nocobase/realtime`                  | `^1.0.0-beta.0`        | **`^1.0.0-beta.1`**  | Lõi Template          | Sửa cơ chế phục hồi snapshot và tái kết nối WebSocket; không đổi hợp đồng gọi của Studio.                                                              |
+| `@nocobase/app-plugin-agents`         | `2.0.0-beta.5` (ghim)  | **`2.0.0-beta.6`**   | Studio ghim           | **Tính năng mới (`1f98579`)**: Thêm snapshot chia sẻ hội thoại chỉ đọc cho người dùng cụ thể (`agConversationShares`). Thêm 1 migration mới.           |
+| `@nocobase/app-plugin-projects`       | `0.1.0-beta.25` (ghim) | **`0.1.0-beta.26`**  | Studio ghim           | Dịch các hành động trong dialog issue/sub-issue/project khi app host container route; bảo vệ form chưa lưu khi đổi quyền.                              |
+| `@nocobase/app-plugin-releases`       | `0.1.0-beta.18` (ghim) | **`0.1.0-beta.19`**  | Studio ghim           | Huỷ deployment trước khi chuyển đổi; cô lập giải nén archive; heap budget cho preview host; hỗ trợ diagnostic context khi upload artifact (`3597c1e`). |
+| `@nocobase/app-plugin-agent-sessions` | `1.0.0-beta.18` (ghim) | **`1.0.0-beta.19`**  | Studio ghim           | Cải thiện độ bền khi agent trả về text hiển thị dài hoặc id lựa chọn không hợp lệ (`4f0370e`).                                                         |
+| `@nocobase/agent-runner`              | `0.1.0-beta.23`        | **`0.1.0-beta.23`**  | Giữ nguyên            | Không có bản mới trên npm; wire protocol `@nocobase/agent-protocol` giữ nguyên phiên bản 14.                                                           |
 
 ---
 
@@ -66,42 +66,51 @@ Nguồn thông tin: NPM Registry (`npm view`, `npm pack` vào thư mục tạm n
 ### 1.3 Phân tích ảnh hưởng của plugin mới đến Dương Sinh Studio (File:Dòng)
 
 #### A. Gate run và `runKeyScope` (`server/providers/agent-actions.ts`)
+
 - **Vị trí ảnh hưởng**: `server/providers/agent-actions.ts:70-95` (`createStudioGate`), `103-125` (`runKeyScope`), `191-211` (đăng ký gate vào `agents.gate.set` và `authz.use`).
 - **Tác động**: `@nocobase/app-plugin-agents` 2.0.0-beta.6 không thay đổi chữ ký `ActionGate` hay `KeyScope`. Studio tiếp tục duy trì cơ chế `runKeyScope` song song với kiểm tra quyền route của plugin theo đúng quyết định trong `docs/chenh-lech-upstream.md` mục 24.
 - **Rủi ro**: Thấp. Test bảo vệ: `tests/server/agent-gate.test.ts`, `tests/server/run-actor.test.ts`.
 
 #### B. Cơ chế Admission
+
 - **Vị trí ảnh hưởng**: `server/providers/agent-actions.ts:201-211`.
 - **Tác động**: Tuyến đường bảo mật của issued credential vẫn giữ nguyên hợp đồng từ beta.3/beta.25. Không có xung đột mới.
 
 #### C. Autopilot
+
 - **Vị trí ảnh hưởng**: `server/autopilot/stall.ts:15-45` (đọc `runs.workload` và `until`), `server/autopilot/evaluator.ts:50-120` (đánh giá 7 bước), `server/autopilot/scheduler.ts`.
 - **Tác động**: Không bị ảnh hưởng bởi thay đổi của beta.6/beta.26. Các thuộc tính `workload` của run không đổi cấu trúc.
 
 #### D. Issue Subject (`queuedExpiryMs` và `workspaces.settled`)
+
 - **Vị trí ảnh hưởng**: `server/providers/issue-subject.ts:420-422, 449-472` (`QUEUED_EXPIRY_MS = 24h`, `settledIssues`).
 - **Tác động**: Sweeper và trình dọn dẹp thư mục làm việc của plugin agents trong beta.6 tiếp tục tiếp nhận `queuedExpiryMs` và `workspaces.settled` mà Studio đã khai báo ở bước M1.
 - **Rủi ro**: Thấp. Test bảo vệ: `tests/server/issue-subject-workspaces.test.ts`.
 
 #### E. `ModelSelectionPolicies`
+
 - **Vị trí ảnh hưởng**: `server/providers/project-manager.ts:77-88` (đăng ký `agents.selectionPolicies.register('ds-project-manager')`).
 - **Tác động**: Plugin agents beta.6 tiếp tục hỗ trợ hook `selectionPolicies`, đảm bảo giá trị `fallbackAfterSeconds` (120 giây) hoạt động khi phân bổ model.
 - **Rủi ro**: Không có. Test bảo vệ: `tests/server/project-manager-selection.test.ts`.
 
 #### F. Hộp thư (Inbox) & Hoạt động
+
 - **Vị trí ảnh hưởng**: `server/routes/inbox.ts:216-1290`, `client/extensions/nocobase-inbox/inbox-item.tsx:1-120`.
 - **Tác động**: Các route `inbox/*`, `taskGroups/*` và `followUps/*` của Studio hoạt động độc lập trên dữ liệu công việc và activity. Việc bổ sung tính năng chia sẻ hội thoại của plugin agents không làm thay đổi luồng thông báo trong ứng dụng.
 
 #### G. Di trú cơ sở dữ liệu mới (Plugin Migrations)
+
 - **Vị trí ảnh hưởng**: Bảng mới `agConversationShares` do migration `202611080001_ag_conversation_shares.js` của `@nocobase/app-plugin-agents` tạo ra.
 - **Chi tiết**: Tạo bảng `agConversationShares` (các cột `id`, `conversationId`, `userId`, `cutoffSeq`, `snapshotAt`, `title`, `createdAt`, `updatedAt`, chỉ mục duy nhất `ag_conversation_share_user_uq`). Migration có hàm `down` đảo ngược rõ ràng (`builder.dropCollection`).
 - **Tác động**: Bảng mới độc lập, không thay đổi hay xoá bất kỳ cột nào của các bảng hiện hữu (`ag_runs`, `pm_issues`, `ds_*`). Hoàn toàn tương thích ngược.
 
 #### H. Runner & `PROTOCOL_VERSION`
+
 - **Vị trí ảnh hưởng**: Các bài test server giả lập runner: `tests/server/run-actor.test.ts:24`, `tests/server/conversations-routes.test.ts:35`, `tests/server/git-contract-routes.test.ts:34`, `tests/server/git-open-pr.test.ts:36`, `tests/server/git.test.ts:35`, `tests/server/issue-work-actions.test.ts:21`, `tests/server/issue-work-routes.test.ts:21`, `tests/server/kb-offer-routes.test.ts:21`, `tests/server/knowledge-routes.test.ts:33`, `tests/server/project-setup-routes.test.ts:29`, `tests/server/releases.test.ts:37`, `tests/server/report-routes.test.ts:21`, `tests/server/reviews.test.ts:34`, `tests/server/budget-routes.test.ts:30`.
 - **Tác động**: Gói `@nocobase/agent-runner` giữ nguyên bản `0.1.0-beta.23`, phụ thuộc `@nocobase/agent-protocol` `0.1.0-beta.16` với `PROTOCOL_VERSION = 14`. Toàn bộ giao thức runner không đổi, không cần nâng cấp runner daemon trên VPS hay máy dev.
 
 #### I. Locale Overrides `vi-VN`
+
 - **Vị trí ảnh hưởng**: `client/locales/overrides/vi-VN.ts` và `server/locales/overrides/vi-VN.ts`.
 - **Tác động**: Cần chạy `tests/client/locale-parity.test.ts` để phát hiện các khoá dịch bị cũ (stale) hoặc thiếu. Nếu plugin agents beta.6 giới thiệu các chuỗi giao diện mới cho tính năng chia sẻ hội thoại, cần bổ sung thuật ngữ tiếng Việt chuẩn theo `docs/thuat-ngu.md`.
 
@@ -120,6 +129,7 @@ Nguồn thông tin: NPM Registry (`npm view`, `npm pack` vào thư mục tạm n
 ## 2. Các bước thực hiện chi tiết (N1 → N9)
 
 ### N1 — Chuẩn bị và tạo nhánh nâng cấp (~0,5 giờ)
+
 1. Đảm bảo cây làm việc trên máy dev sạch hoàn toàn, nhánh `main` ở commit `1c83b04`.
 2. Tạo nhánh nâng cấp:
    ```bash
@@ -128,6 +138,7 @@ Nguồn thông tin: NPM Registry (`npm view`, `npm pack` vào thư mục tạm n
    > **CẢNH BÁO TUÂN THỦ**: Tuyệt đối không dùng `git checkout --`, `git restore`, `git reset --hard`, `git stash`, `git clean` hay `rm -rf` trên cây làm việc.
 
 ### N2 — Cập nhật khai báo phụ thuộc trong `package.json` (~0,5 giờ)
+
 1. Cập nhật `version` lên `"1.0.0-beta.89"`, `nocobase.defaultTemplateVersion` lên `"1.0.0-beta.89"`.
 2. Cập nhật các phụ thuộc lõi theo TARGET .89:
    - `devDependencies`:
@@ -143,6 +154,7 @@ Nguồn thông tin: NPM Registry (`npm view`, `npm pack` vào thư mục tạm n
      - `@nocobase/app-plugin-agent-sessions`: `"1.0.0-beta.18"` → `"1.0.0-beta.19"` (ghim bản beta.19 của Studio)
 
 ### N3 — Cài đặt gói và kiểm tra Registry (`pnpm install`) (~1 giờ)
+
 1. Chạy cài đặt gói trong môi trường WSL:
    ```bash
    pnpm install
@@ -158,6 +170,7 @@ Nguồn thông tin: NPM Registry (`npm view`, `npm pack` vào thư mục tạm n
    ```
 
 ### N4 — Hợp nhất mã nguồn mẫu (~2–3 giờ)
+
 1. Sao chép 52 file thuộc diện "untouched" từ tarball `template-89` vào cây làm việc.
 2. Sao chép 13 file mới từ `template-89` vào các thư mục tương ứng trong `client/` và `tests/`.
 3. Tiến hành hợp nhất thủ công (manual merge) 5 file "customized":
@@ -168,6 +181,7 @@ Nguồn thông tin: NPM Registry (`npm view`, `npm pack` vào thư mục tạm n
    - `package.json`: Đã làm ở N2.
 
 ### N5 — Thử nghiệm di trú DB (Database Migration Testing) (~2 giờ)
+
 1. Liệt kê migration đang chờ: xác nhận chỉ có `202611080001_ag_conversation_shares.js` của plugin agents.
 2. Thử nghiệm trên DB dev mới (SQLite / local Postgres):
    ```bash
@@ -180,7 +194,9 @@ Nguồn thông tin: NPM Registry (`npm view`, `npm pack` vào thư mục tạm n
    - Thử nghiệm rollback: xác nhận hàm `down` hạ bảng sạch sẽ.
 
 ### N6 — Cổng kiểm tra chất lượng (Verification Gates) (~3 giờ)
+
 Chạy toàn bộ các bước kiểm tra chất lượng tự động:
+
 1. Định dạng & Kiểm tra tĩnh:
    ```bash
    pnpm lint
@@ -214,6 +230,7 @@ Chạy toàn bộ các bước kiểm tra chất lượng tự động:
 8. Mở dev server (`pnpm dev`), duyệt qua các trang chính trên trình duyệt: Công việc của tôi, Chi tiết việc, Bảng Kanban, Hộp thư, Phát hành, Tri thức, Cài đặt hệ thống, Cài đặt Trưởng nhóm agent. Xác nhận không có lỗi API trong DevTools console.
 
 ### N7 — Chốt mốc, tạo Pull Request và Merge (~0,5 giờ)
+
 1. Cập nhật tài liệu:
    - `docs/chenh-lech-upstream.md`: Thêm mục 33 ghi nhận nâng cấp beta.89 và migration `agConversationShares`.
    - `docs/nang-cap.md`: Cập nhật nhật ký các lần nâng cấp thành công.
@@ -225,7 +242,9 @@ Chạy toàn bộ các bước kiểm tra chất lượng tự động:
 4. Chờ GitHub Actions CI chạy xanh, review diff và merge vào `main`.
 
 ### N8 — Triển khai lên Production VPS (~1 giờ)
+
 Thực hiện trong môi trường WSL (`~/code/duongsinh-studio`) theo đúng `docs/trien-khai-vps.md`:
+
 1. Build gói phát hành trên máy dev từ commit `main` vừa merge:
    ```bash
    pnpm build --target linux-x64 --node-version 24
@@ -253,6 +272,7 @@ Thực hiện trong môi trường WSL (`~/code/duongsinh-studio`) theo đúng `
    - Migration `202611080001_ag_conversation_shares` sẽ tự động thực thi khi container khởi động (`migrations.autoRun`).
 
 ### N9 — Kiểm chứng sau triển khai & Khôi phục tự lái (~0,5 giờ)
+
 1. Kiểm tra trạng thái hệ thống:
    - Container `duongsinh-studio-tluxoy-app-1` ở trạng thái `healthy`.
    - Endpoint `https://studio.dsc.edu.vn/main/api/healthz` trả về `ok: true` (HTTP 200).
@@ -285,13 +305,13 @@ Nếu phát hiện lỗi nghiêm trọng sau khi triển khai lên production:
 
 ## 4. Rủi ro và Giải pháp kiểm soát
 
-| Rủi ro | Mức độ | Biện pháp kiểm soát & Phòng ngừa |
-| :--- | :--- | :--- |
-| Registry npm hạ cấp gói lõi hoặc chuyển client library vào `dependencies` | Cao | Chạy `git diff package.json` ngay sau `pnpm install`. Phục hồi dải phiên bản trước khi tiếp tục. |
-| Migration mới làm lỗi hoặc khoá bảng vật lý PostgreSQL | Trung bình | Đã phân tích mã migration: chỉ tạo 1 bảng mới độc lập `agConversationShares`. Thử nghiệm kỹ trên bản sao DB Postgres trước khi lên production. |
-| Quá tải RAM VPS khi cập nhật | Trung bình | Bản phát hành được build sẵn trên máy dev (`--target linux-x64`). VPS chỉ giải nén và khởi động container `app` với giới hạn RAM 1536M. |
-| Ảnh hưởng đến production NocoBase 2 (`nocobase.dsc.edu.vn`) | Cao | Tuân thủ tuyệt đối: chỉ redeploy compose `studio` trong project Dokploy `duongsinh-studio`. Không chạm vào network, volume hay compose khác. |
-| Lỗi stale translation overrides vi-VN | Thấp | Chạy test `tests/client/locale-parity.test.ts` trong bộ kiểm tra tự động trước khi merge. |
+| Rủi ro                                                                    | Mức độ     | Biện pháp kiểm soát & Phòng ngừa                                                                                                               |
+| :------------------------------------------------------------------------ | :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registry npm hạ cấp gói lõi hoặc chuyển client library vào `dependencies` | Cao        | Chạy `git diff package.json` ngay sau `pnpm install`. Phục hồi dải phiên bản trước khi tiếp tục.                                               |
+| Migration mới làm lỗi hoặc khoá bảng vật lý PostgreSQL                    | Trung bình | Đã phân tích mã migration: chỉ tạo 1 bảng mới độc lập `agConversationShares`. Thử nghiệm kỹ trên bản sao DB Postgres trước khi lên production. |
+| Quá tải RAM VPS khi cập nhật                                              | Trung bình | Bản phát hành được build sẵn trên máy dev (`--target linux-x64`). VPS chỉ giải nén và khởi động container `app` với giới hạn RAM 1536M.        |
+| Ảnh hưởng đến production NocoBase 2 (`nocobase.dsc.edu.vn`)               | Cao        | Tuân thủ tuyệt đối: chỉ redeploy compose `studio` trong project Dokploy `duongsinh-studio`. Không chạm vào network, volume hay compose khác.   |
+| Lỗi stale translation overrides vi-VN                                     | Thấp       | Chạy test `tests/client/locale-parity.test.ts` trong bộ kiểm tra tự động trước khi merge.                                                      |
 
 ---
 
@@ -308,37 +328,41 @@ Nếu phát hiện lỗi nghiêm trọng sau khi triển khai lên production:
 
 ## 6. Ước lượng công sức
 
-| Bước | Nội dung | Thời gian ước tính (Agent) |
-| :--- | :--- | :--- |
-| N1 | Chuẩn bị & Tạo nhánh nâng cấp | 0,5 giờ |
-| N2 | Cập nhật khai báo `package.json` | 0,5 giờ |
-| N3 | Cài đặt gói, kiểm tra registry, đồng bộ skills | 1,0 giờ |
-| N4 | Hợp nhất mã nguồn (5 customized + 13 new + 52 untouched) | 2,5 giờ |
-| N5 | Thử nghiệm di trú DB (dev mới & bản sao production Postgres) | 2,0 giờ |
-| N6 | Chạy toàn bộ cổng kiểm tra (CI, lint, typecheck, test 3 nhóm, build, e2e) | 3,0 giờ |
-| N7 | Chốt mốc, tạo PR và merge vào `main` | 0,5 giờ |
-| N8 | Triển khai lên VPS Production (WSL) | 1,0 giờ |
-| N9 | Kiểm chứng sau triển khai & Khôi phục tự lái | 0,5 giờ |
-| **Tổng cộng** | | **~11,5 giờ (~1,5 ngày làm việc)** |
+| Bước          | Nội dung                                                                  | Thời gian ước tính (Agent)         |
+| :------------ | :------------------------------------------------------------------------ | :--------------------------------- |
+| N1            | Chuẩn bị & Tạo nhánh nâng cấp                                             | 0,5 giờ                            |
+| N2            | Cập nhật khai báo `package.json`                                          | 0,5 giờ                            |
+| N3            | Cài đặt gói, kiểm tra registry, đồng bộ skills                            | 1,0 giờ                            |
+| N4            | Hợp nhất mã nguồn (5 customized + 13 new + 52 untouched)                  | 2,5 giờ                            |
+| N5            | Thử nghiệm di trú DB (dev mới & bản sao production Postgres)              | 2,0 giờ                            |
+| N6            | Chạy toàn bộ cổng kiểm tra (CI, lint, typecheck, test 3 nhóm, build, e2e) | 3,0 giờ                            |
+| N7            | Chốt mốc, tạo PR và merge vào `main`                                      | 0,5 giờ                            |
+| N8            | Triển khai lên VPS Production (WSL)                                       | 1,0 giờ                            |
+| N9            | Kiểm chứng sau triển khai & Khôi phục tự lái                              | 0,5 giờ                            |
+| **Tổng cộng** |                                                                           | **~11,5 giờ (~1,5 ngày làm việc)** |
 
 ---
 
 ## 7. Các câu hỏi cần chủ dự án chốt
 
 > **Đã chốt ngày 08/11/2026:**
+>
 > - **Q1: Làm ngay sau đợt M hiện tại và đưa production riêng một đợt** (tách biệt khỏi kế hoạch M, trước khi bước vào M4.2).
 > - **Q2: Ghim beta.89 ngay sau khi PR của đợt nâng cấp này được merge vào nhánh `main`**.
 > - **Q3: Nâng cấp từng ứng dụng (nocoedu, nocobookshop, nocofen) trong các đợt riêng biệt** sau khi Studio vận hành ổn định trên beta.89.
 
 ### Q1: Làm ngay sau đợt M hiện tại hay gộp vào lần đưa production kế tiếp?
+
 - **Khuyến nghị**: **Làm ngay sau đợt M hiện tại và đưa production riêng một đợt**. Cây làm việc `main` hiện đang sạch, production `22706a8` đang ổn định. Nâng nền tảng lên beta.89 trước sẽ tạo nền tảng vững chắc cho các bước M4.2 (driver Dokploy) và M2 tiếp theo.
 - **Quyết định**: Đã chọn làm ngay sau đợt M và đưa production riêng một đợt.
 
 ### Q2: Dự án mới tạo từ Studio ghim beta.89 từ lúc nào?
+
 - **Khuyến nghị**: **Ghim beta.89 ngay sau khi PR của đợt nâng cấp này merge vào `main`**. Khi `package.json` đổi `nocobase.defaultTemplateVersion` thành `1.0.0-beta.89`, logic `readTemplateRelease()` sẽ tự động áp dụng phiên bản này cho mọi issue thiết lập dự án mới.
 - **Quyết định**: Ghim ngay sau khi merge PR vào `main`.
 
 ### Q3: Có nâng luôn các ứng dụng nocoedu, nocobookshop, nocofen lên beta.89 không?
+
 - **Khuyến nghị**: **Có, nhưng tách thành từng đợt nâng cấp riêng cho mỗi ứng dụng** sau khi Dương Sinh Studio đã vận hành ổn định trên beta.89. Không nâng đồng loạt để đảm bảo an toàn vận hành và kiểm soát lỗi độc lập trên từng ứng dụng.
 - **Quyết định**: Tách thành từng đợt nâng cấp riêng cho mỗi ứng dụng.
 
