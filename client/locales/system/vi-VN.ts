@@ -6,6 +6,20 @@ import inboxViVN from '#extensions/nocobase-inbox/locales/vi-VN';
 
 /** The Vietnamese copy of what the template ships; see `./en-US.ts`. */
 const systemViVN: SystemResource = {
+  pendingFeedback: {
+    working: 'Đang xử lý…',
+    longWait: 'Mất nhiều thời gian hơn bình thường. Bạn có thể tiếp tục đợi.',
+  },
+  taskProgress: {
+    queued: 'Đang chờ bắt đầu',
+    running: 'Đang tiến hành',
+    completed: 'Đã hoàn thành',
+    failed: 'Thất bại',
+    canceled: 'Đã huỷ',
+    count: '{{processed}} / {{total}}',
+    processed: 'Đã xử lý {{processed}}',
+    background: 'Tác vụ sẽ tiếp tục chạy nếu bạn rời khỏi trang này.',
+  },
   listFeedback: {
     loading: 'Đang tải',
     empty: 'Chưa có dữ liệu',
@@ -129,10 +143,14 @@ const systemViVN: SystemResource = {
     'Dữ liệu, phân quyền và lịch sử thay đổi đáng tin cậy.',
   'auth.marketingFooter': 'Cờ vua Dương Sinh — Studio phát triển nội bộ.',
   'status.loading': 'Đang tải',
+  'status.refreshing': 'Đang làm mới',
   'status.loadingPage': 'Đang tải trang',
   'status.denied': 'Không có quyền truy cập',
   'status.pageFailed': 'Không tải được trang',
   'status.retry': 'Thử lại',
+  'status.reloadPage': 'Tải lại trang',
+  'status.retryFailedDescription':
+    'Vẫn không tải được. Tải lại toàn bộ trang có thể giải quyết được; các thay đổi chưa lưu trên trang có thể bị mất.',
   'navigation.brandHome': 'Trang chủ Dương Sinh Studio',
   'navigation.brandApps': 'Ứng dụng Dương Sinh',
   'routeOverlay.close': 'Đóng',
@@ -396,6 +414,7 @@ const systemViVN: SystemResource = {
     breadcrumb: 'Đường dẫn',
     breadcrumbMore: 'Hiện các cấp ở giữa',
     back: 'Quay lại',
+    backTo: 'Quay lại {{label}}',
   },
   dataTable: {
     noResults: 'Không có kết quả',
