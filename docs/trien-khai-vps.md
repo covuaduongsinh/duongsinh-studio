@@ -97,8 +97,10 @@ Tên container: `duongsinh-studio-tluxoy-app-1` và `duongsinh-studio-tluxoy-db-
 
 ## CLI `ds-studio` nối vào production
 
-Đăng nhập bằng trình duyệt chưa có trên bản này ("offers no browser sign-in"), nên dùng API key: tạo khoá ở trang tài
-khoản (hoặc `POST /api/auth/api-key/create`) rồi `ds-studio login --server https://studio.dsc.edu.vn/main --api-key-stdin`.
+Đăng nhập bằng trình duyệt (RFC 8628, `/device`): `ds-studio login --server https://studio.dsc.edu.vn/main` mở trình duyệt, bạn
+duyệt mã CLI hiện ra; thêm `--no-browser` để chỉ in địa chỉ (dùng trên WSL hoặc máy không có trình duyệt). CLI giữ một phiên
+riêng, tự gia hạn khi dùng. Với script không có người, dùng API key: `ds-studio login --server … --api-key-stdin` (khoá cá nhân
+tạo qua `POST /api/auth/api-key/create`; trang tài khoản chưa có giao diện tạo khoá, xem M2.3 trong kế hoạch 08/11/2026).
 Trên WSL không có keychain nên khoá nằm ở `~/.ds-studio/config.json` (0600). Cài CLI:
 `curl -fsSL https://studio.dsc.edu.vn/main/api/agents/dist/installScript | sh -s -- --token <download token>` (token lấy
 khi bấm cài CLI trong ứng dụng).
