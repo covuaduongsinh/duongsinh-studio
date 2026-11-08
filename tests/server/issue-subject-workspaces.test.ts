@@ -7,6 +7,7 @@ import {
 } from '@nocobase/app-plugin-authentication/testing';
 import { projectsToken } from '@nocobase/app-plugin-projects/server/tokens';
 import { databaseManagerToken } from '@nocobase/db';
+import { MAX_QUOTA_BACKOFF_MS } from '../../server/autopilot/stall.js';
 import { createIssueSubject } from '../../server/providers/issue-subject.js';
 import { createStandaloneServer } from '../../server/standalone.js';
 
@@ -81,3 +82,18 @@ test(
     expect((await subject.workspaces!.settled(conn, [])).size).toBe(0);
   },
 );
+
+// A queued run waits for a runner; without a limit it waits forever. The limit must outlast autopilot's longest quota
+// backoff, or a run it deliberately parks would be failed as `queuedExpired` before the quota comes back.
+test('queued runs on an issue expire after 24 hours, longer than any autopilot backoff', async ({
+  app,
+}) => {
+  const subject = createIssueSubject({
+    projects: app.container.resolve(projectsToken),
+    viewerOf: () => Promise.resolve(null),
+    translate: () => Promise.resolve((key) => key),
+    recentSummaries: () => Promise.resolve([]),
+  });
+  expect(subject.queuedExpiryMs).toBe(24 * 60 * 60 * 1000);
+  expect(subject.queuedExpiryMs).toBeGreaterThan(MAX_QUOTA_BACKOFF_MS);
+});

@@ -416,6 +416,8 @@ export function createIssueSubject(deps: {
           run,
         ),
     },
+    // A run no runner picks up within a day fails as `queuedExpired` and reaches the failed-run card and the Inbox.
+    queuedExpiryMs: QUEUED_EXPIRY_MS,
     // A done or cancelled issue's working directory is no longer needed: runners tidy it up (M1.1).
     workspaces: { settled: settledIssues },
     reports: {
@@ -442,6 +444,9 @@ export function createIssueSubject(deps: {
     },
   };
 }
+
+/** How long a run on an issue may wait for a runner (M1.2): above autopilot's longest backoff (2 hours). */
+export const QUEUED_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
 /** The statuses after which an issue's work is over (the keys of `@nocobase/app-plugin-projects`' fixed statuses). */
 const SETTLED_STATUSES = ['done', 'cancelled'] as const;
