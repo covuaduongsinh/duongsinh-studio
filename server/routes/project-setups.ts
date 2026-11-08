@@ -549,6 +549,32 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
     );
 
     routes.get(
+      '/projectSetups/template',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Read the application template a new project is set up from',
+        operationId: 'projectSetupsTemplate',
+        description:
+          'The template package and the exact version the initialization issue pins (the one this Studio was generated from). Read-only; for any signed-in person.',
+        security: PERSON,
+        ...cliRoute({ command: 'project setup template' }),
+        responses: {
+          200: dataResponse(
+            z.object({ package: z.string(), version: z.string() }),
+          ),
+          ...apiErrorResponses,
+        },
+      }),
+      async (context) => {
+        await viewerOf(context);
+        const release = readTemplateRelease();
+        return context.json({
+          data: { package: release.package, version: release.version },
+        });
+      },
+    );
+
+    routes.get(
       '/projectSetups/:projectId',
       describeRoute({
         tags: ['Studio'],

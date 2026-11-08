@@ -153,3 +153,21 @@ export function useSetProjectDefaultSkills(): UseMutationResult<
     },
   });
 }
+
+/** The template a new project is set up from, with the exact version the initialization pins. */
+export function useSetupTemplate(): UseQueryResult<{
+  readonly package: string;
+  readonly version: string;
+}> {
+  const api = useApiClient();
+  return useQuery({
+    queryKey: ['projectSetup', 'template'],
+    queryFn: async () =>
+      (
+        await api.request<{ data: { package: string; version: string } }>({
+          path: 'projectSetups/template',
+        })
+      ).data,
+    staleTime: Infinity,
+  });
+}

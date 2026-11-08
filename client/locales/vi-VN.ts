@@ -313,6 +313,8 @@ const viVN: AppResource = {
       nocobase: 'Theo mẫu NocoBase',
       prompt: 'Theo mô tả của tôi',
     },
+    templateVersion:
+      'Mẫu {{template}}, đúng phiên bản {{version}} (phiên bản của chính Studio).',
     prompt: 'Cần dựng gì',
     token: 'Token GitHub của bạn',
     tokenHint:

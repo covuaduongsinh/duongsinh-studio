@@ -320,6 +320,8 @@ const enUS = {
       nocobase: 'From the NocoBase template',
       prompt: 'From my description',
     },
+    templateVersion:
+      'Template {{template}}, exactly version {{version}} (the one Studio itself was made from).',
     prompt: 'What to set up',
     token: 'Your GitHub token',
     tokenHint:
