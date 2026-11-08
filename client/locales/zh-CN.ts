@@ -261,6 +261,14 @@ const zhCN: AppResource = {
     saved: '已保存，更改将用于下一次运行。',
     readOnly: '你只能查看；需要管理 Agent 的权限才能修改。',
   },
+  projectAgentSettings: {
+    title: '项目中的 Agent',
+    description:
+      '仅用于此项目运行的环境变量和技能，叠加在共享设置之上。只有项目管理者能看到此部分。',
+    variables:
+      '仅用于此项目运行的环境变量。值只能写入：管理者可以查看，且每次查看都会记入访问日志。',
+    skills: '仅用于此项目运行的技能，叠加在共享技能之上。',
+  },
   organizationKeys: {
     title: '组织 API 密钥',
     description:

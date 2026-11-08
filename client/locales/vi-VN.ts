@@ -265,6 +265,15 @@ const viVN: AppResource = {
     saved: 'Đã lưu. Thay đổi áp dụng cho lượt chạy tiếp theo.',
     readOnly: 'Bạn chỉ được xem; cần quyền quản lý agent để thay đổi.',
   },
+  projectAgentSettings: {
+    title: 'Agent làm việc trong dự án',
+    description:
+      'Biến môi trường và skill chỉ dành cho các lượt chạy trong dự án này, cộng thêm phần dùng chung. Chỉ người quản lý dự án thấy mục này.',
+    variables:
+      'Biến môi trường chỉ dành cho các lượt chạy trong dự án này. Giá trị chỉ ghi: người quản lý xem lại được và mỗi lần xem đều được ghi vào nhật ký truy cập.',
+    skills:
+      'Skill chỉ dành cho các lượt chạy trong dự án này, cộng thêm skill dùng chung.',
+  },
   organizationKeys: {
     title: 'Khoá API tổ chức',
     description:
