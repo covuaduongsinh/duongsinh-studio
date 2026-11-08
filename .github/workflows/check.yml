@@ -1,0 +1,65 @@
+name: check
+
+# Every pull request into main passes these before it merges. `pnpm check` is the same list run in one go on a developer's
+# machine; here it is split into three jobs so the two vitest projects (each starts real application databases and runs one
+# file at a time) run side by side. `pnpm build` is left out of this workflow: it takes about 5 minutes on a developer's
+# machine, produces the deployment archive rather than a verdict, and is run by hand before a release (docs/trien-khai-vps.md).
+# Actions minutes are shared by every private repository of the account, so a newer push cancels the older run.
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: static (packages, lint, format, types, locales)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:packages
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm typecheck
+      - run: pnpm nocobase locales check
+
+  test-node:
+    name: test (node project)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vitest run --project node
+
+  test-client:
+    name: test (client project)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec vitest run --project client
