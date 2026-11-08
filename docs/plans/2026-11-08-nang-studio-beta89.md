@@ -325,14 +325,22 @@ Nếu phát hiện lỗi nghiêm trọng sau khi triển khai lên production:
 
 ## 7. Các câu hỏi cần chủ dự án chốt
 
+> **Đã chốt ngày 08/11/2026:**
+> - **Q1: Làm ngay sau đợt M hiện tại và đưa production riêng một đợt** (tách biệt khỏi kế hoạch M, trước khi bước vào M4.2).
+> - **Q2: Ghim beta.89 ngay sau khi PR của đợt nâng cấp này được merge vào nhánh `main`**.
+> - **Q3: Nâng cấp từng ứng dụng (nocoedu, nocobookshop, nocofen) trong các đợt riêng biệt** sau khi Studio vận hành ổn định trên beta.89.
+
 ### Q1: Làm ngay sau đợt M hiện tại hay gộp vào lần đưa production kế tiếp?
 - **Khuyến nghị**: **Làm ngay sau đợt M hiện tại và đưa production riêng một đợt**. Cây làm việc `main` hiện đang sạch, production `22706a8` đang ổn định. Nâng nền tảng lên beta.89 trước sẽ tạo nền tảng vững chắc cho các bước M4.2 (driver Dokploy) và M2 tiếp theo.
+- **Quyết định**: Đã chọn làm ngay sau đợt M và đưa production riêng một đợt.
 
 ### Q2: Dự án mới tạo từ Studio ghim beta.89 từ lúc nào?
 - **Khuyến nghị**: **Ghim beta.89 ngay sau khi PR của đợt nâng cấp này merge vào `main`**. Khi `package.json` đổi `nocobase.defaultTemplateVersion` thành `1.0.0-beta.89`, logic `readTemplateRelease()` sẽ tự động áp dụng phiên bản này cho mọi issue thiết lập dự án mới.
+- **Quyết định**: Ghim ngay sau khi merge PR vào `main`.
 
 ### Q3: Có nâng luôn các ứng dụng nocoedu, nocobookshop, nocofen lên beta.89 không?
 - **Khuyến nghị**: **Có, nhưng tách thành từng đợt nâng cấp riêng cho mỗi ứng dụng** sau khi Dương Sinh Studio đã vận hành ổn định trên beta.89. Không nâng đồng loạt để đảm bảo an toàn vận hành và kiểm soát lỗi độc lập trên từng ứng dụng.
+- **Quyết định**: Tách thành từng đợt nâng cấp riêng cho mỗi ứng dụng.
 
 ---
 
