@@ -51,6 +51,7 @@ describe('default Foundation integration', () => {
         [
           ['settingsUsers', '/settings/users'],
           ['permissionManagement', '/settings/roles'],
+          ['settingsNewMemberRole', '/settings/new-member-role'],
           ['settingsMyNotifications', '/settings/my-notifications'],
         ],
       ],

@@ -15,6 +15,7 @@ import {
   BellRing,
   KeyRound,
   UserCog,
+  UserPlus,
   Wallet,
   Library,
   PackageIcon,
@@ -365,6 +366,24 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
       icon: Wallet,
     },
     componentLoader: () => import('./pages/settings/budgets.js'),
+  },
+  {
+    // The role a new member is given once when they accept an invitation, and who holds it (`/api/access/settings`).
+    // The server checks `pm.members` read, and `define-roles` to change it.
+    name: 'settingsNewMemberRole',
+    parent: 'settingsAccount',
+    path: '/new-member-role',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'pm.members' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.newMemberRole',
+      description: 'navigation.newMemberRoleDescription',
+      icon: UserPlus,
+    },
+    componentLoader: () => import('./pages/settings/new-member-role.js'),
   },
   {
     // Each person's own choices, so everyone signed in may open it.
