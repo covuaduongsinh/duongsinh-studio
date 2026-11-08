@@ -1,6 +1,6 @@
 # Kế hoạch: hoàn thiện Dương Sinh Studio theo tài liệu NocoBase Studio — 08/11/2026
 
-> Trạng thái: **đã duyệt hướng đi (08/11/2026), Q1–Q4 và Q6 đã chốt, Q5 chờ sau M4.1**. Nguồn: 57 trang tài liệu chính thức NocoBase Studio (thư mục `C:\Users\duongsinh\Documents\nocobase studio`,
+> Trạng thái: **đã duyệt hướng đi (08/11/2026), Q1–Q4 và Q6 đã chốt, Q5 chờ chủ dự án sau khi đã đo M4.1**. Nguồn: 57 trang tài liệu chính thức NocoBase Studio (thư mục `C:\Users\duongsinh\Documents\nocobase studio`,
 > lấy ngày 08/11/2026) đối chiếu với `main` = `b898aa8`. Ba báo cáo chi tiết (mỗi tính năng một dòng, có bằng chứng file:dòng) nằm cùng thư mục:
 > `A-agents-runtimes-sessions.md`, `B-daily-work-inbox-admin.md`, `C-setup-ci-release-ops.md`.
 > Tên bước dùng chữ **M** để không trùng U (06/11), K (07/11), L (08/11).
@@ -117,7 +117,7 @@ một PR, CI xanh, cập nhật mục Tiến độ. Production chỉ cập nhậ
 | Q2  | Điện thoại dùng iPhone hay Android?                              | **Android.** M0.2 làm manifest chuẩn Android (cài vào màn hình chính, web push); chỉ thêm `apple-touch-icon` vì rẻ, **không** viết hướng dẫn iPhone. |
 | Q3  | Ưu tiên đón cộng tác viên (M2) hay giao hàng app NB3 (M4) trước? | **M4 trước.** Thứ tự: M0 → M1 → M4.1 (đo đạc, chỉ đọc) rồi **dừng chờ duyệt** → M3. M2 đẩy xuống sau M4.                                             |
 | Q4  | Hạn chờ hàng đợi `queuedExpiryMs`                                | **24 giờ.**                                                                                                                                          |
-| Q5  | DNS preview: wildcard hay từng subdomain?                        | Chưa hỏi, theo kế hoạch quyết sau bước đo M4.1 (khuyến nghị wildcard `*.preview.dsc.edu.vn`).                                                        |
+| Q5  | DNS preview: wildcard hay từng subdomain?                        | Đã đo (M4.1): khuyến nghị đổi thành **tên cố định từng app**, không wildcard (lý do ở báo cáo M4.1 mục 3). Chờ chủ dự án chốt.                       |
 | Q6  | Có tự động build bản phát hành Studio trên CI không?             | **Chưa**, làm sau M4.                                                                                                                                |
 
 ## 5. Tiến độ
@@ -138,4 +138,5 @@ một PR, CI xanh, cập nhật mục Tiến độ. Production chỉ cập nhậ
 - [ ] M2 — Đón cộng tác viên
 - [ ] M3 — Giám sát run từ điện thoại
 - [ ] M4 — Giao hàng app NocoBase 3
+  - M4.1 xong (08/11/2026): đo chỉ đọc trên VPS, báo cáo ở `2026-11-08-m4-1-do-dac-vps.md`. RAM khả dụng ≈ 3,0 GiB (VPS nay 6 nhân, 11,96 GiB), swap 8,6 GiB, Traefik chỉ có `httpChallenge` (không wildcard cert), DNS do Mắt Bão quản lý và chưa có wildcard. Kết luận: đủ cho 1–2 app NB3, không đủ chạy runner nặng cùng nhiều preview. **Dừng chờ duyệt** (4 câu ở mục 5 của báo cáo) trước khi viết driver Dokploy (M4.2).
 - [ ] M5 — Vận hành
