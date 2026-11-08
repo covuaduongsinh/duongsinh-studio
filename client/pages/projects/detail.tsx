@@ -68,6 +68,7 @@ import {
   useRichTextLabels,
   useStatusPresenter,
 } from '../issues/presentation.js';
+import { InviteMembers } from '#components/invite-members';
 import { ProjectAgentSettings } from './project-agent-settings.js';
 import { ProjectCode } from './project-code.js';
 import { ProjectLinks } from './project-links.js';
@@ -279,6 +280,13 @@ function ProjectDetailView({
               <ListTodoIcon data-icon='inline-start' />
               {t('projectDetail.viewIssues')}
             </Button>
+            <InviteMembers
+              project={{
+                id: project.id,
+                name: project.name,
+                leadUserId: project.leadUserId,
+              }}
+            />
             <AskAgentButton
               item={chatItem}
               label={t('studioChat.askProject')}

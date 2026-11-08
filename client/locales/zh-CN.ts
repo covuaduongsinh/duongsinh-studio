@@ -261,6 +261,9 @@ const zhCN: AppResource = {
     saved: '已保存，更改将用于下一次运行。',
     readOnly: '你只能查看；需要管理 Agent 的权限才能修改。',
   },
+  inviteMembers: {
+    button: '邀请成员',
+  },
   projectAgentSettings: {
     title: '项目中的 Agent',
     description:
