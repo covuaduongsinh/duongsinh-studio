@@ -45,6 +45,7 @@ import {
   SelectContent,
   SelectItem,
 } from '#components/ui/select';
+import { ResetPasswordAction } from './reset-password.js';
 import { ConfirmAction, SettingsError } from './shared.js';
 
 function UserName({ user }: { readonly user: ManagedUser }): ReactElement {
@@ -74,6 +75,7 @@ function UserActions({
   const canDisable = useUserPermission('disable', user.id);
   const canEnable = useUserPermission('enable', user.id);
   const canRevoke = useUserPermission('revoke-sessions', user.id);
+  const canReset = useUserPermission('reset-password', user.id);
   const [action, setAction] = useState<
     'disable' | 'enable' | 'revokeSessions'
   >();
@@ -104,7 +106,8 @@ function UserActions({
       setRequestBusy(false);
     }
   };
-  if (!canRevoke && !(user.disabledAt ? canEnable : canDisable)) return <></>;
+  if (!canRevoke && !canReset && !(user.disabledAt ? canEnable : canDisable))
+    return <></>;
   return (
     <div className='flex items-center justify-end gap-2 whitespace-nowrap'>
       {!user.disabledAt && canDisable && (
@@ -121,6 +124,7 @@ function UserActions({
           {t('settings.enable')}
         </Button>
       )}
+      <ResetPasswordAction user={{ id: user.id, name: user.name }} />
       {canRevoke && (
         <Button
           variant='outline'

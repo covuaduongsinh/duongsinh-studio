@@ -265,6 +265,47 @@ const viVN: AppResource = {
     saved: 'Đã lưu. Thay đổi áp dụng cho lượt chạy tiếp theo.',
     readOnly: 'Bạn chỉ được xem; cần quyền quản lý agent để thay đổi.',
   },
+  newMemberRole: {
+    title: 'Thành viên mới',
+    description:
+      'Vai trò một người nhận được, một lần, khi vào Studio bằng lời mời. Không áp cho người đã vào.',
+    cardTitle: 'Vai trò khi vào',
+    label: 'Vai trò cho thành viên mới',
+    noRole: 'Không có vai trò',
+    noneHint:
+      'Chưa có vai trò: người mới vào được các dự án được mời nhưng chưa xem được việc nào cho tới khi quản trị gán vai trò cho họ.',
+    onceHint:
+      'Vai trò được gán một lần lúc người đó nhận lời mời. Đổi cài đặt này không thay đổi người đã vào; gán hoặc gỡ vai trò của họ ở Người dùng.',
+    holders: '{{count}} người đang giữ vai trò này:',
+    nobody: 'Chưa ai giữ vai trò này.',
+    more: 'và {{count}} người khác',
+    partial: 'Mới liệt kê {{shown}} trong {{total}} người.',
+    save: 'Lưu',
+    saved: 'Đã lưu. Áp dụng cho người nhận lời mời từ giờ.',
+    readOnly: 'Bạn chỉ được xem; cần quyền định nghĩa vai trò để thay đổi.',
+    failed: 'Không tải được vai trò và thành viên.',
+    notAllowed: 'Bạn không được xem trang này.',
+  },
+  resetPassword: {
+    button: 'Đặt lại mật khẩu',
+    title: 'Đặt lại mật khẩu của {{name}}',
+    description:
+      'Đặt mật khẩu mới rồi gửi riêng cho họ (Studio chưa gửi email). Mật khẩu cũ không còn dùng được.',
+    label: 'Mật khẩu mới',
+    generate: 'Tạo ngẫu nhiên',
+    copy: 'Sao chép mật khẩu',
+    copyFailed: 'Không sao chép được: hãy chọn và sao chép tay.',
+    hint: 'Ít nhất {{min}} ký tự. Mật khẩu hiện trên màn hình để bạn sao chép; đóng hộp thoại là không xem lại được.',
+    signOut: 'Đăng xuất họ khỏi mọi phiên đang mở',
+    submit: 'Đặt mật khẩu',
+    saving: 'Đang đặt…',
+    cancel: 'Huỷ',
+    close: 'Đóng',
+    saved: 'Đã đặt lại mật khẩu của {{name}}',
+    handOver:
+      'Đã đặt. Sao chép mật khẩu và gửi riêng cho họ rồi đóng hộp thoại.',
+    failed: 'Không đặt lại được mật khẩu.',
+  },
   inviteMembers: {
     button: 'Mời thành viên',
   },
@@ -427,6 +468,9 @@ const viVN: AppResource = {
     projectManager: 'Trưởng nhóm agent',
     projectManagerDescription:
       'Chọn mô hình chính và dự phòng, thời gian chờ và nguyên tắc làm việc.',
+    newMemberRole: 'Thành viên mới',
+    newMemberRoleDescription:
+      'Vai trò người mới nhận khi vào bằng lời mời, và ai đang giữ nó.',
     myNotifications: 'Thông báo của tôi',
     myNotificationsDescription: 'Những gì bạn muốn gửi đến email và thiết bị.',
     organizationKeys: 'Khoá API tổ chức',

@@ -271,6 +271,48 @@ const enUS = {
     saved: 'Saved. The change applies to the next run.',
     readOnly: 'You can only view this; managing agents is needed to change it.',
   },
+  newMemberRole: {
+    title: 'New members',
+    description:
+      'The role a person is given, once, when they join Studio through an invitation. It does not apply to people already in.',
+    cardTitle: 'Role on joining',
+    label: 'Role for new members',
+    noRole: 'No role',
+    noneHint:
+      'No role yet: a new member joins the projects they were invited to but sees no work until an administrator gives them a role.',
+    onceHint:
+      'The role is given once, when the person accepts their invitation. Changing this does not change people already in; assign or remove their roles under Users.',
+    holders: '{{count}} people hold this role now:',
+    nobody: 'Nobody holds this role yet.',
+    more: 'and {{count}} more',
+    partial: 'Showing {{shown}} of {{total}} people.',
+    save: 'Save',
+    saved: 'Saved. It applies to people who accept an invitation from now on.',
+    readOnly:
+      'You can only view this; the right to define roles is needed to change it.',
+    failed: 'The roles and members could not be loaded.',
+    notAllowed: 'You are not allowed to see this page.',
+  },
+  resetPassword: {
+    button: 'Reset password',
+    title: 'Reset the password of {{name}}',
+    description:
+      'Set a new password and hand it over privately (Studio sends no email yet). The old password stops working.',
+    label: 'New password',
+    generate: 'Generate',
+    copy: 'Copy the password',
+    copyFailed: 'It could not be copied: select it and copy by hand.',
+    hint: 'At least {{min}} characters. It stays on screen so you can copy it; once you close this it cannot be shown again.',
+    signOut: 'Sign them out of every open session',
+    submit: 'Set password',
+    saving: 'Setting…',
+    cancel: 'Cancel',
+    close: 'Close',
+    saved: 'The password of {{name}} was reset',
+    handOver:
+      'Done. Copy the password, hand it over privately, then close this.',
+    failed: 'The password could not be reset.',
+  },
   inviteMembers: {
     button: 'Invite members',
   },
@@ -434,6 +476,9 @@ const enUS = {
     projectManager: 'Lead agent',
     projectManagerDescription:
       'The first-choice and fallback models, the waits and the working principles.',
+    newMemberRole: 'New members',
+    newMemberRoleDescription:
+      'The role newcomers get when they join by invitation, and who holds it.',
     myNotifications: 'My notifications',
     myNotificationsDescription: 'What you want sent to your email and devices.',
     organizationKeys: 'Organization API keys',

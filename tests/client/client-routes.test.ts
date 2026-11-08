@@ -303,6 +303,7 @@ const settingsAuthorizations = [
     name,
     authorizedAs: 'settings:authorization.default-access',
   })),
+  { name: 'settingsNewMemberRole', authorizedAs: 'settings:pm.members' },
   { name: 'settingsMyNotifications', authorizedAs: null },
   { name: 'settingsIssuePrefix', authorizedAs: 'settings:pm.general' },
   { name: 'settingsIssueLabels', authorizedAs: 'settings:pm.labels' },
