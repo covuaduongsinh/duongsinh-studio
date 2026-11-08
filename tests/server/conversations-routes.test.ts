@@ -248,11 +248,31 @@ test('Ask agent: a conversation pinned to an issue reads Studio’s rules and pr
     json({ revision: plan.revision }),
   );
   expect(executed.status).toBe(200);
-  expect(((await executed.json()).data as { status: string }).status).toBe(
-    'executed',
-  );
+  const decided = (await executed.json()).data as {
+    status: string;
+    rows: { result: { created: { type: string; id: string } | null } | null }[];
+  };
+  expect(decided.status).toBe('executed');
   const messages = await conversations.messages(ownerId, conversationId, {
     limit: 50,
   });
   expect(JSON.stringify(messages)).toContain(PLAN_DECIDED_NEWS);
+
+  // And it is tied to the issue the plan created, so each turn lists it with where it stands (M3.3): only that issue, not
+  // the one the conversation was merely pinned to.
+  const created = decided.rows.find(
+    (row) => row.result?.created?.type === 'issue',
+  )?.result?.created;
+  expect(created?.id).toBeTruthy();
+  const links = await agents.conversations.links.list(ownerId, conversationId);
+  expect(links).toHaveLength(1);
+  expect(links[0]).toMatchObject({
+    kind: 'issue',
+    targetId: created!.id,
+    origin: 'application',
+  });
+  expect(links[0]?.view).toMatchObject({
+    title: 'Dịch trang Issues',
+    status: expect.any(String),
+  });
 });

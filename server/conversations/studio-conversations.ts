@@ -1,4 +1,5 @@
 import type {
+  ConversationLinkKind,
   ConversationNews,
   ConversationRuleLines,
   ConversationRules,
@@ -6,7 +7,10 @@ import type {
   PageContextResolver,
   ResolvedRef,
 } from '@nocobase/app-plugin-agents/server/tokens';
-import { CONVERSATION_SUBJECT } from '@nocobase/app-plugin-agents/shared/conversations';
+import {
+  CONVERSATION_SUBJECT,
+  type ConversationLinkView,
+} from '@nocobase/app-plugin-agents/shared/conversations';
 import type {
   AgentSessionsService,
   LinkResolver,
@@ -136,6 +140,59 @@ export function createProjectContextResolver(
     }
     return found;
   };
+}
+
+/**
+ * The issues a conversation may be tied to (`conversations.links.registerKind('issue')`): those its owner may see. Each
+ * turn of a tied conversation lists them as "Linked work" with the status given here, so its agent reads where the work
+ * stands without being woken. Read through the projects plugin as the person, like the page-context resolver above.
+ */
+export function createConversationIssueLinkKind(
+  deps: StudioReadDeps,
+): ConversationLinkKind {
+  return {
+    key: ISSUE_KIND,
+    title: appText('studioChat.linkKinds.issue'),
+    async resolve(_conn, userId, targetIds) {
+      const found = new Map<string, ConversationLinkView>();
+      if (targetIds.length === 0) return found;
+      const viewer = await deps.viewerOf(userId);
+      if (!viewer) return found;
+      const projects = deps.projects();
+      const statuses = projects.issueQueries.statuses();
+      const { data } = await projects.issueQueries.page(viewer, {
+        issueIds: targetIds,
+        limit: targetIds.length,
+      });
+      for (const issue of data) {
+        const { label, needsYou } = issueStatusView(issue, statuses, userId);
+        found.set(issue.id, {
+          key: issue.identifier,
+          title: issue.title,
+          status: needsYou ? `${label}: ${needsYou}` : label,
+          url: issueUrl(issue.identifier),
+          targetUpdatedAt: issue.updatedAt,
+        });
+      }
+      return found;
+    },
+  };
+}
+
+/**
+ * The issues a decided plan created, to tie to the conversation it came from: each once, in the order created. A plan
+ * that failed part-way may already have created some, and those exist, so they count; one that was voided, went stale or
+ * was undone leaves nothing to follow.
+ */
+export function issuesCreatedByPlan(decided: PlanDecided): string[] {
+  if (decided.outcome !== 'executed' && decided.outcome !== 'failed') return [];
+  const ids: string[] = [];
+  for (const row of decided.rows) {
+    const ref = row.created;
+    if (ref?.type === 'issue' && ref.id && !ids.includes(ref.id))
+      ids.push(ref.id);
+  }
+  return ids;
 }
 
 /**

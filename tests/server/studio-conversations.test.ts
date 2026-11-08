@@ -14,12 +14,14 @@ import {
   PLAN_DECIDED_NEWS,
   conversationOfPlan,
   conversationRuleLines,
+  createConversationIssueLinkKind,
   createIssueContextResolver,
   createIssueLinkResolver,
   createIssueSessionIntegration,
   createProjectContextResolver,
   createSessionProjects,
   issueStatusView,
+  issuesCreatedByPlan,
   planDecidedNews,
   planSourceOf,
   sessionInstructions,
@@ -219,6 +221,97 @@ describe('Studio conversations', () => {
     const voided = planDecidedNews({ ...decided, outcome: 'voided' });
     expect(voided.input).toBeUndefined();
     expect(voided.wake).toBeUndefined();
+  });
+
+  it('lets a conversation be tied to issues, showing only what its owner may see and where each stands', async () => {
+    const kind = createConversationIssueLinkKind(fakeProjects('owner'));
+    expect(kind.key).toBe('issue');
+    const views = await kind.resolve!(conn, 'owner', ['i1', 'i2', 'missing']);
+    expect([...views.keys()].sort()).toEqual(['i1', 'i2']);
+    expect(views.get('i1')).toMatchObject({
+      key: 'PM-9',
+      title: 'Elo',
+      status: 'Done',
+      url: '/issues/PM-9',
+      targetUpdatedAt: '2026-11-01T00:00:00.000Z',
+    });
+    // An issue in review waits for its owner, and the agent reading the status is told so.
+    const waiting = {
+      ...fakeProjects('owner'),
+      projects: () =>
+        ({
+          issueQueries: {
+            statuses: () => STATUSES,
+            page: async () => ({
+              data: [
+                issue({
+                  id: 'i5',
+                  identifier: 'PM-12',
+                  statusKey: 'in_review',
+                  ownerUserId: 'owner',
+                }),
+              ],
+              nextCursor: null,
+            }),
+          },
+        }) as unknown as Projects,
+    };
+    const inReview = await createConversationIssueLinkKind(waiting).resolve!(
+      conn,
+      'owner',
+      ['i5'],
+    );
+    expect(inReview.get('i5')?.status).toBe('In review: Chờ bạn nghiệm thu');
+    // Someone who may not see them gets nothing, whoever tied them.
+    const stranger = await createConversationIssueLinkKind(
+      fakeProjects('owner'),
+    ).resolve!(conn, 'stranger', ['i1', 'i2']);
+    expect(stranger.size).toBe(0);
+    expect((await kind.resolve!(conn, 'owner', [])).size).toBe(0);
+  });
+
+  it('ties a conversation to the issues its plan created, and only those', () => {
+    const row = (created: unknown, ok = true) => ({
+      position: 0,
+      op: 'x',
+      ok,
+      created,
+      target: null,
+      error: null,
+      wakes: [],
+    });
+    const decided = (
+      outcome: PlanDecided['outcome'],
+      rows: unknown[],
+    ): PlanDecided =>
+      ({
+        planId: 'plan-1',
+        outcome,
+        title: 't',
+        source: { kind: 'conversation', key: 'conversation:c-1' },
+        proposer: null,
+        deciderUserId: 'admin',
+        decidedById: 'admin',
+        failure: null,
+        rows,
+      }) as unknown as PlanDecided;
+    const rows = [
+      row({ type: 'issue', id: 'i3', identifier: 'PM-11', title: 'A' }),
+      row({ type: 'comment', id: 'c1' }),
+      row({ type: 'project', id: 'p2' }),
+      row(null),
+      row({ type: 'issue', id: 'i3' }),
+      row({ type: 'issue', id: 'i4' }, false),
+    ];
+    // Executed, or failed after some rows had already created issues: what exists is tied, once each.
+    expect(issuesCreatedByPlan(decided('executed', rows))).toEqual([
+      'i3',
+      'i4',
+    ]);
+    expect(issuesCreatedByPlan(decided('failed', rows))).toEqual(['i3', 'i4']);
+    // A voided, stale or undone plan leaves nothing to follow.
+    for (const outcome of ['voided', 'stale', 'undone'] as const)
+      expect(issuesCreatedByPlan(decided(outcome, rows))).toEqual([]);
   });
 
   it('shows a session’s issues with where they stand and who they wait for', () => {

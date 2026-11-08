@@ -77,6 +77,10 @@ const zhCN: AppServerResource = {
     sources: {
       askAgent: '询问智能体',
     },
+    // What a conversation may be tied to (`conversations.links`).
+    linkKinds: {
+      issue: '工作项',
+    },
     actions: {
       groupTitle: '计划',
       plansUse: {
