@@ -100,7 +100,8 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
 - [x] Bước 0 — Ghi kế hoạch (08/11/2026)
 - [ ] L0 — Dọn repo
   - L0.1 và L0.4 xong trong PR của bước này: `node_modules` ra khỏi index, `.gitignore` dòng 1 thành `node_modules`, `tests/project/tracked-files.test.ts` (đã thử đỏ với một symlink giả rồi xanh khi sạch), quy tắc trong `.agents/rules/duongsinh-studio.md`.
-  - Còn: L0.2 (chủ dự án kiểm hai máy, hướng dẫn trong báo cáo cuối) và L0.3 (đóng #2–#5, xoá sáu nhánh, chờ bạn đồng ý).
+  - L0.3 xong (08/11/2026, chủ dự án đồng ý): đóng #2, #3, #4, #5 với bình luận "Superseded by #6"; xoá sáu nhánh trên GitHub (`docs/k4-tai-lieu`, `docs/plan-khac-phuc-ton-dong`, `feat/k1-khoi-tao-du-an`, `feat/k2-ds-app-rules`, `fix/k3-viec-con-mo`, `worktree-k4-docs`). `docs/plan-khac-phuc-ton-dong` không có PR: ba commit của nó đã vào `main` qua #1 (bản kế hoạch mới hơn). Worktree cục bộ `.claude/worktrees/k4-docs` còn trên máy dev, không ảnh hưởng.
+  - Còn: L0.2 (chủ dự án kiểm hai máy).
 - [x] L1 — `pnpm check` xanh (08/11/2026)
   - Commit riêng chỉ đổi định dạng: 48 file, +2.683/−870 dòng; `tests/server/previews.test.ts` cần Prettier chạy hai lượt mới ổn định.
   - Các cổng chạy riêng từng bước trên máy dev (foreground/nền, một lệnh mỗi lúc): `check:packages` xanh; `lint` xanh (`--max-warnings 0`); `format:check` xanh; `typecheck` xanh (43,6 giây, ba tsconfig); `pnpm build` xanh (5 phút 19 giây); `vitest --project node`: 81 file, 192 test xanh (12 phút 4 giây); `vitest --project client`: 85 file, 549 qua, **2 timeout 30 giây** trong `header-hover.test.tsx` khi máy tải nặng; chạy lại riêng file đó: 3/3 qua. Chưa tách được nguyên nhân tải; ghi nhận là test chậm dễ timeout, để ý khi dựng CI (L2).
@@ -125,9 +126,10 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
     3. Gmail App Password cho `STUDIO_SMTP_*` và cho phép lần gửi thử đầu tiên (K3.1 đã xong nên đã đến lúc).
     4. Nối token cá nhân (fine-grained, có Workflows) vào Studio bằng `git authorization use-token`; kiểm GitHub App đã chọn "All repositories" hoặc thêm repo thử.
     5. Xoá repo thử `ds-setup-probe` sau khi chạy ca thật (không hoàn tác được).
+  - **Đã đưa lên production (08/11/2026, chủ dự án đồng ý): `63f4bc5`** (gồm PR #8–#13). Không còn run chạy hay xếp hàng; tạm dừng tự lái Dương Sinh App và Sandbox ("Cập nhật Studio (63f4bc5)"); dump `studio-before-63f4bc5-20261108-0549.dump` (6,8 MB); Deploy compose `studio` bằng khoá Dokploy mới. Kiểm sau Deploy: container `running`/`healthy`, mount `/srv/duongsinh-studio/releases/63f4bc5/dist`, `healthz` ok, `nocobase.dsc.edu.vn` 200, route chưa đăng nhập 401 (`taskGroups`, `projectSetups/x/ci`), phiên đăng nhập: `projects`, `inbox/pending`, `taskGroups?limit=5` đều 200, WebSocket `/main/ws` 101 (qua HTTP/1.1: curl mặc định HTTP/2 trả 426), swagger có `/api/projectSetups/{projectId}/ci`, runner `vps-studio-runner` online, log 5 phút không có lỗi; đã bật lại tự lái. Bản build từ `main` mất 11 phút 37 giây khi máy dev bận; upload qua `scp` chậm (~87 MB).
   - **Agent làm khi được đồng ý** (mỗi việc chạm production, nên hỏi trước):
     1. Đặt ngân sách Q6: toàn hệ thống 100 lượt và 1.000.000 token đầu ra mỗi ngày (đã chốt 07/11, hiện `ds_budgets` = 0). Chặn run khi hết hạn mức, nên cần chủ dự án xác nhận lại lần cuối.
-    2. Đưa PR #8–#12 lên production (một lần, theo `docs/trien-khai-vps.md`: chờ hết run, tạm dừng tự lái, dump trước, Deploy, kiểm, bật lại).
+    2. ~~Đưa PR #8–#12 lên production~~ — xong (xem trên).
     3. L3.3: đẩy CI cho `nocofen` qua nút "Thêm CI", mở PR thử, xác nhận Studio đọc check (nguồn `host`) và tự lái merge được khi xanh (cần token ở mục 4).
     4. Ca thật `ds-setup-probe` (`newRepo` + `ci: true`): đo thời gian CI, đối chiếu tiêu chí K1.
     5. `kb offer` trên Sandbox (cần một dự án và một lượt agent thật).
