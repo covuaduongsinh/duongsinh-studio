@@ -2283,6 +2283,23 @@ export function createGitService(deps: GitServiceDeps) {
    * Creates a file in a repository with the caller's own token, and only that: a path under `.github/workflows` needs the
    * `workflows` permission, which the App is not given, so no installation token may ever write one.
    */
+  /** The caller's own client: a token connection is already a person's token; an App connection is not, so it needs theirs. */
+  async function ownClient(
+    userId: string,
+    record: ConnectionRecord,
+  ): Promise<GitHubClient> {
+    const client =
+      (await personalClient(userId, record)) ??
+      (record.kind === 'token' ? await clientOf(record) : null);
+    if (!client)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'GIT_PERSONAL_TOKEN_REQUIRED',
+        'Writing a workflow file needs your own GitHub token: connect it with `git authorization use-token`.',
+      );
+    return client;
+  }
+
   async function writeFileAsPerson(
     userId: string,
     connectionId: string,
@@ -2294,19 +2311,79 @@ export function createGitService(deps: GitServiceDeps) {
       readonly branch: string;
     },
   ): Promise<void> {
-    const record = await connectionRecord(connectionId);
-    // A token connection is already a person's token; an App connection is not, so it needs the caller's own.
-    const client =
-      (await personalClient(userId, record)) ??
-      (record.kind === 'token' ? await clientOf(record) : null);
-    if (!client)
-      throw new GitError(
-        'FAILED_PRECONDITION',
-        'GIT_PERSONAL_TOKEN_REQUIRED',
-        'Writing a workflow file needs your own GitHub token: connect it with `git authorization use-token`.',
-      );
+    const client = await ownClient(
+      userId,
+      await connectionRecord(connectionId),
+    );
     try {
       await client.putFile(fullName, input);
+    } catch (error) {
+      throw hostError(error, { repo: fullName });
+    }
+  }
+
+  /**
+   * Proposes a file through a pull request instead of writing it to the default branch, so a protected branch accepts it and
+   * a person reviews it: a branch off `base`, one commit with the file, and the pull request. The caller's own token does
+   * all of it. Nothing is changed on `base`.
+   */
+  async function proposeFileAsPerson(
+    userId: string,
+    connectionId: string,
+    fullName: string,
+    input: {
+      readonly path: string;
+      readonly content: string;
+      readonly message: string;
+      readonly branch: string;
+      readonly base: string;
+      readonly title: string;
+      readonly body: string;
+    },
+  ): Promise<{ readonly number: number; readonly url: string }> {
+    const client = await ownClient(
+      userId,
+      await connectionRecord(connectionId),
+    );
+    try {
+      const head = await client.branchHead(fullName, input.base);
+      try {
+        await client.createBranch(fullName, input.branch, head);
+      } catch (error) {
+        if (error instanceof GitHubError && error.status === 422)
+          throw new GitError(
+            'ALREADY_EXISTS',
+            'GIT_BRANCH_EXISTS',
+            `${fullName} already has a branch named ${input.branch}: merge or delete it, then try again.`,
+            { repo: fullName },
+          );
+        throw error;
+      }
+      try {
+        await client.putFile(fullName, {
+          path: input.path,
+          content: input.content,
+          message: input.message,
+          branch: input.branch,
+        });
+      } catch (error) {
+        if (error instanceof GitHubError && error.status === 422)
+          throw new GitError(
+            'ALREADY_EXISTS',
+            'GIT_FILE_EXISTS',
+            `${fullName} already has ${input.path}.`,
+            { repo: fullName },
+          );
+        throw error;
+      }
+      const pull = await client.createPull(fullName, {
+        title: input.title,
+        head: input.branch,
+        base: input.base,
+        body: input.body,
+        draft: false,
+      });
+      return { number: pull.number, url: pull.url };
     } catch (error) {
       throw hostError(error, { repo: fullName });
     }
@@ -2876,6 +2953,7 @@ export function createGitService(deps: GitServiceDeps) {
     forgetAuthorization,
     createRepository,
     writeFileAsPerson,
+    proposeFileAsPerson,
     hostRepositories,
     attachToProject,
     primaryRepository: async (projectId: string) => {

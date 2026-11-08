@@ -844,6 +844,17 @@ const viVN: AppResource = {
         'Yêu cầu tạo GitHub App này không còn hợp lệ (lạ, đã dùng hoặc hết hạn); hãy bắt đầu lại.',
       GIT_APP_NOT_FOUND: 'Kết nối chưa có GitHub App.',
       GIT_APP_NOT_INSTALLED: 'GitHub App chưa được cài.',
+      GIT_PERSONAL_TOKEN_REQUIRED:
+        'Cần token GitHub cá nhân của bạn (có quyền Workflows): nối ở Cài đặt → Git.',
+      GIT_BRANCH_EXISTS:
+        'Repository đã có nhánh ci/ds-check: hãy merge hoặc xoá nhánh đó rồi thử lại.',
+      GIT_FILE_EXISTS: 'Repository đã có tệp .github/workflows/ds-check.yml.',
+      GIT_REPOSITORY_NOT_LINKED:
+        'Dự án chưa có repository: hãy gắn một repository trước.',
+      GIT_REPOSITORY_EMPTY:
+        'Repository chưa có commit nào: hãy thêm README ở nhánh mặc định.',
+      GIT_REPOSITORY_NOT_INSTALLED:
+        'Repository đã được tạo nhưng GitHub App chưa với tới: hãy thêm nó vào các repository của App.',
       GIT_APP_INSTALLATION_AMBIGUOUS:
         'GitHub App đang được cài trên nhiều tài khoản; hãy cài lại từ đường link của nó.',
     },
@@ -929,6 +940,11 @@ const viVN: AppResource = {
       },
     },
     projectCode: {
+      addCi: 'Thêm CI (mở pull request)',
+      addingCi: 'Đang mở pull request…',
+      ciProposed: 'Đã mở pull request #{{number}}: {{url}}',
+      ciHint:
+        'Mở một pull request thêm tệp kiểm tra .github/workflows/ds-check.yml bằng token GitHub cá nhân của bạn.',
       title: 'Mã nguồn',
       description:
         'Các repository dự án này làm việc. Lượt chạy bắt đầu ở repository chính.',

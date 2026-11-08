@@ -396,6 +396,33 @@ export function useAttachRepository(
   });
 }
 
+/** Proposes the pull request check to a project's primary repository: a pull request with the caller's own token. */
+export function useProposeCi(projectId: string): UseMutationResult<
+  {
+    readonly branch: string;
+    readonly pullRequest: { readonly number: number; readonly url: string };
+  },
+  unknown,
+  void
+> {
+  const api = useApiClient();
+  return useMutation({
+    mutationFn: async () =>
+      (
+        await api.request<{
+          data: {
+            branch: string;
+            pullRequest: { number: number; url: string };
+          };
+        }>({
+          path: `projectSetups/${encodeURIComponent(projectId)}/ci`,
+          method: 'POST',
+          json: {},
+        })
+      ).data,
+  });
+}
+
 export function useRefreshPullRequest(
   issueId: string,
 ): UseMutationResult<GitPullRequest, unknown, string> {

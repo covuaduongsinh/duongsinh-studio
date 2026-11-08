@@ -109,6 +109,9 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
   - `pnpm build` không đưa vào CI: khoảng 5 phút 19 giây trên máy dev, chỉ sinh gói phát hành, đã chạy tay trước mỗi lần phát hành.
   - Chưa làm: branch protection cho `main` (**HỎI** chủ dự án; nên bật sau khi thấy check xanh thêm vài lần).
 - [ ] L3 — CI cho dự án dùng repo có sẵn
+  - L3.1 xong trong mã (08/11/2026): `POST /projectSetups/{projectId}/ci` mở **pull request** (nhánh `ci/ds-check`, không bao giờ đẩy thẳng nhánh mặc định) thêm `.github/workflows/ds-check.yml` bằng token cá nhân của người bấm (`proposeFileAsPerson`; thêm `createBranch` cho client GitHub). Kiểm quyền (`pm.members` `define-roles`), `describeRoute`, lỗi `GIT_PERSONAL_TOKEN_REQUIRED` (400), `GIT_BRANCH_EXISTS` và `GIT_FILE_EXISTS` (409), `GIT_REPOSITORY_NOT_LINKED`. Test `project-setup-routes`: 401, 403, 404, thiếu token (mô phỏng bằng đổi kết nối thành kiểu App), 201, trùng 409. Nút "Thêm CI" ở mục Mã nguồn của trang project (chỉ quản trị viên), chuỗi vi-VN/en-US/zh-CN, test `tests/client/project-code-ci.test.tsx` (3 ca).
+  - L3.2 xong: bước giấy phép chạy `pnpm licenses list --json` **không `--prod`**, fail với GPL/AGPL/LGPL không kèm `OR` (`jszip` và `elkjs` vẫn qua), vẫn chặn năm thư viện cờ GPL theo tên. `tests/server/ci-workflow.test.ts` chạy bước đó bằng bash thật (10 ca).
+  - Còn L3.3: đẩy CI cho `nocofen`, mở PR thử, xác nhận Studio đọc check và tự lái merge được khi xanh. **HỎI** chủ dự án và cần token cá nhân của bạn nối vào Studio; chỉ làm được sau khi bản này lên production.
 - [ ] L4 — Hiệu năng Hộp thư
 - [ ] L5 — Việc còn mở của K0–K3
 

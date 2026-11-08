@@ -72,6 +72,8 @@ export interface GitHubClient {
     readonly description: string | null;
     readonly autoInit: boolean;
   }): Promise<GitHubRepository>;
+  /** Creates `refs/heads/<branch>` at `sha`; GitHub answers 422 when the branch exists. */
+  createBranch(fullName: string, branch: string, sha: string): Promise<void>;
   /** Creates a file on a branch with one commit; the file must not exist yet. */
   putFile(
     fullName: string,
@@ -459,6 +461,12 @@ export function createGitHubClient(options: {
         }),
       );
       return { sha: text(answer.sha) };
+    },
+    async createBranch(fullName, branch, sha) {
+      await call('POST', `${repoPath(fullName)}/git/refs`, {
+        ref: `refs/heads/${branch}`,
+        sha,
+      });
     },
     async putFile(fullName, input) {
       await call(

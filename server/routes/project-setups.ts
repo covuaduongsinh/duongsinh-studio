@@ -38,7 +38,11 @@ import {
   PROJECT_MANAGER_ID,
 } from '../agents/ids.js';
 import { gitServiceToken } from '../providers/git.js';
-import { CI_WORKFLOW, CI_WORKFLOW_PATH } from '../setups/ci-workflow.js';
+import {
+  CI_PROPOSAL_BRANCH,
+  CI_WORKFLOW,
+  CI_WORKFLOW_PATH,
+} from '../setups/ci-workflow.js';
 import { readTemplateRelease } from '../setups/template-version.js';
 import {
   projectDefaultSkills,
@@ -568,6 +572,72 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
         if (access?.visible !== true)
           throw error('NOT_FOUND', 'PROJECT_NOT_FOUND', 'No such project.');
         return context.json({ data: await initOf(projectId) });
+      },
+    );
+
+    routes.post(
+      '/projectSetups/:projectId/ci',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Propose the pull request check to a project’s repository',
+        operationId: 'projectSetupsCi',
+        description:
+          'For an administrator who links repositories. Opens a pull request that adds `.github/workflows/ds-check.yml` to the project’s primary repository, with the caller’s own GitHub token (the GitHub App may not write workflows). It goes through a pull request, never straight to the default branch, so a protected branch accepts it and a person reviews it. Answers 409 when the repository already has the file or the proposal’s branch, and 400 (`GIT_PERSONAL_TOKEN_REQUIRED`) when the caller has no personal token.',
+        security: PERSON,
+        ...cliRoute({ command: 'project setup ci' }),
+        responses: {
+          201: dataResponse(
+            z.object({
+              branch: z.string(),
+              pullRequest: z.object({
+                number: z.number().int(),
+                url: z.string(),
+              }),
+            }),
+          ),
+          ...apiErrorResponses,
+        },
+      }),
+      async (context) => {
+        const viewer = await viewerOf(context);
+        const projectId = context.req.param('projectId');
+        const access = await projects().projects.accessTo(viewer, {
+          projectId,
+        });
+        if (access?.visible !== true)
+          throw error('NOT_FOUND', 'PROJECT_NOT_FOUND', 'No such project.');
+        if (!(await can(context, 'pm.members', 'define-roles')))
+          throw error(
+            'PERMISSION_DENIED',
+            'ACCESS_DENIED',
+            'An administrator adds the check to a repository.',
+          );
+        const repository = await git().primaryRepository(projectId);
+        if (!repository)
+          throw new ApiError({
+            status: 'FAILED_PRECONDITION',
+            reason: 'GIT_REPOSITORY_NOT_LINKED',
+            domain: DOMAIN,
+            message: 'The project has no repository: link one first.',
+          });
+        const branch = CI_PROPOSAL_BRANCH;
+        const pullRequest = await guardedGit(() =>
+          git().proposeFileAsPerson(
+            viewer.userId,
+            repository.connectionId,
+            repository.repo,
+            {
+              path: CI_WORKFLOW_PATH,
+              content: CI_WORKFLOW,
+              message: 'ci: add the pull request check',
+              branch,
+              base: repository.defaultBranch,
+              title: 'ci: add the pull request check',
+              body: 'Adds `.github/workflows/ds-check.yml`: install, `pnpm check`, a licence gate and a check for files that must not be committed. Opened from Dương Sinh Studio with the requester’s own token.',
+            },
+          ),
+        );
+        return context.json({ data: { branch, pullRequest } }, 201);
       },
     );
 

@@ -6,6 +6,7 @@ import {
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
 import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
+import { databaseManagerToken } from '@nocobase/db';
 import { CONTRIBUTOR_SET_KEY } from '../../server/access/roles.js';
 import { BUILTIN_SKILLS } from '../../server/agents/builtin-skills.js';
 import { PROJECT_MANAGER_ID } from '../../server/agents/ids.js';
@@ -31,6 +32,7 @@ const API = 'https://github.test/api';
 const TOKEN = 'ghp_test_token';
 
 const pushed: { repo: string; path: string; content: string }[] = [];
+const refs: string[] = [];
 const created: { name: string; private: boolean; auto_init: boolean }[] = [];
 
 /** GitHub as far as linking `acme/sandbox` asks it. */
@@ -59,6 +61,26 @@ function fakeGitHub(): void {
           html_url: 'https://github.test/acme/sandbox',
           permissions: { push: true },
         });
+      if (path === '/repos/acme/sandbox/git/refs' && init?.method === 'POST') {
+        const sent = JSON.parse(String(init.body)) as { ref: string };
+        // GitHub refuses a branch that exists.
+        if (refs.includes(sent.ref))
+          return answer({ message: 'Reference already exists' }, 422);
+        refs.push(sent.ref);
+        return answer({ ref: sent.ref }, 201);
+      }
+      if (path === '/repos/acme/sandbox/pulls' && init?.method === 'POST')
+        return answer(
+          {
+            number: 7,
+            title: 'ci: add the pull request check',
+            html_url: 'https://github.test/acme/sandbox/pull/7',
+            state: 'open',
+            head: { ref: 'ci/ds-check', sha: 'b'.repeat(40) },
+            base: { ref: 'main' },
+          },
+          201,
+        );
       if (path === '/repos/acme/sandbox/pulls') return answer([]);
       if (path === '/repos/acme/sandbox/branches/main')
         return answer({ commit: { sha: 'a'.repeat(40) } });
@@ -392,6 +414,53 @@ test(
       await (await admin.fetch(`/projects/${setup.data.projectId}`)).json()
     ).data as { setupIssueId: string };
     expect(project.setupIssueId).toBe(setup.data.initIssueId);
+
+    // CI for a repository that already exists: a pull request, never a push to the default branch.
+    const ciPath = `/projectSetups/${setup.data.projectId}/ci`;
+    expect((await request(ciPath, json({}))).status).toBe(401);
+    expect((await contributor.fetch(ciPath, json({}))).status).toBe(403);
+    expect(
+      (await admin.fetch('/projectSetups/nowhere/ci', json({}))).status,
+    ).toBe(404);
+    // Without the caller's own token an App connection may not write: simulated by making the connection an App one.
+    const connections = app.container
+      .resolve(databaseManagerToken)
+      .connection().query;
+    await connections
+      .updateTable('dsGitConnections')
+      .set({ kind: 'app' })
+      .where('id', '=', connectionId)
+      .execute();
+    const noToken = await admin.fetch(ciPath, json({}));
+    expect(noToken.status).toBe(400);
+    expect(JSON.stringify(await noToken.json())).toContain(
+      'GIT_PERSONAL_TOKEN_REQUIRED',
+    );
+    await connections
+      .updateTable('dsGitConnections')
+      .set({ kind: 'token' })
+      .where('id', '=', connectionId)
+      .execute();
+    const pushedBefore = pushed.length;
+    const proposed = await admin.fetch(ciPath, json({}));
+    expect(proposed.status).toBe(201);
+    expect((await proposed.json()).data).toEqual({
+      branch: 'ci/ds-check',
+      pullRequest: {
+        number: 7,
+        url: 'https://github.test/acme/sandbox/pull/7',
+      },
+    });
+    expect(refs).toContain('refs/heads/ci/ds-check');
+    expect(pushed.length).toBe(pushedBefore + 1);
+    expect(pushed.at(-1)).toMatchObject({
+      repo: 'acme/sandbox',
+      path: '.github/workflows/ds-check.yml',
+    });
+    // A second proposal finds its branch taken.
+    const again = await admin.fetch(ciPath, json({}));
+    expect(again.status).toBe(409);
+    expect(JSON.stringify(await again.json())).toContain('GIT_BRANCH_EXISTS');
     // A new repository: made on the host first, so a name it refuses leaves no project behind.
     const projectsBefore = await countProjects();
     const newRepo = (name: string, init: object) =>
