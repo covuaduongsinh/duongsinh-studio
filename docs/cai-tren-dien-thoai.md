@@ -23,10 +23,9 @@ Studio là ứng dụng web có thể cài lên màn hình chính (PWA): mở nh
 
 ## Cho người làm kỹ thuật
 
-- Manifest: `public/manifest.webmanifest`, nối bằng `<link rel="manifest">` trong `index.html`. Mọi URL trong đó là **tương đối** (`./`,
-  `assets/…`) để đúng với đường dẫn gốc `/main` do triển khai chọn; không viết `/main` vào đó.
+- Manifest: `public/assets/manifest-v1.json`, nối bằng `<link rel="manifest" href="/assets/manifest-v1.json">` trong `index.html`. **Phải nằm dưới `/assets/`**: server của app chỉ phục vụ tệp tĩnh thật ở đó, còn mọi đường dẫn khác có đuôi tệp (ví dụ `/manifest.webmanifest` ở gốc) bị trả `index.html`; bản deploy đầu tiên (08/11/2026) mắc đúng lỗi này. Mọi URL trong manifest là **tương đối** (`../` là đường dẫn gốc `/main`, biểu tượng nằm cạnh); không viết `/main` vào đó. `/assets` được cache bất biến một năm, nên muốn đổi manifest thì tạo `manifest-v2.json` và đổi liên kết trong `index.html`.
 - Biểu tượng `public/assets/pwa-192.png`, `pwa-512.png`, `pwa-maskable-512.png` và `apple-touch-icon.png` dựng từ `ds-mark.svg`.
   Đổi nhận diện thì dựng lại cả bốn.
-- `tests/project/pwa-manifest.test.ts` kiểm manifest, kích thước thật của biểu tượng và liên kết trong trang.
+- `tests/project/pwa-manifest.test.ts` kiểm manifest, kích thước thật của biểu tượng, liên kết trong trang và gọi **chính mã phục vụ tĩnh của server** (`serveSpaAsset`) để chắc manifest được trả đúng dạng JSON.
 - Chưa thử trên thiết bị thật: cần cài từ bản đã lên production rồi gửi thử một thông báo.
 - iPhone: chỉ có `apple-touch-icon`; chưa có hướng dẫn riêng (chủ dự án dùng Android, 08/11/2026).
