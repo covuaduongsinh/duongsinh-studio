@@ -17,6 +17,8 @@ auth:
   emailAndPassword:
     enabled: true
     autoSignIn: false
+    # Đóng đăng ký công khai: người mới chỉ vào được bằng link mời của owner (/invite/:token).
+    disableSignUp: true
   session:
     storeSessionInDatabase: true
 
