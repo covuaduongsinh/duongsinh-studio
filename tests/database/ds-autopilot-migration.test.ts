@@ -6,7 +6,10 @@ import { expect } from 'vitest';
 const sources: readonly MigrationSource[] = [
   {
     packageName: 'ds-autopilot-test',
-    directory: path.resolve(import.meta.dirname, '../../database/main/migrations'),
+    directory: path.resolve(
+      import.meta.dirname,
+      '../../database/main/migrations',
+    ),
   },
 ];
 
@@ -17,17 +20,40 @@ describeMigration('2026110802_ds_autopilot', {
   up: async ({ connection, expectCollection }) => {
     for (const name of TABLES) await expectCollection(name).toExist();
 
-    expect((await expectCollection('dsAutopilotSettings').toExist()).primaryKey).toEqual(['projectId']);
-    await expectCollection('dsAutopilotSettings').toHaveField('enabled', { nullable: false });
-    await expectCollection('dsAutopilotSettings').toHaveField('mergeMethod', { nullable: false });
-    await expectCollection('dsAutopilotSettings').toHaveField('maxMergesPerDay', { nullable: true });
-    await expectCollection('dsAutopilotSettings').toHaveField('maxActiveIssues', { nullable: true });
-    await expectCollection('dsAutopilotSettings').toHaveField('stallMinutes', { nullable: false });
-    await expectCollection('dsAutopilotSettings').toHaveField('sensitivePolicy', { nullable: false });
+    expect(
+      (await expectCollection('dsAutopilotSettings').toExist()).primaryKey,
+    ).toEqual(['projectId']);
+    await expectCollection('dsAutopilotSettings').toHaveField('enabled', {
+      nullable: false,
+    });
+    await expectCollection('dsAutopilotSettings').toHaveField('mergeMethod', {
+      nullable: false,
+    });
+    await expectCollection('dsAutopilotSettings').toHaveField(
+      'maxMergesPerDay',
+      { nullable: true },
+    );
+    await expectCollection('dsAutopilotSettings').toHaveField(
+      'maxActiveIssues',
+      { nullable: true },
+    );
+    await expectCollection('dsAutopilotSettings').toHaveField('stallMinutes', {
+      nullable: false,
+    });
+    await expectCollection('dsAutopilotSettings').toHaveField(
+      'sensitivePolicy',
+      { nullable: false },
+    );
 
-    expect((await expectCollection('dsAutopilotEvents').toExist()).primaryKey).toEqual(['id']);
-    await expectCollection('dsAutopilotEvents').toHaveField('projectId', { nullable: false });
-    await expectCollection('dsAutopilotEvents').toHaveField('kind', { nullable: false });
+    expect(
+      (await expectCollection('dsAutopilotEvents').toExist()).primaryKey,
+    ).toEqual(['id']);
+    await expectCollection('dsAutopilotEvents').toHaveField('projectId', {
+      nullable: false,
+    });
+    await expectCollection('dsAutopilotEvents').toHaveField('kind', {
+      nullable: false,
+    });
 
     const settings = {
       projectId: 'proj-1',
@@ -42,7 +68,10 @@ describeMigration('2026110802_ds_autopilot', {
       updatedAt: new Date(),
       updatedById: 'user-admin',
     };
-    await connection.query.insertInto('dsAutopilotSettings').values(settings).execute();
+    await connection.query
+      .insertInto('dsAutopilotSettings')
+      .values(settings)
+      .execute();
 
     const event = {
       id: 'event-1',
@@ -54,7 +83,10 @@ describeMigration('2026110802_ds_autopilot', {
       data: JSON.stringify({ headSha: 'sha-123' }),
       createdAt: new Date(),
     };
-    await connection.query.insertInto('dsAutopilotEvents').values(event).execute();
+    await connection.query
+      .insertInto('dsAutopilotEvents')
+      .values(event)
+      .execute();
   },
   down: async ({ expectCollection }) => {
     for (const name of TABLES) await expectCollection(name).not.toExist();

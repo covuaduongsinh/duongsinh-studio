@@ -8,7 +8,10 @@ import {
   createServiceToken,
   type ServiceToken,
 } from '@nocobase/service-provider';
-import { createDokployClient, type DokployClient } from '../previews/dokploy.js';
+import {
+  createDokployClient,
+  type DokployClient,
+} from '../previews/dokploy.js';
 import {
   PREVIEWS,
   answerMs,
@@ -50,7 +53,9 @@ export default class PreviewsProvider extends ServiceProvider<Application> {
         const projectId = env.DOKPLOY_PROJECT_ID;
         client =
           url && apiKey && projectId
-            ? createDokployClient({ url, apiKey, projectId }, () => service.allowedComposeIds())
+            ? createDokployClient({ url, apiKey, projectId }, () =>
+                service.allowedComposeIds(),
+              )
             : null;
         return client;
       },
@@ -59,7 +64,10 @@ export default class PreviewsProvider extends ServiceProvider<Application> {
         preview: env.PREVIEW_HOST || 'preview.dsc.edu.vn',
         staging: env.STAGING_HOST || 'staging-nocobase.dsc.edu.vn',
       },
-      probe: { availableMb: hostAvailableMb, productionMs: () => answerMs(PRODUCTION_URL) },
+      probe: {
+        availableMb: hostAvailableMb,
+        productionMs: () => answerMs(PRODUCTION_URL),
+      },
       onError: (message, error) => console.error(message, error),
     });
     container.singleton(previewServiceToken, () => service);
@@ -68,9 +76,13 @@ export default class PreviewsProvider extends ServiceProvider<Application> {
   override async boot(): Promise<void> {
     const { container } = this.app;
     this.releases.push(
-      container.resolve(gitServiceToken).onWebhookEvent(async (repositoryId, event, payload) => {
-        await container.resolve(previewServiceToken).onWebhook(repositoryId, event, payload);
-      }),
+      container
+        .resolve(gitServiceToken)
+        .onWebhookEvent(async (repositoryId, event, payload) => {
+          await container
+            .resolve(previewServiceToken)
+            .onWebhook(repositoryId, event, payload);
+        }),
     );
   }
 
@@ -79,13 +91,16 @@ export default class PreviewsProvider extends ServiceProvider<Application> {
     const { container } = this.app;
     if (!container.resolve(previewServiceToken).configured()) return;
     const database = container.resolve(databaseManagerToken);
-    this.executor = container.resolve(jobExecutorServiceToken).getScheduleExecutor('duongsinh-studio-previews');
+    this.executor = container
+      .resolve(jobExecutorServiceToken)
+      .getScheduleExecutor('duongsinh-studio-previews');
     await this.executor.addJob({
       name: 'preview-idle-sweep',
       options: { every: SWEEP_EVERY_MS },
       payload: {},
       execute: async () => {
-        if (await database.collections().getPhysical(PREVIEWS)) await container.resolve(previewServiceToken).sweep();
+        if (await database.collections().getPhysical(PREVIEWS))
+          await container.resolve(previewServiceToken).sweep();
       },
     });
     await this.executor.setup();

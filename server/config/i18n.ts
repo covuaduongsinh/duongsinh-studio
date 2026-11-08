@@ -9,7 +9,8 @@ const i18n: AppConfigFactory<AppI18nConfig> = defineAppConfig({
   defaults: { defaultLocale: 'vi-VN' },
   env: {
     APP_DEFAULT_LOCALE: envString('defaultLocale', {
-      description: 'The language the application starts in, such as vi-VN (Dương Sinh Studio defaults to Vietnamese).',
+      description:
+        'The language the application starts in, such as vi-VN (Dương Sinh Studio defaults to Vietnamese).',
     }),
   },
 });

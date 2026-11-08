@@ -10,10 +10,7 @@ export type MemoryType = (typeof MEMORY_TYPES)[number];
 
 /** Why a repository could not be read now. */
 export type MemoryUnavailable =
-  | 'noToken'
-  | 'tokenRejected'
-  | 'unreachable'
-  | 'hostUnavailable';
+  'noToken' | 'tokenRejected' | 'unreachable' | 'hostUnavailable';
 
 export interface ProjectMemoryProject {
   readonly project: { readonly id: string; readonly name: string };

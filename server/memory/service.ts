@@ -15,10 +15,7 @@ export const MEMORY_CHECK_MS = 60_000;
 
 /** Why a repository's memory could not be read: the page says it in its own words. */
 export type MemoryUnavailable =
-  | 'noToken'
-  | 'tokenRejected'
-  | 'unreachable'
-  | 'hostUnavailable';
+  'noToken' | 'tokenRejected' | 'unreachable' | 'hostUnavailable';
 
 export interface MemorySummary {
   readonly path: string;

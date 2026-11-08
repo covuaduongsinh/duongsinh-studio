@@ -7,7 +7,10 @@
  */
 
 /** The composes Studio may create and drive, one per environment it runs (S5.6). */
-export const PREVIEW_COMPOSE_NAMES = ['nocobase-preview', 'nocobase-staging'] as const;
+export const PREVIEW_COMPOSE_NAMES = [
+  'nocobase-preview',
+  'nocobase-staging',
+] as const;
 export type PreviewComposeName = (typeof PREVIEW_COMPOSE_NAMES)[number];
 
 const TIMEOUT_MS = 20_000;
@@ -50,7 +53,10 @@ export interface DokployClient {
   environmentId(): Promise<string>;
   create(name: PreviewComposeName): Promise<DokployCompose>;
   get(composeId: string): Promise<DokployCompose>;
-  update(composeId: string, input: { readonly composeFile: string; readonly env: string }): Promise<void>;
+  update(
+    composeId: string,
+    input: { readonly composeFile: string; readonly env: string },
+  ): Promise<void>;
   deploy(composeId: string, title: string): Promise<void>;
   stop(composeId: string): Promise<void>;
   start(composeId: string): Promise<void>;
@@ -60,8 +66,11 @@ export interface DokployClient {
 
 type Json = Record<string, unknown>;
 const record = (value: unknown): Json =>
-  typeof value === 'object' && value !== null && !Array.isArray(value) ? (value as Json) : {};
-const text = (value: unknown): string => (typeof value === 'string' ? value : '');
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Json)
+    : {};
+const text = (value: unknown): string =>
+  typeof value === 'string' ? value : '';
 
 const isAllowedName = (name: string): name is PreviewComposeName =>
   (PREVIEW_COMPOSE_NAMES as readonly string[]).includes(name);
@@ -73,7 +82,11 @@ export function createDokployClient(
   const base = `${config.url.replace(/\/+$/u, '')}/api`;
   let environment: string | null = null;
 
-  async function call(method: 'GET' | 'POST', path: string, body?: Json): Promise<unknown> {
+  async function call(
+    method: 'GET' | 'POST',
+    path: string,
+    body?: Json,
+  ): Promise<unknown> {
     let response: Response;
     try {
       response = await globalThis.fetch(`${base}/${path}`, {
@@ -87,7 +100,10 @@ export function createDokployClient(
         signal: AbortSignal.timeout(TIMEOUT_MS),
       });
     } catch (error) {
-      throw new DokployError(0, `Dokploy could not be reached: ${error instanceof Error ? error.message : String(error)}`);
+      throw new DokployError(
+        0,
+        `Dokploy could not be reached: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
     const raw = await response.text();
     let answer: unknown;
@@ -117,13 +133,22 @@ export function createDokployClient(
 
   async function environmentId(): Promise<string> {
     if (environment) return environment;
-    const project = record(await call('GET', `project.one?projectId=${encodeURIComponent(config.projectId)}`));
+    const project = record(
+      await call(
+        'GET',
+        `project.one?projectId=${encodeURIComponent(config.projectId)}`,
+      ),
+    );
     const wanted = config.environmentName ?? 'production';
-    const found = (Array.isArray(project.environments) ? project.environments : [])
+    const found = (
+      Array.isArray(project.environments) ? project.environments : []
+    )
       .map(record)
       .find((item) => text(item.name) === wanted);
     if (!found || !text(found.environmentId))
-      throw new DokployRefused(`The Dokploy project has no environment ${wanted}.`);
+      throw new DokployRefused(
+        `The Dokploy project has no environment ${wanted}.`,
+      );
     environment = text(found.environmentId);
     return environment;
   }
@@ -131,17 +156,33 @@ export function createDokployClient(
   /** The compose, after checking it is one Studio recorded and Dokploy says it is ours: else the call is refused. */
   async function guarded(composeId: string): Promise<DokployCompose> {
     if (!composeId || !(await allowedIds()).has(composeId))
-      throw new DokployRefused(`Compose ${composeId || '(none)'} is not one Studio created for previews.`);
-    const compose = composeOf(await call('GET', `compose.one?composeId=${encodeURIComponent(composeId)}`));
-    if (compose.composeId !== composeId || !isAllowedName(compose.name) || compose.environmentId !== (await environmentId()))
-      throw new DokployRefused(`Compose ${composeId} is not a preview compose of Studio's project.`);
+      throw new DokployRefused(
+        `Compose ${composeId || '(none)'} is not one Studio created for previews.`,
+      );
+    const compose = composeOf(
+      await call(
+        'GET',
+        `compose.one?composeId=${encodeURIComponent(composeId)}`,
+      ),
+    );
+    if (
+      compose.composeId !== composeId ||
+      !isAllowedName(compose.name) ||
+      compose.environmentId !== (await environmentId())
+    )
+      throw new DokployRefused(
+        `Compose ${composeId} is not a preview compose of Studio's project.`,
+      );
     return compose;
   }
 
   return {
     environmentId,
     async create(name) {
-      if (!isAllowedName(name)) throw new DokployRefused(`Studio does not create a compose named ${String(name)}.`);
+      if (!isAllowedName(name))
+        throw new DokployRefused(
+          `Studio does not create a compose named ${String(name)}.`,
+        );
       const created = composeOf(
         await call('POST', 'compose.create', {
           name,
@@ -149,10 +190,12 @@ export function createDokployClient(
           composeType: 'docker-compose',
           sourceType: 'raw',
           composeFile: 'services: {}\n',
-          description: 'Created by Dương Sinh Studio for NocoBase 2 previews; Studio replaces and removes it.',
+          description:
+            'Created by Dương Sinh Studio for NocoBase 2 previews; Studio replaces and removes it.',
         }),
       );
-      if (!created.composeId) throw new DokployError(500, 'Dokploy created no compose id.');
+      if (!created.composeId)
+        throw new DokployError(500, 'Dokploy created no compose id.');
       return created;
     },
     get: guarded,
@@ -168,7 +211,11 @@ export function createDokployClient(
     },
     async deploy(composeId, title) {
       await guarded(composeId);
-      await call('POST', 'compose.deploy', { composeId, title, description: title });
+      await call('POST', 'compose.deploy', {
+        composeId,
+        title,
+        description: title,
+      });
     },
     async stop(composeId) {
       await guarded(composeId);

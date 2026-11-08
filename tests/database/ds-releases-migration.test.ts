@@ -6,7 +6,10 @@ import { expect } from 'vitest';
 const sources: readonly MigrationSource[] = [
   {
     packageName: 'ds-releases-test',
-    directory: path.resolve(import.meta.dirname, '../../database/main/migrations'),
+    directory: path.resolve(
+      import.meta.dirname,
+      '../../database/main/migrations',
+    ),
   },
 ];
 
@@ -25,9 +28,15 @@ describeMigration('202611060001_ds_releases', {
   sources,
   up: async ({ connection, expectCollection }) => {
     for (const name of TABLES) await expectCollection(name).toExist();
-    expect((await expectCollection('dsEnvironments').toExist()).primaryKey).toEqual(['key']);
-    expect((await expectCollection('dsVersionTasks').toExist()).primaryKey).toEqual(['versionId', 'issueId']);
-    await expectCollection('dsVersions').toHaveField('deletedAt', { nullable: true });
+    expect(
+      (await expectCollection('dsEnvironments').toExist()).primaryKey,
+    ).toEqual(['key']);
+    expect(
+      (await expectCollection('dsVersionTasks').toExist()).primaryKey,
+    ).toEqual(['versionId', 'issueId']);
+    await expectCollection('dsVersions').toHaveField('deletedAt', {
+      nullable: true,
+    });
 
     // A tag is one version per repository.
     const version = {
@@ -44,7 +53,10 @@ describeMigration('202611060001_ds_releases', {
     };
     await connection.query.insertInto('dsVersions').values(version).execute();
     await expect(
-      connection.query.insertInto('dsVersions').values({ ...version, id: 'v-2' }).execute(),
+      connection.query
+        .insertInto('dsVersions')
+        .values({ ...version, id: 'v-2' })
+        .execute(),
     ).rejects.toThrow();
   },
   down: async ({ expectCollection }) => {

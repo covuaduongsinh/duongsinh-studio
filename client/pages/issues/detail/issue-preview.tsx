@@ -11,13 +11,22 @@ import { usePreviews } from '#hooks/use-releases';
 
 import { PreviewCard } from '../../releases/previews.js';
 
-export function IssuePreview({ issueId }: { readonly issueId: string }): ReactElement | null {
+export function IssuePreview({
+  issueId,
+}: {
+  readonly issueId: string;
+}): ReactElement | null {
   const { t } = useTranslation();
   const previews = usePreviews(issueId);
-  const preview = previews.data?.find((item) => item.slot === 'preview' && item.status !== 'destroyed');
+  const preview = previews.data?.find(
+    (item) => item.slot === 'preview' && item.status !== 'destroyed',
+  );
   if (!preview) return null;
   return (
-    <IssueSection icon={<MonitorIcon />} title={t('releases.preview.title', { number: preview.pullNumber ?? '' })}>
+    <IssueSection
+      icon={<MonitorIcon />}
+      title={t('releases.preview.title', { number: preview.pullNumber ?? '' })}
+    >
       <PreviewCard preview={preview} />
     </IssueSection>
   );

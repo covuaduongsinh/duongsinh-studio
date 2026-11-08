@@ -107,15 +107,13 @@ export function createRepoAccess(deps: {
       const { run, agent } = context.claim;
       const projectId = await projectOf(conn, run.subject);
       if (!projectId) return null;
-      const found = await deps
-        .git()
-        .credentialsFor(
-          conn,
-          projectId,
-          context.repos.map((repo) => repo.url),
-          isPrepared(prepared) ? prepared : undefined,
-          context.onDemand,
-        );
+      const found = await deps.git().credentialsFor(
+        conn,
+        projectId,
+        context.repos.map((repo) => repo.url),
+        isPrepared(prepared) ? prepared : undefined,
+        context.onDemand,
+      );
       if (found.length === 0) return null;
       const author = await deps.person(conn, run.requestedByUserId);
       return {

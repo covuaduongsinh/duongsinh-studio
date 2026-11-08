@@ -63,7 +63,10 @@ export async function releasesPermissionsFrom(
     for (const { level, name } of [...levelActionsOf(key)].reverse()) {
       const held =
         snapshot.unrestricted ||
-        (await context.can({ resource: { type: RESOURCE_TYPE, id: business }, action: name }));
+        (await context.can({
+          resource: { type: RESOURCE_TYPE, id: business },
+          action: name,
+        }));
       if (!held) continue;
       scope = level === 'all' ? 'all' : { users: [userId] };
       break;
@@ -77,7 +80,10 @@ export async function releasesPermissionsFrom(
   for (const page of PAGES)
     pages[page] =
       snapshot.unrestricted ||
-      (await context.can({ resource: { type: 'page', id: page }, action: 'access' }));
+      (await context.can({
+        resource: { type: 'page', id: page },
+        action: 'access',
+      }));
   return { scopes, settings, pages } as ReleasesPermissions;
 }
 
@@ -109,10 +115,17 @@ export default class ReleasesProvider extends ServiceProvider<Application> {
             .filter((assignment) => assignment.subject.type === 'user')
             .map((assignment) => assignment.subject.id),
         notify: async (notice) => {
-          if (!container.has(notificationServiceToken) || notice.to.length === 0) return;
+          if (
+            !container.has(notificationServiceToken) ||
+            notice.to.length === 0
+          )
+            return;
           await container.resolve(notificationServiceToken).send({
             idempotencyKey: notice.key,
-            source: { type: 'duongsinh-studio/releases', referenceId: notice.key },
+            source: {
+              type: 'duongsinh-studio/releases',
+              referenceId: notice.key,
+            },
             messages: {
               [INBOX_CHANNEL]: {
                 to: [...notice.to],
@@ -125,7 +138,9 @@ export default class ReleasesProvider extends ServiceProvider<Application> {
         },
         nameOf: async (userId) => {
           try {
-            return (await container.resolve(userManagementServiceToken).get(userId)).name;
+            return (
+              await container.resolve(userManagementServiceToken).get(userId)
+            ).name;
           } catch {
             return null;
           }
@@ -150,7 +165,9 @@ export default class ReleasesProvider extends ServiceProvider<Application> {
     const { container } = this.app;
     this.releases.push(
       container.resolve(gitServiceToken).onTagPush(async (repositoryId) => {
-        await container.resolve(releaseServiceToken).syncRepository(repositoryId);
+        await container
+          .resolve(releaseServiceToken)
+          .syncRepository(repositoryId);
       }),
     );
   }
@@ -164,13 +181,15 @@ export default class ReleasesProvider extends ServiceProvider<Application> {
       .resolve(jobExecutorServiceToken)
       .getScheduleExecutor('duongsinh-studio-releases');
     // An application started without this application's migrations has no release tables (see project-manager.ts).
-    const ready = async () => Boolean(await database.collections().getPhysical(ENVIRONMENTS));
+    const ready = async () =>
+      Boolean(await database.collections().getPhysical(ENVIRONMENTS));
     await this.executor.addJob({
       name: 'release-tags',
       options: { every: POLL_EVERY_MS },
       payload: {},
       execute: async () => {
-        if (await ready()) await container.resolve(releaseServiceToken).syncDue();
+        if (await ready())
+          await container.resolve(releaseServiceToken).syncDue();
       },
     });
     await this.executor.addJob({
@@ -178,7 +197,8 @@ export default class ReleasesProvider extends ServiceProvider<Application> {
       options: { every: REMIND_EVERY_MS },
       payload: {},
       execute: async () => {
-        if (await ready()) await container.resolve(releaseServiceToken).remindPending();
+        if (await ready())
+          await container.resolve(releaseServiceToken).remindPending();
       },
     });
     await this.executor.setup();

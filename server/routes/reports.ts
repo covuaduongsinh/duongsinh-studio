@@ -365,13 +365,9 @@ const UsageQuery = z.object({
     .min(1)
     .optional()
     .meta({ description: 'The agent identifier.' }),
-  userId: z
-    .string()
-    .min(1)
-    .optional()
-    .meta({
-      description: 'Only the runs this person started (their user id).',
-    }),
+  userId: z.string().min(1).optional().meta({
+    description: 'Only the runs this person started (their user id).',
+  }),
 });
 
 const noMissing = <T extends Record<string, unknown>>(value: T) =>

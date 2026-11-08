@@ -71,7 +71,8 @@ export function conversationRuleLines(cli: string): ConversationRuleLines {
 }
 
 export function createConversationRules(): ConversationRules {
-  return (_conn, context) => Promise.resolve(conversationRuleLines(context.cli));
+  return (_conn, context) =>
+    Promise.resolve(conversationRuleLines(context.cli));
 }
 
 /** What Studio reads to resolve the issues and projects people pin, as the person may see them. */
@@ -81,7 +82,8 @@ export interface StudioReadDeps {
   readonly viewerOf: (userId: string) => Promise<Viewer | null>;
 }
 
-const issueUrl = (identifier: string) => `/issues/${encodeURIComponent(identifier)}`;
+const issueUrl = (identifier: string) =>
+  `/issues/${encodeURIComponent(identifier)}`;
 const projectUrl = (id: string) => `/projects/${encodeURIComponent(id)}`;
 
 /**
@@ -194,7 +196,9 @@ export function planDecidedNews(decided: PlanDecided): ConversationNews {
     `${title} (plan ${decided.planId}).`,
     ...(created.length > 0 ? [`Created: ${created.join(', ')}.`] : []),
     ...(failedRows > 0 ? [`${failedRows} row(s) failed.`] : []),
-    ...(decided.failure ? [`Failure: ${JSON.stringify(decided.failure)}.`] : []),
+    ...(decided.failure
+      ? [`Failure: ${JSON.stringify(decided.failure)}.`]
+      : []),
     'Tell the person briefly what changed (in Vietnamese), then stop.',
   ];
   const wake = decided.outcome !== 'voided';
@@ -213,7 +217,11 @@ export function planDecidedNews(decided: PlanDecided): ConversationNews {
       ? {
           input: {
             type: 'signal' as const,
-            actor: { kind: 'system' as const, id: 'studio', name: 'Dương Sinh Studio' },
+            actor: {
+              kind: 'system' as const,
+              id: 'studio',
+              name: 'Dương Sinh Studio',
+            },
             text: lines.join('\n'),
           },
           wake: true,
@@ -380,7 +388,10 @@ export function createIssueSessionIntegration(deps: {
 }): IssueSessionIntegration {
   return {
     async creationContext(viewer, sessionId) {
-      const { projectId } = await deps.creationContext(viewer.userId, sessionId);
+      const { projectId } = await deps.creationContext(
+        viewer.userId,
+        sessionId,
+      );
       return {
         projectId,
         link: (issueId: string) => deps.link(sessionId, issueId),

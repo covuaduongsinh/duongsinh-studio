@@ -101,7 +101,9 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
 - [ ] L0 — Dọn repo
   - L0.1 và L0.4 xong trong PR của bước này: `node_modules` ra khỏi index, `.gitignore` dòng 1 thành `node_modules`, `tests/project/tracked-files.test.ts` (đã thử đỏ với một symlink giả rồi xanh khi sạch), quy tắc trong `.agents/rules/duongsinh-studio.md`.
   - Còn: L0.2 (chủ dự án kiểm hai máy, hướng dẫn trong báo cáo cuối) và L0.3 (đóng #2–#5, xoá sáu nhánh, chờ bạn đồng ý).
-- [ ] L1 — `pnpm check` xanh
+- [x] L1 — `pnpm check` xanh (08/11/2026)
+  - Commit riêng chỉ đổi định dạng: 48 file, +2.683/−870 dòng; `tests/server/previews.test.ts` cần Prettier chạy hai lượt mới ổn định.
+  - Các cổng chạy riêng từng bước trên máy dev (foreground/nền, một lệnh mỗi lúc): `check:packages` xanh; `lint` xanh (`--max-warnings 0`); `format:check` xanh; `typecheck` xanh (43,6 giây, ba tsconfig); `pnpm build` xanh (5 phút 19 giây); `vitest --project node`: 81 file, 192 test xanh (12 phút 4 giây); `vitest --project client`: 85 file, 549 qua, **2 timeout 30 giây** trong `header-hover.test.tsx` khi máy tải nặng; chạy lại riêng file đó: 3/3 qua. Chưa tách được nguyên nhân tải; ghi nhận là test chậm dễ timeout, để ý khi dựng CI (L2).
 - [ ] L2 — CI cho chính repo Studio
 - [ ] L3 — CI cho dự án dùng repo có sẵn
 - [ ] L4 — Hiệu năng Hộp thư

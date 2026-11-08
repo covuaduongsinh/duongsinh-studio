@@ -26,7 +26,12 @@ import ProjectMemoryPage from '../../client/pages/project-memory/index.js';
 const AT = new Date().toISOString();
 const words = enUS.projectMemory;
 
-const memory = (slug: string, name: string, type: string, modified: string) => ({
+const memory = (
+  slug: string,
+  name: string,
+  type: string,
+  modified: string,
+) => ({
   path: `.nb-studio/memory/${slug}.md`,
   slug,
   sha: `blob-${slug}`,
@@ -49,7 +54,8 @@ const api = vi.fn((call: ApiCall): unknown => {
   if (method === 'GET' && path === 'authorization/permissions')
     return { data: { unrestricted: true, permissions: [] } };
   if (method === 'GET' && path === 'projectMemory') return { data: list };
-  if (method === 'GET' && path === 'projectMemory/p1/repos/r1') return { data: repository };
+  if (method === 'GET' && path === 'projectMemory/p1/repos/r1')
+    return { data: repository };
   if (method === 'GET' && path === 'projectMemory/p1/repos/r1/file')
     return {
       data: {
@@ -76,7 +82,8 @@ async function render() {
         app.container.instance(authenticationClientToken, { getSession });
         app.container.singleton(
           authorizationClientToken,
-          (resolver) => new AuthorizationClient(resolver.resolve(apiClientToken)),
+          (resolver) =>
+            new AuthorizationClient(resolver.resolve(apiClientToken)),
         );
       },
     },
@@ -131,24 +138,45 @@ describe('project memory page', () => {
     expect(within(cards).getAllByRole('listitem')).toHaveLength(2);
     expect(screen.getByText('From main@1234567')).toBeInTheDocument();
     expect(screen.getByText(/2 \/ 50/u)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: words.viewRepository })).toHaveAttribute(
+    expect(
+      screen.getByRole('link', { name: words.viewRepository }),
+    ).toHaveAttribute(
       'href',
       'https://github.com/acme/sandbox/tree/main/.nb-studio/memory',
     );
 
-    await user.click(screen.getByRole('tab', { name: `${words.tabs.feedback} 1` }));
-    expect(within(screen.getByRole('list', { name: words.title })).getAllByRole('listitem')).toHaveLength(1);
+    await user.click(
+      screen.getByRole('tab', { name: `${words.tabs.feedback} 1` }),
+    );
+    expect(
+      within(screen.getByRole('list', { name: words.title })).getAllByRole(
+        'listitem',
+      ),
+    ).toHaveLength(1);
     await user.click(screen.getByRole('tab', { name: `${words.tabs.all} 2` }));
 
-    await user.type(screen.getByRole('searchbox', { name: words.search }), 'nocobase');
+    await user.type(
+      screen.getByRole('searchbox', { name: words.search }),
+      'nocobase',
+    );
     await waitFor(() =>
-      expect(within(screen.getByRole('list', { name: words.title })).getAllByRole('listitem')).toHaveLength(1),
+      expect(
+        within(screen.getByRole('list', { name: words.title })).getAllByRole(
+          'listitem',
+        ),
+      ).toHaveLength(1),
     );
     await user.clear(screen.getByRole('searchbox', { name: words.search }));
 
-    await user.click(screen.getByRole('button', { name: /Vietnamese labels/u }));
-    expect(await screen.findByText('Every new label ships in Vietnamese.')).toBeInTheDocument();
-    const fileCall = api.mock.calls.map(([call]) => call).find((call) => call.path === 'projectMemory/p1/repos/r1/file');
+    await user.click(
+      screen.getByRole('button', { name: /Vietnamese labels/u }),
+    );
+    expect(
+      await screen.findByText('Every new label ships in Vietnamese.'),
+    ).toBeInTheDocument();
+    const fileCall = api.mock.calls
+      .map(([call]) => call)
+      .find((call) => call.path === 'projectMemory/p1/repos/r1/file');
     expect(fileCall?.query).toEqual({ path: '.nb-studio/memory/labels.md' });
   });
 
@@ -175,9 +203,19 @@ describe('project memory page', () => {
         ],
       },
     ];
-    repository = { ...repository, commitSha: null, ref: null, checkedAt: null, total: 0, memories: [], unavailable: 'unreachable' };
+    repository = {
+      ...repository,
+      commitSha: null,
+      ref: null,
+      checkedAt: null,
+      total: 0,
+      memories: [],
+      unavailable: 'unreachable',
+    };
     await render();
-    expect(await screen.findByText(words.unavailable.unreachable)).toBeInTheDocument();
+    expect(
+      await screen.findByText(words.unavailable.unreachable),
+    ).toBeInTheDocument();
     expect(screen.getByText(words.empty)).toBeInTheDocument();
   });
 });

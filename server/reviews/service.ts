@@ -141,7 +141,11 @@ export function createReviewsService(deps: {
       .executeTakeFirst();
 
     if (!run) {
-      throw new ReviewError('NOT_FOUND', 'RUN_NOT_FOUND', 'Review run not found.');
+      throw new ReviewError(
+        'NOT_FOUND',
+        'RUN_NOT_FOUND',
+        'Review run not found.',
+      );
     }
     if (run.status !== 'running' && run.status !== 'dispatched') {
       throw new ReviewError(
@@ -183,7 +187,11 @@ export function createReviewsService(deps: {
     let authorRow: Row | undefined = await conn()
       .query.selectFrom('agRunRepos as repos')
       .innerJoin('agRuns as runs', 'runs.id', 'repos.runId')
-      .select(['runs.agentId as agentId', 'runs.model as model', 'runs.tool as tool'])
+      .select([
+        'runs.agentId as agentId',
+        'runs.model as model',
+        'runs.tool as tool',
+      ])
       .where('repos.headSha', '=', pull.headSha)
       .where('repos.pushed', '=', true)
       .orderBy('repos.updatedAt', 'desc')
@@ -193,7 +201,11 @@ export function createReviewsService(deps: {
       authorRow = await conn()
         .query.selectFrom('agRunRepos as repos')
         .innerJoin('agRuns as runs', 'runs.id', 'repos.runId')
-        .select(['runs.agentId as agentId', 'runs.model as model', 'runs.tool as tool'])
+        .select([
+          'runs.agentId as agentId',
+          'runs.model as model',
+          'runs.tool as tool',
+        ])
         .where('repos.branch', '=', pull.headRef)
         .where('repos.pushed', '=', true)
         .orderBy('repos.updatedAt', 'desc')
@@ -219,13 +231,16 @@ export function createReviewsService(deps: {
 
     const authorModel = strOrNull(authorRow.model) ?? strOrNull(authorRow.tool);
     const sameModel = Boolean(
-      reviewerModel && authorModel && reviewerModel.toLowerCase() === authorModel.toLowerCase(),
+      reviewerModel &&
+      authorModel &&
+      reviewerModel.toLowerCase() === authorModel.toLowerCase(),
     );
 
     // 4. Validate kind and security checklist if security
     const kind = input.kind ?? 'code';
     if (kind === 'security') {
-      const sec = input.checklist?.security as Record<string, unknown> | undefined;
+      const sec = input.checklist?.security as
+        Record<string, unknown> | undefined;
       if (!sec || typeof sec !== 'object') {
         throw new ReviewError(
           'FAILED_PRECONDITION',
@@ -286,13 +301,18 @@ export function createReviewsService(deps: {
       query = query.where('kind', '=', kind);
     }
 
-    const row: Row | undefined = await query.orderBy('createdAt', 'desc').executeTakeFirst();
+    const row: Row | undefined = await query
+      .orderBy('createdAt', 'desc')
+      .executeTakeFirst();
     return row ? reviewView(row) : null;
   }
 
   async function listForPull(
     pullRequestId: string,
-    options?: { readonly headSha?: string; readonly kind?: 'code' | 'security' },
+    options?: {
+      readonly headSha?: string;
+      readonly kind?: 'code' | 'security';
+    },
   ): Promise<ReviewView[]> {
     let query = conn()
       .query.selectFrom(REVIEWS)

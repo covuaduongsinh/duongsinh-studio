@@ -27,7 +27,12 @@ import {
 
 const STATUSES: StatusDefinition[] = [
   { key: 'backlog', name: 'Backlog', category: 'unstarted', color: 'gray' },
-  { key: 'in_progress', name: 'In progress', category: 'started', color: 'blue' },
+  {
+    key: 'in_progress',
+    name: 'In progress',
+    category: 'started',
+    color: 'blue',
+  },
   { key: 'blocked', name: 'Blocked', category: 'started', color: 'red' },
   { key: 'in_review', name: 'In review', category: 'started', color: 'purple' },
   { key: 'done', name: 'Done', category: 'done', color: 'green' },
@@ -147,9 +152,9 @@ describe('Studio conversations', () => {
     });
     expect((await issues(conn, 'stranger', ['i1'])).size).toBe(0);
     const projects = createProjectContextResolver(deps);
-    expect(Object.fromEntries(await projects(conn, 'admin', ['p1']))).toEqual(
-      { p1: { title: 'Sandbox', key: null, url: '/projects/p1' } },
-    );
+    expect(Object.fromEntries(await projects(conn, 'admin', ['p1']))).toEqual({
+      p1: { title: 'Sandbox', key: null, url: '/projects/p1' },
+    });
     expect((await projects(conn, 'stranger', ['p1'])).size).toBe(0);
   });
 
@@ -202,7 +207,11 @@ describe('Studio conversations', () => {
       code: 'news',
       type: PLAN_DECIDED_NEWS,
       title: 'Plan "Tạo issue dịch" executed',
-      params: { planId: 'plan-1', outcome: 'executed', title: 'Tạo issue dịch' },
+      params: {
+        planId: 'plan-1',
+        outcome: 'executed',
+        title: 'Tạo issue dịch',
+      },
     });
     expect(news.wake).toBe(true);
     expect(news.input?.type).toBe('signal');
@@ -214,7 +223,11 @@ describe('Studio conversations', () => {
 
   it('shows a session’s issues with where they stand and who they wait for', () => {
     expect(
-      issueStatusView({ statusKey: 'in_review', ownerUserId: 'me' }, STATUSES, 'me'),
+      issueStatusView(
+        { statusKey: 'in_review', ownerUserId: 'me' },
+        STATUSES,
+        'me',
+      ),
     ).toEqual({
       label: 'In review',
       tone: 'attention',
@@ -222,19 +235,35 @@ describe('Studio conversations', () => {
       needsYou: 'Chờ bạn nghiệm thu',
     });
     expect(
-      issueStatusView({ statusKey: 'in_review', ownerUserId: 'x' }, STATUSES, 'me'),
+      issueStatusView(
+        { statusKey: 'in_review', ownerUserId: 'x' },
+        STATUSES,
+        'me',
+      ),
     ).toMatchObject({ tone: 'active', needsYou: null });
     expect(
-      issueStatusView({ statusKey: 'in_progress', ownerUserId: 'x' }, STATUSES, 'me'),
+      issueStatusView(
+        { statusKey: 'in_progress', ownerUserId: 'x' },
+        STATUSES,
+        'me',
+      ),
     ).toMatchObject({ icon: 'started', tone: 'active' });
     expect(
-      issueStatusView({ statusKey: 'backlog', ownerUserId: 'x' }, STATUSES, 'me'),
+      issueStatusView(
+        { statusKey: 'backlog', ownerUserId: 'x' },
+        STATUSES,
+        'me',
+      ),
     ).toMatchObject({ icon: 'backlog', tone: 'idle' });
     expect(
       issueStatusView({ statusKey: 'done', ownerUserId: 'x' }, STATUSES, 'me'),
     ).toMatchObject({ icon: 'done', tone: 'done' });
     expect(
-      issueStatusView({ statusKey: 'blocked', ownerUserId: 'x' }, STATUSES, 'me'),
+      issueStatusView(
+        { statusKey: 'blocked', ownerUserId: 'x' },
+        STATUSES,
+        'me',
+      ),
     ).toMatchObject({ icon: 'blocked', tone: 'attention' });
   });
 
@@ -251,14 +280,24 @@ describe('Studio conversations', () => {
     });
     expect((await links.resolve(['i1'], { userId: 'stranger' })).size).toBe(0);
     expect(
-      (await links.search!('vi-VN', { userId: 'admin' }, { projectId: null, limit: 5 })).map(
-        (found) => found.refId,
-      ),
+      (
+        await links.search!(
+          'vi-VN',
+          { userId: 'admin' },
+          { projectId: null, limit: 5 },
+        )
+      ).map((found) => found.refId),
     ).toEqual(['i2']);
     expect(
-      await links.search!('vi-VN', { userId: 'stranger' }, { projectId: null, limit: 5 }),
+      await links.search!(
+        'vi-VN',
+        { userId: 'stranger' },
+        { projectId: null, limit: 5 },
+      ),
     ).toEqual([]);
-    expect((await links.progress!(['i2'], { userId: 'admin' })).get('i2')).toEqual({
+    expect(
+      (await links.progress!(['i2'], { userId: 'admin' })).get('i2'),
+    ).toEqual({
       status: 'in_progress',
       executor: 'Project manager',
       owner: 'Chủ dự án',

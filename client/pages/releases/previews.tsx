@@ -4,12 +4,24 @@
  * sign-in is shown only to whoever may edit the issue.
  */
 import { useTranslation } from '@nocobase/i18n/client';
-import { ExternalLinkIcon, KeyRoundIcon, RefreshCwIcon, Trash2Icon } from 'lucide-react';
+import {
+  ExternalLinkIcon,
+  KeyRoundIcon,
+  RefreshCwIcon,
+  Trash2Icon,
+} from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 
 import { Badge } from '#components/ui/badge';
 import { Button } from '#components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '#components/ui/table';
 import {
   usePreviewAction,
   usePreviewCredentials,
@@ -18,7 +30,9 @@ import {
   type PreviewStatus,
 } from '#hooks/use-releases';
 
-const STATUS_VARIANT: Readonly<Record<PreviewStatus, 'default' | 'secondary' | 'outline' | 'destructive'>> = {
+const STATUS_VARIANT: Readonly<
+  Record<PreviewStatus, 'default' | 'secondary' | 'outline' | 'destructive'>
+> = {
   ready: 'default',
   deploying: 'secondary',
   waiting: 'secondary',
@@ -28,32 +42,64 @@ const STATUS_VARIANT: Readonly<Record<PreviewStatus, 'default' | 'secondary' | '
   destroyed: 'outline',
 };
 
-export function PreviewStatusBadge({ status }: { readonly status: PreviewStatus }): ReactElement {
+export function PreviewStatusBadge({
+  status,
+}: {
+  readonly status: PreviewStatus;
+}): ReactElement {
   const { t } = useTranslation();
-  return <Badge variant={STATUS_VARIANT[status]}>{t(`releases.preview.status.${status}`)}</Badge>;
+  return (
+    <Badge variant={STATUS_VARIANT[status]}>
+      {t(`releases.preview.status.${status}`)}
+    </Badge>
+  );
 }
 
-function Credentials({ previewId }: { readonly previewId: string }): ReactElement {
+function Credentials({
+  previewId,
+}: {
+  readonly previewId: string;
+}): ReactElement {
   const { t } = useTranslation();
   const credentials = usePreviewCredentials(previewId);
-  if (credentials.error) return <p className='text-sm text-muted-foreground'>{t('releases.preview.noCredentials')}</p>;
-  if (!credentials.data) return <p className='text-sm text-muted-foreground'>{t('releases.preview.loading')}</p>;
+  if (credentials.error)
+    return (
+      <p className='text-sm text-muted-foreground'>
+        {t('releases.preview.noCredentials')}
+      </p>
+    );
+  if (!credentials.data)
+    return (
+      <p className='text-sm text-muted-foreground'>
+        {t('releases.preview.loading')}
+      </p>
+    );
   return (
     <dl className='grid grid-cols-[auto_1fr] gap-x-3 text-sm'>
-      <dt className='text-muted-foreground'>{t('releases.preview.basicUser')}</dt>
+      <dt className='text-muted-foreground'>
+        {t('releases.preview.basicUser')}
+      </dt>
       <dd className='font-mono'>{credentials.data.basicUser}</dd>
-      <dt className='text-muted-foreground'>{t('releases.preview.basicPassword')}</dt>
+      <dt className='text-muted-foreground'>
+        {t('releases.preview.basicPassword')}
+      </dt>
       <dd className='font-mono'>{credentials.data.basicPassword}</dd>
       <dt className='text-muted-foreground'>{t('releases.preview.account')}</dt>
       <dd className='font-mono'>{credentials.data.account}</dd>
-      <dt className='text-muted-foreground'>{t('releases.preview.password')}</dt>
+      <dt className='text-muted-foreground'>
+        {t('releases.preview.password')}
+      </dt>
       <dd className='font-mono'>{credentials.data.password}</dd>
     </dl>
   );
 }
 
 /** One preview's link, sign-in and actions. */
-export function PreviewCard({ preview }: { readonly preview: Preview }): ReactElement {
+export function PreviewCard({
+  preview,
+}: {
+  readonly preview: Preview;
+}): ReactElement {
   const { t } = useTranslation();
   const action = usePreviewAction();
   const [showCredentials, setShowCredentials] = useState(false);
@@ -72,7 +118,9 @@ export function PreviewCard({ preview }: { readonly preview: Preview }): ReactEl
       <p className='flex flex-wrap items-center gap-2 text-sm'>
         <PreviewStatusBadge status={preview.status} />
         <span className='font-mono'>{preview.sha.slice(0, 7)}</span>
-        {preview.reason ? <span className='text-muted-foreground'>{preview.reason}</span> : null}
+        {preview.reason ? (
+          <span className='text-muted-foreground'>{preview.reason}</span>
+        ) : null}
       </p>
       <div className='flex flex-wrap gap-2'>
         {live && preview.url ? (
@@ -82,7 +130,12 @@ export function PreviewCard({ preview }: { readonly preview: Preview }): ReactEl
           </Button>
         ) : null}
         {live ? (
-          <Button size='sm' variant='outline' onClick={() => setShowCredentials((value) => !value)} aria-expanded={showCredentials}>
+          <Button
+            size='sm'
+            variant='outline'
+            onClick={() => setShowCredentials((value) => !value)}
+            aria-expanded={showCredentials}
+          >
             <KeyRoundIcon aria-hidden='true' />
             {t('releases.preview.signIn')}
           </Button>
@@ -131,7 +184,11 @@ export function PreviewCard({ preview }: { readonly preview: Preview }): ReactEl
 }
 
 /** The Previews and Staging tabs of `/releases`. */
-export function PreviewsTab({ slot }: { readonly slot: 'preview' | 'staging' }): ReactElement {
+export function PreviewsTab({
+  slot,
+}: {
+  readonly slot: 'preview' | 'staging';
+}): ReactElement {
   const { t, i18n } = useTranslation();
   const previews = usePreviews();
   if (previews.error)
@@ -140,11 +197,17 @@ export function PreviewsTab({ slot }: { readonly slot: 'preview' | 'staging' }):
         {t('releases.loadFailed')}
       </p>
     );
-  const rows = (previews.data ?? []).filter((item) => item.slot === slot && item.status !== 'destroyed');
+  const rows = (previews.data ?? []).filter(
+    (item) => item.slot === slot && item.status !== 'destroyed',
+  );
   if (rows.length === 0)
     return (
       <p className='text-sm text-muted-foreground'>
-        {t(slot === 'preview' ? 'releases.previews.description' : 'releases.preview.noStaging')}
+        {t(
+          slot === 'preview'
+            ? 'releases.previews.description'
+            : 'releases.preview.noStaging',
+        )}
       </p>
     );
   return (
@@ -160,14 +223,19 @@ export function PreviewsTab({ slot }: { readonly slot: 'preview' | 'staging' }):
         {rows.map((preview) => (
           <TableRow key={preview.id}>
             <TableCell>
-              {preview.pullNumber === null ? preview.branch : t('releases.preview.pull', { number: preview.pullNumber })}
+              {preview.pullNumber === null
+                ? preview.branch
+                : t('releases.preview.pull', { number: preview.pullNumber })}
             </TableCell>
             <TableCell>
               <PreviewCard preview={preview} />
             </TableCell>
             <TableCell>
               <time dateTime={preview.updatedAt}>
-                {new Date(preview.updatedAt).toLocaleString(i18n.language, { dateStyle: 'medium', timeStyle: 'short' })}
+                {new Date(preview.updatedAt).toLocaleString(i18n.language, {
+                  dateStyle: 'medium',
+                  timeStyle: 'short',
+                })}
               </time>
             </TableCell>
           </TableRow>

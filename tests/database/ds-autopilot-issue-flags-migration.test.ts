@@ -6,7 +6,10 @@ import { expect } from 'vitest';
 const sources: readonly MigrationSource[] = [
   {
     packageName: 'ds-autopilot-test',
-    directory: path.resolve(import.meta.dirname, '../../database/main/migrations'),
+    directory: path.resolve(
+      import.meta.dirname,
+      '../../database/main/migrations',
+    ),
   },
 ];
 
@@ -18,8 +21,12 @@ describeMigration('2026110804_ds_autopilot_issue_flags', {
     const coll = await expectCollection(TABLE).toExist();
     expect(coll.primaryKey).toEqual(['issueId']);
 
-    await expectCollection(TABLE).toHaveField('allowAutoStart', { nullable: false });
-    await expectCollection(TABLE).toHaveField('inheritFromParent', { nullable: false });
+    await expectCollection(TABLE).toHaveField('allowAutoStart', {
+      nullable: false,
+    });
+    await expectCollection(TABLE).toHaveField('inheritFromParent', {
+      nullable: false,
+    });
     await expectCollection(TABLE).toHaveField('createdAt', { nullable: false });
     await expectCollection(TABLE).toHaveField('updatedAt', { nullable: false });
 
