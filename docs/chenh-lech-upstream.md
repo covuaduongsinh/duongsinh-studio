@@ -120,10 +120,15 @@ Lắp ở `server/agents/actions.ts`, `server/providers/agent-actions.ts`, `serv
 - **Releases:** `releasesAccessToken` chưa bind (mục 2), nên `rel.apps/*` được liệt kê cho agent nhưng plugin releases
   vẫn từ chối mọi người cho tới S5.
 - **Id lệnh CLI trong manifest dùng dấu hai chấm** (`issue:comment:add`), còn `describeRoute` khai báo `issue comment add`.
-- **`fallbackAfterSeconds`, `delegationQueueTimeoutSeconds` mới chỉ được lưu.** Project manager chạy bằng danh sách
-  model của agent "first choice" rồi "fallback" (`ensureSystem`, theo thứ tự); việc chờ bao lâu mới chuyển sang fallback
-  do plugin agents quyết định (`ModelSelectionWait.fallbackAfterSeconds`), app chưa nối hai số này vào đó.
-  `commentRunLimit` thì được handler của kind `agent` dùng.
+- **`fallbackAfterSeconds` đã nối (M1.4, 08/11/2026); `delegationQueueTimeoutSeconds` vẫn chỉ được lưu.** Project manager chạy bằng
+  danh sách model của agent "first choice" rồi "fallback" (`ensureSystem`, theo thứ tự). Việc chờ bao lâu mới chuyển sang fallback do
+  plugin agents quyết định, và plugin dùng `policy?.fallbackAfterSeconds ?? 0`: không đăng ký `ModelSelectionPolicies` thì số 120 ở đây
+  **không có tác dụng gì** (lỗi tồn tại từ S2 tới M1.4). `server/providers/project-manager.ts` nay đăng ký chính sách cho
+  `ds-project-manager`, đọc cài đặt ở mỗi lần claim nên đổi là áp dụng ngay. `delegationQueueTimeoutSeconds` chưa có chỗ nào đọc
+  nên giao diện không hiện nó (muốn dùng phải thêm `SubjectBinding.queuedTimeout` hoặc tương đương). `commentRunLimit` được handler
+  của kind `agent` dùng.
+- **Thêm so với hợp đồng demo `StudioProjectManager`:** trường `defaults` (giá trị "khôi phục mặc định") và route
+  `GET /api/projectManager/agentOptions` (agent bật, có tool và model, trừ chính project manager) cho trang Cài đặt → Trưởng nhóm agent.
 - `Authorization.use` không có hàm gỡ: bước gắn scope cho run sống tới khi tiến trình dừng.
 
 ## 10. S2 — agent hành động như chính nó (01/11/2026)

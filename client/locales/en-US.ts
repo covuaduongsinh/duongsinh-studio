@@ -227,6 +227,32 @@ const enUS = {
     push: 'Web push',
     pushDecisions: 'Decisions waiting for me',
   },
+  projectManager: {
+    title: 'Lead agent',
+    pageDescription:
+      'The agent that coordinates the work: picks an agent for each step, hands work over by comment and prepares the hand-over for acceptance.',
+    modelsTitle: 'Models',
+    firstChoice: 'First choice',
+    fallback: 'Fallback',
+    noAgent: 'Not chosen',
+    modelsHint:
+      'The lead agent runs with the tool and model of the agent chosen. Without a first choice it takes no work.',
+    fallbackAfter: 'Wait for the first choice (seconds)',
+    fallbackAfterHint:
+      'After this long without the first choice able to run, the fallback is used. 0 uses the fallback at once.',
+    workTitle: 'How it works',
+    name: 'Name',
+    descriptionLabel: 'Description',
+    commentRunLimit: 'Runs started by comments per day',
+    commentRunLimitHint:
+      'The most runs agents’ comments may start on one issue in a day.',
+    useBuiltIn: 'Use Studio’s built-in principles',
+    principles: 'Working principles',
+    save: 'Save',
+    restore: 'Restore defaults',
+    saved: 'Saved. The change applies to the next run.',
+    readOnly: 'You can only view this; managing agents is needed to change it.',
+  },
   organizationKeys: {
     title: 'Organization API keys',
     description:
@@ -375,6 +401,9 @@ const enUS = {
     dashboard: 'Dashboard',
     budgets: 'Budgets',
     budgetsDescription: 'Limits of runs and tokens, and what they used.',
+    projectManager: 'Lead agent',
+    projectManagerDescription:
+      'The first-choice and fallback models, the waits and the working principles.',
     myNotifications: 'My notifications',
     myNotificationsDescription: 'What you want sent to your email and devices.',
     organizationKeys: 'Organization API keys',

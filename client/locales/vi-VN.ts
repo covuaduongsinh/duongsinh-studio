@@ -221,6 +221,32 @@ const viVN: AppResource = {
     push: 'Web push',
     pushDecisions: 'Việc cần tôi quyết định',
   },
+  projectManager: {
+    title: 'Trưởng nhóm agent',
+    pageDescription:
+      'Agent điều phối mọi việc: chọn agent cho từng bước, giao việc bằng comment và chuẩn bị bàn giao để nghiệm thu.',
+    modelsTitle: 'Mô hình',
+    firstChoice: 'Lựa chọn chính',
+    fallback: 'Dự phòng',
+    noAgent: 'Chưa chọn',
+    modelsHint:
+      'Trưởng nhóm chạy bằng công cụ và mô hình của agent được chọn. Chưa chọn lựa chọn chính thì trưởng nhóm không nhận việc.',
+    fallbackAfter: 'Chờ lựa chọn chính (giây)',
+    fallbackAfterHint:
+      'Hết thời gian này mà lựa chọn chính vẫn chưa chạy được thì dùng dự phòng. 0 là dùng dự phòng ngay.',
+    workTitle: 'Cách làm việc',
+    name: 'Tên',
+    descriptionLabel: 'Mô tả',
+    commentRunLimit: 'Số lượt chạy do comment mỗi ngày',
+    commentRunLimitHint:
+      'Tối đa bao nhiêu lượt chạy mà comment của agent được phép bắt đầu trên một công việc trong một ngày.',
+    useBuiltIn: 'Dùng nguyên tắc có sẵn của Studio',
+    principles: 'Nguyên tắc làm việc',
+    save: 'Lưu',
+    restore: 'Khôi phục mặc định',
+    saved: 'Đã lưu. Thay đổi áp dụng cho lượt chạy tiếp theo.',
+    readOnly: 'Bạn chỉ được xem; cần quyền quản lý agent để thay đổi.',
+  },
   organizationKeys: {
     title: 'Khoá API tổ chức',
     description:
@@ -378,6 +404,9 @@ const viVN: AppResource = {
     dashboard: 'Tổng quan',
     budgets: 'Ngân sách',
     budgetsDescription: 'Hạn mức lượt chạy và token, và mức đã dùng.',
+    projectManager: 'Trưởng nhóm agent',
+    projectManagerDescription:
+      'Chọn mô hình chính và dự phòng, thời gian chờ và nguyên tắc làm việc.',
     myNotifications: 'Thông báo của tôi',
     myNotificationsDescription: 'Những gì bạn muốn gửi đến email và thiết bị.',
     organizationKeys: 'Khoá API tổ chức',

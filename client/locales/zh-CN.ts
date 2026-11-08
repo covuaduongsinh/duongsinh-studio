@@ -217,6 +217,32 @@ const zhCN: AppResource = {
     push: '网页推送',
     pushDecisions: '等待我决定的事项',
   },
+  projectManager: {
+    title: '项目经理 Agent',
+    pageDescription:
+      '负责协调工作的 Agent：为每一步选择 Agent，通过评论交办任务，并准备交接以便验收。',
+    modelsTitle: '模型',
+    firstChoice: '首选',
+    fallback: '备选',
+    noAgent: '未选择',
+    modelsHint:
+      '项目经理使用所选 Agent 的工具和模型运行。未选择首选时，它不会接手任何工作。',
+    fallbackAfter: '等待首选（秒）',
+    fallbackAfterHint:
+      '首选在这段时间内仍无法运行时改用备选。0 表示立即使用备选。',
+    workTitle: '工作方式',
+    name: '名称',
+    descriptionLabel: '说明',
+    commentRunLimit: '每天由评论触发的运行次数',
+    commentRunLimitHint:
+      'Agent 的评论一天内最多可在一个工作项上启动的运行次数。',
+    useBuiltIn: '使用 Studio 内置原则',
+    principles: '工作原则',
+    save: '保存',
+    restore: '恢复默认',
+    saved: '已保存，更改将用于下一次运行。',
+    readOnly: '你只能查看；需要管理 Agent 的权限才能修改。',
+  },
   organizationKeys: {
     title: '组织 API 密钥',
     description:
@@ -361,6 +387,8 @@ const zhCN: AppResource = {
     dashboard: '仪表盘',
     budgets: '预算',
     budgetsDescription: '运行次数和令牌的限额及用量。',
+    projectManager: '项目经理 Agent',
+    projectManagerDescription: '首选和备选模型、等待时间与工作原则。',
     myNotifications: '我的通知',
     myNotificationsDescription: '你希望发送到邮箱和设备的内容。',
     organizationKeys: '组织 API 密钥',

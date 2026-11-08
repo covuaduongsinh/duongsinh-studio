@@ -14,6 +14,7 @@ import {
   InboxIcon,
   BellRing,
   KeyRound,
+  UserCog,
   Wallet,
   Library,
   PackageIcon,
@@ -329,6 +330,24 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
       icon: KeyRound,
     },
     componentLoader: () => import('./pages/settings/organization-keys.js'),
+  },
+  {
+    // The project manager (lead agent): its models, waits and principles. Reading needs the agents settings item's `read`
+    // (the server checks it too), changing it `manage`.
+    name: 'settingsProjectManager',
+    parent: 'settingsSystem',
+    path: '/project-manager',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'agents.agents' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.projectManager',
+      description: 'navigation.projectManagerDescription',
+      icon: UserCog,
+    },
+    componentLoader: () => import('./pages/settings/project-manager.js'),
   },
   {
     // Limits of runs and tokens. The server also checks this on every request.
