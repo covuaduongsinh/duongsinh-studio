@@ -1,3 +1,4 @@
+import { runPriorityOf } from '../agents/run-priority.js';
 import { budgetServiceToken, outboundToken } from './outbound.js';
 import type { Application } from '@nocobase/app-server/application';
 import { APP_NS } from '@nocobase/i18n';
@@ -70,12 +71,13 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
             .resolve(databaseManagerToken)
             .connection()
             .query.selectFrom('pmIssues')
-            .select('ownerUserId')
+            .select(['ownerUserId', 'priority'])
             .where('id', '=', subject.id)
             .executeTakeFirst();
           const input = params.input as Record<string, unknown>;
           const request = {
             ...params,
+            priority: runPriorityOf(strOrNull(issue?.priority)),
             // Autopilot wakes the agent on behalf of the person who owns the issue.
             actorUserId: strOrNull(issue?.ownerUserId) ?? undefined,
             responsibleUserId: strOrNull(issue?.ownerUserId),

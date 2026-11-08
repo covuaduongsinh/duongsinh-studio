@@ -50,7 +50,7 @@ Ghi chú khi làm: lần `git pull` kéo theo commit L0 (bỏ symlink `node_modu
    Test ca `cancelled` còn nhánh chưa push.
 2. `queuedExpiryMs` cho subject `issue`, lớn hơn backoff tối đa của tự lái (2 giờ); đề xuất 24 giờ. Run quá hạn đi vào thẻ "run lỗi" sẵn có và Hộp thư.
    ~~Sửa `stall.ts` để không coi run `queued` là đang chạy.~~ **Không làm (08/11/2026, kiểm lại khi hiện thực):** nếu bỏ `queued` khỏi nhóm "đang chạy", việc có run chờ hợp lệ (runner offline vài giờ) bị coi là đứng sau 30 phút, bị đánh thức thêm một run trùng rồi chuyển `blocked` với lý do sai ("không có lượt chạy"). Có `queuedExpiryMs` thì run chờ quá 24 giờ tự `failed` (`queuedExpired`), lúc đó `stall.ts` thấy việc không còn run đang mở và xử lý như mọi run lỗi.
-3. Đưa độ ưu tiên của issue vào `runs.enqueue` (`priorityRank`): với 1 slot, việc khẩn chạy trước.
+3. Đưa độ ưu tiên của issue vào `runs.enqueue` (tham số của plugin tên là `priority`, nhỏ chạy trước; không có `priorityRank`): với 1 slot, việc khẩn chạy trước.
 4. Nối `fallbackAfterSeconds` bằng `ModelSelectionPolicies.register('ds-project-manager', …)`; thêm **giao diện cài đặt Lead Agent** (model chính/dự phòng,
    thời gian chờ, nguyên tắc, giới hạn lượt chạy do comment, khôi phục mặc định) trên trang Agents hoặc Cài đặt, dùng `PATCH /projectManager` sẵn có.
    Ghi `docs/chenh-lech-upstream.md` mục 9.
@@ -133,6 +133,7 @@ một PR, CI xanh, cập nhật mục Tiến độ. Production chỉ cập nhậ
 - [ ] M1 — Agent và runner tin cậy
   - M1.1 (08/11/2026): subject `issue` khai `workspaces.settled` (`settledIssues` trong `server/providers/issue-subject.ts`: `done` hoặc `cancelled`, id lạ bị bỏ qua). Test `tests/server/issue-subject-workspaces.test.ts`; typecheck `tsconfig.server.json` sạch. **Lưu ý:** plugin xoá thư mục "whatever those still hold", nên nhánh chưa push của việc đã huỷ sẽ mất cùng thư mục; `commits` đã deprecated, không còn cách giữ lại bằng chứng push. Việc còn mở: kiểm `nocobase-runner gc --ended` trên runner thật sau khi lên production.
   - M1.2 (08/11/2026): `queuedExpiryMs = 24 giờ` (`QUEUED_EXPIRY_MS` trong `server/providers/issue-subject.ts`), test khẳng định lớn hơn `MAX_QUOTA_BACKOFF_MS` (2 giờ, nay được export). Run quá hạn thành `failed`/`queuedExpired` (đã xác nhận ở `sweeper.js`), hiện trong thẻ run lỗi (mọi run `failed` đều vào đó) và nhãn tiếng Việt đã có. Không sửa `stall.ts` (lý do ở bước 2 trên). Chưa thử một run thật hết hạn trên production.
+  - M1.3 (08/11/2026): `server/agents/run-priority.ts` (`runPriorityOf`: urgent 0, high 1, medium 2, low 3, none và không rõ 4) nối vào cả ba chỗ gọi `runs.enqueue` (`agent-executor.ts`, `issue-work.ts` nút bắt đầu, wrapper của tự lái dùng cho scheduler và stall). Test `tests/server/run-priority.test.ts` (ba issue low/none/urgent tạo theo thứ tự ngược, run xếp hàng mang 3/4/0) và 5 tệp test liên quan đạt. Việc gộp vào run đang chờ lấy mức khẩn hơn (theo plugin). Chưa đo thứ tự claim thật với 1 slot trên production.
 - [ ] M2 — Đón cộng tác viên
 - [ ] M3 — Giám sát run từ điện thoại
 - [ ] M4 — Giao hàng app NocoBase 3

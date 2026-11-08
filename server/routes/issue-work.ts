@@ -1,3 +1,4 @@
+import { runPriorityOf } from '../agents/run-priority.js';
 import { budgetServiceToken } from '../providers/outbound.js';
 import {
   authenticationToken,
@@ -184,6 +185,7 @@ interface IssueRow {
   readonly needsYou: string | null;
   readonly next: string | null;
   readonly ownerUserId: string;
+  readonly priority?: string;
   readonly revision: number;
   readonly projectId?: string | null;
   readonly executor: { readonly type: string; readonly id: string } | null;
@@ -487,6 +489,7 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
       return agents().runs.enqueue({
         agentId,
         subject: { kind: ISSUE, id: issue.id },
+        priority: runPriorityOf(issue.priority),
         actorUserId: viewer.userId,
         responsibleUserId: issue.ownerUserId,
         requestedByUserId: viewer.userId,
