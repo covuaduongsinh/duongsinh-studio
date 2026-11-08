@@ -99,6 +99,8 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
 
 - [x] Bước 0 — Ghi kế hoạch (08/11/2026)
 - [ ] L0 — Dọn repo
+  - L0.1 và L0.4 xong trong PR của bước này: `node_modules` ra khỏi index, `.gitignore` dòng 1 thành `node_modules`, `tests/project/tracked-files.test.ts` (đã thử đỏ với một symlink giả rồi xanh khi sạch), quy tắc trong `.agents/rules/duongsinh-studio.md`.
+  - Còn: L0.2 (chủ dự án kiểm hai máy, hướng dẫn trong báo cáo cuối) và L0.3 (đóng #2–#5, xoá sáu nhánh, chờ bạn đồng ý).
 - [ ] L1 — `pnpm check` xanh
 - [ ] L2 — CI cho chính repo Studio
 - [ ] L3 — CI cho dự án dùng repo có sẵn
