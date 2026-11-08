@@ -265,6 +265,9 @@ const viVN: AppResource = {
     saved: 'Đã lưu. Thay đổi áp dụng cho lượt chạy tiếp theo.',
     readOnly: 'Bạn chỉ được xem; cần quyền quản lý agent để thay đổi.',
   },
+  inviteMembers: {
+    button: 'Mời thành viên',
+  },
   projectAgentSettings: {
     title: 'Agent làm việc trong dự án',
     description:

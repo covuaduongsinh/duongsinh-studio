@@ -33,6 +33,7 @@ import { Link, Outlet, useLocation, useResolvedPath } from 'react-router';
 import { PlusIcon } from 'lucide-react';
 import { cn } from 'cn';
 import { PageContainer } from '#components/page-container';
+import { InviteMembers, PendingInvitations } from '#components/invite-members';
 import { PageHeader } from '#components/page-header';
 import { Button } from '#components/ui/button';
 import { Input } from '#components/ui/input';
@@ -419,7 +420,12 @@ export default function UsersPage(): ReactElement {
         <PageHeader
           title={t('settings.users')}
           description={t('settings.usersDescription')}
-          actions={canShowCreate ? create : undefined}
+          actions={
+            <>
+              <InviteMembers />
+              {canShowCreate ? create : null}
+            </>
+          }
         />
         <div className='flex flex-wrap items-center gap-3'>
           <Input
@@ -530,6 +536,7 @@ export default function UsersPage(): ReactElement {
             {t('settings.total', { count: request.data.meta.total })}
           </p>
         )}
+        <PendingInvitations />
       </PageContainer>
       <Outlet context={{ reload }} />
     </>

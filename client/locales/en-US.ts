@@ -271,6 +271,9 @@ const enUS = {
     saved: 'Saved. The change applies to the next run.',
     readOnly: 'You can only view this; managing agents is needed to change it.',
   },
+  inviteMembers: {
+    button: 'Invite members',
+  },
   projectAgentSettings: {
     title: 'Agents in this project',
     description:
