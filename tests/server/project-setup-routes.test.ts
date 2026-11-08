@@ -11,6 +11,7 @@ import { CONTRIBUTOR_SET_KEY } from '../../server/access/roles.js';
 import { BUILTIN_SKILLS } from '../../server/agents/builtin-skills.js';
 import { PROJECT_MANAGER_ID } from '../../server/agents/ids.js';
 import { createStandaloneServer } from '../../server/standalone.js';
+import { readTemplateRelease } from '../../server/setups/template-version.js';
 
 const test = createAppTest({
   createServer: createStandaloneServer,
@@ -166,6 +167,12 @@ test(
     expect((await request('/projectSetups', json({}))).status).toBe(401);
 
     const admin = await signIn(testApp, DEFAULT_ADMIN_CREDENTIALS);
+
+    // The template a new project is pinned to, as the setup page shows it.
+    expect((await request('/projectSetups/template')).status).toBe(401);
+    const templateAnswer = await admin.fetch('/projectSetups/template');
+    expect(templateAnswer.status).toBe(200);
+    expect((await templateAnswer.json()).data).toEqual(readTemplateRelease());
     const agents = app.container.resolve(agentsToken);
     const ownerId = (
       (await (await admin.fetch('/auth/get-session')).json()) as {

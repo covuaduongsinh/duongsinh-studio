@@ -308,6 +308,8 @@ const zhCN: AppResource = {
       nocobase: '使用 NocoBase 模板',
       prompt: '按我的描述',
     },
+    templateVersion:
+      '模板 {{template}}，严格使用版本 {{version}}（即 Studio 自身所用的版本）。',
     prompt: '要设置什么',
     token: '你的 GitHub 令牌',
     tokenHint:

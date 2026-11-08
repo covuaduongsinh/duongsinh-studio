@@ -128,13 +128,16 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
     5. Xoá repo thử `ds-setup-probe` sau khi chạy ca thật (không hoàn tác được).
   - **Đã đưa lên production (08/11/2026, chủ dự án đồng ý): `63f4bc5`** (gồm PR #8–#13). Không còn run chạy hay xếp hàng; tạm dừng tự lái Dương Sinh App và Sandbox ("Cập nhật Studio (63f4bc5)"); dump `studio-before-63f4bc5-20261108-0549.dump` (6,8 MB); Deploy compose `studio` bằng khoá Dokploy mới. Kiểm sau Deploy: container `running`/`healthy`, mount `/srv/duongsinh-studio/releases/63f4bc5/dist`, `healthz` ok, `nocobase.dsc.edu.vn` 200, route chưa đăng nhập 401 (`taskGroups`, `projectSetups/x/ci`), phiên đăng nhập: `projects`, `inbox/pending`, `taskGroups?limit=5` đều 200, WebSocket `/main/ws` 101 (qua HTTP/1.1: curl mặc định HTTP/2 trả 426), swagger có `/api/projectSetups/{projectId}/ci`, runner `vps-studio-runner` online, log 5 phút không có lỗi; đã bật lại tự lái. Bản build từ `main` mất 11 phút 37 giây khi máy dev bận; upload qua `scp` chậm (~87 MB).
   - **Agent làm khi được đồng ý** (mỗi việc chạm production, nên hỏi trước):
-    1. Đặt ngân sách Q6: toàn hệ thống 100 lượt và 1.000.000 token đầu ra mỗi ngày (đã chốt 07/11, hiện `ds_budgets` = 0). Chặn run khi hết hạn mức, nên cần chủ dự án xác nhận lại lần cuối.
+    1. ~~Đặt ngân sách Q6~~ — xong (xem dưới).
     2. ~~Đưa PR #8–#12 lên production~~ — xong (xem trên).
     3. L3.3: đẩy CI cho `nocofen` qua nút "Thêm CI", mở PR thử, xác nhận Studio đọc check (nguồn `host`) và tự lái merge được khi xanh (cần token ở mục 4).
     4. Ca thật `ds-setup-probe` (`newRepo` + `ci: true`): đo thời gian CI, đối chiếu tiêu chí K1.
     5. `kb offer` trên Sandbox (cần một dự án và một lượt agent thật).
     6. Kiểm báo cáo tuần sau 08:00 sáng thứ Hai 09/11 (hiện chưa đến giờ).
   - **`issuePanels`:** chưa có `versionProgress`, `decisions`, `offers`, `previews`. Bỏ hẳn cho đến khi có nguồn dữ liệu thật, vì trả mảng rỗng giả sẽ làm giao diện hiểu "không có gì": `decisions` đã có ở `GET /inbox/waiting`, `offers` ở `kb/offers`, `previews` ở `previews`, `versionProgress` chưa có dữ liệu nào. Nếu bạn muốn, gộp lại thành một route tổng hợp sau.
-  - **Giao diện K1.6** (hiện phiên bản template trên trang Thiết lập): có sẵn ở nhánh PR #3 (`client/pages/projects/setup.tsx`, `use-git-error-text.ts`); chưa đưa vào `main`. Hỏi bạn có muốn lấy lại không.
+  - **Giao diện K1.6 xong (08/11/2026):** `GET /projectSetups/template` trả gói và phiên bản mà công việc khởi tạo ghim; trang Thiết lập hiện dòng "Mẫu …, đúng phiên bản …" khi chọn "Từ mẫu NocoBase" (3 ngôn ngữ). Hai lỗi mới của K1 đã hiện sẵn nhờ `error.message`; hai nhánh của #3 không còn cần (đã xoá).
+  - **Ngân sách Q6 đã đặt (08/11/2026, theo mức chủ dự án chốt 07/11):** toàn hệ thống 100 lượt và 1.000.000 token đầu ra mỗi ngày (`PUT /budgets`, trạng thái `ok`); 80 % cảnh báo, 100 % chặn. Xem lại sau một tuần dữ liệu.
+  - **Báo cáo tuần:** đã hẹn một lần kiểm chỉ-đọc lúc 08:27 giờ Việt Nam sáng thứ Hai 09/11 (công việc nằm trong phiên của agent, mất khi phiên kết thúc; nếu mất thì kiểm tay: thông báo có chữ "tuần" và log app).
+  - **Nhánh của L0–L5 trên GitHub** đã xoá sau khi merge; chỉ còn `main`.
 
 (Ghi ngày, commit, PR, số liệu kiểm, việc còn mở dưới từng dòng khi xong.)

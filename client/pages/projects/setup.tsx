@@ -20,6 +20,7 @@ import {
   useProjectSetup,
   type ProjectInitChoice,
   type ProjectSetupInput,
+  useSetupTemplate,
 } from '#hooks/use-project-setup';
 
 const LOCATIONS = ['none', 'existingRepo', 'newRepo'] as const;
@@ -36,6 +37,7 @@ export default function ProjectSetupPage(): ReactElement {
   const connections = useGitConnectionChoices();
   const setup = useProjectSetup();
   const connect = useConnectPersonalToken();
+  const template = useSetupTemplate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState<Location>('none');
@@ -242,6 +244,14 @@ export default function ProjectSetupPage(): ReactElement {
                 ))}
               </div>
             </fieldset>
+            {method === 'nocobase' && template.data ? (
+              <p className='text-xs text-muted-foreground'>
+                {t('projectSetup.templateVersion', {
+                  template: template.data.package,
+                  version: template.data.version,
+                })}
+              </p>
+            ) : null}
             {method === 'prompt' ? (
               <div className='flex flex-col gap-2'>
                 <Label htmlFor='setup-prompt'>{t('projectSetup.prompt')}</Label>
