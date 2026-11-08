@@ -1,3 +1,4 @@
+import { runPriorityOf } from '../agents/run-priority.js';
 import type { BudgetService } from '../budgets/service.js';
 import { budgetServiceToken } from './outbound.js';
 import type { Application } from '@nocobase/app-server/application';
@@ -199,6 +200,7 @@ export function createAgentKind(deps: {
       {
         agentId,
         subject: { kind: ISSUE_SUBJECT, id: issue.id },
+        priority: runPriorityOf(issue.priority),
         responsibleUserId: issue.ownerUserId,
         ...(causedByRunId
           ? { causedByRunId }
