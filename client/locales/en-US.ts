@@ -313,6 +313,74 @@ const enUS = {
       'Done. Copy the password, hand it over privately, then close this.',
     failed: 'The password could not be reset.',
   },
+  myAccount: {
+    title: 'My account',
+    description:
+      'Your profile, your password and the API keys that act as you.',
+    failed: 'That did not work. Try again.',
+    profile: {
+      title: 'Profile',
+      email: 'Email',
+      username: 'Username',
+      name: 'Name',
+      save: 'Save profile',
+      saved: 'Saved.',
+    },
+    password: {
+      title: 'Password',
+      current: 'Current password',
+      new: 'New password',
+      hint: 'At least {{min}} characters.',
+      again: 'Repeat the new password',
+      mismatch: 'The two passwords differ.',
+      signOutOthers: 'Sign me out of my other sessions',
+      submit: 'Change password',
+      done: 'Your password was changed.',
+    },
+    keys: {
+      title: 'API keys',
+      description:
+        'A key acts as you, with every permission you hold: use it for a script or the ds-studio CLI (send it as the x-api-key header, or ds-studio login --api-key-stdin). Keep it secret. Its secret is shown once, when it is made.',
+      new: 'New key',
+      empty: 'No API keys yet.',
+      name: 'Name of the key',
+      namePlaceholder: 'For example: CLI on my laptop',
+      expiry: 'Expires',
+      expiryChoice: {
+        never: 'Never',
+        '7': 'In 7 days',
+        '30': 'In 30 days',
+        '90': 'In 90 days',
+        '365': 'In a year',
+      },
+      create: 'Create key',
+      cancel: 'Cancel',
+      done: 'Done',
+      copy: 'Copy the key',
+      copied: 'Copied.',
+      onceWarning:
+        'Copy this key now. It is shown only once; afterwards only its first characters are known.',
+      newTitle: 'New API key',
+      newHint:
+        'Give it a name that says where it is used, so you know which one to remove later.',
+      rotateTitle: 'Rotate {{name}}',
+      rotateHint:
+        'A replacement with the same name is made first; the old key is removed only once that worked. Update wherever the old key is used.',
+      oldNotRemoved:
+        'The new key was made but the old one could not be removed: remove it from the list.',
+      rotate: 'Rotate',
+      delete: 'Delete',
+      deleteTitle: 'Delete the key {{name}}?',
+      deleteHint:
+        'Whatever uses it stops working at once. This cannot be undone.',
+      deleteConfirm: 'Delete the key',
+      expired: 'Expired',
+      expiresOn: 'expires {{date}}',
+      neverExpires: 'never expires',
+      lastUsed: 'last used {{date}}',
+      neverUsed: 'never used',
+    },
+  },
   inviteMembers: {
     button: 'Invite members',
   },
@@ -479,6 +547,8 @@ const enUS = {
     newMemberRole: 'New members',
     newMemberRoleDescription:
       'The role newcomers get when they join by invitation, and who holds it.',
+    myAccount: 'My account',
+    myAccountDescription: 'Your profile, password and personal API keys.',
     myNotifications: 'My notifications',
     myNotificationsDescription: 'What you want sent to your email and devices.',
     organizationKeys: 'Organization API keys',

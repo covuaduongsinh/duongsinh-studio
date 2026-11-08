@@ -33,7 +33,16 @@ Lời mời **không mang vai trò**. Quyền của người mới đến từ *
 2. Giữ ô **Đăng xuất họ khỏi mọi phiên đang mở** (bật sẵn nếu bạn có quyền `revoke-sessions`) khi nghi mật khẩu cũ đã lộ.
 3. Bấm **Đặt mật khẩu**. Mật khẩu **vẫn hiện trên màn hình** để bạn sao chép và gửi riêng; đóng hộp thoại là không xem lại được. Mật khẩu cũ không còn dùng được.
 
-Studio chưa có trang "Tài khoản của tôi" để người dùng tự đổi mật khẩu (M2.3): trước đó, hãy dặn họ nhờ bạn đặt lại khi cần.
+Sau khi nhận mật khẩu từ bạn, người dùng nên tự đổi ở **Cài đặt → Tài khoản và phân quyền → Tài khoản của tôi** (mục dưới).
+
+## Tài khoản của tôi (mọi người dùng)
+
+Không cần quyền riêng và chỉ tác động lên chính tài khoản của người mở (cùng cơ chế với _Thông báo của tôi_; nếu một người thường không thấy mục Cài đặt trong thanh bên, báo để sửa):
+
+- **Hồ sơ:** xem email và tên đăng nhập (do quản trị đổi), tự sửa **tên hiển thị**.
+- **Mật khẩu:** nhập mật khẩu hiện tại, mật khẩu mới (ít nhất 8 ký tự) hai lần; tuỳ chọn **đăng xuất khỏi các phiên khác** (bật sẵn).
+- **Khoá API cá nhân:** tạo (tên bắt buộc, hết hạn sau 7/30/90 ngày, một năm hoặc không bao giờ; mặc định 90 ngày), **xoay** và **xoá**. Khoá hành động nhân danh chủ khoá với **mọi quyền người đó có**, dùng cho script hoặc CLI
+  (`ds-studio login --api-key-stdin`, hoặc header `x-api-key`). **Bí mật chỉ hiện một lần**, lúc tạo, kèm nút sao chép; sau đó chỉ còn tên, vài ký tự đầu và ngày tháng. Xoay khoá = tạo khoá thay thế cùng tên **trước**, xoá khoá cũ **sau khi** việc tạo thành công, nên lỗi không bao giờ để người dùng không còn khoá nào.
 
 ## Cho người làm kỹ thuật
 
@@ -41,5 +50,6 @@ Studio chưa có trang "Tài khoản của tôi" để người dùng tự đổ
 - Ai thấy nút khớp với server (`POST /api/projects/invitations`): quyền `invite` trên mục `pm.members` (mời vào mọi dự án hoặc không dự án nào), hoặc là trưởng dự án (chỉ dự án đó, bắt buộc chọn).
   Server kiểm lại mọi lần; giao diện chỉ ẩn nút.
 - `canUseSetting` của plugin không chịu được `viewer` thiếu `permissions` (lúc `GET /projects/me` đang tải hoặc trả dữ liệu lạ): `useMayInvite` bảo vệ chỗ đó.
+- Tài khoản của tôi: `client/pages/settings/my-account/` (route `settingsMyAccount`, `authz: 'skip'`) trên client Better Auth (`updateUser`, `changePassword`, `apiKey.list/create/delete`); Studio không có route riêng cho nó. Khoá của tổ chức (cho CI) là việc khác: `client/pages/settings/organization-keys.tsx`.
 - Vai trò khi vào: `client/pages/settings/new-member-role.tsx` (route `settingsNewMemberRole`) trên `GET/PUT /api/access/settings`, `GET /api/access/roles` và `/members`. Đặt lại mật khẩu: `client/pages/settings/reset-password.tsx` trên `POST /api/users/{id}/resetPassword` rồi `revokeSessions` (chỉ sau khi đặt thành công, để một lần đặt lỗi không đăng xuất ai).
-- Test: `tests/client/new-member-role.test.tsx`, `tests/client/reset-password.test.tsx`, `tests/server/reset-password.test.ts` (đặt lại thật: mật khẩu mới đăng nhập được, cũ thì không, người thường bị từ chối, mật khẩu ngắn bị từ chối), `tests/client/invite-members.test.tsx`; luồng mời thật (mời, nhận, vào dự án) đã có ở `tests/server/invitations.test.ts` và `tests/server/sign-up-closed.test.ts`.
+- Test: `tests/client/my-account.test.tsx` (10), `tests/server/my-account.test.ts` (đổi tên, đổi mật khẩu sai/đúng, tạo khoá, khoá dùng được qua `x-api-key` và không lộ trong danh sách, người khác không xoá được, xoá xong khoá bị từ chối), `tests/client/new-member-role.test.tsx`, `tests/client/reset-password.test.tsx`, `tests/server/reset-password.test.ts` (đặt lại thật: mật khẩu mới đăng nhập được, cũ thì không, người thường bị từ chối, mật khẩu ngắn bị từ chối), `tests/client/invite-members.test.tsx`; luồng mời thật (mời, nhận, vào dự án) đã có ở `tests/server/invitations.test.ts` và `tests/server/sign-up-closed.test.ts`.

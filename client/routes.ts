@@ -386,6 +386,21 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
     componentLoader: () => import('./pages/settings/new-member-role.js'),
   },
   {
+    // The signed-in person's own profile, password and API keys. It only ever acts on their own account, through the
+    // Better Auth client, so everyone signed in may open it; the server decides again on every call.
+    name: 'settingsMyAccount',
+    parent: 'settingsAccount',
+    path: '/my-account',
+    auth: 'required',
+    authz: 'skip',
+    navigation: {
+      title: 'navigation.myAccount',
+      description: 'navigation.myAccountDescription',
+      icon: CircleUserRound,
+    },
+    componentLoader: () => import('./pages/settings/my-account/index.js'),
+  },
+  {
     // Each person's own choices, so everyone signed in may open it.
     name: 'settingsMyNotifications',
     parent: 'settingsAccount',
