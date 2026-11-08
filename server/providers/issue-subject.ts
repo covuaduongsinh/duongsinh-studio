@@ -416,6 +416,8 @@ export function createIssueSubject(deps: {
           run,
         ),
     },
+    // A done or cancelled issue's working directory is no longer needed: runners tidy it up (M1.1).
+    workspaces: { settled: settledIssues },
     reports: {
       // Outside any transaction (the usage reports read on their own connection), so the viewer's permissions may be read.
       describe: async (_conn, userId, ids) => {
@@ -439,6 +441,28 @@ export function createIssueSubject(deps: {
       },
     },
   };
+}
+
+/** The statuses after which an issue's work is over (the keys of `@nocobase/app-plugin-projects`' fixed statuses). */
+const SETTLED_STATUSES = ['done', 'cancelled'] as const;
+
+/**
+ * Of `ids`, the issues whose work is over. Runners remove the working directory they keep for such an issue
+ * (`SubjectWorkspaces.settled`), whatever it still holds: a cancelled issue's branch that was never pushed is gone with it.
+ * An id it does not know is left out, so its directory is kept.
+ */
+export async function settledIssues(
+  conn: DatabaseConnection,
+  ids: readonly string[],
+): Promise<ReadonlySet<string>> {
+  if (ids.length === 0) return new Set();
+  const rows = await conn.query
+    .selectFrom('pmIssues')
+    .select('id')
+    .where('id', 'in', [...ids])
+    .where('statusKey', 'in', [...SETTLED_STATUSES])
+    .execute();
+  return new Set(rows.map((row) => String(row.id)));
 }
 
 /** Registers the `issue` subject with the agents plugin. */

@@ -46,8 +46,8 @@ Ghi chú khi làm: lần `git pull` kéo theo commit L0 (bỏ symlink `node_modu
 
 ### M1 — Agent và runner chạy tin cậy (~2 ngày)
 
-1. `workspaces.settled` cho subject `issue` (`done`/`canceled` là xong) để runner tự dọn thư mục và `nocobase-runner gc --ended` có tác dụng.
-   Test ca `canceled` còn nhánh chưa push.
+1. `workspaces.settled` cho subject `issue` (`done`/`cancelled` là xong; khoá trạng thái của plugin projects viết hai chữ `l`) để runner tự dọn thư mục và `nocobase-runner gc --ended` có tác dụng.
+   Test ca `cancelled` còn nhánh chưa push.
 2. `queuedExpiryMs` cho subject `issue`, lớn hơn backoff tối đa của tự lái (2 giờ); đề xuất 24 giờ. Run quá hạn đi vào thẻ "run lỗi" sẵn có và Hộp thư.
    Sửa `stall.ts` để không coi run `queued` là đang chạy.
 3. Đưa độ ưu tiên của issue vào `runs.enqueue` (`priorityRank`): với 1 slot, việc khẩn chạy trước.
@@ -131,6 +131,7 @@ một PR, CI xanh, cập nhật mục Tiến độ. Production chỉ cập nhậ
   - M0.1 xong trong mã (08/11/2026, **chưa lên production**): `disableSignUp: true` ở `deploy/dokploy/config.yml`; test `tests/server/sign-up-closed.test.ts` (2 test đạt: đăng ký bị từ chối 400, lời mời vẫn tạo tài khoản). Còn mở: đưa lên production khi chủ dự án đồng ý (sao lưu, tạm dừng tự lái, bật lại — `docs/trien-khai-vps.md`); liệt kê tài khoản không do owner tạo trên production (chỉ đọc) — cần chủ dự án cho cách truy cập DB.
   - M0.2 + M0.3 xong trong mã (08/11/2026, chưa lên production): `public/manifest.webmanifest` (URL tương đối để đúng với `/main`), 4 icon dựng từ `ds-mark.svg` (192, 512, maskable, apple-touch 180), `<link rel="manifest">` + `apple-touch-icon` trong `index.html`; hướng dẫn Android ở `docs/cai-tren-dien-thoai.md`; `docs/trien-khai-vps.md` đã sửa phần CLI (đăng nhập trình duyệt `/device`). Kiểm: `tests/project/pwa-manifest.test.ts` (3 test), Vite build thử trên trang nhỏ viết lại đúng `./manifest.webmanifest`. Khác kế hoạch: không dùng `pushManifest` (chỉ dựng JSON) mà dùng tệp tĩnh, không cần route server. Còn mở: cài thử trên Android thật sau khi lên production và gửi một thông báo thử.
 - [ ] M1 — Agent và runner tin cậy
+  - M1.1 (08/11/2026): subject `issue` khai `workspaces.settled` (`settledIssues` trong `server/providers/issue-subject.ts`: `done` hoặc `cancelled`, id lạ bị bỏ qua). Test `tests/server/issue-subject-workspaces.test.ts`; typecheck `tsconfig.server.json` sạch. **Lưu ý:** plugin xoá thư mục "whatever those still hold", nên nhánh chưa push của việc đã huỷ sẽ mất cùng thư mục; `commits` đã deprecated, không còn cách giữ lại bằng chứng push. Việc còn mở: kiểm `nocobase-runner gc --ended` trên runner thật sau khi lên production.
 - [ ] M2 — Đón cộng tác viên
 - [ ] M3 — Giám sát run từ điện thoại
 - [ ] M4 — Giao hàng app NocoBase 3
