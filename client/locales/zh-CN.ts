@@ -364,6 +364,31 @@ const zhCN: AppResource = {
       neverUsed: '从未使用',
     },
   },
+  myHome: {
+    title: '你好，{{name}}',
+    titleAnonymous: '你好',
+    description: '需要你处理的事，以及正在进行的工作。',
+    shortcuts: '接下来去哪里',
+    retry: '重试',
+    links: {
+      myIssues: '我的工作项',
+      inbox: '收件箱',
+      projects: '项目',
+    },
+    waiting: {
+      title: '等待我决定',
+      none: '目前没有等你处理的事。',
+      failed: '无法加载等你决定的事项。',
+      seeAll: '在收件箱查看全部 {{count}} 项',
+    },
+    working: {
+      title: '进行中',
+      text: '项我的工作正在进行，暂时不需要我。',
+      none: '目前没有不需要我、正在进行的工作。',
+      failed: '无法统计你的工作项。',
+      open: '打开我的工作项',
+    },
+  },
   inviteMembers: {
     button: '邀请成员',
   },

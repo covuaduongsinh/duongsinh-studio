@@ -381,6 +381,31 @@ const enUS = {
       neverUsed: 'never used',
     },
   },
+  myHome: {
+    title: 'Hello, {{name}}',
+    titleAnonymous: 'Hello',
+    description: 'What needs you, and what is under way.',
+    shortcuts: 'Where to next',
+    retry: 'Try again',
+    links: {
+      myIssues: 'My issues',
+      inbox: 'Inbox',
+      projects: 'Projects',
+    },
+    waiting: {
+      title: 'Waiting for my decision',
+      none: 'Nothing is waiting for you.',
+      failed: 'The decisions waiting for you could not be loaded.',
+      seeAll: 'See all {{count}} in the inbox',
+    },
+    working: {
+      title: 'Under way',
+      text: 'of my issues are in progress and do not need me right now.',
+      none: 'None of my issues is in progress without needing me.',
+      failed: 'Your issues could not be counted.',
+      open: 'Open my issues',
+    },
+  },
   inviteMembers: {
     button: 'Invite members',
   },

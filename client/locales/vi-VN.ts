@@ -373,6 +373,31 @@ const viVN: AppResource = {
       neverUsed: 'chưa dùng',
     },
   },
+  myHome: {
+    title: 'Chào {{name}}',
+    titleAnonymous: 'Xin chào',
+    description: 'Việc cần bạn và việc đang chạy.',
+    shortcuts: 'Đi tiếp tới',
+    retry: 'Thử lại',
+    links: {
+      myIssues: 'Công việc của tôi',
+      inbox: 'Hộp thư',
+      projects: 'Dự án',
+    },
+    waiting: {
+      title: 'Cần tôi quyết định',
+      none: 'Không có gì đang chờ bạn.',
+      failed: 'Không tải được các việc đang chờ bạn quyết định.',
+      seeAll: 'Xem cả {{count}} việc trong Hộp thư',
+    },
+    working: {
+      title: 'Đang làm',
+      text: 'việc của tôi đang chạy và chưa cần đến tôi.',
+      none: 'Chưa có việc nào của tôi đang chạy mà không cần đến tôi.',
+      failed: 'Không đếm được việc của bạn.',
+      open: 'Mở công việc của tôi',
+    },
+  },
   inviteMembers: {
     button: 'Mời thành viên',
   },

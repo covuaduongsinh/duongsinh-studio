@@ -63,6 +63,14 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
 - Stage by path (`git add <file>`), not `git add -A`, in a worktree.
 - When a pull request replaces others, close the replaced ones with "Superseded by #N" and delete their branches as soon as it merges.
 
+## Home page
+
+- `client/pages/home/index.tsx` is Studio's "my work" (what waits for my decision, and what is under way), read from `/api/inbox/waiting` and
+  `/api/taskGroups/summary` through `client/hooks/use-my-work.ts`. It replaced the template's introduction to building with a coding agent
+  (`capabilities.ts`, `prompt-dialog.tsx`, `use-copy.ts` and `tests/client/home.test.tsx` were removed with it). On a template upgrade keep
+  this page; the template's `home.*` strings in `client/locales/system/` are unused here and may be taken as they come. Our strings are the
+  `myHome` group of the application's own locale files.
+
 ## Language
 
 User-facing copy is Vietnamese first (`vi-VN`), with `en-US` kept complete.
