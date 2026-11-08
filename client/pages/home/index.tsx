@@ -1,190 +1,186 @@
+/**
+ * Home: "my work" for the signed-in person. It answers the two questions they open Studio with, in one screen and without
+ * a tap more than needed on a phone: what waits for a decision of mine (each one straight to its issue) and how much of
+ * mine is under way. Both read what `/api/inbox/waiting` and `/api/taskGroups/summary` already compute for the inbox and
+ * "My issues". Changed from the template's introduction to building with a coding agent, which Studio does not use.
+ */
+import { useAuthentication } from '@nocobase/app-plugin-authentication/client';
 import { useTranslation } from '@nocobase/i18n/client';
-import {
-  ArrowRightIcon,
-  CheckIcon,
-  CopyIcon,
-  MessageSquareTextIcon,
-  SparklesIcon,
-} from 'lucide-react';
-import { type ReactElement, useState } from 'react';
+import { InboxIcon, ListTodoIcon, FolderKanbanIcon } from 'lucide-react';
+import type { ReactElement } from 'react';
+import { Link } from 'react-router';
 
 import { PageContainer } from '#components/page-container';
-import { Button } from '#components/ui/button';
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '#components/ui/card';
+import { PageHeader } from '#components/page-header';
+import { Alert, AlertDescription } from '#components/ui/alert';
+import { Badge } from '#components/ui/badge';
+import { Button, buttonVariants } from '#components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '#components/ui/card';
+import { Skeleton } from '#components/ui/skeleton';
+import { entryLink } from '#extensions/nocobase-inbox/model';
+import { useMyWorkSummary, useWaitingDecisions } from '#hooks/use-my-work';
 
-import { CAPABILITIES, type Capability } from './capabilities.js';
-import { PromptDialog } from './prompt-dialog.js';
-import { useCopy } from './use-copy.js';
+/** How many waiting decisions are listed on the page; the rest are in the inbox. */
+const SHOWN = 5;
 
-const STEPS = ['describe', 'build', 'review'] as const;
+function Waiting(): ReactElement {
+  const { t } = useTranslation();
+  const summary = useMyWorkSummary();
+  const waiting = useWaitingDecisions();
+  const entries = waiting.data ?? [];
+  // The summary counts every issue that waits; the list can be shorter if some entries cannot be shown.
+  const count = summary.data?.waiting ?? entries.length;
+
+  return (
+    <Card>
+      <section aria-labelledby='home-waiting'>
+        <CardHeader className='flex flex-row items-baseline justify-between gap-2'>
+          <CardTitle id='home-waiting'>{t('myHome.waiting.title')}</CardTitle>
+          {waiting.data ? (
+            <span className='text-3xl font-semibold'>{count}</span>
+          ) : null}
+        </CardHeader>
+        <CardContent className='flex flex-col gap-3'>
+          {waiting.isPending ? <Skeleton className='h-20 w-full' /> : null}
+          {waiting.isError ? (
+            <Alert variant='destructive'>
+              <AlertDescription className='flex flex-wrap items-center gap-2'>
+                {t('myHome.waiting.failed')}
+                <Button
+                  size='sm'
+                  variant='outline'
+                  onClick={() => void waiting.refetch()}
+                >
+                  {t('myHome.retry')}
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : null}
+          {waiting.data && entries.length === 0 ? (
+            <p className='text-sm text-muted-foreground'>
+              {t('myHome.waiting.none')}
+            </p>
+          ) : null}
+          {entries.length > 0 ? (
+            <ul className='flex flex-col divide-y'>
+              {entries.slice(0, SHOWN).map((entry) => {
+                const href = entryLink(entry) ?? '/inbox';
+                return (
+                  <li key={entry.item.id}>
+                    <Link
+                      to={href}
+                      className='flex flex-col gap-1 py-3 hover:bg-muted/50 sm:flex-row sm:items-center sm:gap-3'
+                    >
+                      <Badge variant='secondary' className='w-fit shrink-0'>
+                        {t(
+                          `inboxStudio.type.${entry.notice?.type ?? 'answer'}`,
+                        )}
+                      </Badge>
+                      <span className='min-w-0 flex-1'>
+                        <span className='block truncate font-medium'>
+                          {entry.item.title}
+                        </span>
+                        {entry.item.body ? (
+                          <span className='block truncate text-sm text-muted-foreground'>
+                            {entry.item.body}
+                          </span>
+                        ) : null}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+          {entries.length > SHOWN ? (
+            <Link
+              to='/inbox'
+              className='text-sm font-medium underline-offset-4 hover:underline'
+            >
+              {t('myHome.waiting.seeAll', { count })}
+            </Link>
+          ) : null}
+        </CardContent>
+      </section>
+    </Card>
+  );
+}
+
+function UnderWay(): ReactElement {
+  const { t } = useTranslation();
+  const summary = useMyWorkSummary();
+  // Open issues of mine that do not need a decision of mine: the agents are working on them.
+  const working = summary.data
+    ? Math.max(0, summary.data.mine.open - summary.data.mine.waiting)
+    : null;
+  return (
+    <Card>
+      <section aria-labelledby='home-working'>
+        <CardHeader className='flex flex-row items-baseline justify-between gap-2'>
+          <CardTitle id='home-working'>{t('myHome.working.title')}</CardTitle>
+          {working !== null ? (
+            <span className='text-3xl font-semibold'>{working}</span>
+          ) : null}
+        </CardHeader>
+        <CardContent className='flex flex-col gap-3'>
+          {summary.isPending ? <Skeleton className='h-10 w-full' /> : null}
+          {summary.isError ? (
+            <p className='text-sm text-destructive'>
+              {t('myHome.working.failed')}
+            </p>
+          ) : null}
+          {working !== null ? (
+            <p className='text-sm text-muted-foreground'>
+              {working === 0
+                ? t('myHome.working.none')
+                : t('myHome.working.text')}
+            </p>
+          ) : null}
+          <div>
+            <Link
+              to='/my-issues'
+              className={buttonVariants({ variant: 'outline' })}
+            >
+              {t('myHome.working.open')}
+            </Link>
+          </div>
+        </CardContent>
+      </section>
+    </Card>
+  );
+}
 
 export default function HomePage(): ReactElement {
   const { t } = useTranslation();
-  const [selected, setSelected] = useState<Capability>();
-  const [open, setOpen] = useState(false);
-  // Changes on every opening, so the dialog remounts and drops the edits of the previous one.
-  const [openCount, setOpenCount] = useState(0);
-
-  const openCapability = (capability: Capability): void => {
-    setSelected(capability);
-    setOpenCount((count) => count + 1);
-    setOpen(true);
-  };
-
+  const { session } = useAuthentication();
+  const name = (session?.user as { name?: string } | undefined)?.name ?? '';
   return (
-    <PageContainer className='mx-auto max-w-6xl'>
-      <AgentIntro />
-      <section
-        aria-labelledby='home-capabilities'
-        className='flex flex-col gap-4'
-      >
-        <div className='flex flex-col gap-1'>
-          <h2 id='home-capabilities' className='text-base font-medium'>
-            {t('home.capabilitiesTitle')}
-          </h2>
-          <p className='text-sm text-muted-foreground'>
-            {t('home.capabilitiesDescription')}
-          </p>
-        </div>
-        <ul className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
-          {CAPABILITIES.map((capability) => (
-            <li key={capability.id} className='flex'>
-              <CapabilityCard
-                capability={capability}
-                onOpen={() => openCapability(capability)}
-              />
-            </li>
-          ))}
-        </ul>
-      </section>
-      {selected ? (
-        <PromptDialog
-          key={openCount}
-          capability={selected}
-          open={open}
-          onOpenChange={setOpen}
-        />
-      ) : null}
-    </PageContainer>
-  );
-}
-
-/** The first part of the page: development here happens by asking a coding agent, which the steps and sample show. */
-function AgentIntro(): ReactElement {
-  const { t } = useTranslation();
-  const { copied, copy } = useCopy();
-  const example = t('home.example.text');
-
-  return (
-    <section className='grid gap-8 rounded-2xl border border-border bg-linear-to-br from-primary/5 via-card to-card p-6 md:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-center'>
-      <div className='flex flex-col gap-6'>
-        <div className='flex flex-col gap-4'>
-          <p className='flex items-center gap-2 text-sm font-medium text-primary'>
-            <SparklesIcon className='size-4' aria-hidden />
-            {t('home.platform')}
-          </p>
-          <h1 className='font-heading text-3xl font-semibold tracking-[-0.035em] text-balance md:text-4xl'>
-            {t('home.title')}
-          </h1>
-          <p className='text-base leading-7 text-muted-foreground'>
-            {t('home.description')}
-          </p>
-        </div>
-        <ol className='flex flex-col gap-3'>
-          {STEPS.map((step, index) => (
-            <li key={step} className='flex gap-3'>
-              <span className='flex size-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary'>
-                {index + 1}
-              </span>
-              <div className='flex flex-col gap-0.5'>
-                <span className='text-sm font-medium'>
-                  {t(`home.steps.${step}.title`)}
-                </span>
-                <span className='text-sm text-muted-foreground'>
-                  {t(`home.steps.${step}.description`)}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ol>
+    <PageContainer className='mx-auto max-w-4xl'>
+      <PageHeader
+        title={name ? t('myHome.title', { name }) : t('myHome.titleAnonymous')}
+        description={t('myHome.description')}
+      />
+      <nav aria-label={t('myHome.shortcuts')} className='flex flex-wrap gap-2'>
+        <Link
+          to='/my-issues'
+          className={buttonVariants({ variant: 'outline' })}
+        >
+          <ListTodoIcon data-icon='inline-start' />
+          {t('myHome.links.myIssues')}
+        </Link>
+        <Link to='/inbox' className={buttonVariants({ variant: 'outline' })}>
+          <InboxIcon data-icon='inline-start' />
+          {t('myHome.links.inbox')}
+        </Link>
+        <Link to='/projects' className={buttonVariants({ variant: 'outline' })}>
+          <FolderKanbanIcon data-icon='inline-start' />
+          {t('myHome.links.projects')}
+        </Link>
+      </nav>
+      <div className='grid gap-4 md:grid-cols-[3fr_2fr]'>
+        <Waiting />
+        <UnderWay />
       </div>
-      <figure className='flex flex-col overflow-hidden rounded-xl border border-primary/10 bg-card shadow-sm'>
-        <figcaption className='flex items-center justify-between gap-2 border-b border-primary/10 px-4 py-2.5'>
-          <span className='flex items-center gap-2 text-sm font-medium'>
-            <MessageSquareTextIcon
-              className='size-4 text-primary'
-              aria-hidden
-            />
-            {t('home.example.title')}
-          </span>
-          <Button variant='ghost' size='sm' onClick={() => void copy(example)}>
-            {copied ? (
-              <CheckIcon data-icon='inline-start' />
-            ) : (
-              <CopyIcon data-icon='inline-start' />
-            )}
-            {copied ? t('home.prompt.copiedShort') : t('home.prompt.copy')}
-          </Button>
-        </figcaption>
-        <p className='bg-primary/5 px-4 py-4 text-sm leading-7 whitespace-pre-line'>
-          {example}
-        </p>
-        <p className='border-t border-primary/10 px-4 py-2.5 text-xs text-muted-foreground'>
-          {t('home.example.hint')}
-        </p>
-      </figure>
-    </section>
-  );
-}
-
-function CapabilityCard({
-  capability,
-  onOpen,
-}: {
-  readonly capability: Capability;
-  readonly onOpen: () => void;
-}): ReactElement {
-  const { t } = useTranslation();
-  const prefix = `home.capabilities.${capability.id}`;
-  const Icon = capability.icon;
-
-  return (
-    <button
-      type='button'
-      onClick={onOpen}
-      className='group flex w-full cursor-pointer rounded-xl text-left outline-none focus-visible:ring-3 focus-visible:ring-ring/50'
-    >
-      <Card className='w-full transition-[translate,box-shadow,background-color] duration-200 ease-out group-hover:-translate-y-0.5 group-hover:bg-hover group-hover:shadow-md motion-reduce:transition-none motion-reduce:group-hover:translate-y-0'>
-        <CardHeader className='gap-3'>
-          {/* The chip only deepens its tint on hover rather than inverting: swapping a light background and a dark icon
-              passes both through the same color halfway, where the icon vanishes for a moment and reads as a flicker. */}
-          <span className='flex size-9 items-center justify-center rounded-lg bg-primary/5 text-primary ring-1 ring-transparent transition-[background-color,box-shadow] duration-200 ease-out group-hover:bg-primary/10 group-hover:ring-border motion-reduce:transition-none'>
-            <Icon
-              className='size-4 transition-transform duration-200 ease-out group-hover:scale-110 motion-reduce:transition-none'
-              aria-hidden
-            />
-          </span>
-          <div className='flex flex-col gap-1'>
-            <CardTitle>{t(`${prefix}.title`)}</CardTitle>
-            <CardDescription className='leading-6'>
-              {t(`${prefix}.description`)}
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardFooter className='mt-auto justify-between text-sm text-muted-foreground transition-colors duration-200 ease-out group-hover:text-foreground'>
-          {t('home.viewPrompts', { count: capability.prompts.length })}
-          <ArrowRightIcon
-            className='size-4 transition-transform duration-200 ease-out group-hover:translate-x-1 motion-reduce:transition-none'
-            aria-hidden
-          />
-        </CardFooter>
-      </Card>
-    </button>
+    </PageContainer>
   );
 }

@@ -1,160 +1,157 @@
-import { renderWithApp } from '@nocobase/app-testing/client';
-import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+// The home page: what waits on the signed-in person and what is under way, read from `server/routes/inbox.ts`.
+import {
+  answerApi,
+  renderWithApp,
+  type ApiCall,
+} from '@nocobase/app-testing/client';
+import { screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import packageMetadata from '../../package.json' with { type: 'json' };
 import enUS from '../../client/locales/en-US.js';
-import zhCN from '../../client/locales/zh-CN.js';
 import HomePage from '../../client/pages/home/index.js';
-import { CAPABILITIES } from '../../client/pages/home/capabilities.js';
 
-function renderHome() {
+vi.mock('@nocobase/app-plugin-authentication/client', async (original) => ({
+  ...(await original<Record<string, unknown>>()),
+  useAuthentication: () => ({
+    session: { user: { id: 'u1', name: 'Dương Sinh' } },
+  }),
+}));
+
+const entry = (id: string, issueId: string, type: string, title: string) => ({
+  item: {
+    id,
+    deliveryId: `d-${id}`,
+    notificationId: `n-${id}`,
+    title,
+    body: `Body of ${title}`,
+    target: { type: 'route', path: `/issues/${issueId}` },
+    createdAt: '2026-11-08T08:00:00.000Z',
+  },
+  notice: {
+    notificationId: `n-${id}`,
+    source: 'studio',
+    kind: 'decision',
+    type,
+    subject: { type: 'issue', id: issueId, label: `DS-${issueId}` },
+    decisionKey: `${issueId}:${type}`,
+    data: null,
+    count: 1,
+    resolvedAt: null,
+    outcome: null,
+  },
+});
+
+let summary: { mine: { open: number; waiting: number }; waiting: number };
+let waiting: ReturnType<typeof entry>[];
+let failWaiting = false;
+let calls: ApiCall[] = [];
+
+function render() {
   return renderWithApp(<HomePage />, {
     namespace: packageMetadata.name,
     namespaces: { [packageMetadata.name]: enUS },
+    fetch: answerApi((call: ApiCall) => {
+      calls.push(call);
+      const path = String(call.path);
+      if (path.endsWith('taskGroups/summary')) return { data: summary };
+      if (path.endsWith('inbox/waiting')) {
+        if (failWaiting) throw new Error('boom');
+        return { data: waiting, meta: {} };
+      }
+      return { data: [] };
+    }),
   });
 }
 
-const writeText = vi.fn<(text: string) => Promise<void>>();
-const clipboard = { fail: false };
-
-/** `userEvent.setup()` installs a clipboard stub of its own, so the mock goes in after it. */
-function setup(): ReturnType<typeof userEvent.setup> {
-  const user = userEvent.setup();
-  writeText
-    .mockReset()
-    .mockImplementation(() =>
-      clipboard.fail ? Promise.reject(new Error('denied')) : Promise.resolve(),
-    );
-  Object.defineProperty(navigator, 'clipboard', {
-    configurable: true,
-    value: { writeText },
-  });
-  return user;
-}
-
-describe('home page', () => {
-  beforeEach(() => {
-    clipboard.fail = false;
-  });
-
-  it('tells people to build by asking their coding agent', async () => {
-    await renderHome();
-
-    expect(
-      screen.getByRole('heading', { level: 1, name: enUS.home.title }),
-    ).toBeInTheDocument();
-    expect(screen.getByText(enUS.home.steps.describe.title)).toBeVisible();
-  });
-
-  it('shows one card per built-in capability', async () => {
-    await renderHome();
-
-    for (const { id } of CAPABILITIES) {
-      const title =
-        enUS.home.capabilities[id as keyof typeof enUS.home.capabilities].title;
-      expect(
-        screen.getByRole('button', { name: new RegExp(title) }),
-      ).toBeInTheDocument();
-    }
-  });
-
-  it('opens a capability, switches prompts, and copies the edited text', async () => {
-    const user = setup();
-    const view = await renderHome();
-    const scheduler = enUS.home.capabilities.scheduler;
-
-    await user.click(
-      screen.getByRole('button', { name: new RegExp(scheduler.title) }),
-    );
-    const dialog = await screen.findByRole('dialog');
-    const prompt = within(dialog).getByRole('textbox', {
-      name: enUS.home.prompt.label,
-    });
-    expect(prompt).toHaveValue(scheduler.prompts.reminder.text);
-
-    await user.click(
-      within(dialog).getByRole('tab', {
-        name: scheduler.prompts.weeklyReport.label,
-      }),
-    );
-    expect(prompt).toHaveValue(scheduler.prompts.weeklyReport.text);
-
-    await user.clear(prompt);
-    await user.type(prompt, 'Every Friday');
-    await user.click(
-      within(dialog).getByRole('button', { name: enUS.home.prompt.copy }),
-    );
-
-    expect(writeText).toHaveBeenCalledWith('Every Friday');
-    expect(view.toasts()).toEqual([
-      expect.objectContaining({
-        type: 'success',
-        title: enUS.home.prompt.copied,
-      }),
-    ]);
-
-    await user.click(
-      within(dialog).getByRole('button', { name: enUS.home.prompt.reset }),
-    );
-    expect(prompt).toHaveValue(scheduler.prompts.weeklyReport.text);
-  });
-
-  it('starts from the default prompt each time the dialog opens', async () => {
-    const user = setup();
-    await renderHome();
-    const theme = enUS.home.capabilities.theme;
-    const card = screen.getByRole('button', { name: new RegExp(theme.title) });
-
-    await user.click(card);
-    const prompt = within(await screen.findByRole('dialog')).getByRole(
-      'textbox',
-    );
-    await user.type(prompt, ' Edited.');
-    await user.keyboard('{Escape}');
-    await waitFor(() =>
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument(),
-    );
-
-    await user.click(card);
-    expect(
-      within(await screen.findByRole('dialog')).getByRole('textbox'),
-    ).toHaveValue(theme.prompts.changeTheme.text);
-  });
-
-  it('reports a copy the browser refuses', async () => {
-    clipboard.fail = true;
-    const user = setup();
-    const view = await renderHome();
-
-    await user.click(
-      screen.getAllByRole('button', { name: enUS.home.prompt.copy })[0],
-    );
-
-    expect(view.toasts()).toEqual([
-      expect.objectContaining({
-        type: 'error',
-        title: enUS.home.prompt.copyFailed,
-      }),
-    ]);
-  });
+beforeEach(() => {
+  calls = [];
+  failWaiting = false;
+  summary = { mine: { open: 7, waiting: 2 }, waiting: 2 };
+  waiting = [
+    entry('a', '11', 'accept', 'Review DS-11'),
+    entry('b', '12', 'answer', 'Question on DS-12'),
+  ];
 });
 
-describe('home page copy', () => {
-  it('translates every capability prompt into Chinese', () => {
-    for (const { id, prompts } of CAPABILITIES) {
-      const key = id as keyof typeof zhCN.home.capabilities;
-      for (const prompt of prompts) {
-        const zh = (
-          zhCN.home.capabilities[key].prompts as Record<
-            string,
-            { label: string; text: string }
-          >
-        )[prompt];
-        expect(zh?.text, `${id}.${prompt}`).toBeTruthy();
-        expect(zh?.label, `${id}.${prompt}`).toBeTruthy();
-      }
-    }
+describe('home page', () => {
+  it('greets the person by name and offers the three places they go next', async () => {
+    render();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: /Dương Sinh/u }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'My issues' })).toHaveAttribute(
+      'href',
+      '/my-issues',
+    );
+    expect(screen.getByRole('link', { name: 'Inbox' })).toHaveAttribute(
+      'href',
+      '/inbox',
+    );
+    expect(screen.getByRole('link', { name: 'Projects' })).toHaveAttribute(
+      'href',
+      '/projects',
+    );
+  });
+
+  it('lists what waits on them, each one straight to its issue', async () => {
+    render();
+    const card = await screen.findByRole('region', {
+      name: 'Waiting for my decision',
+    });
+    expect(await within(card).findByText('2')).toBeInTheDocument();
+    const first = await within(card).findByRole('link', {
+      name: /Review DS-11/u,
+    });
+    expect(first).toHaveAttribute('href', '/issues/11');
+    expect(
+      within(card).getByRole('link', { name: /Question on DS-12/u }),
+    ).toHaveAttribute('href', '/issues/12');
+  });
+
+  it('shows five and says how many more are in the inbox', async () => {
+    waiting = Array.from({ length: 8 }, (_, i) =>
+      entry(`e${i}`, String(20 + i), 'accept', `Decision ${i}`),
+    );
+    summary = { mine: { open: 9, waiting: 8 }, waiting: 8 };
+    render();
+    const card = await screen.findByRole('region', {
+      name: 'Waiting for my decision',
+    });
+    expect(
+      await within(card).findAllByRole('link', { name: /Decision \d/u }),
+    ).toHaveLength(5);
+    expect(
+      within(card).getByRole('link', { name: 'See all 8 in the inbox' }),
+    ).toHaveAttribute('href', '/inbox');
+  });
+
+  it('counts what is under way as the open issues that do not wait on them', async () => {
+    render();
+    const card = await screen.findByRole('region', { name: 'Under way' });
+    expect(await within(card).findByText('5')).toBeInTheDocument();
+    expect(
+      within(card).getByRole('link', { name: 'Open my issues' }),
+    ).toHaveAttribute('href', '/my-issues');
+  });
+
+  it('says plainly when nothing waits on them', async () => {
+    summary = { mine: { open: 3, waiting: 0 }, waiting: 0 };
+    waiting = [];
+    render();
+    expect(
+      await screen.findByText('Nothing is waiting for you.'),
+    ).toBeInTheDocument();
+  });
+
+  it('says so, and still shows the rest, when the waiting list cannot be read', async () => {
+    failWaiting = true;
+    render();
+    expect(
+      await screen.findByText(/could not be loaded/iu),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('region', { name: 'Under way' }),
+    ).toBeInTheDocument();
   });
 });
