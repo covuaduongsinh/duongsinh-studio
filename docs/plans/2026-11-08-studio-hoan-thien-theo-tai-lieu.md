@@ -128,6 +128,7 @@ một PR, CI xanh, cập nhật mục Tiến độ. Production chỉ cập nhậ
   (mục 0.1); Q1–Q4 và Q6 đã chốt. Việc còn mở: M0 trở đi. Stash `local-before-pull-2026-11-08` giữ thay đổi local cũ (đã nằm trên `main`, chỉ khác định dạng) — xoá được.
 
 - [ ] M0 — An toàn và điện thoại
+  - M0.1 xong trong mã (08/11/2026, **chưa lên production**): `disableSignUp: true` ở `deploy/dokploy/config.yml`; test `tests/server/sign-up-closed.test.ts` (2 test đạt: đăng ký bị từ chối 400, lời mời vẫn tạo tài khoản). Còn mở: đưa lên production khi chủ dự án đồng ý (sao lưu, tạm dừng tự lái, bật lại — `docs/trien-khai-vps.md`); liệt kê tài khoản không do owner tạo trên production (chỉ đọc) — cần chủ dự án cho cách truy cập DB. M0.2, M0.3 chưa làm.
 - [ ] M1 — Agent và runner tin cậy
 - [ ] M2 — Đón cộng tác viên
 - [ ] M3 — Giám sát run từ điện thoại

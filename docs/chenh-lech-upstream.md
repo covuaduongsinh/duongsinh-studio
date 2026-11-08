@@ -580,3 +580,11 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **Hai lỗi mới của `POST /projectSetups`:** `GIT_REPOSITORY_EMPTY` (repo có sẵn không có commit) và `GIT_REPOSITORY_NOT_INSTALLED` (repo mới tạo xong nhưng App
   chưa với tới; repo không bị xoá). Cả hai xảy ra trước khi dự án được tạo.
 - **Chưa làm:** hiển thị phiên bản template trên trang Thiết lập (cần route trả phiên bản).
+
+## 31. M0.1 — đóng đăng ký công khai (08/11/2026)
+
+- Mặc định của Better Auth (và của template) là **cho đăng ký**: `auth.emailAndPassword.disableSignUp` không đặt thì `POST /api/auth/sign-up/email` tạo tài khoản
+  cho bất kỳ ai (production từng như vậy: cấu hình công khai chỉ có `{"enabled":true}`). `deploy/dokploy/config.yml` nay đặt `disableSignUp: true`; chặn ở server
+  (400), không chỉ ẩn form. Người mới vào bằng link mời của owner (`/invite/:token` → `POST /api/users/invitations/accept`), đường này không đi qua `sign-up/email`
+  nên vẫn tạo được tài khoản. `config.yml` và `server/config/auth.ts` của dev giữ mặc định vì nhiều test đăng ký trực tiếp.
+- Test: `tests/server/sign-up-closed.test.ts` (đăng ký bị từ chối, lời mời vẫn tạo tài khoản, cấu hình production có `disableSignUp: true`).
