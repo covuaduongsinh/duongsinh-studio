@@ -8,7 +8,12 @@ import {
   useViewer,
 } from '@nocobase/app-plugin-projects/client/kit';
 import { useTranslation } from '@nocobase/i18n/client';
-import { ExternalLinkIcon, LoaderCircle, PlusIcon } from 'lucide-react';
+import {
+  ExternalLinkIcon,
+  LoaderCircle,
+  PlusIcon,
+  WorkflowIcon,
+} from 'lucide-react';
 import { useState, type FormEvent, type ReactElement } from 'react';
 
 import { Badge } from '#components/ui/badge';
@@ -27,6 +32,7 @@ import { ProjectSection } from '#extensions/nocobase-project-detail/project-deta
 import {
   useAttachRepository,
   useGitRepositories,
+  useProposeCi,
   type GitRepository,
 } from '#hooks/use-git';
 import { useGitErrorText } from '#hooks/use-git-error-text';
@@ -135,6 +141,54 @@ function AttachRepositoryForm({
   );
 }
 
+/** Adds the pull request check to the primary repository through a pull request, with the caller's own token. */
+function ProposeCiButton({
+  projectId,
+}: {
+  readonly projectId: string;
+}): ReactElement {
+  const { t } = useTranslation();
+  const toaster = useToaster();
+  const errorText = useGitErrorText();
+  const propose = useProposeCi(projectId);
+  return (
+    <div className='flex flex-col gap-1'>
+      <Button
+        type='button'
+        variant='outline'
+        className='self-start'
+        disabled={propose.isPending}
+        onClick={() =>
+          propose.mutate(undefined, {
+            onSuccess: ({ pullRequest }) =>
+              toaster.show({
+                type: 'success',
+                title: t('git.projectCode.ciProposed', {
+                  number: pullRequest.number,
+                  url: pullRequest.url,
+                }),
+              }),
+            onError: (error) =>
+              toaster.show({ type: 'error', title: errorText(error) }),
+          })
+        }
+      >
+        {propose.isPending ? (
+          <LoaderCircle data-icon='inline-start' className='animate-spin' />
+        ) : (
+          <WorkflowIcon data-icon='inline-start' />
+        )}
+        {propose.isPending
+          ? t('git.projectCode.addingCi')
+          : t('git.projectCode.addCi')}
+      </Button>
+      <p className='text-xs text-muted-foreground'>
+        {t('git.projectCode.ciHint')}
+      </p>
+    </div>
+  );
+}
+
 export function ProjectCode({
   projectId,
 }: {
@@ -208,6 +262,9 @@ export function ProjectCode({
             ))}
           </ul>
         )}
+        {isAdmin && attached.length > 0 ? (
+          <ProposeCiButton projectId={projectId} />
+        ) : null}
         {isAdmin ? (
           candidates.length > 0 ? (
             <AttachRepositoryForm

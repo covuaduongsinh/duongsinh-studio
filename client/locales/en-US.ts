@@ -843,6 +843,18 @@ const enUS = {
         'This GitHub App request is unknown, used or expired; start again.',
       GIT_APP_NOT_FOUND: 'The connection has no GitHub App.',
       GIT_APP_NOT_INSTALLED: 'The GitHub App is not installed yet.',
+      GIT_PERSONAL_TOKEN_REQUIRED:
+        'Your own GitHub token (with Workflows permission) is needed: connect it in Settings → Git.',
+      GIT_BRANCH_EXISTS:
+        'The repository already has a ci/ds-check branch: merge or delete it, then try again.',
+      GIT_FILE_EXISTS:
+        'The repository already has .github/workflows/ds-check.yml.',
+      GIT_REPOSITORY_NOT_LINKED:
+        'The project has no repository: attach one first.',
+      GIT_REPOSITORY_EMPTY:
+        'The repository has no commit: add a README on its default branch.',
+      GIT_REPOSITORY_NOT_INSTALLED:
+        'The repository was created but the GitHub App cannot reach it: add it to the App’s repositories.',
       GIT_APP_INSTALLATION_AMBIGUOUS:
         'The GitHub App is installed on several accounts; install it from its link again.',
     },
@@ -930,6 +942,11 @@ const enUS = {
       },
     },
     projectCode: {
+      addCi: 'Add CI (open a pull request)',
+      addingCi: 'Opening the pull request…',
+      ciProposed: 'Pull request #{{number}} opened: {{url}}',
+      ciHint:
+        'Opens a pull request that adds the .github/workflows/ds-check.yml check, with your own GitHub token.',
       title: 'Code',
       description:
         'Repositories this project works in. Runs start in the primary one.',

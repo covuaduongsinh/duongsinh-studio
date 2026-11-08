@@ -815,6 +815,14 @@ const zhCN: AppResource = {
         '该 GitHub App 请求未知、已使用或已过期，请重新开始。',
       GIT_APP_NOT_FOUND: '该连接没有 GitHub App。',
       GIT_APP_NOT_INSTALLED: '该 GitHub App 尚未安装。',
+      GIT_PERSONAL_TOKEN_REQUIRED:
+        '需要你自己的 GitHub 令牌（含 Workflows 权限）：请在 设置 → Git 中连接。',
+      GIT_BRANCH_EXISTS: '仓库已有 ci/ds-check 分支：请合并或删除后重试。',
+      GIT_FILE_EXISTS: '仓库已有 .github/workflows/ds-check.yml。',
+      GIT_REPOSITORY_NOT_LINKED: '项目还没有仓库：请先关联一个仓库。',
+      GIT_REPOSITORY_EMPTY: '仓库没有任何提交：请在默认分支添加 README。',
+      GIT_REPOSITORY_NOT_INSTALLED:
+        '仓库已创建，但 GitHub App 无法访问：请将其添加到 App 的仓库中。',
       GIT_APP_INSTALLATION_AMBIGUOUS:
         '该 GitHub App 安装在多个账号上，请从其链接重新安装。',
     },
@@ -896,6 +904,11 @@ const zhCN: AppResource = {
       },
     },
     projectCode: {
+      addCi: '添加 CI（发起拉取请求）',
+      addingCi: '正在发起拉取请求…',
+      ciProposed: '已发起拉取请求 #{{number}}：{{url}}',
+      ciHint:
+        '使用你自己的 GitHub 令牌，发起一个添加 .github/workflows/ds-check.yml 检查的拉取请求。',
       title: '代码',
       description: '这个项目所使用的仓库。运行会从主仓库开始。',
       empty: '这个项目还没有添加仓库。',
