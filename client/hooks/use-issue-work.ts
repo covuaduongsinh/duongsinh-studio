@@ -66,6 +66,8 @@ export interface IssueRun {
   readonly trigger: string | null;
   readonly attempt: number;
   readonly createdAt: string;
+  /** Null until a runner starts it. */
+  readonly startedAt: string | null;
   readonly finishedAt: string | null;
   readonly summary: string;
   readonly failureReason: string | null;
@@ -201,6 +203,18 @@ export function useAgentBoard(
       ).data,
     refetchInterval: REFRESH_MS,
   });
+}
+
+/**
+ * Reads an issue's panels and runs again. The agents plugin's own run hooks (stop, retry) refresh the plugin's cache, not
+ * this one, so the page calls this when they settle.
+ */
+export function useRefreshIssueRuns(issueId: string): () => void {
+  const queryClient = useQueryClient();
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: keys.panels(issueId) });
+    void queryClient.invalidateQueries({ queryKey: keys.runs(issueId) });
+  };
 }
 
 /** A write about one issue, after which its panels, runs and the page's own record are read again. */
