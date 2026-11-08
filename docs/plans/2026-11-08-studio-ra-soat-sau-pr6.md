@@ -117,6 +117,22 @@ Gom `dsOwnerHandoffDecisions` và `dsCommentRunGrants` thành mỗi bảng một
   - `activities` vẫn gọi một lần cho mỗi việc đang mở của người xem: `takeOver` và `limited` chỉ suy ra được từ nhật ký đó, nên không có điều kiện rẻ hơn để bỏ qua; bảng `dsFailedRunDecisions` chỉ đọc khi có việc có run lỗi, và `dsOwnerHandoffDecisions` chỉ khi có bàn giao cho người xem.
   - Test: `tests/server/inbox-routes.test.ts` đếm lần đọc từng bảng qua `GET /inbox/pending`; đã thử đỏ với bản cũ (`expected 2 to be 1`) và xanh với bản mới. Qua cùng `issue-work-actions`, `issue-work-routes`, `follow-ups`. Lint, typecheck, format sạch. Chưa đo thời gian thực tế trên production.
   - Không làm: giảm tần suất `inbox/pending` 60 giây mỗi tab (không nằm trong yêu cầu, đổi hành vi hiển thị).
-- [ ] L5 — Việc còn mở của K0–K3
+- [ ] L5 — Việc còn mở của K0–K3 (danh sách ở 08/11/2026, chỉ làm phần agent làm được)
+  - Trạng thái production lúc lập danh sách (chỉ đọc, `SELECT count(*)`): `ds_budgets` 0, `ds_kb_offers` 0, `ds_git_authorizations` 0, `web_push_subscriptions` 0, `ds_project_setups` 0; bản chạy `933b73b` (mã tương đương `main` ngoài tài liệu; các PR L0–L4 chưa lên production).
+  - **Chủ dự án làm:**
+    1. K0.3 rclone: tạo client_id Google riêng (publish app sang _In production_ để token không hết hạn sau 7 ngày), `rclone config` trên VPS, `backup.env`, giữ passphrase và `SECRETS_KEYS` ngoài VPS. Sau đó agent sửa `backup.sh` dùng `rclone cryptcheck` cho remote mã hoá (`rclone check` so kích thước sẽ lỗi), chạy một lần và thử khôi phục từ bản trên Drive.
+    2. Xoá khoá Dokploy cũ `studio` (id `DOjWrs…`): khoá mới đã tắt giới hạn; giá trị khoá cũ không còn trong file bí mật nên xoá trên giao diện Dokploy hoặc bằng khoá mới.
+    3. Gmail App Password cho `STUDIO_SMTP_*` và cho phép lần gửi thử đầu tiên (K3.1 đã xong nên đã đến lúc).
+    4. Nối token cá nhân (fine-grained, có Workflows) vào Studio bằng `git authorization use-token`; kiểm GitHub App đã chọn "All repositories" hoặc thêm repo thử.
+    5. Xoá repo thử `ds-setup-probe` sau khi chạy ca thật (không hoàn tác được).
+  - **Agent làm khi được đồng ý** (mỗi việc chạm production, nên hỏi trước):
+    1. Đặt ngân sách Q6: toàn hệ thống 100 lượt và 1.000.000 token đầu ra mỗi ngày (đã chốt 07/11, hiện `ds_budgets` = 0). Chặn run khi hết hạn mức, nên cần chủ dự án xác nhận lại lần cuối.
+    2. Đưa PR #8–#12 lên production (một lần, theo `docs/trien-khai-vps.md`: chờ hết run, tạm dừng tự lái, dump trước, Deploy, kiểm, bật lại).
+    3. L3.3: đẩy CI cho `nocofen` qua nút "Thêm CI", mở PR thử, xác nhận Studio đọc check (nguồn `host`) và tự lái merge được khi xanh (cần token ở mục 4).
+    4. Ca thật `ds-setup-probe` (`newRepo` + `ci: true`): đo thời gian CI, đối chiếu tiêu chí K1.
+    5. `kb offer` trên Sandbox (cần một dự án và một lượt agent thật).
+    6. Kiểm báo cáo tuần sau 08:00 sáng thứ Hai 09/11 (hiện chưa đến giờ).
+  - **`issuePanels`:** chưa có `versionProgress`, `decisions`, `offers`, `previews`. Bỏ hẳn cho đến khi có nguồn dữ liệu thật, vì trả mảng rỗng giả sẽ làm giao diện hiểu "không có gì": `decisions` đã có ở `GET /inbox/waiting`, `offers` ở `kb/offers`, `previews` ở `previews`, `versionProgress` chưa có dữ liệu nào. Nếu bạn muốn, gộp lại thành một route tổng hợp sau.
+  - **Giao diện K1.6** (hiện phiên bản template trên trang Thiết lập): có sẵn ở nhánh PR #3 (`client/pages/projects/setup.tsx`, `use-git-error-text.ts`); chưa đưa vào `main`. Hỏi bạn có muốn lấy lại không.
 
 (Ghi ngày, commit, PR, số liệu kiểm, việc còn mở dưới từng dòng khi xong.)
