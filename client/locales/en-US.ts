@@ -271,6 +271,15 @@ const enUS = {
     saved: 'Saved. The change applies to the next run.',
     readOnly: 'You can only view this; managing agents is needed to change it.',
   },
+  projectAgentSettings: {
+    title: 'Agents in this project',
+    description:
+      'Environment variables and skills only for runs in this project, on top of the shared ones. Only people who manage the project see this section.',
+    variables:
+      'Environment variables only for runs in this project. Values are write-only: a manager can reveal them, and every reveal is recorded in the access log.',
+    skills:
+      'Skills only for runs in this project, on top of the shared skills.',
+  },
   organizationKeys: {
     title: 'Organization API keys',
     description:

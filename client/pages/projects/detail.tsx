@@ -68,6 +68,7 @@ import {
   useRichTextLabels,
   useStatusPresenter,
 } from '../issues/presentation.js';
+import { ProjectAgentSettings } from './project-agent-settings.js';
 import { ProjectCode } from './project-code.js';
 import { ProjectLinks } from './project-links.js';
 import {
@@ -345,6 +346,10 @@ function ProjectDetailView({
             <ProjectCode projectId={project.id} />
             <ProjectLinks projectId={project.id} />
             <ProjectAutopilot projectId={project.id} />
+            <ProjectAgentSettings
+              projectId={project.id}
+              canManage={canManage}
+            />
             <ProjectMembersEditor
               visibility={project.visibility}
               members={project.members.map((member) => ({
