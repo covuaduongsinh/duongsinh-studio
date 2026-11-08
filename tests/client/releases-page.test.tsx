@@ -10,7 +10,11 @@ import {
   authorizationClientToken,
 } from '@nocobase/app-plugin-authorization/client';
 import projects from '@nocobase/app-plugin-projects/client';
-import { answerApi, renderWithApp, type ApiCall } from '@nocobase/app-testing/client';
+import {
+  answerApi,
+  renderWithApp,
+  type ApiCall,
+} from '@nocobase/app-testing/client';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
@@ -26,8 +30,19 @@ const AT = '2026-11-02T10:00:00.000Z';
 const getSession = vi.fn(async () => ({ data: null }));
 let me: { owner: boolean; admin: boolean; deployer: boolean };
 
-const line = { repositoryId: 'r1', branch: 'main', pattern: 'v*', stripPrefix: 'v', syncedAt: AT, syncError: null };
-const version = (id: string, tag: string, current: { staging: boolean; production: boolean }) => ({
+const line = {
+  repositoryId: 'r1',
+  branch: 'main',
+  pattern: 'v*',
+  stripPrefix: 'v',
+  syncedAt: AT,
+  syncError: null,
+};
+const version = (
+  id: string,
+  tag: string,
+  current: { staging: boolean; production: boolean },
+) => ({
   id,
   repositoryId: 'r1',
   repo: 'acme/sandbox',
@@ -54,14 +69,22 @@ const pending = [
     production: null,
     mergedAt: AT,
     pullRequest: { number: 2, url: 'https://github.com/acme/sandbox/pull/2' },
-    issue: { id: 'i2', identifier: 'DS-2', title: 'Hàm ratingChange', projectId: 'p1', statusKey: 'done' },
+    issue: {
+      id: 'i2',
+      identifier: 'DS-2',
+      title: 'Hàm ratingChange',
+      projectId: 'p1',
+      statusKey: 'done',
+    },
   },
 ];
 
 const api = vi.fn((call: ApiCall): unknown => {
   const { method, path } = call;
-  if (method === 'GET' && path === 'authorization/permissions') return { data: { unrestricted: true, permissions: [] } };
-  if (method === 'GET' && path === 'deploys/me') return { data: { userId: 'u1', ...me } };
+  if (method === 'GET' && path === 'authorization/permissions')
+    return { data: { unrestricted: true, permissions: [] } };
+  if (method === 'GET' && path === 'deploys/me')
+    return { data: { userId: 'u1', ...me } };
   if (method === 'GET' && path === 'deploys/releases')
     return {
       data: [
@@ -110,7 +133,8 @@ const api = vi.fn((call: ApiCall): unknown => {
         },
       ],
     };
-  if (method === 'POST' && path === 'deploys/versions/v2/marks') return { data: { reopenSuggestions: [] } };
+  if (method === 'POST' && path === 'deploys/versions/v2/marks')
+    return { data: { reopenSuggestions: [] } };
   return new Response(null, { status: 404 });
 });
 
@@ -126,7 +150,8 @@ async function render(page: ReactElement) {
         app.container.instance(authenticationClientToken, { getSession });
         app.container.singleton(
           authorizationClientToken,
-          (resolver) => new AuthorizationClient(resolver.resolve(apiClientToken)),
+          (resolver) =>
+            new AuthorizationClient(resolver.resolve(apiClientToken)),
         );
       },
     },
@@ -147,18 +172,33 @@ describe('releases page', () => {
     expect(rows).toHaveLength(3);
     expect(within(rows[1]).getByText('v1.1')).toBeInTheDocument();
     expect(within(rows[1]).getByText(words.where.staging)).toBeInTheDocument();
-    expect(within(rows[2]).getByText(words.where.production)).toBeInTheDocument();
+    expect(
+      within(rows[2]).getByText(words.where.production),
+    ).toBeInTheDocument();
     // The newer version is not on production: the owner may put it there; the current one offers nothing for production.
-    await user.click(within(rows[1]).getByRole('button', { name: words.actions.production }));
+    await user.click(
+      within(rows[1]).getByRole('button', { name: words.actions.production }),
+    );
     const dialog = await screen.findByRole('dialog');
-    const confirm = within(dialog).getByRole('button', { name: words.mark.confirm });
+    const confirm = within(dialog).getByRole('button', {
+      name: words.mark.confirm,
+    });
     expect(confirm).toBeDisabled();
-    await user.type(within(dialog).getByLabelText(words.mark.note), 'Dokploy redeploy lúc 20:00');
+    await user.type(
+      within(dialog).getByLabelText(words.mark.note),
+      'Dokploy redeploy lúc 20:00',
+    );
     await user.click(confirm);
     await waitFor(() =>
       expect(
-        api.mock.calls.map(([call]) => call).find((call) => call.path === 'deploys/versions/v2/marks')?.json,
-      ).toEqual({ environmentKey: 'production', kind: 'deployed', note: 'Dokploy redeploy lúc 20:00' }),
+        api.mock.calls
+          .map(([call]) => call)
+          .find((call) => call.path === 'deploys/versions/v2/marks')?.json,
+      ).toEqual({
+        environmentKey: 'production',
+        kind: 'deployed',
+        note: 'Dokploy redeploy lúc 20:00',
+      }),
     );
   });
 
@@ -167,18 +207,29 @@ describe('releases page', () => {
     const user = userEvent.setup();
     await render(<ReleasesPage />);
     const table = await screen.findByRole('table');
-    expect(within(table).queryByRole('button', { name: words.actions.production })).not.toBeInTheDocument();
-    expect(within(table).queryByRole('button', { name: words.actions.staging })).not.toBeInTheDocument();
-    expect(within(table).getAllByRole('button', { name: words.actions.request }).length).toBeGreaterThan(0);
+    expect(
+      within(table).queryByRole('button', { name: words.actions.production }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(table).queryByRole('button', { name: words.actions.staging }),
+    ).not.toBeInTheDocument();
+    expect(
+      within(table).getAllByRole('button', { name: words.actions.request })
+        .length,
+    ).toBeGreaterThan(0);
 
-    await user.click(await screen.findByRole('tab', { name: `${words.tabs.pending} 1` }));
+    await user.click(
+      await screen.findByRole('tab', { name: `${words.tabs.pending} 1` }),
+    );
     expect(await screen.findByText('Hàm ratingChange')).toBeInTheDocument();
     expect(screen.getByText('DS-2')).toBeInTheDocument();
   });
 
   it('lists the hosted environments', async () => {
     await render(<EnvironmentsPage />);
-    expect((await screen.findAllByText('Production')).length).toBeGreaterThan(0);
+    expect((await screen.findAllByText('Production')).length).toBeGreaterThan(
+      0,
+    );
     expect(screen.getByText(enUS.environments.protected)).toBeInTheDocument();
     expect(screen.getByText(enUS.environments.recordOnly)).toBeInTheDocument();
     expect(screen.getByText('https://nocobase.dsc.edu.vn')).toBeInTheDocument();

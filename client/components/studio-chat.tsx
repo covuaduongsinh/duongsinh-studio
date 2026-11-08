@@ -46,13 +46,11 @@ function useConversationPlans(
   });
   return useMemo(
     () =>
-      (plans.data?.data ?? []).map(
-        (plan): ChatTimelineItem => ({
-          key: `plan:${plan.id}`,
-          at: plan.createdAt,
-          node: <PlanCard planId={plan.id} plan={plan} linkTitle={false} />,
-        }),
-      ),
+      (plans.data?.data ?? []).map((plan): ChatTimelineItem => ({
+        key: `plan:${plan.id}`,
+        at: plan.createdAt,
+        node: <PlanCard planId={plan.id} plan={plan} linkTitle={false} />,
+      })),
     [plans.data],
   );
 }
@@ -76,11 +74,7 @@ export function StudioChatProvider({
   // Some shells (and their tests) mount the layout without an application or its services.
   const services = useContext(ClientApplicationContext)?.services;
   const realtime = services?.has(realtimeClientToken) === true;
-  return realtime ? (
-    <SignedInChat>{children}</SignedInChat>
-  ) : (
-    <>{children}</>
-  );
+  return realtime ? <SignedInChat>{children}</SignedInChat> : <>{children}</>;
 }
 
 function SignedInChat({

@@ -209,7 +209,10 @@ function fakeGitHub(): FakeGitHub {
       if (method === 'GET' && path === `${repo}/tags`)
         return answer([{ name: 'v2026.11.0', commit: { sha: 'tag-sha-1' } }]);
       if (method === 'GET' && path === `${repo}/commits/tag-sha-1`)
-        return answer({ sha: 'tag-sha-1', commit: { committer: { date: '2026-11-03T00:00:00Z' } } });
+        return answer({
+          sha: 'tag-sha-1',
+          commit: { committer: { date: '2026-11-03T00:00:00Z' } },
+        });
       return answer({ message: 'Not Found' }, 404);
     },
   );

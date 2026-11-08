@@ -299,7 +299,7 @@ dụng lắp ráp" (lớp Studio đóng). README của `projectsPlanHooksToken` 
   thoại đề xuất tạo issue thì bật "Create issues" cho agent đó trong Capabilities (mặc định tắt, vì không có
   `projectsDelegatedWritesToken` thì agent có quyền này cũng tạo issue trực tiếp được — chưa bind DelegatedWrites).
   Thẻ plan hiện trong dòng thời gian của hội thoại (`ChatExtensionsContext.useTimelineItems` → `GET /projects/plans?
-  sourceKind=conversation&sourceKey=…`); người bấm Execute/Void ngay đó.
+sourceKind=conversation&sourceKey=…`); người bấm Execute/Void ngay đó.
 - **Khi plan được quyết** (`projectsPlanHooksToken.onPlanDecided`): Studio gửi tin `ds.plan.decided` vào hội thoại
   (`conversations.deliver`) trong cùng transaction của projects (bộ chạy transaction của agents nhận `outer` và chạy
   thẳng trên kết nối đó), đánh thức agent để báo kết quả — trừ plan bị huỷ (`voided`). Sự kiện của agents được phát
@@ -332,7 +332,7 @@ bằng khoá RSA sinh trong test), `tests/database/ds-git-apps-migration.test.ts
   `postUrl` + `manifest`; trình duyệt POST form `manifest` lên GitHub; GitHub quay về `…/settings/git?code&state`; trang gọi
   `POST /api/git/connections/appManifest/complete` (state dùng một lần, hết hạn 1 giờ, đúng người đã bắt đầu) → Studio đổi
   `code` lấy App id, khoá, secret. Cài App xong GitHub về `…/settings/git?githubApp=<id>&installation_id=…` → `POST
-  /api/git/connections/{id}/installation`. Địa chỉ webhook/redirect lấy từ `app.publicOrigin` (`APP_PUBLIC_ORIGIN`) +
+/api/git/connections/{id}/installation`. Địa chỉ webhook/redirect lấy từ `app.publicOrigin` (`APP_PUBLIC_ORIGIN`) +
   base path, **không** đoán theo request; thiếu thì từ chối `GIT_PUBLIC_URL_MISSING`.
 - **Credential cho run (đóng vế PAT của mục 11 đối với kết nối App).** `forRun` chạy trong transaction claim nên không gọi
   được GitHub: token installation được đúc ở `prepare` (trước transaction) cho mọi repo App của project, mỗi token **giới
@@ -461,7 +461,6 @@ Cách làm: khai báo `nocobase.cli` trong `package.json` (`bin: ds-studio`, `di
 `pnpm nocobase cli link`, và truyền `agentSessions({ cli: 'ds-studio' })`. Đăng nhập thiết bị (`auth.clientId`) và
 `skills` giao kèm runner để đến S2.
 
-
 ## 22. Tính năng Tự lái (Autopilot, AP1–AP6, 04/11/2026)
 
 - Thêm hệ thống phiếu review có cấu trúc (bảng `dsReviews`), cài đặt tự lái theo dự án (bảng `dsAutopilotSettings`), bộ đánh giá điều kiện tự merge 7 bước (`server/autopilot/evaluator.ts`), bộ lập lịch mở việc kế tiếp (`server/autopilot/scheduler.ts`, bảng `dsAutopilotIssueFlags`, thừa hưởng cờ từ epic), phát hiện đứng việc và xử lý giới hạn hạn mức (`server/autopilot/stall.ts`), giao diện cài đặt tự lái (`client/pages/projects/project-autopilot.tsx`), công tắc dừng khẩn cấp toàn hệ thống và bản tin digest 21:00 (`server/autopilot/digest.ts`).
@@ -571,7 +570,6 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **Quyết định cần báo là `needsYou` và `in_review` chưa xong**, phần còn lại của Hộp thư (run lỗi, PR) chưa gửi ra ngoài.
   Lần quét đầu tiên cho mỗi người chỉ đánh dấu mốc, không gửi dồn.
 - **Trang "Thông báo của tôi" dùng `authz: 'skip'`**, vì đây là lựa chọn của chính mỗi người; server tự kiểm từng route.
-
 
 ## 30. K1 — khởi tạo dự án từ mẫu (07/11/2026)
 

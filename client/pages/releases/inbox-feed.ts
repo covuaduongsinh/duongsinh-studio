@@ -13,8 +13,14 @@ export const releaseRequestsFeed = defineInboxFeed<DeploymentRequest>({
   query: (api) => ({
     queryKey: releaseKeys.requests(true),
     queryFn: async () =>
-      (await api.request<{ data: DeploymentRequest[] }>({ path: 'deploys/requests', query: { awaitingMe: 'true' } })).data,
-    select: (data) => (Array.isArray(data) ? (data as DeploymentRequest[]) : []),
+      (
+        await api.request<{ data: DeploymentRequest[] }>({
+          path: 'deploys/requests',
+          query: { awaitingMe: 'true' },
+        })
+      ).data,
+    select: (data) =>
+      Array.isArray(data) ? (data as DeploymentRequest[]) : [],
     staleTime: 30_000,
   }),
   List: RequestList,

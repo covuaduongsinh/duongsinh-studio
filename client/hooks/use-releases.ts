@@ -81,7 +81,10 @@ export interface IssueDeploymentMark {
   readonly staging: { readonly tag: string; readonly at: string } | null;
   readonly production: { readonly tag: string; readonly at: string } | null;
   readonly mergedAt: string | null;
-  readonly pullRequest: { readonly number: number; readonly url: string } | null;
+  readonly pullRequest: {
+    readonly number: number;
+    readonly url: string;
+  } | null;
   readonly issue: {
     readonly id: string;
     readonly identifier: string;
@@ -119,26 +122,41 @@ export const releaseKeys = {
   me: ['ds-releases', 'me'] as const,
   environments: ['ds-releases', 'environments'] as const,
   projects: ['ds-releases', 'projects'] as const,
-  versions: (projectId: string | null) => ['ds-releases', 'versions', projectId] as const,
-  pending: (projectId: string | null) => ['ds-releases', 'pending', projectId] as const,
-  marks: (issueIds: readonly string[]) => ['ds-releases', 'marks', issueIds.join(',')] as const,
-  requests: (awaitingMe: boolean) => ['ds-releases', 'requests', awaitingMe] as const,
+  versions: (projectId: string | null) =>
+    ['ds-releases', 'versions', projectId] as const,
+  pending: (projectId: string | null) =>
+    ['ds-releases', 'pending', projectId] as const,
+  marks: (issueIds: readonly string[]) =>
+    ['ds-releases', 'marks', issueIds.join(',')] as const,
+  requests: (awaitingMe: boolean) =>
+    ['ds-releases', 'requests', awaitingMe] as const,
   request: (id: string) => ['ds-releases', 'request', id] as const,
 };
 
-const read = <T>(api: ReturnType<typeof useApiClient>, path: string, signal?: AbortSignal, query?: Record<string, string>) =>
-  api.request<{ data: T }>({ path, signal, ...(query ? { query } : {}) }).then((answer) => answer.data);
+const read = <T>(
+  api: ReturnType<typeof useApiClient>,
+  path: string,
+  signal?: AbortSignal,
+  query?: Record<string, string>,
+) =>
+  api
+    .request<{ data: T }>({ path, signal, ...(query ? { query } : {}) })
+    .then((answer) => answer.data);
 
 export function useReleasesMe(): UseQueryResult<ReleasesMe> {
   const api = useApiClient();
-  return useQuery({ queryKey: releaseKeys.me, queryFn: ({ signal }) => read<ReleasesMe>(api, 'deploys/me', signal) });
+  return useQuery({
+    queryKey: releaseKeys.me,
+    queryFn: ({ signal }) => read<ReleasesMe>(api, 'deploys/me', signal),
+  });
 }
 
 export function useReleaseEnvironments(): UseQueryResult<ReleaseEnvironment[]> {
   const api = useApiClient();
   return useQuery({
     queryKey: releaseKeys.environments,
-    queryFn: ({ signal }) => read<ReleaseEnvironment[]>(api, 'deploys/environments', signal),
+    queryFn: ({ signal }) =>
+      read<ReleaseEnvironment[]>(api, 'deploys/environments', signal),
   });
 }
 
@@ -146,53 +164,82 @@ export function useReleaseProjects(): UseQueryResult<ReleaseProject[]> {
   const api = useApiClient();
   return useQuery({
     queryKey: releaseKeys.projects,
-    queryFn: ({ signal }) => read<ReleaseProject[]>(api, 'deploys/releases', signal),
+    queryFn: ({ signal }) =>
+      read<ReleaseProject[]>(api, 'deploys/releases', signal),
   });
 }
 
-export function useReleaseVersions(projectId: string | null): UseQueryResult<ReleaseVersion[]> {
+export function useReleaseVersions(
+  projectId: string | null,
+): UseQueryResult<ReleaseVersion[]> {
   const api = useApiClient();
   return useQuery({
     queryKey: releaseKeys.versions(projectId),
     queryFn: ({ signal }) =>
-      read<ReleaseVersion[]>(api, 'deploys/versions', signal, projectId ? { projectId } : undefined),
+      read<ReleaseVersion[]>(
+        api,
+        'deploys/versions',
+        signal,
+        projectId ? { projectId } : undefined,
+      ),
   });
 }
 
-export function usePendingRelease(projectId: string | null): UseQueryResult<IssueDeploymentMark[]> {
+export function usePendingRelease(
+  projectId: string | null,
+): UseQueryResult<IssueDeploymentMark[]> {
   const api = useApiClient();
   return useQuery({
     queryKey: releaseKeys.pending(projectId),
     queryFn: ({ signal }) =>
-      read<IssueDeploymentMark[]>(api, 'deploys/pending', signal, projectId ? { projectId } : undefined),
+      read<IssueDeploymentMark[]>(
+        api,
+        'deploys/pending',
+        signal,
+        projectId ? { projectId } : undefined,
+      ),
   });
 }
 
 /** Where these issues are; nothing is asked for an empty list. */
-export function useIssueMarks(issueIds: readonly string[]): UseQueryResult<IssueDeploymentMark[]> {
+export function useIssueMarks(
+  issueIds: readonly string[],
+): UseQueryResult<IssueDeploymentMark[]> {
   const api = useApiClient();
   return useQuery({
     queryKey: releaseKeys.marks(issueIds),
     enabled: issueIds.length > 0,
     queryFn: ({ signal }) =>
-      read<IssueDeploymentMark[]>(api, 'deploys/marks', signal, { issueIds: issueIds.join(',') }),
+      read<IssueDeploymentMark[]>(api, 'deploys/marks', signal, {
+        issueIds: issueIds.join(','),
+      }),
   });
 }
 
-export function useDeploymentRequests(awaitingMe: boolean): UseQueryResult<DeploymentRequest[]> {
+export function useDeploymentRequests(
+  awaitingMe: boolean,
+): UseQueryResult<DeploymentRequest[]> {
   const api = useApiClient();
   return useQuery({
     queryKey: releaseKeys.requests(awaitingMe),
     queryFn: ({ signal }) =>
-      read<DeploymentRequest[]>(api, 'deploys/requests', signal, awaitingMe ? { awaitingMe: 'true' } : undefined),
+      read<DeploymentRequest[]>(
+        api,
+        'deploys/requests',
+        signal,
+        awaitingMe ? { awaitingMe: 'true' } : undefined,
+      ),
   });
 }
 
-export function useDeploymentRequest(id: string): UseQueryResult<DeploymentRequest> {
+export function useDeploymentRequest(
+  id: string,
+): UseQueryResult<DeploymentRequest> {
   const api = useApiClient();
   return useQuery({
     queryKey: releaseKeys.request(id),
-    queryFn: ({ signal }) => read<DeploymentRequest>(api, `deploys/requests/${id}`, signal),
+    queryFn: ({ signal }) =>
+      read<DeploymentRequest>(api, `deploys/requests/${id}`, signal),
   });
 }
 
@@ -204,9 +251,11 @@ function useReleaseMutation<I, O = unknown>(
   return useMutation({
     mutationFn: async (input: I) => {
       const { path, json } = build(input);
-      return (await api.request<{ data: O }>({ path, method: 'POST', json })).data;
+      return (await api.request<{ data: O }>({ path, method: 'POST', json }))
+        .data;
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: releaseKeys.all }),
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: releaseKeys.all }),
   });
 }
 
@@ -218,26 +267,49 @@ export interface MarkInput {
 }
 
 /** Marks a version on staging (an administrator) or production (the owner). */
-export function useMarkVersion(): UseMutationResult<{ reopenSuggestions: string[] }, unknown, MarkInput> {
-  return useReleaseMutation<MarkInput, { reopenSuggestions: string[] }>((input) => ({
-    path: `deploys/versions/${input.versionId}/marks`,
-    json: { environmentKey: input.environmentKey, kind: input.kind, note: input.note },
-  }));
+export function useMarkVersion(): UseMutationResult<
+  { reopenSuggestions: string[] },
+  unknown,
+  MarkInput
+> {
+  return useReleaseMutation<MarkInput, { reopenSuggestions: string[] }>(
+    (input) => ({
+      path: `deploys/versions/${input.versionId}/marks`,
+      json: {
+        environmentKey: input.environmentKey,
+        kind: input.kind,
+        note: input.note,
+      },
+    }),
+  );
 }
 
 /** Asks the owner to mark a version on production. */
-export function useRequestProduction(): UseMutationResult<DeploymentRequest, unknown, { versionId: string; note: string }> {
-  return useReleaseMutation<{ versionId: string; note: string }, DeploymentRequest>((input) => ({
+export function useRequestProduction(): UseMutationResult<
+  DeploymentRequest,
+  unknown,
+  { versionId: string; note: string }
+> {
+  return useReleaseMutation<
+    { versionId: string; note: string },
+    DeploymentRequest
+  >((input) => ({
     path: `deploys/versions/${input.versionId}/requests`,
     json: { note: input.note },
   }));
 }
 
-export function useSyncReleaseLine(): UseMutationResult<{ added: string[]; deleted: string[] }, unknown, string> {
-  return useReleaseMutation<string, { added: string[]; deleted: string[] }>((repositoryId) => ({
-    path: `deploys/repositories/${repositoryId}/sync`,
-    json: {},
-  }));
+export function useSyncReleaseLine(): UseMutationResult<
+  { added: string[]; deleted: string[] },
+  unknown,
+  string
+> {
+  return useReleaseMutation<string, { added: string[]; deleted: string[] }>(
+    (repositoryId) => ({
+      path: `deploys/repositories/${repositoryId}/sync`,
+      json: {},
+    }),
+  );
 }
 
 export function useDecideRequest(): UseMutationResult<
@@ -245,15 +317,32 @@ export function useDecideRequest(): UseMutationResult<
   unknown,
   { id: string; approve: boolean; confirmAppId?: string; note?: string }
 > {
-  return useReleaseMutation((input: { id: string; approve: boolean; confirmAppId?: string; note?: string }) => ({
-    path: `deploys/requests/${input.id}/${input.approve ? 'approve' : 'reject'}`,
-    json: input.approve
-      ? { confirmAppId: input.confirmAppId ?? '', ...(input.note ? { note: input.note } : {}) }
-      : { note: input.note ?? '' },
-  }));
+  return useReleaseMutation(
+    (input: {
+      id: string;
+      approve: boolean;
+      confirmAppId?: string;
+      note?: string;
+    }) => ({
+      path: `deploys/requests/${input.id}/${input.approve ? 'approve' : 'reject'}`,
+      json: input.approve
+        ? {
+            confirmAppId: input.confirmAppId ?? '',
+            ...(input.note ? { note: input.note } : {}),
+          }
+        : { note: input.note ?? '' },
+    }),
+  );
 }
 
-export type PreviewStatus = 'waiting' | 'deploying' | 'ready' | 'stopped' | 'blocked' | 'failed' | 'destroyed';
+export type PreviewStatus =
+  | 'waiting'
+  | 'deploying'
+  | 'ready'
+  | 'stopped'
+  | 'blocked'
+  | 'failed'
+  | 'destroyed';
 
 export interface Preview {
   readonly id: string;
@@ -286,30 +375,61 @@ export function usePreviews(issueId?: string): UseQueryResult<Preview[]> {
   const api = useApiClient();
   return useQuery({
     queryKey: [...releaseKeys.all, 'previews', issueId ?? null],
-    queryFn: ({ signal }) => read<Preview[]>(api, 'previews', signal, issueId ? { issueId } : undefined),
+    queryFn: ({ signal }) =>
+      read<Preview[]>(
+        api,
+        'previews',
+        signal,
+        issueId ? { issueId } : undefined,
+      ),
     refetchInterval: (query) =>
-      (query.state.data ?? []).some((item) => item.status === 'deploying' || item.status === 'waiting') ? 15_000 : false,
+      (query.state.data ?? []).some(
+        (item) => item.status === 'deploying' || item.status === 'waiting',
+      )
+        ? 15_000
+        : false,
   });
 }
 
 /** The generated sign-in of a preview: only someone who may edit the issue gets it (asked when shown). */
-export function usePreviewCredentials(previewId: string | null): UseQueryResult<PreviewCredentials | null> {
+export function usePreviewCredentials(
+  previewId: string | null,
+): UseQueryResult<PreviewCredentials | null> {
   const api = useApiClient();
   return useQuery({
     queryKey: [...releaseKeys.all, 'previewCredentials', previewId],
     enabled: previewId !== null,
     retry: false,
-    queryFn: ({ signal }) => read<PreviewCredentials | null>(api, `previews/${previewId ?? ''}/credentials`, signal),
+    queryFn: ({ signal }) =>
+      read<PreviewCredentials | null>(
+        api,
+        `previews/${previewId ?? ''}/credentials`,
+        signal,
+      ),
   });
 }
 
-export function usePreviewAction(): UseMutationResult<Preview, unknown, { id: string; action: 'open' | 'retry' | 'down' }> {
-  return useReleaseMutation<{ id: string; action: 'open' | 'retry' | 'down' }, Preview>((input) => ({
+export function usePreviewAction(): UseMutationResult<
+  Preview,
+  unknown,
+  { id: string; action: 'open' | 'retry' | 'down' }
+> {
+  return useReleaseMutation<
+    { id: string; action: 'open' | 'retry' | 'down' },
+    Preview
+  >((input) => ({
     path: `previews/${input.id}/${input.action}`,
     json: {},
   }));
 }
 
-export function useDeployStaging(): UseMutationResult<Preview, unknown, string> {
-  return useReleaseMutation<string, Preview>((repositoryId) => ({ path: 'previews/staging', json: { repositoryId } }));
+export function useDeployStaging(): UseMutationResult<
+  Preview,
+  unknown,
+  string
+> {
+  return useReleaseMutation<string, Preview>((repositoryId) => ({
+    path: 'previews/staging',
+    json: { repositoryId },
+  }));
 }

@@ -52,7 +52,8 @@ export interface AutopilotEventView {
   readonly projectId: string;
   readonly issueId: string | null;
   readonly pullRequestId: string | null;
-  readonly kind: 'merged' | 'skipped' | 'opened' | 'stalled' | 'blocked' | 'paused';
+  readonly kind:
+    'merged' | 'skipped' | 'opened' | 'stalled' | 'blocked' | 'paused';
   readonly reason: string | null;
   readonly data: Record<string, unknown> | null;
   readonly createdAt: string;
@@ -91,7 +92,10 @@ export function matchesGlob(pattern: string, path: string): boolean {
   return new RegExp(regexStr).test(normalized);
 }
 
-export function isSensitive(file: string, patterns: readonly string[]): boolean {
+export function isSensitive(
+  file: string,
+  patterns: readonly string[],
+): boolean {
   return patterns.some((p) => matchesGlob(p, file));
 }
 
@@ -117,11 +121,14 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       projectId: str(row.projectId),
       enabled: bool(row.enabled),
       mergeMethod: str(row.mergeMethod) || 'squash',
-      maxMergesPerDay: row.maxMergesPerDay !== null ? num(row.maxMergesPerDay) : null,
-      maxActiveIssues: row.maxActiveIssues !== null ? num(row.maxActiveIssues) : null,
+      maxMergesPerDay:
+        row.maxMergesPerDay !== null ? num(row.maxMergesPerDay) : null,
+      maxActiveIssues:
+        row.maxActiveIssues !== null ? num(row.maxActiveIssues) : null,
       stallMinutes: num(row.stallMinutes) || 30,
       sensitivePaths,
-      sensitivePolicy: (str(row.sensitivePolicy) as 'extraReview' | 'human') || 'extraReview',
+      sensitivePolicy:
+        (str(row.sensitivePolicy) as 'extraReview' | 'human') || 'extraReview',
       pausedReason: strOrNull(row.pausedReason),
       updatedAt: iso(row.updatedAt) ?? new Date().toISOString(),
       updatedById: strOrNull(row.updatedById),
@@ -147,7 +154,9 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     };
   }
 
-  async function getSettings(projectId: string): Promise<AutopilotSettingsView | null> {
+  async function getSettings(
+    projectId: string,
+  ): Promise<AutopilotSettingsView | null> {
     const row = await conn()
       .query.selectFrom(SETTINGS_TABLE)
       .selectAll()
@@ -166,17 +175,42 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
 
     const values = {
       projectId,
-      enabled: input.enabled !== undefined ? input.enabled : (existing?.enabled ?? false),
-      mergeMethod: input.mergeMethod !== undefined ? input.mergeMethod : (existing?.mergeMethod ?? 'squash'),
-      maxMergesPerDay: input.maxMergesPerDay !== undefined ? input.maxMergesPerDay : (existing?.maxMergesPerDay ?? null),
-      maxActiveIssues: input.maxActiveIssues !== undefined ? input.maxActiveIssues : (existing?.maxActiveIssues ?? null),
-      stallMinutes: input.stallMinutes !== undefined ? input.stallMinutes : (existing?.stallMinutes ?? 30),
+      enabled:
+        input.enabled !== undefined
+          ? input.enabled
+          : (existing?.enabled ?? false),
+      mergeMethod:
+        input.mergeMethod !== undefined
+          ? input.mergeMethod
+          : (existing?.mergeMethod ?? 'squash'),
+      maxMergesPerDay:
+        input.maxMergesPerDay !== undefined
+          ? input.maxMergesPerDay
+          : (existing?.maxMergesPerDay ?? null),
+      maxActiveIssues:
+        input.maxActiveIssues !== undefined
+          ? input.maxActiveIssues
+          : (existing?.maxActiveIssues ?? null),
+      stallMinutes:
+        input.stallMinutes !== undefined
+          ? input.stallMinutes
+          : (existing?.stallMinutes ?? 30),
       sensitivePaths:
         input.sensitivePaths !== undefined
-          ? input.sensitivePaths ? JSON.stringify(input.sensitivePaths) : null
-          : existing?.sensitivePaths ? JSON.stringify(existing.sensitivePaths) : null,
-      sensitivePolicy: input.sensitivePolicy !== undefined ? input.sensitivePolicy : (existing?.sensitivePolicy ?? 'extraReview'),
-      pausedReason: input.pausedReason !== undefined ? input.pausedReason : (existing?.pausedReason ?? null),
+          ? input.sensitivePaths
+            ? JSON.stringify(input.sensitivePaths)
+            : null
+          : existing?.sensitivePaths
+            ? JSON.stringify(existing.sensitivePaths)
+            : null,
+      sensitivePolicy:
+        input.sensitivePolicy !== undefined
+          ? input.sensitivePolicy
+          : (existing?.sensitivePolicy ?? 'extraReview'),
+      pausedReason:
+        input.pausedReason !== undefined
+          ? input.pausedReason
+          : (existing?.pausedReason ?? null),
       updatedAt: now,
       updatedById,
     };
@@ -192,7 +226,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     }
 
     const saved = await getSettings(projectId);
-    if (!saved) throw new Error(`Failed to save autopilot settings for project ${projectId}`);
+    if (!saved)
+      throw new Error(
+        `Failed to save autopilot settings for project ${projectId}`,
+      );
     return saved;
   }
 
@@ -226,13 +263,17 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     maybeLimit = 50,
   ): Promise<AutopilotEventView[]> {
     const projectId = typeof filter === 'string' ? filter : filter?.projectId;
-    const limit = (typeof filter === 'object' ? filter?.limit : maybeLimit) ?? 50;
+    const limit =
+      (typeof filter === 'object' ? filter?.limit : maybeLimit) ?? 50;
 
     let query = conn().query.selectFrom(EVENTS_TABLE).selectAll();
     if (projectId) {
       query = query.where('projectId', '=', projectId);
     }
-    const rows = await query.orderBy('createdAt', 'desc').limit(limit).execute();
+    const rows = await query
+      .orderBy('createdAt', 'desc')
+      .limit(limit)
+      .execute();
     return rows.map(eventView);
   }
 
@@ -271,7 +312,9 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
         .where('createdAt', '>=', since)
         .execute();
       if (recentMerges.length >= settings.maxMergesPerDay) {
-        reasons.push(`Daily merge limit of ${settings.maxMergesPerDay} reached.`);
+        reasons.push(
+          `Daily merge limit of ${settings.maxMergesPerDay} reached.`,
+        );
       }
     }
 
@@ -304,7 +347,9 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       reasons.push('Pull request is marked as draft.');
     }
     if (pr.mergeability !== 'clean') {
-      reasons.push(`Pull request mergeability is '${pr.mergeability}', expected 'clean'.`);
+      reasons.push(
+        `Pull request mergeability is '${pr.mergeability}', expected 'clean'.`,
+      );
     }
     if (pr.mergeBlocker) {
       reasons.push(`Pull request is blocked: ${pr.mergeBlocker}`);
@@ -320,18 +365,28 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     }
 
     // Condition 5: Code review approve, mustFix = 0, reviewer != author
-    const codeReview = await deps.reviews().latestFor(pr.id, pr.headSha, 'code');
+    const codeReview = await deps
+      .reviews()
+      .latestFor(pr.id, pr.headSha, 'code');
     if (!codeReview) {
-      reasons.push(`No structured code review found for head ${pr.headSha.slice(0, 7)}.`);
+      reasons.push(
+        `No structured code review found for head ${pr.headSha.slice(0, 7)}.`,
+      );
     } else {
       if (codeReview.verdict !== 'approve') {
-        reasons.push(`Code review verdict is '${codeReview.verdict}', expected 'approve'.`);
+        reasons.push(
+          `Code review verdict is '${codeReview.verdict}', expected 'approve'.`,
+        );
       }
       if (codeReview.mustFix > 0) {
-        reasons.push(`Code review has ${codeReview.mustFix} unresolved must-fix item(s).`);
+        reasons.push(
+          `Code review has ${codeReview.mustFix} unresolved must-fix item(s).`,
+        );
       }
       if (codeReview.reviewerAgentId === codeReview.authorAgentId) {
-        reasons.push('Code review was submitted by the author agent (self-review).');
+        reasons.push(
+          'Code review was submitted by the author agent (self-review).',
+        );
       }
     }
 
@@ -343,8 +398,11 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       // If unable to query files from host, default to empty
     }
 
-    const sensitivePatterns = settings?.sensitivePaths ?? DEFAULT_SENSITIVE_PATHS;
-    const touchedSensitive = changedFiles.filter((f) => isSensitive(f, sensitivePatterns));
+    const sensitivePatterns =
+      settings?.sensitivePaths ?? DEFAULT_SENSITIVE_PATHS;
+    const touchedSensitive = changedFiles.filter((f) =>
+      isSensitive(f, sensitivePatterns),
+    );
 
     let securityReview: ReviewView | undefined;
     if (touchedSensitive.length > 0) {
@@ -354,7 +412,9 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
           `Pull request touches sensitive paths (${touchedSensitive.join(', ')}), human review required.`,
         );
       } else {
-        const sec = await deps.reviews().latestFor(pr.id, pr.headSha, 'security');
+        const sec = await deps
+          .reviews()
+          .latestFor(pr.id, pr.headSha, 'security');
         if (!sec) {
           reasons.push(
             `Pull request touches sensitive paths (${touchedSensitive.join(', ')}), missing extra security review approval.`,
@@ -362,10 +422,14 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
         } else {
           securityReview = sec;
           if (sec.verdict !== 'approve') {
-            reasons.push(`Security review verdict is '${sec.verdict}', expected 'approve'.`);
+            reasons.push(
+              `Security review verdict is '${sec.verdict}', expected 'approve'.`,
+            );
           }
           if (sec.mustFix > 0) {
-            reasons.push(`Security review has ${sec.mustFix} unresolved must-fix item(s).`);
+            reasons.push(
+              `Security review has ${sec.mustFix} unresolved must-fix item(s).`,
+            );
           }
         }
       }
@@ -384,7 +448,9 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       for (const c of recentComments) {
         const authorType = str(c.authorType);
         if (authorType !== 'agent' && authorType !== 'system') {
-          reasons.push('A human user commented after the latest review was submitted.');
+          reasons.push(
+            'A human user commented after the latest review was submitted.',
+          );
           break;
         }
       }
@@ -404,7 +470,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
 
   async function mergeIfEligible(issueId: string): Promise<MergeResult> {
     if (locks.has(issueId)) {
-      return { merged: false, reasons: ['Issue is already being evaluated or merged.'] };
+      return {
+        merged: false,
+        reasons: ['Issue is already being evaluated or merged.'],
+      };
     }
     locks.add(issueId);
 
@@ -459,7 +528,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
           .execute();
       } catch (commentErr) {
         // Comment failure should not revert successful merge
-        console.warn('Autopilot could not post merge comment on issue', commentErr);
+        console.warn(
+          'Autopilot could not post merge comment on issue',
+          commentErr,
+        );
       }
 
       return { merged: true, pullRequest: mergedPr, eventId };
@@ -468,7 +540,11 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     }
   }
 
-  async function pause(projectId: string, reason: string, updatedById?: string): Promise<void> {
+  async function pause(
+    projectId: string,
+    reason: string,
+    updatedById?: string,
+  ): Promise<void> {
     await saveSettings(projectId, { pausedReason: reason }, updatedById);
     await recordEvent({
       projectId,
@@ -477,12 +553,18 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     });
   }
 
-  async function resume(projectId: string, updatedById?: string): Promise<void> {
+  async function resume(
+    projectId: string,
+    updatedById?: string,
+  ): Promise<void> {
     await saveSettings(projectId, { pausedReason: null }, updatedById);
   }
 
   async function stopAll(reason: string, updatedById?: string): Promise<void> {
-    const all = await conn().query.selectFrom(SETTINGS_TABLE).select('projectId').execute();
+    const all = await conn()
+      .query.selectFrom(SETTINGS_TABLE)
+      .select('projectId')
+      .execute();
     for (const row of all) {
       await pause(str(row.projectId), reason, updatedById);
     }

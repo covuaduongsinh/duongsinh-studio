@@ -124,7 +124,10 @@ export interface IssueMark {
   readonly staging: { readonly tag: string; readonly at: string } | null;
   readonly production: { readonly tag: string; readonly at: string } | null;
   readonly mergedAt: string | null;
-  readonly pullRequest: { readonly number: number; readonly url: string } | null;
+  readonly pullRequest: {
+    readonly number: number;
+    readonly url: string;
+  } | null;
 }
 
 export interface RequestView {
@@ -164,7 +167,9 @@ export interface ReleaseServiceDeps {
   /** A person's name for a message. */
   readonly nameOf?: (userId: string) => Promise<string | null>;
   /** The issue identifier (`DS-12`) for a message. */
-  readonly issueLabels?: (issueIds: readonly string[]) => Promise<Map<string, string>>;
+  readonly issueLabels?: (
+    issueIds: readonly string[],
+  ) => Promise<Map<string, string>>;
   readonly onError?: (message: string, error: unknown) => void;
   readonly now?: () => Date;
 }
@@ -198,7 +203,8 @@ const environmentOf = (row: Row): EnvironmentView => {
       ? approvers.filter((item): item is string => typeof item === 'string')
       : [],
     maxApps: row.maxApps == null ? null : num(row.maxApps),
-    idleStopMinutes: row.idleStopMinutes == null ? null : num(row.idleStopMinutes),
+    idleStopMinutes:
+      row.idleStopMinutes == null ? null : num(row.idleStopMinutes),
     removeOnClose: bool(row.removeOnClose),
     publicUrlPattern: strOrNull(row.publicUrlPattern),
     description: strOrNull(row.description),
@@ -237,7 +243,9 @@ const byOrder = (a: VersionRecord, b: VersionRecord): number => {
   const time = (a.committedAt ?? a.discoveredAt).localeCompare(
     b.committedAt ?? b.discoveredAt,
   );
-  return time !== 0 ? time : a.tag.localeCompare(b.tag, 'en', { numeric: true });
+  return time !== 0
+    ? time
+    : a.tag.localeCompare(b.tag, 'en', { numeric: true });
 };
 
 const recordOf = (row: Row, tag: string): DeploymentRecordView => ({
@@ -297,7 +305,9 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
 
   // Repositories: their App ids per environment and their release line.
 
-  async function repositoryApps(repositoryId: string): Promise<RepositoryAppView[]> {
+  async function repositoryApps(
+    repositoryId: string,
+  ): Promise<RepositoryAppView[]> {
     const repository = await deps.git().getRepository(repositoryId);
     const rows: Row[] = await conn()
       .query.selectFrom(REPOSITORY_APPS)
@@ -308,15 +318,25 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
       const row = rows.find((item) => str(item.environmentKey) === env.key);
       return {
         environmentKey: env.key,
-        appId: row ? str(row.appId) : `${shortName(repository.repo)}-${env.key}`,
-        url: row ? strOrNull(row.url) : env.key === 'preview' ? null : env.publicUrlPattern,
+        appId: row
+          ? str(row.appId)
+          : `${shortName(repository.repo)}-${env.key}`,
+        url: row
+          ? strOrNull(row.url)
+          : env.key === 'preview'
+            ? null
+            : env.publicUrlPattern,
       };
     });
   }
 
   async function setRepositoryApp(
     repositoryId: string,
-    input: { readonly environmentKey: string; readonly appId: string; readonly url?: string | null },
+    input: {
+      readonly environmentKey: string;
+      readonly appId: string;
+      readonly url?: string | null;
+    },
   ): Promise<RepositoryAppView[]> {
     await deps.git().getRepository(repositoryId);
     await environment(input.environmentKey);
@@ -424,13 +444,19 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
 
   async function setReleaseLine(
     repositoryId: string,
-    input: { readonly branch?: string; readonly pattern?: string; readonly stripPrefix?: string | null },
+    input: {
+      readonly branch?: string;
+      readonly pattern?: string;
+      readonly stripPrefix?: string | null;
+    },
   ): Promise<ReleaseLineView> {
     await deps.git().getRepository(repositoryId);
     await writeLine(repositoryId, {
       ...(input.branch !== undefined ? { branch: input.branch } : {}),
       ...(input.pattern !== undefined ? { pattern: input.pattern } : {}),
-      ...(input.stripPrefix !== undefined ? { stripPrefix: input.stripPrefix } : {}),
+      ...(input.stripPrefix !== undefined
+        ? { stripPrefix: input.stripPrefix }
+        : {}),
     });
     return releaseLine(repositoryId);
   }
@@ -497,7 +523,11 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
   ): Promise<{ issueId: string; pullRequestId: string }[]> {
     const found = new Map<string, string>();
     if (previous) {
-      const comparison = await client.compare(fullName, previous.sha, version.sha);
+      const comparison = await client.compare(
+        fullName,
+        previous.sha,
+        version.sha,
+      );
       const commits = new Set(comparison.commits);
       for (const pull of pulls)
         if (commits.has(pull.mergeCommitSha) && !found.has(pull.issueId))
@@ -506,19 +536,29 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
       // The first version brings every merged pull request its tag reaches.
       for (const pull of pulls.slice(0, FIRST_VERSION_PULLS)) {
         if (found.has(pull.issueId)) continue;
-        const comparison = await client.compare(fullName, pull.mergeCommitSha, version.sha);
+        const comparison = await client.compare(
+          fullName,
+          pull.mergeCommitSha,
+          version.sha,
+        );
         if (comparison.status === 'ahead' || comparison.status === 'identical')
           found.set(pull.issueId, pull.id);
       }
     }
-    return [...found].map(([issueId, pullRequestId]) => ({ issueId, pullRequestId }));
+    return [...found].map(([issueId, pullRequestId]) => ({
+      issueId,
+      pullRequestId,
+    }));
   }
 
   async function writeTasks(
     versionId: string,
     tasks: readonly { issueId: string; pullRequestId: string }[],
   ): Promise<void> {
-    await conn().query.deleteFrom(VERSION_TASKS).where('versionId', '=', versionId).execute();
+    await conn()
+      .query.deleteFrom(VERSION_TASKS)
+      .where('versionId', '=', versionId)
+      .execute();
     if (tasks.length > 0)
       await conn()
         .query.insertInto(VERSION_TASKS)
@@ -621,7 +661,9 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
     fullName: string,
     fresh: ReadonlySet<string>,
   ): Promise<void> {
-    const live = (await versionsOf(repositoryId)).filter((version) => !version.deletedAt);
+    const live = (await versionsOf(repositoryId)).filter(
+      (version) => !version.deletedAt,
+    );
     const pulls = await mergedPulls(repositoryId);
     let previous: VersionRecord | null = null;
     for (const version of live) {
@@ -651,7 +693,10 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
       try {
         await syncRepository(repository.id);
       } catch (error) {
-        report(`Dương Sinh Studio could not read the tags of ${repository.repo}.`, error);
+        report(
+          `Dương Sinh Studio could not read the tags of ${repository.repo}.`,
+          error,
+        );
       }
     }
   }
@@ -672,17 +717,23 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
   const currentOf = (rows: readonly Row[]): Map<string, Map<string, Row>> => {
     const current = new Map<string, Map<string, Row>>();
     for (const row of rows) {
-      const byEnv = current.get(str(row.repositoryId)) ?? new Map<string, Row>();
+      const byEnv =
+        current.get(str(row.repositoryId)) ?? new Map<string, Row>();
       byEnv.set(str(row.environmentKey), row);
       current.set(str(row.repositoryId), byEnv);
     }
     return current;
   };
 
-  async function listVersions(repositoryIds: readonly string[]): Promise<VersionView[]> {
+  async function listVersions(
+    repositoryIds: readonly string[],
+  ): Promise<VersionView[]> {
     const views: VersionView[] = [];
     const repositories = new Map(
-      (await deps.git().listRepositories()).map((repository) => [repository.id, repository]),
+      (await deps.git().listRepositories()).map((repository) => [
+        repository.id,
+        repository,
+      ]),
     );
     const current = currentOf(await recordsOf(repositoryIds));
     for (const repositoryId of repositoryIds) {
@@ -691,7 +742,9 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
       const line = await releaseLine(repositoryId);
       const versions = await versionsOf(repositoryId);
       const live = versions.filter((version) => !version.deletedAt);
-      const position = new Map(live.map((version, index) => [version.id, index]));
+      const position = new Map(
+        live.map((version, index) => [version.id, index]),
+      );
       const reachedIndex = (env: string): number => {
         const row = current.get(repositoryId)?.get(env);
         return row ? (position.get(str(row.versionId)) ?? -1) : -1;
@@ -702,7 +755,11 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
           : await conn()
               .query.selectFrom(VERSION_TASKS)
               .select(['versionId', 'issueId'])
-              .where('versionId', 'in', versions.map((version) => version.id))
+              .where(
+                'versionId',
+                'in',
+                versions.map((version) => version.id),
+              )
               .execute();
       for (const version of [...versions].reverse()) {
         const index = position.get(version.id) ?? -1;
@@ -747,20 +804,29 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
       .where('id', '=', versionId)
       .executeTakeFirst();
     if (!row)
-      throw new ReleaseError('NOT_FOUND', 'VERSION_NOT_FOUND', `Version ${versionId} does not exist.`, {
-        versionId,
-      });
+      throw new ReleaseError(
+        'NOT_FOUND',
+        'VERSION_NOT_FOUND',
+        `Version ${versionId} does not exist.`,
+        {
+          versionId,
+        },
+      );
     return versionOf(row);
   }
 
-  async function listRecords(repositoryIds: readonly string[]): Promise<DeploymentRecordView[]> {
+  async function listRecords(
+    repositoryIds: readonly string[],
+  ): Promise<DeploymentRecordView[]> {
     const rows = await recordsOf(repositoryIds);
     const tags = new Map<string, string>();
     for (const row of rows) {
       const id = str(row.versionId);
       if (!tags.has(id)) tags.set(id, (await versionRecord(id)).tag);
     }
-    return rows.map((row) => recordOf(row, tags.get(str(row.versionId)) ?? '')).reverse();
+    return rows
+      .map((row) => recordOf(row, tags.get(str(row.versionId)) ?? ''))
+      .reverse();
   }
 
   // Where each issue is.
@@ -772,24 +838,39 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
     if (issueIds.length === 0) return [];
     const pullRows: Row[] = await conn()
       .query.selectFrom(PULL_REQUESTS)
-      .select(['id', 'repositoryId', 'issueId', 'number', 'url', 'mergedAt', 'baseBranch'])
+      .select([
+        'id',
+        'repositoryId',
+        'issueId',
+        'number',
+        'url',
+        'mergedAt',
+        'baseBranch',
+      ])
       .where('issueId', 'in', [...issueIds])
       .where('state', '=', 'merged')
       .execute();
     const byIssue = new Map<string, Row>();
     for (const row of pullRows) {
-      if (repositoryIds && !repositoryIds.includes(str(row.repositoryId))) continue;
+      if (repositoryIds && !repositoryIds.includes(str(row.repositoryId)))
+        continue;
       const known = byIssue.get(str(row.issueId));
       if (!known || (iso(row.mergedAt) ?? '') > (iso(known.mergedAt) ?? ''))
         byIssue.set(str(row.issueId), row);
     }
-    const repos = [...new Set([...byIssue.values()].map((row) => str(row.repositoryId)))];
+    const repos = [
+      ...new Set([...byIssue.values()].map((row) => str(row.repositoryId))),
+    ];
     const current = currentOf(await recordsOf(repos));
     const marks: IssueMark[] = [];
     for (const repositoryId of repos) {
       const line = await releaseLine(repositoryId);
-      const live = (await versionsOf(repositoryId)).filter((version) => !version.deletedAt);
-      const position = new Map(live.map((version, index) => [version.id, index]));
+      const live = (await versionsOf(repositoryId)).filter(
+        (version) => !version.deletedAt,
+      );
+      const position = new Map(
+        live.map((version, index) => [version.id, index]),
+      );
       const liveIds = live.map((version) => version.id);
       const taskRows: Row[] =
         liveIds.length === 0
@@ -814,12 +895,18 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
         if (str(pull.baseBranch) !== line.branch) continue;
         const versionIndexes = taskRows
           .filter((row) => str(row.issueId) === issueId)
-          .map((row) => position.get(str(row.versionId)) ?? Number.MAX_SAFE_INTEGER)
+          .map(
+            (row) =>
+              position.get(str(row.versionId)) ?? Number.MAX_SAFE_INTEGER,
+          )
           .sort((a, b) => a - b);
         const index = versionIndexes.length > 0 ? versionIndexes[0] : null;
-        const version = index !== null && index < live.length ? live[index] : null;
+        const version =
+          index !== null && index < live.length ? live[index] : null;
         const on = (env: typeof staging) =>
-          env && index !== null && index <= env.index ? { tag: env.tag, at: env.at } : null;
+          env && index !== null && index <= env.index
+            ? { tag: env.tag, at: env.at }
+            : null;
         const inProduction = on(production);
         const inStaging = on(staging);
         marks.push({
@@ -844,10 +931,13 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
   }
 
   /** Merged issues of these repositories not on production, oldest merge first. */
-  async function pendingRelease(repositoryIds: readonly string[]): Promise<IssueMark[]> {
+  async function pendingRelease(
+    repositoryIds: readonly string[],
+  ): Promise<IssueMark[]> {
     const issueIds = new Set<string>();
     for (const repositoryId of repositoryIds)
-      for (const pull of await mergedPulls(repositoryId)) issueIds.add(pull.issueId);
+      for (const pull of await mergedPulls(repositoryId))
+        issueIds.add(pull.issueId);
     return (await issueMarks([...issueIds], repositoryIds))
       .filter((mark) => mark.where !== 'production')
       .sort((a, b) => (a.mergedAt ?? '').localeCompare(b.mergedAt ?? ''));
@@ -855,7 +945,10 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
 
   // Marking a version on an environment, and requests the owner decides.
 
-  async function appIdOf(repositoryId: string, environmentKey: string): Promise<string> {
+  async function appIdOf(
+    repositoryId: string,
+    environmentKey: string,
+  ): Promise<string> {
     const app = (await repositoryApps(repositoryId)).find(
       (item) => item.environmentKey === environmentKey,
     );
@@ -875,7 +968,11 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
     readonly requestId?: string | null;
   }): Promise<{ record: DeploymentRecordView; reopenSuggestions: string[] }> {
     if (!input.note.trim())
-      throw new ReleaseError('INVALID_ARGUMENT', 'NOTE_REQUIRED', 'Say what was deployed, and how.');
+      throw new ReleaseError(
+        'INVALID_ARGUMENT',
+        'NOTE_REQUIRED',
+        'Say what was deployed, and how.',
+      );
     if (input.environmentKey === 'preview')
       throw new ReleaseError(
         'INVALID_ARGUMENT',
@@ -891,12 +988,16 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
         `The tag ${version.tag} is gone from the repository.`,
         { tag: version.tag },
       );
-    const live = (await versionsOf(version.repositoryId)).filter((item) => !item.deletedAt);
+    const live = (await versionsOf(version.repositoryId)).filter(
+      (item) => !item.deletedAt,
+    );
     const position = new Map(live.map((item, index) => [item.id, index]));
     const before = currentOf(await recordsOf([version.repositoryId]))
       .get(version.repositoryId)
       ?.get(input.environmentKey);
-    const beforeIndex = before ? (position.get(str(before.versionId)) ?? -1) : -1;
+    const beforeIndex = before
+      ? (position.get(str(before.versionId)) ?? -1)
+      : -1;
     const targetIndex = position.get(version.id) ?? -1;
     const id = randomUUID();
     const at = now();
@@ -916,7 +1017,9 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
       .execute();
     let reopenSuggestions: string[] = [];
     if (input.environmentKey === 'production' && targetIndex < beforeIndex) {
-      const offIds = live.slice(targetIndex + 1, beforeIndex + 1).map((item) => item.id);
+      const offIds = live
+        .slice(targetIndex + 1, beforeIndex + 1)
+        .map((item) => item.id);
       const rows: Row[] =
         offIds.length === 0
           ? []
@@ -927,7 +1030,9 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
               .execute();
       reopenSuggestions = [...new Set(rows.map((row) => str(row.issueId)))];
       const repository = await deps.git().getRepository(version.repositoryId);
-      const labels = (await deps.issueLabels?.(reopenSuggestions)) ?? new Map<string, string>();
+      const labels =
+        (await deps.issueLabels?.(reopenSuggestions)) ??
+        new Map<string, string>();
       try {
         await deps.notify({
           to: await deps.owners(),
@@ -991,9 +1096,14 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
       .where('id', '=', requestId)
       .executeTakeFirst();
     if (!row)
-      throw new ReleaseError('NOT_FOUND', 'REQUEST_NOT_FOUND', `Request ${requestId} does not exist.`, {
-        requestId,
-      });
+      throw new ReleaseError(
+        'NOT_FOUND',
+        'REQUEST_NOT_FOUND',
+        `Request ${requestId} does not exist.`,
+        {
+          requestId,
+        },
+      );
     return requestView(row);
   }
 
@@ -1020,7 +1130,11 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
     readonly requestedById: string;
   }): Promise<RequestView> {
     if (!input.note.trim())
-      throw new ReleaseError('INVALID_ARGUMENT', 'NOTE_REQUIRED', 'Say what was deployed, and how.');
+      throw new ReleaseError(
+        'INVALID_ARGUMENT',
+        'NOTE_REQUIRED',
+        'Say what was deployed, and how.',
+      );
     const env = await environment(input.environmentKey);
     if (!env.protected)
       throw new ReleaseError(
@@ -1070,8 +1184,11 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
       .execute();
     const view = await getRequest(id);
     try {
-      const requester = (await deps.nameOf?.(input.requestedById)) ?? input.requestedById;
-      const to = (await deps.owners()).filter((userId) => userId !== input.requestedById);
+      const requester =
+        (await deps.nameOf?.(input.requestedById)) ?? input.requestedById;
+      const to = (await deps.owners()).filter(
+        (userId) => userId !== input.requestedById,
+      );
       if (to.length > 0)
         await deps.notify({
           to,
@@ -1099,7 +1216,11 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
   }): Promise<{ request: RequestView; record: DeploymentRecordView | null }> {
     const current = await getRequest(input.requestId);
     if (current.status !== 'pending')
-      throw new ReleaseError('FAILED_PRECONDITION', 'REQUEST_DECIDED', 'The request is decided already.');
+      throw new ReleaseError(
+        'FAILED_PRECONDITION',
+        'REQUEST_DECIDED',
+        'The request is decided already.',
+      );
     if (current.requestedById === input.deciderId)
       throw new ReleaseError(
         'PERMISSION_DENIED',
@@ -1114,7 +1235,11 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
         { appId: current.appId },
       );
     if (!input.approve && !input.note?.trim())
-      throw new ReleaseError('INVALID_ARGUMENT', 'NOTE_REQUIRED', 'Say why the request is rejected.');
+      throw new ReleaseError(
+        'INVALID_ARGUMENT',
+        'NOTE_REQUIRED',
+        'Say why the request is rejected.',
+      );
     let record: DeploymentRecordView | null = null;
     if (input.approve)
       record = (
@@ -1122,7 +1247,9 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
           versionId: current.versionId,
           environmentKey: current.environmentKey as EnvironmentKey,
           kind: current.kind,
-          note: input.note?.trim() ? `${current.note} — ${input.note.trim()}` : current.note,
+          note: input.note?.trim()
+            ? `${current.note} — ${input.note.trim()}`
+            : current.note,
           markedById: input.deciderId,
           requestId: current.id,
         })
@@ -1143,7 +1270,9 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
         to: [current.requestedById],
         key: `ds-release-decided-${current.id}`,
         title: `Đề nghị ${decided.repo} ${decided.tag} đã được ${input.approve ? 'duyệt' : 'từ chối'}`,
-        body: decided.decisionNote ?? (input.approve ? 'Đã ghi nhận lên production.' : ''),
+        body:
+          decided.decisionNote ??
+          (input.approve ? 'Đã ghi nhận lên production.' : ''),
         path: '/releases?tab=releases',
       });
     } catch (error) {
@@ -1152,12 +1281,23 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
     return { request: decided, record };
   }
 
-  async function cancelRequest(requestId: string, userId: string): Promise<RequestView> {
+  async function cancelRequest(
+    requestId: string,
+    userId: string,
+  ): Promise<RequestView> {
     const current = await getRequest(requestId);
     if (current.status !== 'pending')
-      throw new ReleaseError('FAILED_PRECONDITION', 'REQUEST_DECIDED', 'The request is decided already.');
+      throw new ReleaseError(
+        'FAILED_PRECONDITION',
+        'REQUEST_DECIDED',
+        'The request is decided already.',
+      );
     if (current.requestedById !== userId)
-      throw new ReleaseError('PERMISSION_DENIED', 'NOT_REQUESTER', 'Only the requester cancels a request.');
+      throw new ReleaseError(
+        'PERMISSION_DENIED',
+        'NOT_REQUESTER',
+        'Only the requester cancels a request.',
+      );
     await conn()
       .query.updateTable(DEPLOYMENT_REQUESTS)
       .set({ status: 'cancelled', decidedAt: now() })
@@ -1169,15 +1309,20 @@ export function createReleaseService(deps: ReleaseServiceDeps) {
   /** Once a day: tells the owners which issues were merged more than three days ago and are still not on production. */
   async function remindPending(): Promise<number> {
     const repositories = await deps.git().listRepositories();
-    const old = (await pendingRelease(repositories.map((repository) => repository.id))).filter(
+    const old = (
+      await pendingRelease(repositories.map((repository) => repository.id))
+    ).filter(
       (mark) =>
         mark.mergedAt &&
-        now().getTime() - new Date(mark.mergedAt).getTime() > PENDING_REMINDER_MS,
+        now().getTime() - new Date(mark.mergedAt).getTime() >
+          PENDING_REMINDER_MS,
     );
     if (old.length === 0) return 0;
     const owners = await deps.owners();
     if (owners.length === 0) return 0;
-    const labels = (await deps.issueLabels?.(old.map((mark) => mark.issueId))) ?? new Map<string, string>();
+    const labels =
+      (await deps.issueLabels?.(old.map((mark) => mark.issueId))) ??
+      new Map<string, string>();
     const day = now().toISOString().slice(0, 10);
     await deps.notify({
       to: owners,

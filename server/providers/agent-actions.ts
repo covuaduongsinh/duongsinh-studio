@@ -78,10 +78,13 @@ export function createStudioGate(
       );
       if (identity.kind !== 'run') return own;
       const configured = new Set(identity.agent?.actions ?? []);
-      const allowed = new Set([...own].filter((action) => configured.has(action)));
+      const allowed = new Set(
+        [...own].filter((action) => configured.has(action)),
+      );
       if (allowed.has(REVIEWS_SUBMIT_ACTION)) {
         const runId = identity.run?.run.id;
-        const readOnly = runId && isRunReadOnly ? await isRunReadOnly(runId) : false;
+        const readOnly =
+          runId && isRunReadOnly ? await isRunReadOnly(runId) : false;
         if (!readOnly) {
           allowed.delete(REVIEWS_SUBMIT_ACTION);
         }
@@ -147,13 +150,12 @@ export default class AgentActionsProvider extends ServiceProvider<Application> {
     const isRunReadOnly = async (runId: string): Promise<boolean> => {
       if (!db) return false;
       try {
-        const inputs: { text?: string | null; payload?: unknown }[] =
-          await db
-            .connection()
-            .query.selectFrom('agRunInputs')
-            .select(['text', 'payload'])
-            .where('runId', '=', runId)
-            .execute();
+        const inputs: { text?: string | null; payload?: unknown }[] = await db
+          .connection()
+          .query.selectFrom('agRunInputs')
+          .select(['text', 'payload'])
+          .where('runId', '=', runId)
+          .execute();
         for (const input of inputs) {
           if (
             typeof input.text === 'string' &&

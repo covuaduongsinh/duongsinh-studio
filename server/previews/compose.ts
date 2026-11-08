@@ -86,21 +86,29 @@ export interface ComposeInput {
 }
 
 /** An htpasswd line as a Compose label value: every `$` doubled so Compose does not read it as a variable. */
-export const composeEscape = (value: string): string => value.replaceAll('$', '$$$$');
+export const composeEscape = (value: string): string =>
+  value.replaceAll('$', '$$$$');
 
 const yamlString = (value: string): string => JSON.stringify(value);
 
 /** The compose file for `slot`, served at `https://<host>`. */
 export function composeFile(input: ComposeInput): string {
   const { slot, host } = input;
-  if (!/^[a-z0-9.-]+$/u.test(host)) throw new Error(`Invalid preview host ${host}.`);
-  if (!/^[a-z0-9_-]+:\$2[aby]\$\d\d\$[./A-Za-z0-9]{53}$/u.test(input.basicAuthUsers))
+  if (!/^[a-z0-9.-]+$/u.test(host))
+    throw new Error(`Invalid preview host ${host}.`);
+  if (
+    !/^[a-z0-9_-]+:\$2[aby]\$\d\d\$[./A-Za-z0-9]{53}$/u.test(
+      input.basicAuthUsers,
+    )
+  )
     throw new Error('basicAuthUsers must be one bcrypt htpasswd line.');
   const app = `ds-${slot}-app`;
   const db = `ds-${slot}-db`;
   const setup = `ds-${slot}-setup`;
   const router = `ds-nocobase-${slot}`;
-  const extraHosts = BLOCKED_HOSTS.map((name) => `      - ${yamlString(`${name}:0.0.0.0`)}`).join('\n');
+  const extraHosts = BLOCKED_HOSTS.map(
+    (name) => `      - ${yamlString(`${name}:0.0.0.0`)}`,
+  ).join('\n');
   const setupEnv = [
     `      NB_URL: http://${app}:80`,
     '      NB_ACCOUNT: ${NB_ACCOUNT}',

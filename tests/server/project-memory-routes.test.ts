@@ -82,8 +82,12 @@ function fakeGitHub(): { calls: string[] } {
           permissions: { push: true },
         });
       if (path === `${repo}/pulls`) return answer([]);
-      if (path === `${repo}/branches/main`) return answer({ name: 'main', commit: { sha: HEAD } });
-      if (path === `${repo}/contents/.nb-studio/memory` && url.searchParams.get('ref') === HEAD)
+      if (path === `${repo}/branches/main`)
+        return answer({ name: 'main', commit: { sha: HEAD } });
+      if (
+        path === `${repo}/contents/.nb-studio/memory` &&
+        url.searchParams.get('ref') === HEAD
+      )
         return answer([
           {
             name: 'nhan-tieng-viet.md',
@@ -112,22 +116,45 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-test('project memory is read from the default branch for those who see the project', async ({ testApp, request }) => {
+test('project memory is read from the default branch for those who see the project', async ({
+  testApp,
+  request,
+}) => {
   const github = fakeGitHub();
   const admin = await signIn(testApp, DEFAULT_ADMIN_CREDENTIALS);
   expect((await request('/projectMemory')).status).toBe(401);
 
   const connection = (
-    await (await admin.fetch('/git/connections', json({ name: 'GitHub', token: TOKEN, apiBaseUrl: API }))).json()
+    await (
+      await admin.fetch(
+        '/git/connections',
+        json({ name: 'GitHub', token: TOKEN, apiBaseUrl: API }),
+      )
+    ).json()
   ).data as { id: string };
   const repository = (
-    await (await admin.fetch('/git/repositories', json({ connectionId: connection.id, repo: 'acme/sandbox' }))).json()
+    await (
+      await admin.fetch(
+        '/git/repositories',
+        json({ connectionId: connection.id, repo: 'acme/sandbox' }),
+      )
+    ).json()
   ).data as { id: string };
   const project = (
-    await (await admin.fetch('/projects', json({ name: 'Sandbox', visibility: 'members' }))).json()
+    await (
+      await admin.fetch(
+        '/projects',
+        json({ name: 'Sandbox', visibility: 'members' }),
+      )
+    ).json()
   ).data as { id: string };
   expect(
-    (await admin.fetch(`/projects/${project.id}/codeLocations`, json({ repositoryId: repository.id }))).status,
+    (
+      await admin.fetch(
+        `/projects/${project.id}/codeLocations`,
+        json({ repositoryId: repository.id }),
+      )
+    ).status,
   ).toBe(201);
 
   // The administrator sees the project, its repository and the memory count.
@@ -151,7 +178,11 @@ test('project memory is read from the default branch for those who see the proje
     },
   ]);
 
-  const read = (await (await admin.fetch(`/projectMemory/${project.id}/repos/${repository.id}`)).json()).data;
+  const read = (
+    await (
+      await admin.fetch(`/projectMemory/${project.id}/repos/${repository.id}`)
+    ).json()
+  ).data;
   expect(read).toMatchObject({
     project: { id: project.id, name: 'Sandbox' },
     ref: 'main@1234567',
@@ -182,12 +213,18 @@ test('project memory is read from the default branch for those who see the proje
     ).status,
   ).toBe(400);
   // A repository that does not serve the project is not found there.
-  expect((await admin.fetch(`/projectMemory/${project.id}/repos/unknown`)).status).toBe(404);
+  expect(
+    (await admin.fetch(`/projectMemory/${project.id}/repos/unknown`)).status,
+  ).toBe(404);
   // Within the minute GitHub is asked about the branch once.
-  expect(github.calls.filter((call) => call.includes('/branches/main'))).toHaveLength(1);
+  expect(
+    github.calls.filter((call) => call.includes('/branches/main')),
+  ).toHaveLength(1);
 
   // The command line offers the three reads.
-  const manifest = (await (await admin.fetch('/cli/manifest')).json()).data as { commands: { id: string }[] };
+  const manifest = (await (await admin.fetch('/cli/manifest')).json()).data as {
+    commands: { id: string }[];
+  };
   expect(manifest.commands.map((command) => command.id)).toEqual(
     expect.arrayContaining(['memory:list', 'memory:get', 'memory:read']),
   );
@@ -207,9 +244,20 @@ test('project memory is read from the default branch for those who see the proje
       )
     ).status,
   ).toBe(201);
-  const contributor = await signIn(testApp, { username: 'contributor1', password: PASSWORD });
-  expect((await (await contributor.fetch('/projectMemory')).json()).data).toEqual([]);
-  expect((await contributor.fetch(`/projectMemory/${project.id}/repos/${repository.id}`)).status).toBe(404);
+  const contributor = await signIn(testApp, {
+    username: 'contributor1',
+    password: PASSWORD,
+  });
+  expect(
+    (await (await contributor.fetch('/projectMemory')).json()).data,
+  ).toEqual([]);
+  expect(
+    (
+      await contributor.fetch(
+        `/projectMemory/${project.id}/repos/${repository.id}`,
+      )
+    ).status,
+  ).toBe(404);
   expect(
     (
       await contributor.fetch(

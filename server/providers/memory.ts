@@ -54,12 +54,16 @@ export function createMemorySection(deps: {
       if (run.subject.kind !== ISSUE_SUBJECT) return null;
       try {
         const projectId = (
-          await deps.projects().issueContext.contextFor(deps.connection(), run.subject.id)
+          await deps
+            .projects()
+            .issueContext.contextFor(deps.connection(), run.subject.id)
         )?.project?.id;
         if (!projectId) return null;
         const repositories: RepositoryMemory[] = [];
         for (const repository of await deps.git().listRepositories()) {
-          const link = repository.projects.find((item) => item.projectId === projectId);
+          const link = repository.projects.find(
+            (item) => item.projectId === projectId,
+          );
           if (!link) continue;
           const read = await deps.memory().readRepository(repository);
           if (read.memories.length === 0) continue;
@@ -83,7 +87,10 @@ export function createMemorySection(deps: {
       ];
       const items: string[] = [];
       for (const repository of memory.repositories) {
-        items.push('', `### ${repository.repo} (${repository.ref ?? repository.branch}, repoId \`${repository.repositoryId}\`)`);
+        items.push(
+          '',
+          `### ${repository.repo} (${repository.ref ?? repository.branch}, repoId \`${repository.repositoryId}\`)`,
+        );
         for (const item of repository.memories)
           items.push(
             `- [${item.type ?? '?'}] **${item.name}**${item.description ? ` — ${item.description}` : ''} (\`${item.path}\`)`,
@@ -92,7 +99,10 @@ export function createMemorySection(deps: {
       const room = SECTION_LINES - lines.length;
       if (items.length > room) {
         const left = items.length - (room - 1);
-        lines.push(...items.slice(0, room - 1), `- … và ${left} dòng nữa (xem \`${MEMORY_DIR}/\`).`);
+        lines.push(
+          ...items.slice(0, room - 1),
+          `- … và ${left} dòng nữa (xem \`${MEMORY_DIR}/\`).`,
+        );
       } else lines.push(...items);
       return lines.join('\n');
     },
@@ -108,7 +118,8 @@ export default class MemoryProvider extends ServiceProvider<Application> {
     const { container } = this.app;
     container.singleton(memoryServiceToken, () =>
       createMemoryService({
-        client: (repositoryId) => container.resolve(gitServiceToken).clientForRepository(repositoryId),
+        client: (repositoryId) =>
+          container.resolve(gitServiceToken).clientForRepository(repositoryId),
       }),
     );
   }
@@ -122,7 +133,8 @@ export default class MemoryProvider extends ServiceProvider<Application> {
         git: () => container.resolve(gitServiceToken),
         projects: () => container.resolve(projectsToken),
         connection: () => container.resolve(databaseManagerToken).connection(),
-        onError: (error) => console.error('Project memory for a brief could not be read.', error),
+        onError: (error) =>
+          console.error('Project memory for a brief could not be read.', error),
       }),
     );
   }

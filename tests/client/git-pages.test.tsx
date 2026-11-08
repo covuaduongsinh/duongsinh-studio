@@ -123,8 +123,7 @@ function appConnection(
       slug: 'duong-sinh-studio',
       htmlUrl: 'https://github.com/apps/duong-sinh-studio',
       ownerLogin: 'covuaduongsinh',
-      installUrl:
-        'https://github.com/apps/duong-sinh-studio/installations/new',
+      installUrl: 'https://github.com/apps/duong-sinh-studio/installations/new',
       installationId: options.installed ? '7' : null,
       installationAccount: options.installed ? 'covuaduongsinh' : null,
       permissionsUrl: options.installed
@@ -475,10 +474,7 @@ describe('git settings page', () => {
     );
     expect(
       await screen.findByText(
-        words.settings.app.installedOn.replace(
-          '{{account}}',
-          'covuaduongsinh',
-        ),
+        words.settings.app.installedOn.replace('{{account}}', 'covuaduongsinh'),
       ),
     ).toBeInTheDocument();
     expect(
@@ -492,8 +488,6 @@ describe('git settings page', () => {
     ];
     await render(<GitSettingsPage />);
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'checks:write',
-    );
+    expect(await screen.findByRole('alert')).toHaveTextContent('checks:write');
   });
 });

@@ -11,6 +11,9 @@ export default function ChatConversationRoute(): ReactElement | null {
   const { conversationId } = useParams();
   if (!conversationId) return null;
   return (
-    <ChatConversationPage conversationId={conversationId} newConversationPath='/' />
+    <ChatConversationPage
+      conversationId={conversationId}
+      newConversationPath='/'
+    />
   );
 }

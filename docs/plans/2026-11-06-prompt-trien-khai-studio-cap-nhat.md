@@ -84,7 +84,7 @@ chủ dự án **ngay đầu phiên** bằng câu hỏi có lựa chọn, nêu k
   → (Q1) sao lưu + lên production + nâng runner → ca thật Sandbox (issue → PR → review → merge; autopilot 1 PR).
 - **U2 → U8**: với mỗi bước: đọc mã liên quan và schema demo trong phụ lục → viết test trước (TDD; route: ẩn danh 401,
   contributor, run token, API key scope) → hiện thực (server → CLI tự sinh → client) → `pnpm lint && pnpm typecheck &&
-  pnpm test (3 nhóm) && pnpm build` xanh → thử sống trên dev (và `scripts/compare-studio-api.mjs` để đếm route Studio còn
+pnpm test (3 nhóm) && pnpm build` xanh → thử sống trên dev (và `scripts/compare-studio-api.mjs` để đếm route Studio còn
   thiếu) → commit + push → cập nhật mục 7 "Tiến độ" của `docs/plans/2026-11-06-nocobase-studio-ra-soat-cap-nhat.md`
   (ngày, commit, số test, bản production, việc còn mở) và một dòng ở mục 10 kế hoạch tổng trong `D:\code\nocobase` (không
   commit repo đó) → báo cáo ngắn bằng tiếng Việt → hỏi chủ dự án trước khi đưa bước đó lên production.

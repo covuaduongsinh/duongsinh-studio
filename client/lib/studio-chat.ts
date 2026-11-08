@@ -31,7 +31,10 @@ export function conversationPlansQuery(conversationId: string): PlanListQuery {
 }
 
 /** The news Studio delivers to a conversation, in the reader's language; null leaves the English line. */
-export function studioNewsText(notice: NewsNotice, t: Translate): string | null {
+export function studioNewsText(
+  notice: NewsNotice,
+  t: Translate,
+): string | null {
   if (notice.type !== PLAN_DECIDED_NEWS) return null;
   const outcome = notice.params?.outcome;
   if (!outcome || !PLAN_OUTCOMES.has(outcome)) return null;

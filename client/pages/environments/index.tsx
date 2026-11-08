@@ -9,7 +9,14 @@ import { Loading } from '#components/loading';
 import { PageContainer } from '#components/page-container';
 import { PageHeader } from '#components/page-header';
 import { Badge } from '#components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '#components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '#components/ui/table';
 import { useReleaseEnvironments } from '#hooks/use-releases';
 
 export default function EnvironmentsPage(): ReactElement {
@@ -42,27 +49,55 @@ export default function EnvironmentsPage(): ReactElement {
             <TableRow key={env.key}>
               <TableCell>
                 <span className='font-medium'>{env.name}</span>{' '}
-                <span className='font-mono text-xs text-muted-foreground'>({env.key})</span>
-                {env.description ? <p className='mt-1 max-w-md text-xs text-muted-foreground'>{env.description}</p> : null}
+                <span className='font-mono text-xs text-muted-foreground'>
+                  ({env.key})
+                </span>
+                {env.description ? (
+                  <p className='mt-1 max-w-md text-xs text-muted-foreground'>
+                    {env.description}
+                  </p>
+                ) : null}
               </TableCell>
-              <TableCell>{t(`environments.purposes.${env.purpose}`, { defaultValue: env.purpose })}</TableCell>
-              <TableCell>{t(`environments.runsOn.${env.runsOn}`, { defaultValue: env.runsOn })}</TableCell>
               <TableCell>
-                {env.maxApps === null ? '—' : t('environments.maxApps', { count: env.maxApps })}
+                {t(`environments.purposes.${env.purpose}`, {
+                  defaultValue: env.purpose,
+                })}
+              </TableCell>
+              <TableCell>
+                {t(`environments.runsOn.${env.runsOn}`, {
+                  defaultValue: env.runsOn,
+                })}
+              </TableCell>
+              <TableCell>
+                {env.maxApps === null
+                  ? '—'
+                  : t('environments.maxApps', { count: env.maxApps })}
                 {env.idleStopMinutes !== null ? (
                   <p className='text-xs text-muted-foreground'>
-                    {t('environments.idleStop', { minutes: env.idleStopMinutes })}
+                    {t('environments.idleStop', {
+                      minutes: env.idleStopMinutes,
+                    })}
                   </p>
                 ) : null}
               </TableCell>
               <TableCell>
                 <span className='flex flex-wrap gap-1.5'>
-                  {env.protected ? <Badge>{t('environments.protected')}</Badge> : null}
-                  {env.recordOnly ? <Badge variant='outline'>{t('environments.recordOnly')}</Badge> : null}
+                  {env.protected ? (
+                    <Badge>{t('environments.protected')}</Badge>
+                  ) : null}
+                  {env.recordOnly ? (
+                    <Badge variant='outline'>
+                      {t('environments.recordOnly')}
+                    </Badge>
+                  ) : null}
                 </span>
               </TableCell>
-              <TableCell>{env.approvers.length > 0 ? env.approvers.join(', ') : '—'}</TableCell>
-              <TableCell className='font-mono text-xs'>{env.publicUrlPattern ?? '—'}</TableCell>
+              <TableCell>
+                {env.approvers.length > 0 ? env.approvers.join(', ') : '—'}
+              </TableCell>
+              <TableCell className='font-mono text-xs'>
+                {env.publicUrlPattern ?? '—'}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -70,7 +105,10 @@ export default function EnvironmentsPage(): ReactElement {
     );
   return (
     <PageContainer>
-      <PageHeader title={t('environments.title')} description={t('environments.description')} />
+      <PageHeader
+        title={t('environments.title')}
+        description={t('environments.description')}
+      />
       {body}
     </PageContainer>
   );

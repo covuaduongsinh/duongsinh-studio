@@ -76,8 +76,8 @@ export default class ConversationsProvider extends ServiceProvider<Application> 
       () => (context) =>
         Promise.resolve(
           planSourceOf(
-            runIdentityOf((context as Context<AuthEnv>).get('auth'))?.run?.run ??
-              null,
+            runIdentityOf((context as Context<AuthEnv>).get('auth'))?.run
+              ?.run ?? null,
           ),
         ),
     );

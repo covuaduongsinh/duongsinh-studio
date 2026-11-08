@@ -6,7 +6,10 @@ import { expect } from 'vitest';
 const sources: readonly MigrationSource[] = [
   {
     packageName: 'ds-reviews-test',
-    directory: path.resolve(import.meta.dirname, '../../database/main/migrations'),
+    directory: path.resolve(
+      import.meta.dirname,
+      '../../database/main/migrations',
+    ),
   },
 ];
 
@@ -17,12 +20,24 @@ describeMigration('2026110801_ds_reviews', {
   sources,
   up: async ({ connection, expectCollection }) => {
     for (const name of TABLES) await expectCollection(name).toExist();
-    expect((await expectCollection('dsReviews').toExist()).primaryKey).toEqual(['id']);
-    await expectCollection('dsReviews').toHaveField('issueId', { nullable: true });
-    await expectCollection('dsReviews').toHaveField('headSha', { nullable: false });
-    await expectCollection('dsReviews').toHaveField('verdict', { nullable: false });
-    await expectCollection('dsReviews').toHaveField('mustFix', { nullable: false });
-    await expectCollection('dsReviews').toHaveField('kind', { nullable: false });
+    expect((await expectCollection('dsReviews').toExist()).primaryKey).toEqual([
+      'id',
+    ]);
+    await expectCollection('dsReviews').toHaveField('issueId', {
+      nullable: true,
+    });
+    await expectCollection('dsReviews').toHaveField('headSha', {
+      nullable: false,
+    });
+    await expectCollection('dsReviews').toHaveField('verdict', {
+      nullable: false,
+    });
+    await expectCollection('dsReviews').toHaveField('mustFix', {
+      nullable: false,
+    });
+    await expectCollection('dsReviews').toHaveField('kind', {
+      nullable: false,
+    });
 
     const review = {
       id: 'rev-1',

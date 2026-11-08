@@ -15,10 +15,14 @@ const COLOR: Readonly<Record<IssueWhere, IssueTableColor | null>> = {
 };
 
 /** A function adding each row's release label, once the marks of `issueIds` are known. */
-export function useReleaseLabels(issueIds: readonly string[]): <R extends IssueTableRow>(row: R) => R {
+export function useReleaseLabels(
+  issueIds: readonly string[],
+): <R extends IssueTableRow>(row: R) => R {
   const { t } = useTranslation();
   const marks = useIssueMarks(issueIds);
-  const byIssue = new Map((marks.data ?? []).map((mark) => [mark.issueId, mark]));
+  const byIssue = new Map(
+    (marks.data ?? []).map((mark) => [mark.issueId, mark]),
+  );
   return (row) => {
     const mark = byIssue.get(row.id);
     const color = mark ? COLOR[mark.where] : null;
@@ -27,7 +31,11 @@ export function useReleaseLabels(issueIds: readonly string[]): <R extends IssueT
       ...row,
       labels: [
         ...row.labels,
-        { id: `release:${mark.where}`, name: t(`releases.where.${mark.where}`), color },
+        {
+          id: `release:${mark.where}`,
+          name: t(`releases.where.${mark.where}`),
+          color,
+        },
       ],
     };
   };

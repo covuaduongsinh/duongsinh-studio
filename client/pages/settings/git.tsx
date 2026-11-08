@@ -112,7 +112,12 @@ function useGitHubReturn(): { readonly busy: boolean } {
   const installationId = params.get('installation_id');
 
   useEffect(() => {
-    const key = code && state ? `code:${state}` : connectionId ? `app:${connectionId}` : null;
+    const key =
+      code && state
+        ? `code:${state}`
+        : connectionId
+          ? `app:${connectionId}`
+          : null;
     if (!key || handledRef.current === key) return;
     handledRef.current = key;
     setParams({}, { replace: true });
@@ -327,7 +332,10 @@ function GitHubAppCard(): ReactElement {
             {t('git.settings.app.empty')}
           </p>
         ) : (
-          <ul className='flex flex-col gap-3' aria-label={t('git.settings.app.title')}>
+          <ul
+            className='flex flex-col gap-3'
+            aria-label={t('git.settings.app.title')}
+          >
             {apps.map((connection) => (
               <AppDetails
                 key={connection.id}
