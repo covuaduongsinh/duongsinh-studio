@@ -1,7 +1,7 @@
 # Chênh lệch giữa gói đã publish và tài liệu/kế hoạch
 
 Ghi lại mỗi lần gói `@nocobase/*@beta` lệch với README đã đọc hoặc với kế hoạch
-(`D:\code\nocobase\docs\plans\2026-11-01-nocobase-studio-ke-hoach-phat-trien.md`).
+(`docs/plans/archive/2026-11-01-nocobase-studio-ke-hoach-phat-trien.md`).
 Mốc đối chiếu nguồn: `upstream/v3-develop` commit `04922adec1` (2026-10-31).
 
 ## Phiên bản đã lắp (S0, 01/11/2026)
@@ -572,3 +572,13 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
   Lần quét đầu tiên cho mỗi người chỉ đánh dấu mốc, không gửi dồn.
 - **Trang "Thông báo của tôi" dùng `authz: 'skip'`**, vì đây là lựa chọn của chính mỗi người; server tự kiểm từng route.
 
+
+## 30. K1 — khởi tạo dự án từ mẫu (07/11/2026)
+
+- **Chỉ có template `default`**, chưa thêm `examples` (`z.literal('default')` ở `server/routes/project-setups.ts`). Mô tả công việc khởi tạo nay ghim
+  `nocobase.templatePackage@nocobase.defaultTemplateVersion` đọc từ `package.json` lúc chạy (`server/setups/template-version.ts`); thiếu thì từ chối, không rơi về `latest`.
+- **Cách (a):** agent scaffold bằng `create-app --no-install` ở thư mục tạm ngoài repo rồi chuyển vào gốc repo, vì `create-app` từ chối thư mục không trống
+  và repo không có commit làm run lỗi `checkoutFailed`. Vì vậy `createRepository` luôn `auto_init`, kể cả khi chọn `empty`.
+- **Hai lỗi mới của `POST /projectSetups`:** `GIT_REPOSITORY_EMPTY` (repo có sẵn không có commit) và `GIT_REPOSITORY_NOT_INSTALLED` (repo mới tạo xong nhưng App
+  chưa với tới; repo không bị xoá). Cả hai xảy ra trước khi dự án được tạo.
+- **Chưa làm:** hiển thị phiên bản template trên trang Thiết lập (cần route trả phiên bản).

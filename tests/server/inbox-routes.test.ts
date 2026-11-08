@@ -189,6 +189,31 @@ test(
       ['accept'],
     );
     expect(groups.waiting).toBe(1);
+
+    // Paged: following the cursor reaches every issue once.
+    type GroupPage = {
+      groups: { data: { issue: { id: string } }[] }[];
+      nextCursor: string | null;
+    };
+    const pagedIds: string[] = [];
+    let cursor: string | null = null;
+    for (let page = 0; page < 50; page += 1) {
+      const query: string = cursor
+        ? `?limit=1&cursor=${encodeURIComponent(cursor)}`
+        : '?limit=1';
+      const part = (await (await admin.fetch(`/taskGroups${query}`)).json())
+        .data as GroupPage;
+      const ids = part.groups.flatMap((group) =>
+        group.data.map((row) => row.issue.id),
+      );
+      expect(ids.length).toBeLessThanOrEqual(1);
+      pagedIds.push(...ids);
+      cursor = part.nextCursor;
+      if (!cursor) break;
+    }
+    expect(new Set(pagedIds).size).toBe(pagedIds.length);
+    expect(pagedIds).toContain(accept.id);
+
     const decisions = (
       await (await admin.fetch(`/taskGroups/${accept.id}/decisions`)).json()
     ).data as WaitingEntry[];

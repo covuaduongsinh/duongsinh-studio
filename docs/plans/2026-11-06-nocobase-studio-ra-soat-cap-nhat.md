@@ -3,7 +3,7 @@
 > Trạng thái: **đã duyệt 06/11/2026** (chủ dự án chốt: nâng gói trước rồi bù tính năng; gộp phần S6 còn dở vào chuỗi
 > U1→U8; kế hoạch đặt trong `docs/plans/` của repo studio). Chưa sửa mã. Prompt cho phiên triển khai:
 > `docs/plans/2026-11-06-prompt-trien-khai-studio-cap-nhat.md`.
-> Liên quan (repo `D:\code\nocobase`, chỉ đọc): kế hoạch tổng `docs/plans/2026-11-01-nocobase-studio-ke-hoach-phat-trien.md`
+> Liên quan (chép nguyên văn vào `docs/plans/archive/`): kế hoạch tổng `2026-11-01-nocobase-studio-ke-hoach-phat-trien.md`
 > (mục 10 Tiến độ), đặc tả demo `2026-11-01-nocobase-studio-dac-ta-demo-api.md`, phụ lục `2026-11-01-nocobase-studio-phu-luc-api-cli.md`,
 > kế hoạch S6 `2026-11-03-nocobase-studio-s6-hoan-thien.md` (nay chỉ là tham chiếu), autopilot `2026-11-04-studio-autopilot.md`.
 

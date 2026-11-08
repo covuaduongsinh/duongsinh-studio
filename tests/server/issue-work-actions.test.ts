@@ -317,6 +317,19 @@ test(
       previousOwnerUserId: session.user.id,
     });
     expect(view.canDecide).toBe(true);
+    // The new owner's inbox lists it as a decision to take over; the one who handed it away sees nothing.
+    const waitsOf = async (client: typeof admin) =>
+      (
+        (await (await client.fetch('/taskGroups')).json()).data as {
+          groups: {
+            data: { issue: { id: string }; waits: string[] }[];
+          }[];
+        }
+      ).groups
+        .flatMap((group) => group.data)
+        .find((row) => row.issue.id === owned.id)?.waits ?? [];
+    expect(await waitsOf(contributor)).toContain('takeOver');
+    expect(await waitsOf(admin)).not.toContain('takeOver');
     // Who handed it away does not decide.
     expect(
       (

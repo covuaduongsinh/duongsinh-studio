@@ -336,9 +336,23 @@ Tổng khoảng **11 ngày làm việc** của agent nếu có K2.3 (0,5 + 2,5 +
 ## 7. Tiến độ
 
 - [ ] K0 — Vận hành
+  - K0.2 xong (08/11/2026): cron chạy lúc 21:15 CET ngày 07/11, có `studio-20261107-2115.dump` (`pg_restore -l`: 934 mục) và `storage-20261107-2115.tar.gz` (46 mục); `backup.log` rỗng vì script im lặng khi thành công.
+  - Đưa `933b73b` lên production (08/11/2026, 00:00 UTC): không còn run chạy; tạm dừng tự lái Dương Sinh App và Sandbox; dump `studio-before-933b73b-20261108-0058.dump`; Deploy compose `studio`; mount đúng, `healthz` ok, `nocobase.dsc.edu.vn` 200, route chưa đăng nhập 401, runner online, log không lỗi, `ds-app-rules` có trong `ag_skills`; đã bật lại tự lái.
+  - K2.2 xong: `nocofen` có 5 skill (4 cũ + `ds-app-rules`). K3.6 xong: `sensitive_paths` của `nocofen` về `null` (mặc định).
+  - K0.4 làm dở: đã tạo khoá `studio-20261108`, Studio đã dùng khoá mới, nhưng khoá mới mặc định **giới hạn 10 lượt/ngày** (đã hết), còn khoá cũ `studio` (id `DOjWrs…`) tắt giới hạn và **chưa xoá**; giá trị khoá cũ không còn trong file bí mật. Cần tắt `rate_limit_enabled` cho khoá mới (SQL trong DB Dokploy) rồi mới xoá khoá cũ. Lần sau tạo khoá phải truyền `rateLimitEnabled: false`.
+  - K0.3 (rclone) chưa làm: cần bạn cấp quyền Google.
 - [ ] K1 — Khởi tạo dự án đúng chuẩn
+  - Xong trong mã (07/11/2026, chưa lên production): K1.1–K1.5 (ghim phiên bản từ `package.json`, mô tả mới 3 ngôn ngữ, repo luôn `auto_init`, từ chối `existingRepo` rỗng `GIT_REPOSITORY_EMPTY`, `GIT_REPOSITORY_NOT_INSTALLED`). Test: `template-version`, `project-setup-routes`.
+  - K1.7 xong (`chenh-lech-upstream.md` mục 30). K1.6: hai lỗi mới tự hiện vì trang đã in `error.message`; chưa hiện phiên bản template.
+  - Còn: ca thật `ds-setup-probe` (production).
 - [ ] K2 — Skill luật ứng dụng và giới hạn runner
+  - Xong trong mã: K2.1 (`ds-app-rules` + `ds-development` trỏ tới). K2.3 xong trong mã: `ci: true` trên `newRepo` đẩy `.github/workflows/ds-check.yml` (`server/setups/ci-workflow.ts`) bằng token cá nhân của người tạo (`writeFileAsPerson`; kết nối App mà thiếu token thì tạo project vẫn thành công và `deployError` báo chưa đẩy được CI). Chưa đo thời gian chạy trên GitHub. Còn: K2.2 gắn cho `nocofen` (production).
 - [ ] K3 — Việc còn mở
-- [ ] K4 — Tài liệu
+  - Xong trong mã: K3.2 (`stepOf` dịch câu hệ thống sang tiếng Việt, `tests/server/progress-step.test.ts`), K3.6 phần mã (URL bị từ chối 400, danh sách rỗng thành `null`). K3.3 xong (`taskGroups` nhận `cursor`, trả `nextCursor`; test phân trang trong `inbox-routes`). K3.1 xong trong mã: thẻ quyết định của Studio không còn nút đánh dấu/xoá (`inbox-actions.ts`, có chú thích vì sửa extension UI Library), `decisionsOn` thêm `takeOver` và `limited` (nhãn 3 ngôn ngữ). K3.4 một phần: `issueProgress` có `personalRunnerRequests`, `waiting`, `managerWait`; `issuePanels` chưa thêm `versionProgress`, `decisions`, `offers`, `previews` vì chưa có nguồn dữ liệu thật để trả. Dữ liệu `nocofen` trên production đã xong (xem K0). K3.5: đã chạy lại `compare-studio-api.mjs` với swagger production (08/11/2026): 158/186 route, 28 thiếu đúng là nhóm cố ý không làm (mục 1.4). Còn K3.5: `kb offer` trên Sandbox, công việc nhỏ trên Dương Sinh App (bạn chọn), xem ảnh menu tài khoản, báo cáo tuần sáng thứ Hai 09/11.
+- [x] K4 — Tài liệu (07/11/2026)
+  - Chép 7 file (2.796 dòng, khớp mục 1.5) từ bản cục bộ vào `docs/plans/archive/`; quét: 0 mẫu khoá, 0 số điện thoại, 1 email mẫu `studio@dsc.edu.vn`. Thêm vào `.prettierignore`.
+  - Sửa đường dẫn trong `trien-khai-vps.md`, `chenh-lech-upstream.md`, `.agents/rules/duongsinh-studio.md`, hai kế hoạch 06/11 và `scripts/compare-studio-api.mjs` (nay tính theo vị trí file; đọc được 186 route từ phụ lục mới). Còn lại các nhắc tới mã upstream `D:\code\nocobase` là chủ ý.
+  - `trien-khai-vps.md`: sửa thông số runner, đường dẫn khoá SSH, thêm bước chờ hết run và tạm dừng tự lái, ghi cron chưa chạy lần nào. `.agents/rules`: thêm mục "Projects created from Studio".
+  - Kiểm: `tests/project/agents-md.test.ts` 3/3; prettier sạch cho `trien-khai-vps.md`, rules, script. Ba tài liệu (`chenh-lech-upstream.md` và hai kế hoạch 06/11) đã lệch định dạng từ trước, không sửa trong đợt này.
 
 (Ghi ngày, commit, số liệu cổng kiểm tra, bản production, việc còn mở dưới từng dòng khi xong.)

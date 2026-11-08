@@ -38,6 +38,8 @@ import {
   PROJECT_MANAGER_ID,
 } from '../agents/ids.js';
 import { gitServiceToken } from '../providers/git.js';
+import { CI_WORKFLOW, CI_WORKFLOW_PATH } from '../setups/ci-workflow.js';
+import { readTemplateRelease } from '../setups/template-version.js';
 import {
   projectDefaultSkills,
   setProjectDefaultSkills,
@@ -369,10 +371,26 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
                 ...(newRepo.owner ? { owner: newRepo.owner } : {}),
               },
             );
-            return git().linkRepository({
-              connectionId: newRepo.connectionId,
-              fullName: made.fullName,
-            });
+            try {
+              return await git().linkRepository({
+                connectionId: newRepo.connectionId,
+                fullName: made.fullName,
+              });
+            } catch (failure) {
+              // The repository now exists on the host but the App cannot reach it (an installation limited to chosen
+              // repositories). It is left alone: deleting is the owner's decision.
+              if (
+                failure instanceof GitError &&
+                failure.reason === 'GIT_REPOSITORY_UNREACHABLE'
+              )
+                throw new GitError(
+                  'FAILED_PRECONDITION',
+                  'GIT_REPOSITORY_NOT_INSTALLED',
+                  `${made.fullName} was created, but the GitHub App cannot reach it. Add it to the App's repositories, then set the project up with existingRepo.`,
+                  { repo: made.fullName },
+                );
+              throw failure;
+            }
           });
         }
         if (fullName && existing?.connectionId) {
@@ -382,9 +400,28 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
               (item) =>
                 item.connectionId === connectionId && item.repo === fullName,
             );
-            return (
-              linked ?? (await git().linkRepository({ connectionId, fullName }))
-            );
+            const view =
+              linked ??
+              (await git().linkRepository({ connectionId, fullName }));
+            // A repository with no commit has no branch, and the runner's checkout of it fails: refuse before any project exists.
+            try {
+              await git().resolveCommit(view.id, {
+                branch: view.defaultBranch,
+              });
+            } catch (failure) {
+              if (
+                failure instanceof GitError &&
+                failure.reason === 'GIT_REPOSITORY_UNREACHABLE'
+              )
+                throw new GitError(
+                  'INVALID_ARGUMENT',
+                  'GIT_REPOSITORY_EMPTY',
+                  `${fullName} has no commit. Add a README on its default branch, then try again.`,
+                  { repo: fullName },
+                );
+              throw failure;
+            }
+            return view;
           });
         }
 
@@ -404,6 +441,37 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
         let initIssue: { id: string; identifier: string } | null = null;
         let message: string | null = null;
         const t = await translate();
+
+        // CI for a repository made here: pushed with the creator's own token (the App may not write workflows). A failure never
+        // undoes the setup; it is reported beside the project.
+        let ciError: string | null = null;
+        let ciPushed = false;
+        if (body.ci && body.codeLocation === 'newRepo' && repository) {
+          const made = repository;
+          try {
+            await guardedGit(() =>
+              git().writeFileAsPerson(
+                viewer.userId,
+                made.connectionId,
+                made.repo,
+                {
+                  path: CI_WORKFLOW_PATH,
+                  content: CI_WORKFLOW,
+                  message: 'ci: add the pull request check',
+                  branch: made.defaultBranch,
+                },
+              ),
+            );
+            ciPushed = true;
+          } catch (failure) {
+            ciError = t('studioSetups.ciNotPushed', {
+              reason: (failure instanceof Error
+                ? failure.message
+                : 'unknown'
+              ).replace(/\.$/, ''),
+            });
+          }
+        }
         if (init && init.method !== 'empty') {
           const available = await agents().agents.findWorkable(
             conn(),
@@ -413,7 +481,9 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
             init.method === 'prompt'
               ? init.prompt
               : t('studioSetups.templateIssue', {
-                  template: init.template ?? 'default',
+                  template: readTemplateRelease().package,
+                  version: readTemplateRelease().version,
+                  name: body.name,
                 });
           if (!available) message = t('studioSetups.managerUnavailable');
           initIssue = await projects().issues.create(viewer, {
@@ -450,7 +520,8 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
             })
             .execute();
 
-        const deployAsked = Boolean(body.deploy) || Boolean(body.ci);
+        const deployAsked =
+          Boolean(body.deploy) || (Boolean(body.ci) && !ciPushed);
         return context.json(
           {
             data: {
@@ -463,7 +534,8 @@ export const projectSetupRoutes: AppApiRouteContribution<Application> =
               initIssueIdentifier: initIssue?.identifier ?? null,
               init: await initOf(project.id),
               apps: [],
-              deployError: deployAsked ? t('studioSetups.deployLater') : null,
+              deployError:
+                ciError ?? (deployAsked ? t('studioSetups.deployLater') : null),
             },
             ...(message ? { meta: { message } } : {}),
           },

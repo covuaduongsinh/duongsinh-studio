@@ -51,7 +51,25 @@ const ISSUE_LIMIT = 200;
 const DECISION_SCAN = 50;
 const MAX_UNREAD = 99;
 
-type Wait = 'takeOver' | 'failed' | 'answer' | 'accept' | 'authorize' | 'plan';
+type Wait =
+  | 'takeOver'
+  | 'limited'
+  | 'failed'
+  | 'answer'
+  | 'accept'
+  | 'authorize'
+  | 'plan';
+
+/** The comment-run limit counts runs over a day, as `issue-work` does. */
+const COMMENT_RUN_WINDOW_MS = 24 * 3_600_000;
+
+interface InboxActivity {
+  readonly id: string;
+  readonly action: string;
+  readonly actorId: string | null;
+  readonly createdAt: string;
+  readonly details: Record<string, unknown>;
+}
 
 interface ListedIssue {
   readonly id: string;
@@ -136,7 +154,15 @@ const WaitingEntry = z.object({
 });
 
 const WaitsSchema = z.array(
-  z.enum(['takeOver', 'failed', 'authorize', 'answer', 'plan', 'accept']),
+  z.enum([
+    'takeOver',
+    'limited',
+    'failed',
+    'authorize',
+    'answer',
+    'plan',
+    'accept',
+  ]),
 );
 
 const TaskRow = z.object({
@@ -245,6 +271,61 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
             key: `answer:${issue.id}`,
             since: issue.updatedAt,
             detail: issue.needsYou,
+          });
+        // Both read the same way `issue-work` does: from the issue's own activity.
+        const activities = (await projects().issueQueries.activities(
+          viewer,
+          issue.id,
+          { limit: 50 },
+        )) as unknown as {
+          items?: readonly InboxActivity[];
+          data?: readonly InboxActivity[];
+        };
+        const log = activities.items ?? activities.data ?? [];
+        const moved = log.find(
+          (entry) =>
+            entry.action === 'owner_changed' &&
+            typeof entry.details.from === 'string' &&
+            typeof entry.details.to === 'string' &&
+            entry.actorId !== entry.details.to,
+        );
+        if (moved && moved.details.to === viewer.userId) {
+          const decided = await conn()
+            .query.selectFrom('dsOwnerHandoffDecisions')
+            .select('activityId')
+            .where('activityId', '=', moved.id)
+            .executeTakeFirst();
+          if (!decided)
+            decisions.push({
+              wait: 'takeOver',
+              issue,
+              key: `takeOver:${moved.id}`,
+              since: moved.createdAt,
+              detail: null,
+            });
+        }
+        const grant = await conn()
+          .query.selectFrom('dsCommentRunGrants')
+          .select('continuedAt')
+          .where('issueId', '=', issue.id)
+          .executeTakeFirst();
+        const continuedAt = grant?.continuedAt
+          ? new Date(str(grant.continuedAt)).getTime()
+          : 0;
+        const held = log.find(
+          (entry) =>
+            entry.action === 'work_skipped' &&
+            entry.details.reason === 'limited' &&
+            new Date(entry.createdAt).getTime() >
+              Math.max(continuedAt, Date.now() - COMMENT_RUN_WINDOW_MS),
+        );
+        if (held)
+          decisions.push({
+            wait: 'limited',
+            issue,
+            key: `limited:${held.id}`,
+            since: held.createdAt,
+            detail: null,
           });
         const runs = (await agents().runs.list({
           subjectKind: ISSUE,
@@ -1105,17 +1186,20 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
         ListFilters.extend({
           mode: z.enum(['split', 'table']).optional(),
           limit: z.coerce.number().int().min(1).max(200).optional(),
+          cursor: z.string().min(1).optional(),
         }),
       ),
       async (context) => {
         const viewer = await viewerOf(context);
-        const { mode, limit, ...filters } = context.req.valid('query');
-        const issues = pageItems(
-          await projects().issueQueries.page(viewer, {
-            ...filters,
-            limit: limit ?? ISSUE_LIMIT,
-          }),
-        );
+        const { mode, limit, cursor, ...filters } = context.req.valid('query');
+        const listed = await projects().issueQueries.page(viewer, {
+          ...filters,
+          limit: limit ?? ISSUE_LIMIT,
+          ...(cursor ? { cursor } : {}),
+        });
+        const issues = pageItems(listed);
+        const nextCursor =
+          (listed as { nextCursor?: string | null }).nextCursor ?? null;
         const rows = await rowsOf(viewer, issues);
         const groupOf = (row: (typeof rows)[number]): string => {
           const status = String(row.issue.statusKey);
@@ -1149,6 +1233,8 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
             membership: viewer.userId,
             mode: mode ?? 'split',
             groups,
+            // One issue list feeds every group, so the cursor of the next page of that list is shared by them all.
+            nextCursor,
             following: rows
               .filter((row) => row.followed)
               .map((row) => String(row.issue.id)),

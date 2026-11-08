@@ -347,6 +347,7 @@ const zhCN: AppResource = {
       answer: '需要你回答',
       failed: '运行失败',
       takeOver: '已移交给你',
+      limited: '已达运行上限：等待你继续',
     },
   },
   common: { cancel: '取消' },

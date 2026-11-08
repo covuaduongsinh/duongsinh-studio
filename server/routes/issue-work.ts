@@ -89,6 +89,9 @@ const ProgressSchema = z
       description:
         'A failed run still waiting for a decision. Dương Sinh addition.',
     }),
+    personalRunnerRequests: z.array(z.record(z.string(), z.unknown())),
+    waiting: z.record(z.string(), z.unknown()).nullable(),
+    managerWait: z.record(z.string(), z.unknown()),
   })
   .meta({ ref: 'StudioIssueProgress' });
 
@@ -435,7 +438,20 @@ export const issueWorkRoutes: AppApiRouteContribution<Application> =
           ? str(managerComment.id)
           : null,
       });
-      return { ...progress, failedRunId: failed };
+      return {
+        ...progress,
+        failedRunId: failed,
+        // The demo's other fields. Studio has no personal-runner consent flow, so that list is always empty.
+        personalRunnerRequests: [] as never[],
+        waiting: progress.needsYou
+          ? { kind: 'decision', text: progress.needsYou }
+          : failed
+            ? { kind: 'failedRun', runId: failed }
+            : null,
+        managerWait: {
+          waiting: progress.state === 'waitingForContinuation',
+        },
+      };
     };
 
     /** A run on an issue the caller sees; anything else is simply not there. */

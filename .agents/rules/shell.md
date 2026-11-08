@@ -39,3 +39,7 @@ The signed-in region waits in `client/routing/session-preparation.tsx` before mo
 ## List context
 
 Keep the identity-keyed `SessionPreparation` boundary: mounted private list conditions and ancestor query memory must be discarded when the signed-in user changes. Public list state uses `useTableUrlState`; tabbed datasets use `useListTabs`, with complete owned parameter keys and permission-filtered tabs. Follow the synchronized [list navigation rules](../skills/nocobase-app-development/references/frontend/references/child-routes.md#list-tab-breadcrumbs-and-private-conditions). Default back links use an empty ancestor query when no source visit exists; explicit return destinations remain application-owned.
+
+- `client/extensions/nocobase-inbox/inbox-actions.ts` is a UI Library source changed on purpose: a decision whose notice has `source: 'studio'`
+  and `kind: 'decision'` is read off an issue by `server/routes/inbox.ts` and has no in-app item behind it, so it offers no read/unread/delete.
+  Keep that branch when reconciling a newer version of the extension.

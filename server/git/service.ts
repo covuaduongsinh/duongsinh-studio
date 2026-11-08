@@ -2280,6 +2280,39 @@ export function createGitService(deps: GitServiceDeps) {
   };
 
   /**
+   * Creates a file in a repository with the caller's own token, and only that: a path under `.github/workflows` needs the
+   * `workflows` permission, which the App is not given, so no installation token may ever write one.
+   */
+  async function writeFileAsPerson(
+    userId: string,
+    connectionId: string,
+    fullName: string,
+    input: {
+      readonly path: string;
+      readonly content: string;
+      readonly message: string;
+      readonly branch: string;
+    },
+  ): Promise<void> {
+    const record = await connectionRecord(connectionId);
+    // A token connection is already a person's token; an App connection is not, so it needs the caller's own.
+    const client =
+      (await personalClient(userId, record)) ??
+      (record.kind === 'token' ? await clientOf(record) : null);
+    if (!client)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'GIT_PERSONAL_TOKEN_REQUIRED',
+        'Writing a workflow file needs your own GitHub token: connect it with `git authorization use-token`.',
+      );
+    try {
+      await client.putFile(fullName, input);
+    } catch (error) {
+      throw hostError(error, { repo: fullName });
+    }
+  }
+
+  /**
    * Creates a repository on the host. An App's installation token can create one only in an organization, whatever its
    * permissions; under a personal account GitHub takes only a person's token, so that case uses the caller's own.
    */
@@ -2321,7 +2354,8 @@ export function createGitService(deps: GitServiceDeps) {
         name: input.name,
         private: input.private,
         description: input.description ?? null,
-        autoInit: input.empty !== true,
+        // Always initialised: a repository with no commit has no branch, and the runner's checkout of it fails.
+        autoInit: true,
       });
     } catch (error) {
       if (error instanceof GitHubError && error.status === 422)
@@ -2841,6 +2875,7 @@ export function createGitService(deps: GitServiceDeps) {
     useToken,
     forgetAuthorization,
     createRepository,
+    writeFileAsPerson,
     hostRepositories,
     attachToProject,
     primaryRepository: async (projectId: string) => {
