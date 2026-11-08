@@ -208,6 +208,105 @@ describe('issue progress', () => {
   });
 });
 
+describe('issue run history: stop, retry, prompt and duration', () => {
+  const run = (id: string, extra: Record<string, unknown>) => ({
+    id,
+    agent: 'Claude',
+    status: 'completed',
+    trigger: 'mention',
+    attempt: 1,
+    createdAt: '2026-11-06T09:00:00.000Z',
+    startedAt: '2026-11-06T09:00:10.000Z',
+    finishedAt: '2026-11-06T09:04:22.000Z',
+    summary: 'Xong',
+    failureReason: null,
+    failure: '',
+    ...extra,
+  });
+  const brief = {
+    runId: 'r1',
+    attempt: 1,
+    layers: { system: '', task: '', context: '', agent: '' },
+    turn: 'Hãy sửa lỗi nút bấm.',
+    prompt: 'SYSTEM: bạn là agent.\n\nHãy sửa lỗi nút bấm.',
+    createdAt: '2026-11-06T09:00:10.000Z',
+  };
+  const answerWith = (runs: unknown[]) => {
+    answer = (call) => {
+      const path = String(call.path);
+      if (path === 'issueRuns') return { data: runs };
+      if (path.endsWith('/brief')) return { data: brief };
+      if (call.method === 'POST')
+        return { data: run('r2', { status: 'queued', finishedAt: null }) };
+      return { data: [] };
+    };
+  };
+  const posted = (suffix: string) =>
+    calls.filter(
+      (call) => call.method === 'POST' && String(call.path).endsWith(suffix),
+    );
+
+  it('shows how long a run took, and how long a running one has gone', async () => {
+    answerWith([
+      run('done', {}),
+      run('live', {
+        status: 'running',
+        finishedAt: null,
+        startedAt: new Date(Date.now() - 125_000).toISOString(),
+      }),
+    ]);
+    render(<IssueRuns issueId={ISSUE} />);
+    expect(await screen.findByText('4 min 12 s')).toBeTruthy();
+    expect(screen.getByText(/^2 min \d+ s$/u)).toBeTruthy();
+  });
+
+  it('offers Stop only on a run that is still active, after confirming', async () => {
+    answerWith([
+      run('r1', { status: 'running', finishedAt: null }),
+      run('r0', {}),
+    ]);
+    render(<IssueRuns issueId={ISSUE} />);
+    const stops = await screen.findAllByRole('button', { name: 'Stop' });
+    expect(stops).toHaveLength(1);
+    await userEvent.click(stops[0]!);
+    expect(posted('/cancel')).toHaveLength(0);
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Stop the run' }),
+    );
+    await waitFor(() => expect(posted('/cancel')).toHaveLength(1));
+    expect(String(posted('/cancel')[0]?.path)).toContain('runs/r1/');
+  });
+
+  it('offers Retry on a failed or cancelled run and not on a completed one', async () => {
+    answerWith([
+      run('r1', { status: 'failed', failureReason: 'toolProcess' }),
+      run('r3', { status: 'cancelled' }),
+      run('r0', {}),
+    ]);
+    render(<IssueRuns issueId={ISSUE} />);
+    const retries = await screen.findAllByRole('button', { name: 'Retry' });
+    expect(retries).toHaveLength(2);
+    await userEvent.click(retries[0]!);
+    await waitFor(() => expect(posted('/retry')).toHaveLength(1));
+    expect(String(posted('/retry')[0]?.path)).toContain('runs/r1/');
+  });
+
+  it('shows the full prompt the run was given, only when asked', async () => {
+    answerWith([run('r1', {})]);
+    render(<IssueRuns issueId={ISSUE} />);
+    await screen.findByText('Xong');
+    expect(calls.some((call) => String(call.path).endsWith('/brief'))).toBe(
+      false,
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'View full prompt' }),
+    );
+    expect(await screen.findByText(/SYSTEM: bạn là agent/u)).toBeTruthy();
+    await userEvent.click(screen.getByRole('button', { name: 'Hide prompt' }));
+    expect(screen.queryByText(/SYSTEM: bạn là agent/u)).toBeNull();
+  });
+});
+
 describe('agent queue', () => {
   it('groups rows by what they wait for and starts an idle one', async () => {
     const row = (
