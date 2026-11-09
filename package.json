@@ -97,7 +97,6 @@
     "remark-gfm": "^4.0.1",
     "shadcn": "^4.13.1",
     "tailwindcss": "^4.1.4",
-    "tar": "^7.5.22",
     "tsc-alias": "^1.9.2",
     "tsx": "^4.21.0",
     "tw-animate-css": "^1.2.5",
@@ -195,6 +194,7 @@
     "bcryptjs": "^3.0.3",
     "better-auth": "1.7.5",
     "hono": "^4.13.2",
+    "tar": "^7.5.22",
     "zod": "^4.6.5"
   },
   "imports": {
