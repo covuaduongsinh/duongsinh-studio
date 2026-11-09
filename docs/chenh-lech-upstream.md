@@ -601,3 +601,25 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
   với `200 text/html`, nên hỏng âm thầm. Lỗi này lọt qua test tĩnh và chỉ thấy trên production (manifest M0.2). Mọi tệp công khai của Studio phải nằm trong `public/assets/`.
 - `/assets` được trả với `cache-control: public, max-age=31536000, immutable` kể cả tệp không băm tên: đổi nội dung thì phải đổi tên tệp.
 - `content-types.js` không có `.webmanifest` (sẽ thành `application/octet-stream`), nên manifest dùng đuôi `.json`.
+
+## 33. M4.2 — driver `dokploy` cho app NocoBase 3 (09/11/2026)
+
+- Plugin `releases` chỉ có driver `host` (App Host trong tiến trình hoặc Docker). Studio để App Host tắt (VPS dùng chung với production NocoBase 2, Docker socket tương đương
+  quyền root), nên đăng ký thêm driver **`dokploy`** qua `releasesDriversToken` (`server/providers/nb3-apps.ts`, `server/releases/dokploy-driver.ts`, `nb3-compose.ts`): mỗi
+  App NocoBase 3 là một compose Dokploy tên `nb3-<slug>` trong project của Studio. Chỉ đăng ký driver; môi trường dùng nó do quản trị viên tạo ở "Release environments", nên
+  không có gì chạm Dokploy cho tới khi có người chọn.
+- **Allowlist:** `createDokployClient(config, allowedIds, allowName)` có tham số thứ ba. Mặc định vẫn là hai tên preview NocoBase 2; client của NB3 dùng `isNb3ComposeName`
+  (`^nb3-[a-z0-9]+(-[a-z0-9]+)*$`, tối đa 40 ký tự) trên các id ghi ở bảng `dsNb3Apps`. Hai client không dùng được compose của nhau. Mọi lời gọi lên compose có sẵn vẫn bị từ chối
+  nếu id không do Studio ghi hoặc Dokploy không xác nhận tên và environment.
+- **Phát tệp không cần SSH:** container Studio giải nén `dist/` (và `config.yml`) vào `dataDir` (một thư mục trong mount `storage`); compose gắn đúng thư mục đó từ phía host
+  (`hostDir`). Chỉ giải nén `dist/`, đường dẫn trong archive không thoát được thư mục đích (`tar` bỏ `..` và `/` đầu).
+- **Khác hợp đồng driver của plugin:**
+  1. Không có `onDemand`: không có gì thấy request. App có `idleStopMinutes` bị dừng sau chừng đó phút **kể từ lần khởi động/deploy gần nhất** (quét mỗi phút), rồi bật lại
+     bằng tay ("staging bật khi cần"). Dừng theo lưu lượng thật là việc sau (cần đọc log Traefik).
+  2. `maxApps` (1–2, mặc định 1) giới hạn số App chạy cùng lúc: deploy/start thứ hai bị từ chối kèm lý do, không xếp hàng.
+  3. Deploy lỗi không hoàn tác: compose giữ như Docker để lại (container cũ thường vẫn chạy), App báo `failed`.
+  4. Biến môi trường của App đi vào `.env` của compose trong Dokploy (cùng chỗ giữ bí mật của chính Studio); tên trùng biến do driver đặt (`DB_*`, `APP_BASE_PATH`…) bị từ chối.
+  5. Không có log (`logs.available = false`), chỉ ảnh chụp trạng thái từ bảng `dsNb3Apps` (`status`), không hỏi lại Dokploy.
+- **Tên miền cố định** từng app (Q5): `hosts` ở cài đặt môi trường, mỗi app một tên; bị chặn `nocobase.dsc.edu.vn`, `studio.dsc.edu.vn`, `dokploy.dsc.edu.vn`.
+- Mật khẩu PostgreSQL của app staging được sinh ngẫu nhiên và cất đã niêm phong (`secrets.seal`, mục đích `duongsinh-studio/nb3-app-database`) ở `dsNb3Apps.dbPasswordSealed`.
+- Test: `tests/server/nb3-driver.test.ts`, `nb3-driver-registered.test.ts`, `tests/database/ds-nb3-apps-migration.test.ts` (Dokploy giả, không gọi mạng).

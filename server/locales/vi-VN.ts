@@ -111,6 +111,9 @@ const viVN: AppServerResource = {
   studioBuilds: {
     externalDriver: 'Ngoài Studio',
   },
+  releaseDrivers: {
+    dokploy: 'Dokploy (app NocoBase 3 trên VPS)',
+  },
   studioBudgets: {
     blockedTitle: 'Ngân sách đã hết: {{scope}}',
     warnedTitle: 'Ngân sách sắp hết: {{scope}}',
