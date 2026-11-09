@@ -78,6 +78,14 @@ describe('NocoBase 3 compose', () => {
     expect(() => nb3ComposeEnv({ DB_HOST: 'x' }, null)).toThrow(
       /set by Studio/u,
     );
+    // The releases plugin passes the App's generated APP_PUBLIC_ORIGIN: the value the driver sets is left out, another is refused.
+    const origin = { APP_PUBLIC_ORIGIN: 'https://a.dsc.edu.vn' };
+    expect(nb3ComposeEnv({ ...origin, APP_KEY: 'k' }, null, origin)).toBe(
+      'APP_KEY=k',
+    );
+    expect(() =>
+      nb3ComposeEnv({ APP_PUBLIC_ORIGIN: 'https://evil.test' }, null, origin),
+    ).toThrow(/cannot be replaced/u);
     expect(() => nb3ComposeEnv({ 'a-b': 'x' }, null)).toThrow(/not allowed/u);
     expect(() => nb3ComposeEnv({ A: 'x\ny' }, null)).toThrow(/line break/u);
     expect(() => nb3ComposeEnv({}, 'short')).toThrow();

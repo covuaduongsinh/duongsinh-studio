@@ -200,15 +200,23 @@ ${postgres ? '  pgdata:\n' : ''}`;
 export function nb3ComposeEnv(
   variables: Readonly<Record<string, string>>,
   dbPassword: string | null,
+  /**
+   * What the driver itself sets for this App. The releases plugin hands the driver an App's generated variables, among
+   * them `APP_PUBLIC_ORIGIN` (the App's url), so a reserved name carrying exactly the value the driver sets is left out
+   * of the `.env` rather than refused; any other value for a reserved name is still refused.
+   */
+  driverSet: Readonly<Record<string, string>> = {},
 ): string {
   const lines: string[] = [];
   for (const [name, value] of Object.entries(variables)) {
     if (!/^[A-Z][A-Z0-9_]*$/u.test(name))
       throw new Error(`The variable name ${name} is not allowed.`);
-    if ((RESERVED_ENV as readonly string[]).includes(name))
+    if ((RESERVED_ENV as readonly string[]).includes(name)) {
+      if (driverSet[name] === value) continue;
       throw new Error(
         `The variable ${name} is set by Studio and cannot be replaced.`,
       );
+    }
     if (/[\r\n]/u.test(value))
       throw new Error(`The variable ${name} has a line break.`);
     lines.push(`${name}=${value}`);
