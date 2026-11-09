@@ -356,6 +356,7 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
       const env = nb3ComposeEnv(
         spec.env ?? {},
         row.dbPasswordSealed ? deps.open(row.dbPasswordSealed) : null,
+        { APP_PUBLIC_ORIGIN: `https://${host}` },
       );
       await client().update(row.composeId, { composeFile, env });
 
