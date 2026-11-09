@@ -156,6 +156,24 @@ Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng n�
   thường trực. Studio không dựng khi VPS còn < 1,2 GB trống; production > 3 s thì preview bị dừng.
 - **Tắt hẳn preview:** xoá `DOKPLOY_API_KEY` khỏi Environment của `studio` rồi Deploy; xoá tay 2 compose nếu còn.
 
+## App NocoBase 3 trên Dokploy (M4.2)
+
+Driver `dokploy` của plugin `releases` chạy mỗi App NocoBase 3 thành một compose `nb3-<slug>` trong project `duongsinh-studio` (cùng khoá Dokploy và biến `DOKPLOY_*` như preview).
+Quyết định đã chốt (09/11/2026): tên miền cố định từng app (không wildcard), `maxApps` = 1, tự dừng sau 30 phút, staging chỉ bật khi cần, app đầu tiên là NocoLMS.
+Driver chỉ chạm compose có tên `nb3-…` mà Studio ghi lại; không đụng `nocobase.dsc.edu.vn` hay stack khác.
+
+Để chạy app đầu tiên (việc của chủ dự án trước, rồi agent):
+
+1. **DNS (chủ dự án, Mắt Bão):** bản ghi A `nocolms.dsc.edu.vn` → `217.15.160.118` (hoặc tên bạn chọn; Traefik tự xin chứng chỉ Let's Encrypt).
+2. **Thư mục trên VPS (agent, khi được bảo):** `mkdir -p /srv/duongsinh-studio/storage/nb3-apps && chown 1000:1000 …` (container Studio chạy uid 1000 và ghi vào đây).
+3. **Môi trường phát hành:** ở Studio → Release environments tạo môi trường dùng driver `dokploy` với cài đặt
+   `{ "dataDir": "/app/storage/nb3-apps", "hostDir": "/srv/duongsinh-studio/storage/nb3-apps", "hosts": { "<id app>": "nocolms.dsc.edu.vn" }, "database": "sqlite", "maxApps": 1 }`.
+   Staging dùng `"database": "postgres"`.
+4. **Deploy:** chọn bản phát hành của app và Deploy. Driver giải nén `dist/`, ghi compose rồi gọi Dokploy deploy. Bước này lần đầu tạo compose thật trên VPS: hỏi chủ dự án trước.
+5. Mỗi app chiếm tối đa 1 GiB RAM (+384 MiB nếu có PostgreSQL); trước khi bật kiểm RAM còn trống (mục "Tài nguyên đo được").
+
+Chi tiết và chỗ khác hợp đồng driver: `docs/chenh-lech-upstream.md` §33.
+
 ## Runner
 
 **Runner dùng chung trên VPS (S5.3, 03/11/2026):** `vps-studio-runner` (trust `team`, 1 lượt mỗi lần) chạy dưới user hệ

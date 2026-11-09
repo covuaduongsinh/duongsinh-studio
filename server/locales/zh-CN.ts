@@ -103,6 +103,9 @@ const zhCN: AppServerResource = {
   studioBuilds: {
     externalDriver: 'Studio 之外',
   },
+  releaseDrivers: {
+    dokploy: 'Dokploy（VPS 上的 NocoBase 3 应用）',
+  },
   studioBudgets: {
     blockedTitle: '预算已用完：{{scope}}',
     warnedTitle: '预算即将用完：{{scope}}',

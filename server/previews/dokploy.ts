@@ -1,7 +1,8 @@
 /**
  * The only module that talks to Dokploy. The API key Studio holds reaches the whole Dokploy account (production included,
  * docs/trien-khai-vps.md), so this client is narrowed by construction: it creates composes only in the configured
- * project's environment and only under the names in `PREVIEW_COMPOSE_NAMES`, and every call on an existing compose is
+ * project's environment and only under the names its `allowName` accepts (`PREVIEW_COMPOSE_NAMES` by default, `nb3-*` for the
+ * NocoBase 3 driver), and every call on an existing compose is
  * refused unless its id is one Studio recorded (`allowedIds`) AND Dokploy itself answers, before the call, that the compose
  * has one of those names in that environment. Nothing here reaches domains, servers, users, settings or other projects.
  */
@@ -12,6 +13,16 @@ export const PREVIEW_COMPOSE_NAMES = [
   'nocobase-staging',
 ] as const;
 export type PreviewComposeName = (typeof PREVIEW_COMPOSE_NAMES)[number];
+
+/**
+ * The composes of NocoBase 3 Apps (M4.2, `server/releases/dokploy-driver.ts`) are named `nb3-<slug>`; a client made for
+ * them accepts only that shape, and a client made for previews never does.
+ */
+export const NB3_COMPOSE_PATTERN = /^nb3-[a-z0-9]+(?:-[a-z0-9]+)*$/u;
+export const isNb3ComposeName = (name: string): boolean =>
+  name.length <= 40 && NB3_COMPOSE_PATTERN.test(name);
+const isPreviewComposeName = (name: string): boolean =>
+  (PREVIEW_COMPOSE_NAMES as readonly string[]).includes(name);
 
 const TIMEOUT_MS = 20_000;
 
@@ -51,7 +62,7 @@ export interface DokployCompose {
 export interface DokployClient {
   /** The environment composes are created in (resolved once from the project). */
   environmentId(): Promise<string>;
-  create(name: PreviewComposeName): Promise<DokployCompose>;
+  create(name: string, description?: string): Promise<DokployCompose>;
   get(composeId: string): Promise<DokployCompose>;
   update(
     composeId: string,
@@ -72,13 +83,16 @@ const record = (value: unknown): Json =>
 const text = (value: unknown): string =>
   typeof value === 'string' ? value : '';
 
-const isAllowedName = (name: string): name is PreviewComposeName =>
-  (PREVIEW_COMPOSE_NAMES as readonly string[]).includes(name);
-
+/**
+ * `allowName` decides which composes this client may create and drive: the preview names by default. A second client
+ * with `isNb3ComposeName` serves the NocoBase 3 driver, each over its own recorded ids.
+ */
 export function createDokployClient(
   config: DokployConfig,
   allowedIds: () => Promise<ReadonlySet<string>>,
+  allowName: (name: string) => boolean = isPreviewComposeName,
 ): DokployClient {
+  const isAllowedName = allowName;
   const base = `${config.url.replace(/\/+$/u, '')}/api`;
   let environment: string | null = null;
 
@@ -178,7 +192,7 @@ export function createDokployClient(
 
   return {
     environmentId,
-    async create(name) {
+    async create(name, description) {
       if (!isAllowedName(name))
         throw new DokployRefused(
           `Studio does not create a compose named ${String(name)}.`,
@@ -191,6 +205,7 @@ export function createDokployClient(
           sourceType: 'raw',
           composeFile: 'services: {}\n',
           description:
+            description ??
             'Created by Dương Sinh Studio for NocoBase 2 previews; Studio replaces and removes it.',
         }),
       );

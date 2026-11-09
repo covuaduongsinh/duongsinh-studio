@@ -16,6 +16,7 @@ import KnowledgeProvider from './knowledge.js';
 import ConversationsProvider from './conversations.js';
 import ReleasesProvider from './releases.js';
 import PreviewsProvider from './previews.js';
+import Nb3AppsProvider from './nb3-apps.js';
 import ReviewsProvider from './reviews.js';
 import AutopilotProvider from './autopilot.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
@@ -42,6 +43,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   ReleasesProvider,
   // Previews and staging of NocoBase 2 on the VPS, through the allowlisted Dokploy client (S5.6).
   PreviewsProvider,
+  // The `dokploy` driver that runs NocoBase 3 Apps as composes in Studio's Dokploy project (M4.2).
+  Nb3AppsProvider,
   // Structured review submissions by reviewing agents (AP1).
   ReviewsProvider,
   // Studio autopilot: automatic evaluation, merge, and sweep (AP2).
