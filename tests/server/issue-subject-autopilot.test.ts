@@ -11,6 +11,7 @@ import { PROJECT_MANAGER_ID } from '../../server/agents/ids.js';
 import { PROJECT_MANAGER_PRINCIPLES } from '../../server/agents/project-manager-principles.js';
 import {
   AUTOPILOT_ON_RULE,
+  READ_ONLY_TURN_RULE,
   createIssueSubject,
 } from '../../server/providers/issue-subject.js';
 import { autopilotServiceToken } from '../../server/providers/autopilot.js';
@@ -110,5 +111,18 @@ test(
       ),
     ).toBe('fresh');
     expect(subject.sessionPolicy?.(claim('coder', 'Next: sửa'))).toBe('reuse');
+
+    // A resumed tool session keeps the system prompt it started with, the runner's "this step only reads" notes
+    // included. The read-only rule is in the brief's system layer, which the kept session's fingerprint covers, so a
+    // turn that changes code never resumes the session a read-only turn started (DS-60 stood still on this).
+    const readOnlyRules =
+      (
+        await subject.context.assemble(
+          conn,
+          claim('coder', 'Next: review\nMode: read-only'),
+        )
+      ).guidance?.rules ?? [];
+    expect(readOnlyRules).toContain(READ_ONLY_TURN_RULE);
+    expect(await rules('coder')).not.toContain(READ_ONLY_TURN_RULE);
   },
 );
