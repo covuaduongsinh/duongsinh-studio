@@ -34,6 +34,7 @@ import { FIXED_STATUSES } from '@nocobase/app-plugin-projects/shared/statuses';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
 import {
   BotIcon,
+  Columns2Icon,
   KanbanIcon,
   ListIcon,
   LoaderCircle,
@@ -82,9 +83,10 @@ import {
 } from './presentation.js';
 import { useReleaseLabels } from './release-labels.js';
 import { AgentQueueView } from './agent-queue.js';
+import { IssueSplitView } from './issue-split-view.js';
 import { RouterAnchor } from './router-anchor.js';
 
-const VIEWS = ['list', 'board', 'queue'] as const;
+const VIEWS = ['split', 'list', 'board', 'queue'] as const;
 const ALL = '__all__';
 
 /** The table's sortable columns and the order the API knows each by. */
@@ -304,6 +306,10 @@ export function IssueWorkspace({
             updateParams((current) => withIssueView(current, next));
           }}
         >
+          <ToggleGroupItem value='split' aria-label={t('issues.view.split')}>
+            <Columns2Icon data-icon='inline-start' />
+            {t('issues.view.split')}
+          </ToggleGroupItem>
           <ToggleGroupItem value='list' aria-label={t('issues.view.list')}>
             <ListIcon data-icon='inline-start' />
             {t('issues.view.list')}
@@ -318,7 +324,13 @@ export function IssueWorkspace({
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
-      {view === 'queue' ? (
+      {view === 'split' ? (
+        <IssueSplitView
+          filters={filters}
+          filtered={filtered}
+          onClear={clearFilters}
+        />
+      ) : view === 'queue' ? (
         <AgentQueueView
           filters={{
             q: filters.q,

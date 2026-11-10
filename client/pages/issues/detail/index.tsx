@@ -127,7 +127,7 @@ export default function IssueDetailPage(): ReactElement {
   );
 }
 
-function IssueDetailView({
+export function IssueDetailView({
   detail,
   detailKey,
 }: {

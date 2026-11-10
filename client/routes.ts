@@ -147,6 +147,22 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     componentLoader: () => import('./pages/my-issues/index.js'),
   },
   {
+    // The viewer's agent sessions and chat workspace matching the Studio layout.
+    name: 'my-sessions',
+    path: '/sessions',
+    auth: 'required',
+    authz: 'skip',
+    navigation: { title: 'navigation.mySessions', icon: Sparkles },
+    componentLoader: () => import('./pages/sessions/index.js'),
+    children: [
+      {
+        name: 'session-detail',
+        path: ':conversationId',
+        componentLoader: () => import('./pages/sessions/index.js'),
+      },
+    ],
+  },
+  {
     // How delivery goes and what is stuck. The server limits every figure to what the viewer may see.
     name: 'dashboard',
     path: '/dashboard',
