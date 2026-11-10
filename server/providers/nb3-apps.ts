@@ -21,6 +21,9 @@ import {
   type Nb3Store,
 } from '../releases/dokploy-driver.js';
 import { extractArchive } from '../releases/extract.js';
+import { createNb3PreviewHooks } from '../releases/nb3-preview.js';
+import { gitServiceToken } from './git.js';
+import { releaseServiceToken } from './releases.js';
 
 const TABLE = 'dsNb3Apps';
 const PURPOSE = 'duongsinh-studio/nb3-app-database';
@@ -108,6 +111,7 @@ export function createNb3Store(conn: () => DatabaseConnection): Nb3Store {
 export default class Nb3AppsProvider extends ServiceProvider<Application> {
   readonly name = 'app/nb3-apps';
   private executor?: ScheduleExecutor;
+  private unsubscribe?: (() => void) | undefined;
 
   private deps(): Parameters<typeof createDokployDriver>[0] {
     const { container } = this.app;
@@ -155,6 +159,37 @@ export default class Nb3AppsProvider extends ServiceProvider<Application> {
     container
       .resolve(releasesDriversToken)
       .register(createDokployDriver(this.deps()));
+    // M4.3: a closed pull request (or one that lost its `preview` label) stops its preview App.
+    const hooks = createNb3PreviewHooks({
+      previewAppId: async (repositoryId) =>
+        (
+          await container
+            .resolve(releaseServiceToken)
+            .repositoryApps(repositoryId)
+        ).find((item) => item.environmentKey === 'preview')?.appId ?? null,
+      currentLabels: async (appId) => {
+        const rel = container.resolve(releasesToken);
+        const system = rel.system;
+        const summary = await rel.releases
+          .getApp(system, appId)
+          .catch(() => null);
+        if (!summary?.currentVersion) return null;
+        const releases = await rel.releases.listReleases(system, appId);
+        return (
+          releases.find((item) => item.version === summary.currentVersion)
+            ?.labels ?? null
+        );
+      },
+      stop: async (appId) => {
+        const rel = container.resolve(releasesToken);
+        await rel.releases.stop(rel.system, appId);
+      },
+    });
+    this.unsubscribe = container
+      .resolve(gitServiceToken)
+      .onWebhookEvent(async (repositoryId, event, payload) => {
+        await hooks.onWebhook(repositoryId, event, payload);
+      });
   }
 
   override async start(): Promise<void> {
@@ -181,6 +216,8 @@ export default class Nb3AppsProvider extends ServiceProvider<Application> {
   }
 
   override async shutdown(): Promise<void> {
+    this.unsubscribe?.();
+    this.unsubscribe = undefined;
     await this.executor?.shutdown();
   }
 }
