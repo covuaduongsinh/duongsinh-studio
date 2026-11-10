@@ -633,3 +633,5 @@ Test với Dokploy giả không bắt được ba điều này; chúng chỉ l�
 - Volume `storage` do Docker tạo thuộc root còn app chạy uid 1000: compose có service `<name>-init` chạy `chown -R 1000:1000` trước app (`depends_on: service_completed_successfully`).
 - `composeStatus = done` của Dokploy nghĩa là compose đã chạy, không phải app đã hoạt động (container lỗi khi khởi động vẫn `done`). Driver chỉ báo `running` khi `https://<host><basePath>/api/healthz` trả 2xx trong 180 s (`probeTimeoutMs`).
 - Thư mục giải nén dùng lại chỉ khi có `.extracted`; thư mục không có dấu bị xoá và giải nén lại.
+- Traefik gửi `X-Forwarded-Proto: wss` cho WebSocket nên realtime của app NB3 bị từ chối (trình duyệt báo "Không chuẩn bị được kết nối thời gian thực"); compose của app có router riêng cho `<basePath>/ws` với priority 1000 và middleware ép `X-Forwarded-Proto=https`, giống compose của Studio.
+- Biến "chỉ lần khởi động đầu" (như `INITIAL_ADMIN_PASSWORD`) chỉ đi vào lần deploy đầu; nếu lần đó thất bại trước khi DB được tạo, tài khoản quản trị sinh với mật khẩu mặc định. Chưa sửa; cách xử lý tạm: sao lưu và xoá DB rồi đặt biến ở tab Biến (đã làm với NocoLMS 10/11/2026).
