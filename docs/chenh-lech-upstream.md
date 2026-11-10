@@ -623,3 +623,13 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 - **Tên miền cố định** từng app (Q5): `hosts` ở cài đặt môi trường, mỗi app một tên; bị chặn `nocobase.dsc.edu.vn`, `studio.dsc.edu.vn`, `dokploy.dsc.edu.vn`.
 - Mật khẩu PostgreSQL của app staging được sinh ngẫu nhiên và cất đã niêm phong (`secrets.seal`, mục đích `duongsinh-studio/nb3-app-database`) ở `dsNb3Apps.dbPasswordSealed`.
 - Test: `tests/server/nb3-driver.test.ts`, `nb3-driver-registered.test.ts`, `tests/database/ds-nb3-apps-migration.test.ts` (Dokploy giả, không gọi mạng).
+
+### 33.1 Sau lần deploy thật đầu tiên (10/11/2026)
+
+Test với Dokploy giả không bắt được ba điều này; chúng chỉ lộ khi chạy NocoLMS thật, nay có test:
+
+- Plugin `releases` đưa biến sinh sẵn của app (có `APP_PUBLIC_ORIGIN`) vào `spec.env`. Driver bỏ qua biến trùng tên với biến nó đặt khi giá trị đúng bằng giá trị đó, vẫn từ chối giá trị khác.
+- Archive `dist/` của pnpm chứa ~2000 hard link; bộ giải nén nhận hard link trỏ vào trong `dist/` (không `..`), vẫn từ chối symlink và mọi link khác.
+- Volume `storage` do Docker tạo thuộc root còn app chạy uid 1000: compose có service `<name>-init` chạy `chown -R 1000:1000` trước app (`depends_on: service_completed_successfully`).
+- `composeStatus = done` của Dokploy nghĩa là compose đã chạy, không phải app đã hoạt động (container lỗi khi khởi động vẫn `done`). Driver chỉ báo `running` khi `https://<host><basePath>/api/healthz` trả 2xx trong 180 s (`probeTimeoutMs`).
+- Thư mục giải nén dùng lại chỉ khi có `.extracted`; thư mục không có dấu bị xoá và giải nén lại.

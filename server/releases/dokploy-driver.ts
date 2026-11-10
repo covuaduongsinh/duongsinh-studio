@@ -69,6 +69,10 @@ export interface Nb3Deps {
   readonly sleep?: (ms: number) => Promise<void>;
   /** How long a deployment may take before it is reported failed. */
   readonly deployTimeoutMs?: number;
+  /** Whether the App answers at this URL; the default asks over HTTPS with a 5 s limit. */
+  readonly probe?: (url: string) => Promise<boolean>;
+  /** How long the App may take to answer after Dokploy reports the deployment done. */
+  readonly probeTimeoutMs?: number;
 }
 
 interface Nb3Settings {
@@ -79,6 +83,16 @@ interface Nb3Settings {
   readonly basePath: string;
   readonly maxApps: number;
 }
+
+/** Written after an archive is fully extracted; a version directory without it is incomplete and is extracted again. */
+const EXTRACTED = '.extracted';
+const PROBE_TIMEOUT_MS = 180_000;
+
+const answers = (url: string): Promise<boolean> =>
+  fetch(url, { signal: AbortSignal.timeout(5000) }).then(
+    (response) => response.ok,
+    () => false,
+  );
 
 const VERSION = /^[A-Za-z0-9][A-Za-z0-9._-]{0,99}$/u;
 const absolute = (path: unknown): path is string =>
@@ -256,6 +270,22 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
       }
     }
 
+    /**
+     * Dokploy reports `done` when the compose is up, not when the App works: a container that crashes on start (a missing
+     * module, a database it cannot open) still ends as `done`. The deployment succeeds only when the App answers.
+     */
+    async function waitForApp(host: string): Promise<string | null> {
+      const url = `https://${host}${settings.basePath === '/' ? '' : settings.basePath}/api/healthz`;
+      const probe = deps.probe ?? answers;
+      const limit = now().getTime() + (deps.probeTimeoutMs ?? PROBE_TIMEOUT_MS);
+      for (;;) {
+        if (await probe(url)) return null;
+        if (now().getTime() > limit)
+          return `The App did not answer ${url} after the deployment; see its container logs in Dokploy.`;
+        await sleep(POLL_MS);
+      }
+    }
+
     async function ensureRow(spec: AppDeploymentSpec): Promise<Nb3Row> {
       const existing = await deps.store.get(spec.appId);
       if (existing) return existing;
@@ -326,14 +356,17 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
           row,
           'This driver runs release archives, not images.',
         );
-      const present = await stat(join(directory, 'dist')).then(
+      const present = await stat(join(directory, EXTRACTED)).then(
         () => true,
         () => false,
       );
       if (!present) {
+        // A directory left by an interrupted or older extraction is not trusted.
+        await rm(directory, { recursive: true, force: true });
         await mkdir(directory, { recursive: true });
         try {
           await deps.extract(await spec.artifact.open(), directory);
+          await writeFile(join(directory, EXTRACTED), `${version}\n`);
         } catch (error) {
           await rm(directory, { recursive: true, force: true });
           throw error;
@@ -379,8 +412,9 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
         row.composeId,
         `${spec.kind} ${spec.appId} ${version}`,
       );
-      emit('health_check', 'Waiting for Dokploy.');
-      const problem = await waitForDeploy(row.composeId);
+      emit('health_check', 'Waiting for Dokploy and for the App to answer.');
+      const problem =
+        (await waitForDeploy(row.composeId)) ?? (await waitForApp(host));
       row = {
         ...row,
         desiredState: 'running',

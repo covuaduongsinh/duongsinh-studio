@@ -41,6 +41,10 @@ describe('NocoBase 3 compose', () => {
     expect(file).toContain('DB_DIALECT: sqlite');
     expect(file).not.toContain('postgres:16');
     expect(file).toContain('mem_limit: 1g');
+    // The named volume is created by root; a one-shot service gives it to uid 1000 before the App starts.
+    expect(file).toContain('nb3-nocolms-init:');
+    expect(file).toContain('"chown", "-R", "1000:1000", "/app/storage"');
+    expect(file).toContain('condition: service_completed_successfully');
   });
 
   it('adds PostgreSQL with its password taken from the environment', () => {
@@ -277,6 +281,7 @@ describe('dokploy driver', () => {
       open: (sealed) => sealed.replace('sealed:', ''),
       extract,
       sleep: () => Promise.resolve(),
+      probe: () => Promise.resolve(true),
       ...extra,
     });
     const opened = await driver.open(
@@ -340,6 +345,10 @@ describe('dokploy driver', () => {
     // The same release again reuses the extracted files and the compose.
     await opened.apply(specOf('nocolms'));
     expect(extract).toHaveBeenCalledTimes(1);
+    // A directory without the "extracted" mark (an interrupted or older extraction) is extracted again.
+    await rm(join(root, 'data', 'nb3-nocolms', 'abc123', '.extracted'));
+    await opened.apply(specOf('nocolms'));
+    expect(extract).toHaveBeenCalledTimes(2);
     expect(log.filter((line) => line.startsWith('create')).length).toBe(1);
   });
 
@@ -366,6 +375,25 @@ describe('dokploy driver', () => {
     const result = await failing.opened.apply(specOf('nocolms'));
     expect(result).toMatchObject({ state: 'failed' });
     expect(failing.store.rows.get('nocolms')?.lastError).toMatch(/failed/u);
+  });
+
+  it('fails the deployment when the App never answers, even though Dokploy says done', async () => {
+    const { client } = fakeDokploy();
+    const probed: string[] = [];
+    const { opened, store } = await session(client, undefined, {
+      probe: (url: string) => {
+        probed.push(url);
+        return Promise.resolve(false);
+      },
+      probeTimeoutMs: 0,
+    });
+    const result = await opened.apply(specOf('nocolms'));
+    expect(result.state).toBe('failed');
+    expect(result.error).toMatch(
+      /did not answer https:\/\/nocolms\.dsc\.edu\.vn\/api\/healthz/u,
+    );
+    expect(probed[0]).toBe('https://nocolms.dsc.edu.vn/api/healthz');
+    expect(store.rows.get('nocolms')?.lastError).toMatch(/did not answer/u);
   });
 
   it('keeps maxApps: a second App is refused while the first runs, then allowed after it stops', async () => {
