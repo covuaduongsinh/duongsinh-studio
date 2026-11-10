@@ -656,3 +656,19 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **My issues mặc định mở dạng Chia đôi** (tham số `fallback` của `resolveIssueView`); trang Issues vẫn theo mặc định của plugin (bảng).
 - Khung phải vẫn là `IssueDetailView` của plugin (có liên kết "Quay lại" thừa trong khung chia đôi); phần chi tiết theo demo làm ở P2.
 - Test: `tests/server/task-groups-split.test.ts`, `tests/client/issue-split-view.test.tsx`.
+
+## 35. Chi tiết issue theo demo (P2)
+
+- `issues/detail/index.tsx` bỏ `IssueDetailLayout` (cột phụ 20rem) và dựng lại một cột: tiêu đề + nút **Theo dõi** (dùng `setSubscription` của plugin qua `useIssuePageActions().setFollowing`) →
+  thẻ "Tiến độ / Cần bạn" → **Báo cáo bàn giao** → hàng **chip thuộc tính** (Trạng thái, Ưu tiên, Người phụ trách, Người thực hiện + "Thêm thuộc tính") → việc con, phụ thuộc, tệp →
+  **bốn tab**: Hoạt động (mặc định), Mô tả, Mã & xem thử (PR, preview, release), Lượt chạy. "Thêm thuộc tính" mở phần còn lại của thẻ thuộc tính cũ (nhãn, dự án, ngày, autopilot,
+  người theo dõi, ngày tạo) — `IssueAside` giữ nguyên, thêm tham số `compact` để không lặp bốn trường đã thành chip.
+- **Thẻ "Cần bạn"** (`issue-needs-you.tsx`, cắm vào `IssueProgressPanel` qua `needsYouActions`): trạng thái kiểm tra của PR, liên kết "Xem giải thích mới nhất của Lead Agent" (cuộn tới
+  bình luận agent cuối trên tab Hoạt động; `comment-thread.tsx` thêm `data-author-kind` để tìm), **Merge**, **Đánh dấu đã merge** (`POST git/pullRequests/:id/markMerged`, đã có ở server), **Xem thay đổi**.
+  Không thêm route server: `markMerged` và `merge` đã có kiểm quyền và test ở `tests/server/git-contract-routes.test.ts`; nút chỉ hiện khi người xem được đóng issue.
+- **Báo cáo bàn giao** là markdown trong `issue.acceptance` (khung cuộn khi dài) kèm ảnh chụp từ `GET projects/issues/:id/screenshots`. Khối "Tiêu chí nghiệm thu" cũ ở cuối trang bỏ (thay bằng khối này).
+- **Gộp bản ghi hệ thống:** các dòng hoạt động liên tiếp do `system` ghi thành một dòng "N bản ghi hệ thống" mở ra được. Dòng do người hoặc agent ghi vẫn hiện riêng. Bộ lọc "Tất cả / Chỉ trao đổi" giữ nguyên.
+- **Đầu trang dính:** hiện khi vùng cuộn của khung đã cuộn quá 160 px (tìm vùng cuộn từ chính sự kiện `scroll` ở pha capture, không phụ thuộc cách khung bố trí): trạng thái, mã, tiêu đề rút gọn, Merge, Về đầu trang.
+- Trong khung chia đôi của My issues, chi tiết dựng với `embedded` (bỏ liên kết "Quay lại" thừa, đã nêu ở §34).
+- **Chưa làm so với demo:** nút "…" ở đầu trang (Xoá vẫn là nút riêng); số đếm tab Lượt chạy; "Thêm thuộc tính" mở cả thẻ thay vì từng thuộc tính chưa đặt; chưa so Craft Anything (P0b chỉ chụp đường cơ sở).
+- Test: `tests/client/issue-detail-p2.test.tsx`; `tests/client/issues-pages.test.tsx` đổi theo bố cục tab.

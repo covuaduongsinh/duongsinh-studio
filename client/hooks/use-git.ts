@@ -465,6 +465,32 @@ export function useMergePullRequest(
   });
 }
 
+/** Records a pull request merged outside Studio (`POST git/pullRequests/:id/markMerged`; the server checks who may). */
+export function useMarkPullRequestMerged(
+  issueId: string,
+): UseMutationResult<
+  GitPullRequest,
+  unknown,
+  { readonly pullRequestId: string }
+> {
+  const api = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ pullRequestId }) =>
+      (
+        await api.request<{ data: GitPullRequest }>({
+          path: `git/pullRequests/${encodeURIComponent(pullRequestId)}/markMerged`,
+          method: 'POST',
+          json: {},
+        })
+      ).data,
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: gitKeys.pullRequests(issueId),
+      }),
+  });
+}
+
 export function useSetPullAutoComplete(
   issueId: string,
 ): UseMutationResult<

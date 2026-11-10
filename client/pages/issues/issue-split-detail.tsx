@@ -24,6 +24,7 @@ export function SplitDetailPane({
         <IssueDetailView
           detail={query.data}
           detailKey={pmKeys.issue(issueId)}
+          embedded
         />
       </div>
     );

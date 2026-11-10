@@ -5,7 +5,12 @@
 import { useToaster } from '@nocobase/app-client';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
 import { ActivityIcon, CircleAlertIcon, ExternalLinkIcon } from 'lucide-react';
-import { useState, type FormEvent, type ReactElement } from 'react';
+import {
+  useState,
+  type FormEvent,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 
 import { Alert, AlertDescription, AlertTitle } from '#components/ui/alert';
 import { Button } from '#components/ui/button';
@@ -34,11 +39,14 @@ export function IssueProgressPanel({
   revision,
   canEdit,
   onChanged,
+  needsYouActions,
 }: {
   readonly issueId: string;
   readonly revision: number;
   readonly canEdit: boolean;
   readonly onChanged: () => void;
+  /** What the person can do about the pull request, drawn under the "Needs you" line when the issue waits for them. */
+  readonly needsYouActions?: ReactNode;
 }): ReactElement | null {
   const { t } = useTranslation();
   const { locale } = useLocale();
@@ -136,6 +144,8 @@ export function IssueProgressPanel({
           </>
         ) : null}
       </dl>
+
+      {progress.needsYou ? needsYouActions : null}
 
       {failedRunId && canEdit ? (
         <Alert variant='destructive' data-testid='failed-run-card'>

@@ -347,14 +347,18 @@ describe('issue page', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: issue.title }),
     ).toBeInTheDocument();
-    expect(screen.getByText(issue.description)).toBeInTheDocument();
     expect(
-      screen.getByRole('region', { name: enUS.issueDetail.properties }),
+      screen.getByRole('group', { name: enUS.issueDetail.properties }),
     ).toBeInTheDocument();
     expect(screen.getByText(comment.content)).toBeInTheDocument();
     expect(
       screen.getByText(enUS.issueDetail.activity.actions.created),
     ).toBeInTheDocument();
+    // The description has its own tab.
+    await userEvent.click(
+      screen.getByRole('tab', { name: enUS.issueDetail.tabs.description }),
+    );
+    expect(await screen.findByText(issue.description)).toBeInTheDocument();
   });
 
   it('changes the status with the revision it read', async () => {

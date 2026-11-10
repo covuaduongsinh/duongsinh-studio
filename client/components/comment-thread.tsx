@@ -654,6 +654,7 @@ function CommentBlock({
   return (
     <div
       data-comment-id={comment.id}
+      data-author-kind={comment.authorKind}
       className={cn(
         'group space-y-1.5 p-3',
         nested && 'pl-9',
