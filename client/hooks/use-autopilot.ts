@@ -209,9 +209,7 @@ export function useIssueAutopilotFlag(
   });
 }
 
-export function useSetIssueAutopilotFlag(
-  issueId: string,
-): UseMutationResult<
+export function useSetIssueAutopilotFlag(issueId: string): UseMutationResult<
   IssueAutopilotFlag,
   unknown,
   {

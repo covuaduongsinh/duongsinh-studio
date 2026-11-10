@@ -298,7 +298,10 @@ export function IssueActivity({
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            {t('issueDetail.activity.filterConversations', 'Chỉ trao đổi & báo cáo')}
+            {t(
+              'issueDetail.activity.filterConversations',
+              'Chỉ trao đổi & báo cáo',
+            )}
           </button>
         </div>
       </div>

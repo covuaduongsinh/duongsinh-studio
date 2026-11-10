@@ -138,8 +138,9 @@ test('a run token acts as its agent: comments are the agent’s and status moves
     `/projects/issues/${issue.id}`,
     json({ statusKey: 'done', revision }, 'PATCH'),
   );
-  // Closing is refused before the move (the run holds no `pm.issues/close`, and the agent is not the owner).
-  expect(done.status).toBe(403);
+  // The run holds `pm.issues/close` by default, so the refusal comes from the agent kind's moves, not the permission.
+  expect(done.status).toBe(400);
+  expect(JSON.stringify(await done.json())).toContain('TRANSITION_NOT_ALLOWED');
   // Back to backlog needs no other permission, so the agent kind's moves refuse it.
   const backlog = await asRun(
     `/projects/issues/${issue.id}`,

@@ -1618,12 +1618,16 @@ export function createGitService(deps: GitServiceDeps) {
     // Check issue-level flag from dsAutopilotIssueFlags if available
     if (shouldComplete) {
       try {
-        const flagRow = (await conn()
+        const flagRow = await conn()
           .query.selectFrom('dsAutopilotIssueFlags')
           .selectAll()
           .where('issueId', '=', pull.issueId)
-          .executeTakeFirst()) as Row | undefined;
-        if (flagRow && 'autoCompleteOnMerge' in flagRow && !bool(flagRow.autoCompleteOnMerge)) {
+          .executeTakeFirst<Row>();
+        if (
+          flagRow &&
+          'autoCompleteOnMerge' in flagRow &&
+          !bool(flagRow.autoCompleteOnMerge)
+        ) {
           shouldComplete = false;
         }
       } catch {
