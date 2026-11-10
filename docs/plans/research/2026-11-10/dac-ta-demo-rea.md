@@ -174,3 +174,100 @@ Sidebar: Back · Workspace (Demo Mode, General, Labels, License) · Members & ac
 - Thân đầy đủ: `taskGroups`, `knowledge/spaces`, `agents`, `pendingVersionTasks` theo dự án; tên khóa phần PR trong `reports/attention`.
 - Các mục của tab Cài đặt dự án và ý nghĩa `edit=checks`; endpoint lưu giá.
 - Topic ws ở cấp issue.
+
+## Bổ sung P0b (lượt 2, 10/11/2026)
+
+Bắt lại bằng REA 6.8.0 (`rea capture-browser-scenario`, Chromium của Playwright, chế độ launch). Chỉ điều hướng, mở tab và chọn
+bộ lọc; không bấm nút ghi. `max_network_body_bytes` 8 MiB nên thân phản hồi **đầy đủ**, giải mã base64 bằng script. Danh sách
+cuộc gọi đã khử trùng (bỏ auth, i18n, demoMode, studioLicense, id người dùng) ở `rea-luot-2-cuoc-goi.tsv`. Đường cơ sở giao
+diện (ảnh 1440/820/390 px, `capture.json` có token thiết kế và bố cục) ở `craft/<trang>/`, chụp bằng Craft Anything ở chế độ
+Clean room. Hai điểm lượt 1 suy luận sai hoặc thiếu được sửa bên dưới.
+
+### taskGroups (My issues và Issues)
+
+`GET taskGroups?mode=split|table&follow=all|scope[&involvesUserId][&statusKey][&projectId][&ownerUserId]` →
+`{data:{generation,membership,mode,groups[{group,count,data[],nextCursor}],following[],waiting}}`.
+
+- Chế độ `split` có **bốn** nhóm: `wait`, `doing`, `backlog`, `done`. Chế độ `table` có **sáu**: `wait`, `doing`, `review`,
+  `blocked`, `backlog`, `done`. `count` là tổng của nhóm; `data` chỉ chứa trang đầu (50 dòng cho `done`, 202 tổng) và
+  `nextCursor` là con trỏ không rõ nghĩa (base64) cho trang kế. `waiting` là số issue chờ bạn.
+- Bộ lọc của trang Issues là tham số truy vấn của chính `taskGroups`: `statusKey`, `projectId`, `ownerUserId` (và Executor);
+  tìm kiếm chưa bắt. Chế độ xem Board dùng `projects/issues/board?projectId&ownerUserId&orderBy=updatedAt+desc&pageSize=50`
+  → `{data:{columns[{status,issues[],nextCursor}]}}`; Agent queue dùng `agentBoard?projectId&ownerUserId` →
+  `{data:{rows[{agentId,state,run,queue,blockedBy[],waiting,idle,issue,others[],mine}],agents{<id>:{id,name,avatar,tool,model,
+  models[],archived,online,active,maxConcurrentRuns}}}}`.
+- Dòng (`groups[].data[]`): `{dependencyWait:boolean, blockers[{issueId,identifier,title,reason:"dependency"}],
+  issue{id,number,identifier,title,description,statusKey,needsYou,next,acceptance,priority,ownerUserId,parentIssueId,stage,
+  projectId,startDate,dueDate,revision,createdById,lastActivityAt,deletedAt,createdAt,updatedAt,executor{type,id},
+  project{id,name,leadUserId},labels[],owner{id,name},executorName,subtaskCount,blockedCount}, parent, waits[], waitingSince,
+  followed:boolean, unread:number, progress{total,finished}, hasChildren, context, expand[]}`.
+- `projects/issues/statuses` → `{data:[{key,name,category,color}]}` với đúng sáu trạng thái cố định (`backlog`, `in_progress`,
+  `blocked`, `in_review`, `done`, `cancelled`), trùng với plugin projects của ta. Bộ lọc Status liệt kê: All statuses, rồi
+  sáu trạng thái đó.
+- Dòng chú thích "Waiting for prerequisites: Waiting for PM-… to finish" lấy từ `dependencyWait` và `blockers`.
+
+### Chi tiết issue — tab "Code & previews"
+
+Thanh tab của issue (`tablist "Issue sections"`): **Activity N**, **Description**, **Code & previews N**, **Runs**. Tab
+"Code & previews" liệt kê mỗi pull request: tiêu đề `repo#số`, liên kết, trạng thái (Open/Merged), CI (Checks passed), nút
+**Merge** và menu hành động, nhánh, "Linked by … · Read from GitHub …", dòng Checks (nhà cung cấp, số check, từng check với
+nút Details), công tắc **"Complete the issue when merged"** (mô tả: khi mọi change request gắn với issue được merge thì issue
+sang Done; mặc định bật ở demo) và khối **Preview environment** (Sleeping/Running, Head, Build, CI log, quản trị viên đầu tiên).
+Công tắc này tương ứng với `autoCompleteOnMerge` đã làm ở commit `07c57ab` (mặc định của ta: tắt, xem §34).
+`git/marks?issueIds=` → `{data:{<issueId>:{count,merged,state,ciState,conflict,url,label}}}`; `deploys/marks?issueIds=`.
+
+### Dự án
+
+- Thanh tab `tablist "Project sections"`: Overview, Issues N, Knowledge, Memory, Members N, Releases, Settings; mỗi tab là một
+  đoạn đường dẫn `/projects/:id/<tab>`.
+- **Settings** có điều hướng `Settings sections` với bốn mục qua `?section=`: `general` (Project name, Description, Commit
+  attribution: "Me, with the agent as co-author" / "Me only"), `directories` (Code repositories), `variables` (Agent run
+  variables: Variables and secrets, Reveal values, Add variable, full access log; tự lưu khi đổi), `skills` (Default skills:
+  "Applies to" the whole project hoặc một repository, chọn skill, nút Save skills).
+- Mục `directories`: thẻ mỗi repository (tên, nhà cung cấp, "Primary repository", menu hành động) với các dòng Default branch,
+  **Checks** (GitHub Actions, Connected · last report …, nút Build records), Branch rules (`agent/{key}`), Release lines
+  (`v*`, Latest …), Previews ("Created for every pull request · sleeps after 10 idle minutes"), Webhook; mỗi dòng có nút
+  **Edit** (Edit Default branch / Checks / Branch rules / Release lines / Previews / Webhook). `edit=checks` của lượt 1 là
+  hộp thoại của nút Edit Checks này.
+- Tab **Releases** của dự án: bốn thẻ Preview / Staging / Release / Production (mỗi thẻ có nút hướng dẫn) rồi `tablist`
+  "Previews N · Staging environments N · Releases N · Pending release N"; Pending release là bảng Issue / Where it is / Updated.
+
+### Phát hành và môi trường
+
+- `deploys/hubCounts` → `{data:{test,previews,releases,unreleased,tagVersions,pendingVersionTasks}}`.
+- `deploys/versionPipelines?page&pageSize` → `{data:[{id,name,canManage,pendingTasks,previewCount,latestDeployment,state,
+  repositories[],latestVersions[]}],meta}` (danh sách trái của trang Releases, theo dự án).
+- `deploys/pendingVersionTasks?page&pageSize` → `{data:[{id,projectId,identifier,title,statusKey,updatedAt,merged,published,
+  unknown,tested,inTest,pullRequests[]}],meta}`.
+- `releases/environments` → `{data:[{id,name,driver,config,hasSecret,secretKeys[],publicUrl,protected,approvers[],maxApps,
+  defaultIdleStopMinutes,defaultDormantAfterHours,registryId,capabilities{archives,images,onDemand},
+  sampleDataOnFirstDeploy,purpose,createdAt,updatedAt,appCount}]}`; `releases/drivers` →
+  `{data:[{kind,title{key,ns},configSchema,secretSchema,capabilities{logs,urlModes[],images,onDemand},variants,facts}]}`.
+
+### Agents, Runtimes, Usage
+
+- `agents` → `{data:[{id,name,description,nameText,avatar,source,status,tool,model,modelEntries[],instructions,actions[],
+  confirmChanges,maxConcurrentRuns,maxAttempts,toolPolicy,lastReportedAt,revision,effort,efforts[],reported,
+  runners{team,personal,mine,names[]},quota[],personalOnly,unusable,busy,suggestion{en,zh},canEdit,…}]}`; `projectManager`,
+  `agents/skills`, `agents/models`, `agents/vocabulary`, `agents/prices`.
+- `agents/runners` → `{data:[{id,name,hostname,os,arch,version,tools[],enabledTools[],trust,ownerUserId,ownerName,status,slots,
+  toolSlots,activeRuns,activeJobs,activeByTool,lastSeenAt,canManage,canManageTools,canChangeTrust,canRevoke,takes[],
+  updateVersion,takesCount,workspaceUsage}]}`.
+- Usage: `agents/usage?from&to&groupBy=<agent|group|…>[&series=true][&groupId=<projectId>][&agentId=<id>][&userId=<id>]` →
+  `{data:{from,to,groupBy,rows[{key,name,runs,durationMs,inputTokens,outputTokens,cacheReadTokens,cacheWriteTokens,
+  reasoningTokens,cost{USD},pricedRuns}],totals,daily[{day,…tokens,cost}],unpricedModels[]}}`. Bộ lọc: **Project** → `groupId`,
+  **Agent** → `agentId`, **Woken by** → `userId`, kèm Date range (`from`, `to`, mặc định 30 ngày). **Group by** liệt kê tám
+  mục: Agent, Woken by, Project, Issue, Day, Model, Coding tool, Agent type (giá trị `groupBy` đã thấy: `agent`, `group`; sáu mục
+  còn lại chưa bắt). Tab **Cost** và **Tokens** chỉ đổi cách hiển thị. `agents/users` → `{data:[{id,name}]}` cho "Woken by".
+  `agents/usage/models` trả `{rows:[]}` khi chưa có giá.
+
+### Knowledge
+
+Lượt 1 ghi `knowledge/spaces`; thực tế trang gọi `knowledgeDirectory` →
+`{data:[{space{scope,scopeId,id,title,inherited,access{read,propose,edit,manage}},documents,archivedDocuments}]}` và
+`knowledge/capabilities` → `{data:{semanticSearch,proposals}}`, cộng `access/me`, `access/roles`.
+
+### Vẫn chưa bắt
+
+Sáu giá trị còn lại của `groupBy` ở Usage; tham số tìm kiếm văn bản của Issues; nội dung thân mới của các hộp thoại Edit trong
+Cài đặt repository (cần bấm Edit, có thể làm ở P6 khi cần); bộ lọc "Rows per page" và sắp xếp của danh sách Projects.

@@ -1,0 +1,2242 @@
+{
+  "a11y": {
+    "images_without_alt": 0,
+    "landmarks": {
+      "banner": 1,
+      "main": 1,
+      "navigation": 3
+    },
+    "lang": "en-US",
+    "unnamed_controls": 0,
+    "unnamed_examples": []
+  },
+  "assets": {
+    "images": [
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      }
+    ]
+  },
+  "design": {
+    "backgrounds": [
+      {
+        "count": 4,
+        "value": "#fafafa"
+      },
+      {
+        "count": 3,
+        "value": "#fe9a00"
+      },
+      {
+        "count": 2,
+        "value": "#ffffff"
+      },
+      {
+        "count": 2,
+        "value": "#dedede99"
+      },
+      {
+        "count": 2,
+        "value": "#002ad1"
+      },
+      {
+        "count": 2,
+        "value": "#fafafa99"
+      },
+      {
+        "count": 2,
+        "value": "#f2f2f2"
+      },
+      {
+        "count": 1,
+        "value": "#ebeefb"
+      },
+      {
+        "count": 1,
+        "value": "#fafafad9"
+      },
+      {
+        "count": 1,
+        "value": "#0027ce1a"
+      },
+      {
+        "count": 1,
+        "value": "#dedede"
+      },
+      {
+        "count": 1,
+        "value": "#fff6e5"
+      }
+    ],
+    "font_sizes": [
+      {
+        "count": 30,
+        "value": "14px"
+      },
+      {
+        "count": 19,
+        "value": "12px"
+      },
+      {
+        "count": 2,
+        "value": "18px"
+      }
+    ],
+    "font_weights": [
+      {
+        "count": 25,
+        "value": "500"
+      },
+      {
+        "count": 21,
+        "value": "400"
+      },
+      {
+        "count": 5,
+        "value": "600"
+      }
+    ],
+    "fonts": [
+      {
+        "count": 51,
+        "value": "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      }
+    ],
+    "max_widths": [],
+    "radii": [
+      {
+        "count": 33,
+        "value": "6.4px"
+      },
+      {
+        "count": 12,
+        "value": "8px"
+      },
+      {
+        "count": 8,
+        "value": "9999px"
+      },
+      {
+        "count": 2,
+        "value": "4.8px"
+      },
+      {
+        "count": 2,
+        "value": "11.2px"
+      }
+    ],
+    "shadows": [
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.985 0 0) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.52 0 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px"
+      }
+    ],
+    "spacing": [
+      {
+        "count": 119,
+        "value": "7.2px"
+      },
+      {
+        "count": 44,
+        "value": "5.4px"
+      },
+      {
+        "count": 34,
+        "value": "12.6px"
+      },
+      {
+        "count": 32,
+        "value": "3.6px"
+      },
+      {
+        "count": 11,
+        "value": "1.8px"
+      },
+      {
+        "count": 9,
+        "value": "10.8px"
+      },
+      {
+        "count": 8,
+        "value": "21.6px"
+      },
+      {
+        "count": 7,
+        "value": "9px"
+      },
+      {
+        "count": 6,
+        "value": "14.4px"
+      },
+      {
+        "count": 4,
+        "value": "18px"
+      },
+      {
+        "count": 2,
+        "value": "-1px"
+      }
+    ],
+    "text_colors": [
+      {
+        "count": 26,
+        "value": "#0d0d0d"
+      },
+      {
+        "count": 15,
+        "value": "#696969"
+      },
+      {
+        "count": 3,
+        "value": "#111826"
+      },
+      {
+        "count": 3,
+        "value": "#7a7a7a"
+      },
+      {
+        "count": 2,
+        "value": "#002ad1"
+      },
+      {
+        "count": 1,
+        "value": "#0d0d0db3"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1cc"
+      }
+    ]
+  },
+  "forms": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Knowledge"
+    },
+    {
+      "level": 2,
+      "text": "Knowledge"
+    },
+    {
+      "level": 2,
+      "text": "This is a demo. Changes cannot be saved."
+    }
+  ],
+  "lang": "en-US",
+  "layouts": [
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 1210,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "Knowledge",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "h": 842,
+          "heading": "Knowledge",
+          "pad": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "h": 767,
+          "heading": "Knowledge",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "nav",
+          "w": 260,
+          "y": 110
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 246,
+          "y": 258
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 246,
+          "y": 295
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 246,
+          "y": 332
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 246,
+          "y": 369
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 246,
+          "y": 406
+        },
+        {
+          "h": 46,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 246,
+          "y": 452
+        }
+      ],
+      "page_h": 900,
+      "page_w": 1440,
+      "type": {
+        "body": 14,
+        "h1": 18,
+        "h2": 18,
+        "h3": 0
+      },
+      "width": 1440
+    },
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 590,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "Knowledge",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "h": 842,
+          "heading": "Knowledge",
+          "pad": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "h": 748,
+          "heading": "Knowledge",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "nav",
+          "w": 223,
+          "y": 129
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 209,
+          "y": 277
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 209,
+          "y": 314
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 209,
+          "y": 351
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 209,
+          "y": 388
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 209,
+          "y": 426
+        },
+        {
+          "h": 46,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 209,
+          "y": 471
+        }
+      ],
+      "page_h": 900,
+      "page_w": 820,
+      "type": {
+        "body": 14,
+        "h1": 18,
+        "h2": 18,
+        "h3": 0
+      },
+      "width": 820
+    },
+    {
+      "blocks": [
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            11,
+            0,
+            11
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 390,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "Knowledge",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "h": 842,
+          "heading": "Knowledge",
+          "pad": [
+            14,
+            14,
+            14,
+            14
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "h": 743,
+          "heading": "Knowledge",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "nav",
+          "w": 359,
+          "y": 141
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 345,
+          "y": 273
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 345,
+          "y": 310
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 345,
+          "y": 347
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 345,
+          "y": 384
+        },
+        {
+          "h": 30,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 345,
+          "y": 421
+        },
+        {
+          "h": 46,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 345,
+          "y": 467
+        }
+      ],
+      "page_h": 900,
+      "page_w": 390,
+      "type": {
+        "body": 14,
+        "h1": 18,
+        "h2": 14,
+        "h3": 0
+      },
+      "width": 390
+    }
+  ],
+  "links": [
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "text": "My issues 3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "text": "My sessions 1"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "text": "Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "text": "Issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "text": "Projects"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "text": "Knowledge"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "text": "Project memory"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Releases"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "text": "Hosted environments"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "text": "Agents"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "text": "Runtimes"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "text": "Skills"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "text": "Usage"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "text": "Settings"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "text": "3"
+    }
+  ],
+  "outline": [
+    {
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main",
+      "tag": "a"
+    },
+    {
+      "alt": "NocoBase",
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/assets/logo.png",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 678,
+        "w": 229,
+        "x": 0,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 112,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "id": "base-ui-_r_n_",
+      "tag": "a",
+      "text": "My issues 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 76
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 103
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "id": "base-ui-_r_p_",
+      "tag": "a",
+      "text": "My sessions 1"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 113
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 140
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "id": "base-ui-_r_r_",
+      "tag": "a",
+      "text": "Dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 151
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Development Issues Projects Knowledge Project memory"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "id": "base-ui-_r_t_",
+      "tag": "a",
+      "text": "Issues"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 230
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 257
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "id": "base-ui-_r_v_",
+      "tag": "a",
+      "text": "Projects"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 268
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#ebeefb",
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 295
+      },
+      "color": "#002ad1",
+      "depth": 13,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "id": "base-ui-_r_11_",
+      "tag": "a",
+      "text": "Knowledge"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 306
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 333
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "id": "base-ui-_r_13_",
+      "tag": "a",
+      "text": "Project memory"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 344
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 117,
+        "w": 229,
+        "x": 0,
+        "y": 376
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Releases Releases Hosted environments"
+    },
+    {
+      "box": {
+        "h": 74,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "id": "base-ui-_r_15_",
+      "tag": "a",
+      "text": "Releases"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 423
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 450
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "id": "base-ui-_r_17_",
+      "tag": "a",
+      "text": "Hosted environments"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 461
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 493
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Agent management Agents Runtimes Skills Usage"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "id": "base-ui-_r_19_",
+      "tag": "a",
+      "text": "Agents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 540
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 567
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "id": "base-ui-_r_1b_",
+      "tag": "a",
+      "text": "Runtimes"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 578
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 605
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "id": "base-ui-_r_1d_",
+      "tag": "a",
+      "text": "Skills"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 615
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 642
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "id": "base-ui-_r_1f_",
+      "tag": "a",
+      "text": "Usage"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 653
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "id": "base-ui-_r_1h_",
+      "tag": "a",
+      "text": "Settings"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 704
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 18,
+        "y": 864
+      },
+      "color": "#0d0d0db3",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 900,
+        "w": 14,
+        "x": 222,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "background": "#fafafad9",
+      "box": {
+        "h": 58,
+        "w": 1210,
+        "x": 230,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 5,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 245,
+        "y": 12
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 254,
+        "y": 21
+      },
+      "color": "#696969",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 69,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 69,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#696969",
+      "depth": 8,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "ol"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 69,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "14px 500",
+      "role": "link",
+      "tag": "span",
+      "text": "Knowledge"
+    },
+    {
+      "background": "#0027ce1a",
+      "box": {
+        "h": 29,
+        "w": 208,
+        "x": 1103,
+        "y": 14
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "12px 500",
+      "id": "base-ui-_r_7_",
+      "tag": "button",
+      "text": "Demo mode · Switch account"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1288,
+        "y": 22
+      },
+      "color": "#002ad1",
+      "depth": 8,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1318,
+        "y": 16
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "base-ui-_r_a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1323,
+        "y": 21
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 1350,
+        "y": 12
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "id": "base-ui-_r_c_",
+      "tag": "a",
+      "text": "3"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 16,
+        "x": 1358,
+        "y": 20
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 36,
+        "w": 36,
+        "x": 1390,
+        "y": 10
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "base-ui-_r_g_",
+      "tag": "button",
+      "text": "SA"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 6,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "main"
+    },
+    {
+      "box": {
+        "h": 201,
+        "w": 230,
+        "x": 1181,
+        "y": 58
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 1166,
+        "x": 252,
+        "y": 79
+      },
+      "color": "#696969",
+      "depth": 9,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "People with editing permission can edit knowledge directly. Otherwise, request changes in an issue comment."
+    },
+    {
+      "box": {
+        "h": 767,
+        "w": 260,
+        "x": 253,
+        "y": 110
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 26,
+        "w": 246,
+        "x": 260,
+        "y": 117
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "18px 600",
+      "tag": "h1",
+      "text": "Knowledge"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 29,
+        "w": 210,
+        "x": 260,
+        "y": 150
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Search knowledge Ctrl K"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 268,
+        "y": 157
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#002ad1",
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 477,
+        "y": 150
+      },
+      "color": "#ffffff",
+      "depth": 15,
+      "font": "14px 500",
+      "id": "base-ui-_r_1t_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 484,
+        "y": 157
+      },
+      "color": "#ffffff",
+      "depth": 16,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 246,
+        "x": 260,
+        "y": 186
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "Choose a project or system knowledge to create in"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 85,
+        "x": 260,
+        "y": 225
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Expand all"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 92,
+        "x": 353,
+        "y": 225
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Collapse all"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 246,
+        "x": 260,
+        "y": 258
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 213,
+        "x": 260,
+        "y": 258
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Business Dashboard 2 documents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 266,
+        "y": 265
+      },
+      "color": "#696969",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 477,
+        "y": 258
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "id": "base-ui-_r_23_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 484,
+        "y": 265
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 246,
+        "x": 260,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 213,
+        "x": 260,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "CRM System 2 documents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 266,
+        "y": 303
+      },
+      "color": "#696969",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 477,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "id": "base-ui-_r_29_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 484,
+        "y": 303
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 246,
+        "x": 260,
+        "y": 332
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 213,
+        "x": 260,
+        "y": 332
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Mobile App 2 documents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 266,
+        "y": 340
+      },
+      "color": "#696969",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 477,
+        "y": 333
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "id": "base-ui-_r_2f_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 484,
+        "y": 340
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 246,
+        "x": 260,
+        "y": 369
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 213,
+        "x": 260,
+        "y": 369
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Studio Platform 5 documents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 266,
+        "y": 377
+      },
+      "color": "#696969",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 477,
+        "y": 370
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "id": "base-ui-_r_2l_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 484,
+        "y": 377
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 246,
+        "x": 260,
+        "y": 406
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 213,
+        "x": 260,
+        "y": 406
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Website Redesign 3 documents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 266,
+        "y": 414
+      },
+      "color": "#696969",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 477,
+        "y": 407
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "id": "base-ui-_r_2r_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 484,
+        "y": 414
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 46,
+        "w": 246,
+        "x": 260,
+        "y": 452
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 213,
+        "x": 260,
+        "y": 452
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "System knowledge 5 documents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 266,
+        "y": 459
+      },
+      "color": "#696969",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 477,
+        "y": 452
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "id": "base-ui-_r_31_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 484,
+        "y": 459
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 246,
+        "x": 260,
+        "y": 482
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "Shared across projects"
+    },
+    {
+      "background": "#dedede",
+      "box": {
+        "h": 17,
+        "w": 29,
+        "x": 264,
+        "y": 852
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 400",
+      "id": "base-ui-_r_1k_",
+      "role": "switch",
+      "tag": "span"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 400",
+      "id": "base-ui-_r_1l_",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "checkbox"
+    },
+    {
+      "background": "#dedede99",
+      "box": {
+        "h": 767,
+        "w": 1,
+        "x": 513,
+        "y": 110
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "16px 400",
+      "id": "_r_1n_",
+      "role": "separator",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 26,
+        "w": 860,
+        "x": 536,
+        "y": 132
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "18px 600",
+      "tag": "h2",
+      "text": "Knowledge"
+    },
+    {
+      "box": {
+        "h": 38,
+        "w": 860,
+        "x": 536,
+        "y": 165
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Expand a project or shared system knowledge to browse documents. Select a space to create there, or search across all authorized knowledge."
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 97,
+        "w": 352,
+        "x": 1074,
+        "y": 789
+      },
+      "color": "#0d0d0d",
+      "depth": 4,
+      "font": "16px 400",
+      "role": "dialog",
+      "tag": "div",
+      "text": "This is a demo. Changes cannot be saved. Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1094,
+        "y": 809
+      },
+      "color": "#964f0a",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 42,
+        "w": 253,
+        "x": 1125,
+        "y": 804
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "_r_k_",
+      "tag": "h2",
+      "text": "This is a demo. Changes cannot be saved."
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 253,
+        "x": 1125,
+        "y": 850
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "_r_l_",
+      "tag": "p",
+      "text": "Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1389,
+        "y": 804
+      },
+      "color": "#696969",
+      "depth": 6,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1392,
+        "y": 808
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "svg"
+    }
+  ],
+  "page": {
+    "h": 900,
+    "w": 1440
+  },
+  "text": "My issues 3 My sessions 1 Dashboard Development Issues Projects Knowledge Project memory Releases Releases Hosted environments Agent management Agents Runtimes Skills Usage Settings NocoBase Studio v1.0.0-beta.75 Knowledge Demo mode · Switch account 3 SA People with editing permission can edit knowledge directly. Otherwise, request changes in an issue comment. Knowledge Search knowledge Ctrl K Choose a project or system knowledge to create in Expand all Collapse all Business Dashboard 2 documents CRM System 2 documents Mobile App 2 documents Studio Platform 5 documents Website Redesign 3 documents System knowledge 5 documents Shared across projects Show archived Knowledge Expand a project or shared system knowledge to browse documents. Select a space to create there, or search across all authorized knowledge. This is a demo. Changes cannot be saved. Everything else works as usual.",
+  "title": "(3) NocoBase Studio",
+  "url": "https://studio.demo.nocobase.com/main/knowledge",
+  "viewport": {
+    "h": 900,
+    "w": 1440
+  }
+}

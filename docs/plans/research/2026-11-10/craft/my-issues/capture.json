@@ -1,0 +1,6581 @@
+{
+  "a11y": {
+    "images_without_alt": 0,
+    "landmarks": {
+      "banner": 11,
+      "main": 1,
+      "navigation": 2
+    },
+    "lang": "en-US",
+    "unnamed_controls": 6,
+    "unnamed_examples": [
+      "input",
+      "input",
+      "input",
+      "input",
+      "input"
+    ]
+  },
+  "assets": {
+    "images": [
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      },
+      {
+        "h": 814,
+        "w": 1280
+      },
+      {
+        "h": 844,
+        "w": 390
+      },
+      {
+        "h": 814,
+        "w": 1280
+      },
+      {
+        "h": 844,
+        "w": 390
+      }
+    ]
+  },
+  "design": {
+    "backgrounds": [
+      {
+        "count": 42,
+        "value": "#f2f2f2"
+      },
+      {
+        "count": 19,
+        "value": "#ffffff"
+      },
+      {
+        "count": 8,
+        "value": "#fafafa"
+      },
+      {
+        "count": 4,
+        "value": "#002ad1"
+      },
+      {
+        "count": 4,
+        "value": "#696969"
+      },
+      {
+        "count": 4,
+        "value": "#ffe2d0"
+      },
+      {
+        "count": 4,
+        "value": "#cff2da"
+      },
+      {
+        "count": 4,
+        "value": "#caf1f2"
+      },
+      {
+        "count": 3,
+        "value": "#fe9a00"
+      },
+      {
+        "count": 3,
+        "value": "#f2f2f299"
+      },
+      {
+        "count": 2,
+        "value": "#fafafa99"
+      },
+      {
+        "count": 2,
+        "value": "#f593001a"
+      },
+      {
+        "count": 2,
+        "value": "#6a6a6a80"
+      },
+      {
+        "count": 2,
+        "value": "#2780ff1a"
+      },
+      {
+        "count": 2,
+        "value": "#2b7fff"
+      },
+      {
+        "count": 2,
+        "value": "#ffe8be"
+      }
+    ],
+    "font_sizes": [
+      {
+        "count": 131,
+        "value": "12px"
+      },
+      {
+        "count": 121,
+        "value": "14px"
+      },
+      {
+        "count": 7,
+        "value": "9px"
+      },
+      {
+        "count": 2,
+        "value": "12.8px"
+      },
+      {
+        "count": 1,
+        "value": "24px"
+      },
+      {
+        "count": 1,
+        "value": "18px"
+      },
+      {
+        "count": 1,
+        "value": "16px"
+      }
+    ],
+    "font_weights": [
+      {
+        "count": 161,
+        "value": "400"
+      },
+      {
+        "count": 69,
+        "value": "500"
+      },
+      {
+        "count": 34,
+        "value": "600"
+      }
+    ],
+    "fonts": [
+      {
+        "count": 249,
+        "value": "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      },
+      {
+        "count": 15,
+        "value": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace"
+      }
+    ],
+    "max_widths": [
+      {
+        "count": 3,
+        "value": "172.8px"
+      },
+      {
+        "count": 3,
+        "value": "201.6px"
+      },
+      {
+        "count": 1,
+        "value": "896px"
+      },
+      {
+        "count": 1,
+        "value": "230.4px"
+      }
+    ],
+    "radii": [
+      {
+        "count": 150,
+        "value": "6.4px"
+      },
+      {
+        "count": 27,
+        "value": "9999px"
+      },
+      {
+        "count": 17,
+        "value": "8px"
+      },
+      {
+        "count": 15,
+        "value": "4.8px"
+      },
+      {
+        "count": 8,
+        "value": "4px"
+      },
+      {
+        "count": 2,
+        "value": "11.2px"
+      },
+      {
+        "count": 2,
+        "value": "8px 0px 0px 8px"
+      },
+      {
+        "count": 2,
+        "value": "0px 8px 8px 0px"
+      }
+    ],
+    "shadows": [
+      {
+        "count": 4,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.985 0 0) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.16 0 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(0, 42, 209) 2px 0px 0px 0px inset"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(1 0 0) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px"
+      }
+    ],
+    "spacing": [
+      {
+        "count": 280,
+        "value": "3.6px"
+      },
+      {
+        "count": 262,
+        "value": "7.2px"
+      },
+      {
+        "count": 202,
+        "value": "5.4px"
+      },
+      {
+        "count": 77,
+        "value": "10.8px"
+      },
+      {
+        "count": 45,
+        "value": "1.8px"
+      },
+      {
+        "count": 34,
+        "value": "12.6px"
+      },
+      {
+        "count": 21,
+        "value": "9px"
+      },
+      {
+        "count": 18,
+        "value": "14.4px"
+      },
+      {
+        "count": 16,
+        "value": "-1px"
+      },
+      {
+        "count": 15,
+        "value": "28.8px"
+      },
+      {
+        "count": 8,
+        "value": "18px"
+      },
+      {
+        "count": 3,
+        "value": "21.6px"
+      },
+      {
+        "count": 2,
+        "value": "16px"
+      },
+      {
+        "count": 2,
+        "value": "6px"
+      }
+    ],
+    "text_colors": [
+      {
+        "count": 117,
+        "value": "#696969"
+      },
+      {
+        "count": 105,
+        "value": "#0d0d0d"
+      },
+      {
+        "count": 9,
+        "value": "#002ad1"
+      },
+      {
+        "count": 4,
+        "value": "#bb4d00"
+      },
+      {
+        "count": 4,
+        "value": "#a24019"
+      },
+      {
+        "count": 4,
+        "value": "#005e31"
+      },
+      {
+        "count": 4,
+        "value": "#005b68"
+      },
+      {
+        "count": 3,
+        "value": "#111826"
+      },
+      {
+        "count": 3,
+        "value": "#7a7a7a"
+      },
+      {
+        "count": 2,
+        "value": "#ffffff"
+      },
+      {
+        "count": 2,
+        "value": "#1447e6"
+      },
+      {
+        "count": 2,
+        "value": "#844b00"
+      },
+      {
+        "count": 1,
+        "value": "#0d0d0db3"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1cc"
+      },
+      {
+        "count": 1,
+        "value": "#973c00"
+      },
+      {
+        "count": 1,
+        "value": "#008236"
+      }
+    ]
+  },
+  "forms": [],
+  "headings": [
+    {
+      "level": 2,
+      "text": "Search issues"
+    },
+    {
+      "level": 1,
+      "text": "My issues"
+    },
+    {
+      "level": 2,
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "level": 3,
+      "text": "Delivery report"
+    },
+    {
+      "level": 2,
+      "text": "Delivery report"
+    },
+    {
+      "level": 3,
+      "text": "Result"
+    },
+    {
+      "level": 3,
+      "text": "Evidence"
+    },
+    {
+      "level": 3,
+      "text": "Acceptance decision"
+    },
+    {
+      "level": 3,
+      "text": "Acceptance criteria"
+    },
+    {
+      "level": 3,
+      "text": "Delivery images"
+    },
+    {
+      "level": 2,
+      "text": "Activity"
+    },
+    {
+      "level": 3,
+      "text": "Acceptance criteria"
+    },
+    {
+      "level": 3,
+      "text": "Acceptance criteria"
+    },
+    {
+      "level": 2,
+      "text": "This is a demo. Changes cannot be saved."
+    }
+  ],
+  "lang": "en-US",
+  "layouts": [
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 1210,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 173,
+            "pad": [
+              9,
+              7
+            ],
+            "w": 106,
+            "x": 425
+          },
+          "h": 842,
+          "heading": "My issues",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 173,
+            "pad": [
+              9,
+              7
+            ],
+            "w": 106,
+            "x": 425
+          },
+          "gap": 14,
+          "h": 842,
+          "heading": "My issues",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "gap": 14,
+          "h": 29,
+          "heading": "My issues",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 1152,
+          "y": 86
+        },
+        {
+          "background": "#ffffff",
+          "h": 198,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 353,
+          "y": 169
+        },
+        {
+          "background": "#ffffff",
+          "h": 91,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 353,
+          "y": 378
+        },
+        {
+          "background": "#ffffff",
+          "h": 144,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 353,
+          "y": 480
+        },
+        {
+          "background": "#ffffff",
+          "h": 36,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 353,
+          "y": 635
+        },
+        {
+          "background": "#ffffff",
+          "column": {
+            "max_w": 896,
+            "pad": [
+              22,
+              22
+            ],
+            "w": 773,
+            "x": 631
+          },
+          "h": 700,
+          "heading": "Notify the owner automatically when an issue enters a status",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 779,
+          "y": 170
+        },
+        {
+          "gap": 11,
+          "h": 675,
+          "heading": "Notify the owner automatically when an issue enters a status",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 730,
+          "y": 231
+        },
+        {
+          "background": "#f593001a",
+          "gap": 9,
+          "h": 150,
+          "pad": [
+            11,
+            11,
+            11,
+            11
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 730,
+          "y": 300
+        },
+        {
+          "background": "#fafafacc",
+          "column": {
+            "max_w": 230,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 190,
+            "x": 664
+          },
+          "gap": 7,
+          "h": 446,
+          "heading": "Delivery report",
+          "pad": [
+            9,
+            11,
+            9,
+            11
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 730,
+          "y": 460
+        },
+        {
+          "h": 2085,
+          "heading": "Activity",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 730,
+          "y": 1044
+        },
+        {
+          "h": 151,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 730,
+          "y": 1092
+        },
+        {
+          "h": 174,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 730,
+          "y": 1383
+        },
+        {
+          "h": 298,
+          "heading": "Acceptance criteria",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 730,
+          "y": 1632
+        },
+        {
+          "h": 590,
+          "heading": "Acceptance criteria",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "article",
+          "w": 730,
+          "y": 2133
+        },
+        {
+          "h": 79,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 730,
+          "y": 2800
+        },
+        {
+          "h": 58,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 730,
+          "y": 2890
+        },
+        {
+          "h": 137,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 730,
+          "y": 2992
+        }
+      ],
+      "page_h": 900,
+      "page_w": 1440,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 18,
+        "h3": 12
+      },
+      "width": 1440
+    },
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 590,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 173,
+            "pad": [
+              9,
+              7
+            ],
+            "w": 86,
+            "x": 389
+          },
+          "h": 842,
+          "heading": "My issues",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 173,
+            "pad": [
+              9,
+              7
+            ],
+            "w": 86,
+            "x": 389
+          },
+          "gap": 14,
+          "h": 842,
+          "heading": "My issues",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "gap": 14,
+          "h": 29,
+          "heading": "My issues",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 532,
+          "y": 86
+        },
+        {
+          "background": "#ffffff",
+          "h": 198,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 353,
+          "y": 169
+        },
+        {
+          "background": "#ffffff",
+          "h": 91,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 353,
+          "y": 378
+        },
+        {
+          "background": "#ffffff",
+          "h": 144,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 353,
+          "y": 480
+        },
+        {
+          "background": "#ffffff",
+          "h": 36,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 353,
+          "y": 635
+        },
+        {
+          "background": "#ffffff",
+          "column": {
+            "max_w": 896,
+            "pad": [
+              22,
+              22
+            ],
+            "w": 153,
+            "x": 631
+          },
+          "h": 700,
+          "heading": "Notify the owner automatically when an issue enters a status",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 159,
+          "y": 170
+        },
+        {
+          "gap": 11,
+          "h": 1262,
+          "heading": "Notify the owner automatically when an issue enters a status",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 110,
+          "y": 338
+        },
+        {
+          "gap": 4,
+          "h": 69,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 110,
+          "y": 571
+        },
+        {
+          "background": "#f593001a",
+          "gap": 9,
+          "h": 477,
+          "pad": [
+            11,
+            11,
+            11,
+            11
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 110,
+          "y": 651
+        },
+        {
+          "background": "#fafafacc",
+          "gap": 7,
+          "h": 461,
+          "heading": "Delivery report",
+          "pad": [
+            9,
+            11,
+            9,
+            11
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 110,
+          "y": 1139
+        },
+        {
+          "h": 4621,
+          "heading": "Activity",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 110,
+          "y": 1829
+        },
+        {
+          "h": 252,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 110,
+          "y": 1893
+        },
+        {
+          "gap": 7,
+          "h": 89,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 96,
+          "y": 1899
+        },
+        {
+          "h": 363,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 110,
+          "y": 2520
+        },
+        {
+          "gap": 7,
+          "h": 113,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 66,
+          "y": 2613
+        },
+        {
+          "h": 546,
+          "heading": "Acceptance criteria",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 110,
+          "y": 3050
+        },
+        {
+          "gap": 7,
+          "h": 113,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 66,
+          "y": 3143
+        },
+        {
+          "h": 1215,
+          "heading": "Acceptance criteria",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 110,
+          "y": 4115
+        },
+        {
+          "gap": 7,
+          "h": 136,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 66,
+          "y": 4207
+        },
+        {
+          "gap": 7,
+          "h": 113,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 66,
+          "y": 4642
+        },
+        {
+          "gap": 7,
+          "h": 136,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 66,
+          "y": 5036
+        },
+        {
+          "h": 276,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 110,
+          "y": 5574
+        },
+        {
+          "gap": 7,
+          "h": 113,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 96,
+          "y": 5579
+        },
+        {
+          "h": 252,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 110,
+          "y": 5861
+        },
+        {
+          "gap": 7,
+          "h": 89,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 96,
+          "y": 5866
+        },
+        {
+          "h": 276,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "article",
+          "w": 110,
+          "y": 6174
+        },
+        {
+          "gap": 7,
+          "h": 113,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 96,
+          "y": 6179
+        }
+      ],
+      "page_h": 900,
+      "page_w": 820,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 18,
+        "h3": 12
+      },
+      "width": 820
+    },
+    {
+      "blocks": [
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            11,
+            0,
+            11
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 390,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "My issues",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "gap": 14,
+          "h": 842,
+          "heading": "My issues",
+          "pad": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "gap": 11,
+          "h": 29,
+          "heading": "My issues",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 347,
+          "y": 79
+        },
+        {
+          "background": "#ffffff",
+          "h": 252,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 354,
+          "y": 169
+        },
+        {
+          "background": "#ffffff",
+          "h": 119,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 354,
+          "y": 432
+        },
+        {
+          "background": "#ffffff",
+          "h": 175,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 354,
+          "y": 562
+        },
+        {
+          "background": "#ffffff",
+          "h": 42,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 354,
+          "y": 748
+        },
+        {
+          "background": "#ffffff",
+          "column": {
+            "max_w": 896,
+            "pad": [
+              14,
+              14
+            ],
+            "w": 384,
+            "x": 0
+          },
+          "h": 900,
+          "heading": "Notify the owner automatically when an issue enters a status",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 390,
+          "y": 0
+        },
+        {
+          "gap": 11,
+          "h": 778,
+          "heading": "Notify the owner automatically when an issue enters a status",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 355,
+          "y": 61
+        },
+        {
+          "gap": 4,
+          "h": 69,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 355,
+          "y": 127
+        },
+        {
+          "background": "#ffffff",
+          "gap": 9,
+          "h": 175,
+          "pad": [
+            11,
+            14,
+            11,
+            14
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 384,
+          "y": 207
+        },
+        {
+          "background": "#fafafacc",
+          "column": {
+            "max_w": 230,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 190,
+            "x": 26
+          },
+          "gap": 7,
+          "h": 446,
+          "heading": "Delivery report",
+          "pad": [
+            9,
+            11,
+            9,
+            11
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 355,
+          "y": 393
+        },
+        {
+          "h": 2601,
+          "heading": "Activity",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 355,
+          "y": 976
+        },
+        {
+          "h": 185,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "article",
+          "w": 355,
+          "y": 1024
+        },
+        {
+          "h": 233,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "article",
+          "w": 355,
+          "y": 1406
+        },
+        {
+          "gap": 7,
+          "h": 47,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 311,
+          "y": 1434
+        },
+        {
+          "h": 309,
+          "heading": "Acceptance criteria",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "article",
+          "w": 355,
+          "y": 1733
+        },
+        {
+          "gap": 7,
+          "h": 47,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 311,
+          "y": 1762
+        },
+        {
+          "h": 739,
+          "heading": "Acceptance criteria",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "article",
+          "w": 355,
+          "y": 2304
+        },
+        {
+          "gap": 7,
+          "h": 70,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 311,
+          "y": 2332
+        },
+        {
+          "gap": 7,
+          "h": 47,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 311,
+          "y": 2605
+        },
+        {
+          "gap": 7,
+          "h": 47,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 311,
+          "y": 2838
+        },
+        {
+          "h": 101,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "article",
+          "w": 355,
+          "y": 3157
+        },
+        {
+          "h": 79,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "article",
+          "w": 355,
+          "y": 3269
+        },
+        {
+          "h": 185,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "article",
+          "w": 355,
+          "y": 3393
+        }
+      ],
+      "page_h": 900,
+      "page_w": 390,
+      "type": {
+        "body": 14,
+        "h1": 20,
+        "h2": 14,
+        "h3": 12
+      },
+      "width": 390
+    }
+  ],
+  "links": [
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "text": "My issues 3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "text": "My sessions 1"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "text": "Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "text": "Issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "text": "Projects"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "text": "Knowledge"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "text": "Project memory"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Releases"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "text": "Hosted environments"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "text": "Agents"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "text": "Runtimes"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "text": "Skills"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "text": "Usage"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "text": "Settings"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "text": "3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues/new",
+      "text": "New issue C"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects/396925299851264",
+      "text": "Studio Platform"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "text": "View the Lead Agent’s latest explanation"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "text": "View changes"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "text": ""
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/d8d52db8-b1c3-4d69-b3af-93365f22d4c6",
+      "text": "View transcript"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/e99533cc-8ea4-44ea-8adc-a8397c6cce93",
+      "text": "View transcript"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/85e0ea15-120b-4a68-9b11-b194762e324f",
+      "text": "View transcript"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/b6d3444b-799e-417d-b510-b463874c37b7",
+      "text": "View transcript"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/f1b20537-c5aa-43d4-a0df-dd44ea33fdc9",
+      "text": "View transcript"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "text": "Notify the owner automatically when an issue enters a status"
+    }
+  ],
+  "outline": [
+    {
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main",
+      "tag": "a"
+    },
+    {
+      "alt": "NocoBase",
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/assets/logo.png",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 678,
+        "w": 229,
+        "x": 0,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 112,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "background": "#ebeefb",
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#002ad1",
+      "depth": 13,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "id": "base-ui-_r_n_",
+      "tag": "a",
+      "text": "My issues 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 76
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 103
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "id": "base-ui-_r_p_",
+      "tag": "a",
+      "text": "My sessions 1"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 113
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 140
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "id": "base-ui-_r_r_",
+      "tag": "a",
+      "text": "Dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 151
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Development Issues Projects Knowledge Project memory"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "id": "base-ui-_r_t_",
+      "tag": "a",
+      "text": "Issues"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 230
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 257
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "id": "base-ui-_r_v_",
+      "tag": "a",
+      "text": "Projects"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 268
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "id": "base-ui-_r_11_",
+      "tag": "a",
+      "text": "Knowledge"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 306
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 333
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "id": "base-ui-_r_13_",
+      "tag": "a",
+      "text": "Project memory"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 344
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 117,
+        "w": 229,
+        "x": 0,
+        "y": 376
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Releases Releases Hosted environments"
+    },
+    {
+      "box": {
+        "h": 74,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "id": "base-ui-_r_15_",
+      "tag": "a",
+      "text": "Releases"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 423
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 450
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "id": "base-ui-_r_17_",
+      "tag": "a",
+      "text": "Hosted environments"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 461
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 493
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Agent management Agents Runtimes Skills Usage"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "id": "base-ui-_r_19_",
+      "tag": "a",
+      "text": "Agents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 540
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 567
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "id": "base-ui-_r_1b_",
+      "tag": "a",
+      "text": "Runtimes"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 578
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 605
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "id": "base-ui-_r_1d_",
+      "tag": "a",
+      "text": "Skills"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 615
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 642
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "id": "base-ui-_r_1f_",
+      "tag": "a",
+      "text": "Usage"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 653
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "id": "base-ui-_r_1h_",
+      "tag": "a",
+      "text": "Settings"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 704
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 18,
+        "y": 864
+      },
+      "color": "#0d0d0db3",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 900,
+        "w": 14,
+        "x": 222,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "background": "#fafafad9",
+      "box": {
+        "h": 58,
+        "w": 1210,
+        "x": 230,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 5,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 245,
+        "y": 12
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 254,
+        "y": 21
+      },
+      "color": "#696969",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 62,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 62,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#696969",
+      "depth": 8,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "ol"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 62,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "14px 500",
+      "role": "link",
+      "tag": "span",
+      "text": "My issues"
+    },
+    {
+      "background": "#0027ce1a",
+      "box": {
+        "h": 29,
+        "w": 208,
+        "x": 1103,
+        "y": 14
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "12px 500",
+      "id": "base-ui-_r_7_",
+      "tag": "button",
+      "text": "Demo mode · Switch account"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1288,
+        "y": 22
+      },
+      "color": "#002ad1",
+      "depth": 8,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1318,
+        "y": 16
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "base-ui-_r_a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1323,
+        "y": 21
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 1350,
+        "y": 12
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "id": "base-ui-_r_c_",
+      "tag": "a",
+      "text": "3"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 16,
+        "x": 1358,
+        "y": 20
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 36,
+        "w": 36,
+        "x": 1390,
+        "y": 10
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "base-ui-_r_g_",
+      "tag": "button",
+      "text": "SA"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 6,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "main"
+    },
+    {
+      "box": {
+        "h": 201,
+        "w": 230,
+        "x": 1181,
+        "y": 58
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 1152,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 107,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "24px 600",
+      "tag": "h1",
+      "text": "My issues"
+    },
+    {
+      "background": "#002ad1",
+      "box": {
+        "h": 29,
+        "w": 124,
+        "x": 1287,
+        "y": 86
+      },
+      "color": "#ffffff",
+      "depth": 11,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/my-issues/new",
+      "role": "button",
+      "tag": "a",
+      "text": "New issue C"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1295,
+        "y": 94
+      },
+      "color": "#ffffff",
+      "depth": 12,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 158,
+        "x": 259,
+        "y": 130
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 22,
+        "x": 260,
+        "y": 131
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 500",
+      "role": "group",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 267,
+        "y": 137
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 135,
+        "x": 282,
+        "y": 130
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "id": "base-ui-_r_1m_",
+      "name": "",
+      "placeholder": "Search issues…",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 106,
+        "x": 425,
+        "y": 130
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "id": "base-ui-_r_1n_",
+      "role": "combobox",
+      "tag": "button",
+      "text": "All projects"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 509,
+        "y": 137
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "16px 400",
+      "id": "base-ui-_r_1n_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 104,
+        "x": 538,
+        "y": 130
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "id": "base-ui-_r_1q_",
+      "role": "combobox",
+      "tag": "button",
+      "text": "Any owner"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 620,
+        "y": 137
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "16px 400",
+      "id": "base-ui-_r_1q_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 120,
+        "x": 650,
+        "y": 130
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "id": "base-ui-_r_1t_",
+      "role": "combobox",
+      "tag": "button",
+      "text": "Any executor"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 747,
+        "y": 137
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "16px 400",
+      "id": "base-ui-_r_1t_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 113,
+        "x": 1298,
+        "y": 131
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 25,
+        "w": 29,
+        "x": 1298,
+        "y": 131
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "12.8px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1307,
+        "y": 138
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "12.8px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 28,
+        "x": 1327,
+        "y": 131
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "12.8px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1334,
+        "y": 138
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "12.8px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 28,
+        "x": 1355,
+        "y": 131
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "12.8px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1362,
+        "y": 138
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "12.8px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 28,
+        "x": 1383,
+        "y": 131
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "12.8px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1390,
+        "y": 138
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "12.8px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 677,
+        "w": 360,
+        "x": 259,
+        "y": 169
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "16px 400",
+      "role": "listbox",
+      "tag": "div",
+      "text": "Waiting for you 3 Notify the owner automatically when an issue enters a status Nov 6 PM-6297 Needs your acceptance Due dates show one day early in UTC-8 Nov 8 PM-6302 Needs your acceptance Issue list "
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 198,
+        "w": 353,
+        "x": 259,
+        "y": 169
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "background": "#fffbeb",
+      "box": {
+        "h": 35,
+        "w": 351,
+        "x": 260,
+        "y": 170
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 600",
+      "tag": "button",
+      "text": "Waiting for you 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 180
+      },
+      "color": "#e17100",
+      "depth": 17,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 586,
+        "y": 180
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "background": "#0026cc14",
+      "box": {
+        "h": 54,
+        "w": 351,
+        "x": 260,
+        "y": 205
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "16px 400",
+      "id": "task-option-396925310337024",
+      "role": "option",
+      "tag": "div",
+      "text": "Notify the owner automatically when an issue enters a status Nov 6 PM-6297 Needs your acceptance"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 214
+      },
+      "color": "#7f22fe",
+      "depth": 18,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 584,
+        "y": 216
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 54,
+        "w": 351,
+        "x": 260,
+        "y": 259
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "16px 400",
+      "id": "task-option-396925314531328",
+      "role": "option",
+      "tag": "div",
+      "text": "Due dates show one day early in UTC-8 Nov 8 PM-6302 Needs your acceptance"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 268
+      },
+      "color": "#7f22fe",
+      "depth": 18,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 584,
+        "y": 270
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 53,
+        "w": 351,
+        "x": 260,
+        "y": 313
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "16px 400",
+      "id": "task-option-396925308239878",
+      "role": "option",
+      "tag": "div",
+      "text": "Issue list stutters when scrolling past 2,000 issues Nov 8 PM-6295 Needs your acceptance"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 323
+      },
+      "color": "#7f22fe",
+      "depth": 18,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 584,
+        "y": 324
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 91,
+        "w": 353,
+        "x": 259,
+        "y": 378
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 35,
+        "w": 351,
+        "x": 260,
+        "y": 379
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 600",
+      "tag": "button",
+      "text": "In progress 1"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 389
+      },
+      "color": "#155dfc",
+      "depth": 17,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 586,
+        "y": 389
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 55,
+        "w": 351,
+        "x": 260,
+        "y": 414
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "16px 400",
+      "id": "task-option-396925316628487",
+      "role": "option",
+      "tag": "div",
+      "text": "Hide private prerequisite titles from external contributors 06:28 PM-6305 Agent working"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 423
+      },
+      "color": "#155dfc",
+      "depth": 18,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 584,
+        "y": 425
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 90,
+        "x": 356,
+        "y": 444
+      },
+      "color": "#002ad1",
+      "depth": 22,
+      "font": "12px 400",
+      "role": "status",
+      "tag": "span",
+      "text": "Agent working"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 356,
+        "y": 446
+      },
+      "color": "#002ad1",
+      "depth": 23,
+      "font": "12px 400",
+      "role": "presentation",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 144,
+        "w": 353,
+        "x": 259,
+        "y": 480
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 35,
+        "w": 351,
+        "x": 260,
+        "y": 481
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 600",
+      "tag": "button",
+      "text": "Backlog 2"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 490
+      },
+      "color": "#9f9fa9",
+      "depth": 17,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 586,
+        "y": 490
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 54,
+        "w": 351,
+        "x": 260,
+        "y": 515
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "16px 400",
+      "id": "task-option-396925350182934",
+      "role": "option",
+      "tag": "div",
+      "text": "Language switcher and SEO hreflang for the website 00:30 PM-6344"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 525
+      },
+      "color": "#9f9fa9",
+      "depth": 18,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 584,
+        "y": 527
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 53,
+        "w": 351,
+        "x": 260,
+        "y": 570
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "16px 400",
+      "id": "task-option-396925312434176",
+      "role": "option",
+      "tag": "div",
+      "text": "Filter agent run logs by event type Oct 27 PM-6299"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 579
+      },
+      "color": "#9f9fa9",
+      "depth": 18,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 584,
+        "y": 581
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 36,
+        "w": 353,
+        "x": 259,
+        "y": 635
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 34,
+        "w": 351,
+        "x": 260,
+        "y": 636
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 600",
+      "tag": "button",
+      "text": "Done 15"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 271,
+        "y": 645
+      },
+      "color": "#009966",
+      "depth": 17,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 586,
+        "y": 645
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 702,
+        "w": 4,
+        "x": 623,
+        "y": 169
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "16px 400",
+      "role": "separator",
+      "tag": "div"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 700,
+        "w": 779,
+        "x": 631,
+        "y": 170
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 642,
+        "y": 179
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 647,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 671,
+        "y": 179
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 676,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 50,
+        "x": 747,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "PM-6297"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 96,
+        "x": 813,
+        "y": 182
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/projects/396925299851264",
+      "tag": "a",
+      "text": "Studio Platform"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 110,
+        "x": 1085,
+        "y": 179
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 400",
+      "id": "base-ui-_r_29_",
+      "tag": "button",
+      "text": "In review"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1095,
+        "y": 185
+      },
+      "color": "#7f22fe",
+      "depth": 18,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1175,
+        "y": 186
+      },
+      "color": "#696969b3",
+      "depth": 18,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 73,
+        "x": 1199,
+        "y": 179
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Follow"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1206,
+        "y": 185
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 95,
+        "x": 1276,
+        "y": 179
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "button",
+      "text": "Ask agent"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1282,
+        "y": 185
+      },
+      "color": "#696969",
+      "depth": 18,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1374,
+        "y": 179
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "14px 500",
+      "id": "base-ui-_r_2f_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1380,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 675,
+        "w": 730,
+        "x": 653,
+        "y": 231
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 701,
+        "x": 653,
+        "y": 231
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "18px 600",
+      "tag": "h2",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1357,
+        "y": 231
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1363,
+        "y": 237
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 730,
+        "x": 653,
+        "y": 267
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 643,
+        "x": 689,
+        "y": 269
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Notifications go out for In review and Blocked. Reply \"accept\", or name another status that should notify."
+    },
+    {
+      "background": "#f593001a",
+      "box": {
+        "h": 150,
+        "w": 730,
+        "x": 653,
+        "y": 300
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 643,
+        "x": 664,
+        "y": 334
+      },
+      "color": "#0d0d0d",
+      "depth": 24,
+      "font": "14px 500",
+      "tag": "p",
+      "text": "Notifications go out for In review and Blocked. Reply \"accept\", or name another status that should notify."
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 251,
+        "x": 664,
+        "y": 385
+      },
+      "color": "#002ad1",
+      "depth": 21,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "tag": "a",
+      "text": "View the Lead Agent’s latest explanation"
+    },
+    {
+      "background": "#002ad1",
+      "box": {
+        "h": 25,
+        "w": 72,
+        "x": 664,
+        "y": 413
+      },
+      "color": "#ffffff",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Merge"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 671,
+        "y": 419
+      },
+      "color": "#ffffff",
+      "depth": 23,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 121,
+        "x": 744,
+        "y": 413
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Mark as merged"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 120,
+        "x": 872,
+        "y": 413
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 500",
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "role": "button",
+      "tag": "a",
+      "text": "View changes"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 879,
+        "y": 419
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 99,
+        "x": 999,
+        "y": 413
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Send back"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1005,
+        "y": 419
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafacc",
+      "box": {
+        "h": 446,
+        "w": 730,
+        "x": 653,
+        "y": 460
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 706,
+        "x": 664,
+        "y": 470
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "12px 500",
+      "tag": "h3",
+      "text": "Delivery report"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 664,
+        "y": 472
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 706,
+        "x": 664,
+        "y": 494
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "16px 600",
+      "tag": "h2",
+      "text": "Delivery report"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 706,
+        "x": 664,
+        "y": 527
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Result"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 706,
+        "x": 664,
+        "y": 553
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Notify the owner automatically when an issue enters a status. The requested scope and independent verification are complete."
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 706,
+        "x": 664,
+        "y": 607
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Evidence"
+    },
+    {
+      "box": {
+        "h": 65,
+        "w": 706,
+        "x": 664,
+        "y": 634
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Focused checks in tests/demo-scenarios/notify-the-owner-automatically-when-an-issue-enters-a-status.test.ts passed after the last change. The manager checked the expected CI set before requesting acce"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 376,
+        "x": 744,
+        "y": 679
+      },
+      "color": "#002ad1",
+      "depth": 26,
+      "font": "14px 500",
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "tag": "a",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 706,
+        "x": 664,
+        "y": 709
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Acceptance decision"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 706,
+        "x": 664,
+        "y": 736
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Final acceptance belongs to the owner."
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 706,
+        "x": 664,
+        "y": 768
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Acceptance criteria"
+    },
+    {
+      "box": {
+        "h": 65,
+        "w": 688,
+        "x": 682,
+        "y": 794
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 706,
+        "x": 664,
+        "y": 870
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Delivery images"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 706,
+        "x": 664,
+        "y": 896
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "The desktop and mobile previews below illustrate normal use, repeated requests and forbidden access. Enlarge the images to inspect the details."
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 43,
+        "x": 664,
+        "y": 785
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Expand"
+    },
+    {
+      "box": {
+        "h": 79,
+        "w": 706,
+        "x": 664,
+        "y": 818
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "16px 400",
+      "role": "list",
+      "tag": "div",
+      "text": "Claude · Sonnet 5 · Nov 4 04:02 · 2"
+    },
+    {
+      "box": {
+        "h": 76,
+        "w": 190,
+        "x": 664,
+        "y": 818
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "font": "16px 400",
+      "role": "listitem",
+      "tag": "div",
+      "text": "Claude · Sonnet 5 · Nov 4 04:02 · 2"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 190,
+        "x": 664,
+        "y": 818
+      },
+      "color": "#696969",
+      "depth": 24,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Claude · Sonnet 5 · Nov 4 04:02 · 2"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 56,
+        "w": 76,
+        "x": 664,
+        "y": 837
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "alt": "extended-0-6-desktop.png",
+      "box": {
+        "h": 54,
+        "w": 74,
+        "x": 665,
+        "y": 838
+      },
+      "color": "#0d0d0d",
+      "depth": 26,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/api/projects/attachments/5942ad2e-22c2-479b-b7c2-a0e7306d18fa/content",
+      "tag": "img"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 56,
+        "w": 76,
+        "x": 746,
+        "y": 837
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "alt": "extended-0-6-mobile.png",
+      "box": {
+        "h": 54,
+        "w": 74,
+        "x": 747,
+        "y": 838
+      },
+      "color": "#0d0d0d",
+      "depth": 26,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/api/projects/attachments/def0d60b-5611-4bfb-a6a0-15688f55f663/content",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 33,
+        "x": 653,
+        "y": 921
+      },
+      "color": "#009966",
+      "depth": 20,
+      "font": "11px 400",
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "tag": "a"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 657,
+        "y": 924
+      },
+      "color": "#009966",
+      "depth": 21,
+      "font": "11px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 670,
+        "y": 924
+      },
+      "color": "#009966",
+      "depth": 21,
+      "font": "11px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 730,
+        "x": 653,
+        "y": 952
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Priority High Owner Super Admin (you) Arrange L Lead Agent More properties"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 74,
+        "x": 697,
+        "y": 952
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "id": "task-prop-priority",
+      "role": "combobox",
+      "tag": "button",
+      "text": "High"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 702,
+        "y": 958
+      },
+      "color": "#696969",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 753,
+        "y": 959
+      },
+      "color": "#696969",
+      "depth": 23,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "id": "base-ui-_r_2j_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 143,
+        "x": 819,
+        "y": 952
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "id": "task-prop-owner",
+      "role": "combobox",
+      "tag": "button",
+      "text": "Super Admin (you)"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 944,
+        "y": 959
+      },
+      "color": "#696969",
+      "depth": 23,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "id": "base-ui-_r_2m_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 118,
+        "x": 1017,
+        "y": 952
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "id": "task-prop-executor",
+      "role": "combobox",
+      "tag": "button",
+      "text": "L Lead Agent"
+    },
+    {
+      "background": "#00c950",
+      "box": {
+        "h": 7,
+        "w": 7,
+        "x": 1031,
+        "y": 966
+      },
+      "color": "#0d0d0d",
+      "depth": 27,
+      "font": "14px 400",
+      "role": "img",
+      "tag": "span"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1117,
+        "y": 959
+      },
+      "color": "#696969",
+      "depth": 23,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "id": "base-ui-_r_2p_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 131,
+        "x": 1140,
+        "y": 952
+      },
+      "color": "#696969",
+      "depth": 20,
+      "font": "14px 400",
+      "id": "base-ui-_r_2t_",
+      "tag": "button",
+      "text": "More properties"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1146,
+        "y": 958
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 37,
+        "w": 574,
+        "x": 653,
+        "y": 992
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "16px 400",
+      "role": "tablist",
+      "tag": "div",
+      "text": "Activity 7 Description Code & previews 1 Runs"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 56,
+        "x": 653,
+        "y": 992
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 500",
+      "id": "base-ui-_r_2u_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Activity 7"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 70,
+        "x": 727,
+        "y": 992
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "14px 500",
+      "id": "base-ui-_r_2v_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Description"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 118,
+        "x": 815,
+        "y": 992
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "14px 500",
+      "id": "base-ui-_r_30_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Code & previews 1"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 33,
+        "x": 951,
+        "y": 992
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "14px 500",
+      "id": "base-ui-_r_31_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Runs"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 148,
+        "x": 1234,
+        "y": 997
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Conversation only All"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 25,
+        "w": 119,
+        "x": 1234,
+        "y": 997
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "12.8px 500",
+      "tag": "button",
+      "text": "Conversation only"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 30,
+        "x": 1353,
+        "y": 997
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "12.8px 500",
+      "tag": "button",
+      "text": "All"
+    },
+    {
+      "box": {
+        "h": 2085,
+        "w": 730,
+        "x": 653,
+        "y": 1044
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 400",
+      "id": "base-ui-_r_34_",
+      "role": "tabpanel",
+      "tag": "div",
+      "text": "Activity 1 system record SA Super Admin Oct 30 12:07 Reply Please take care of “Notify the owner automatically when an issue enters a status”. A new notifyOwner rule: when an issue enters the given st"
+    },
+    {
+      "box": {
+        "h": 2085,
+        "w": 730,
+        "x": 653,
+        "y": 1044
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": 1383,
+        "y": 1043
+      },
+      "color": "#0d0d0d",
+      "depth": 24,
+      "font": "14px 600",
+      "tag": "h2",
+      "text": "Activity"
+    },
+    {
+      "box": {
+        "h": 2071,
+        "w": 730,
+        "x": 653,
+        "y": 1058
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 111,
+        "x": 653,
+        "y": 1058
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "1 system record"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 1062
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 151,
+        "w": 730,
+        "x": 653,
+        "y": 1092
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "article"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 716,
+        "x": 660,
+        "y": 1098
+      },
+      "color": "#0d0d0d",
+      "depth": 27,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1246,
+        "y": 1098
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "id": "base-ui-_r_36_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1251,
+        "y": 1103
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 1098
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 1103
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 1098
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 1103
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 1098
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "id": "base-ui-_r_3a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 1103
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 65,
+        "w": 687,
+        "x": 689,
+        "y": 1123
+      },
+      "color": "#0d0d0d",
+      "depth": 32,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Please take care of “Notify the owner automatically when an issue enters a status”. A new notifyOwner rule: when an issue enters the given status, its owner gets an in-app notification (unless the own"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 687,
+        "x": 689,
+        "y": 1195
+      },
+      "color": "#0d0d0d",
+      "depth": 32,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Keep the agreed scope; bring me a delivery I can check against this criterion: Notify the owner automatically when an issue enters a status."
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 111,
+        "x": 653,
+        "y": 1254
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "1 system record"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 1258
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 111,
+        "x": 653,
+        "y": 1319
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "1 system record"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 1322
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 78,
+        "x": 887,
+        "y": 1354
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/d8d52db8-b1c3-4d69-b3af-93365f22d4c6",
+      "tag": "a",
+      "text": "View transcript"
+    },
+    {
+      "box": {
+        "h": 174,
+        "w": 730,
+        "x": 653,
+        "y": 1383
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "article"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 347,
+        "x": 653,
+        "y": 1383
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Lead Agent arranged: claude · claude-opus-5-5 · 1 comment"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 1386
+      },
+      "color": "#696969",
+      "depth": 28,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 686,
+        "x": 690,
+        "y": 1411
+      },
+      "color": "#0d0d0d",
+      "depth": 28,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 1411
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_3f_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 1417
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 1411
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 1417
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 1411
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_3j_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 1417
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 65,
+        "w": 657,
+        "x": 718,
+        "y": 1437
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "The change belongs in client/features/task-view.tsx. Reproduce the existing behavior first, keep the current data contract, then cover the boundary in tests/demo-scenarios/notify-the-owner-automatical"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 657,
+        "x": 718,
+        "y": 1509
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "The bounded approach is to Notify the owner automatically when an issue enters a status. Broader redesign can wait. No files were changed."
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 111,
+        "x": 653,
+        "y": 1568
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "1 system record"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 1572
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 78,
+        "x": 887,
+        "y": 1603
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/e99533cc-8ea4-44ea-8adc-a8397c6cce93",
+      "tag": "a",
+      "text": "View transcript"
+    },
+    {
+      "box": {
+        "h": 298,
+        "w": 730,
+        "x": 653,
+        "y": 1632
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "article"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 346,
+        "x": 653,
+        "y": 1632
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Lead Agent arranged: claude · claude-sonnet-5 · 1 comment"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 1635
+      },
+      "color": "#696969",
+      "depth": 28,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 686,
+        "x": 690,
+        "y": 1660
+      },
+      "color": "#0d0d0d",
+      "depth": 28,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 1660
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_3o_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 1666
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 1660
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 1666
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 1660
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_3s_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 1666
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 657,
+        "x": 718,
+        "y": 1686
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Completed “Notify the owner automatically when an issue enters a status”. Focused tests passed; the change is ready for review."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 657,
+        "x": 718,
+        "y": 1736
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 376,
+        "x": 718,
+        "y": 1738
+      },
+      "color": "#002ad1",
+      "depth": 34,
+      "font": "14px 500",
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "tag": "a",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 657,
+        "x": 718,
+        "y": 1768
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Acceptance criteria"
+    },
+    {
+      "box": {
+        "h": 84,
+        "w": 639,
+        "x": 736,
+        "y": 1795
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 657,
+        "x": 718,
+        "y": 1886
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Attachments: desktop and mobile previews illustrating normal results, repeated requests and access boundaries."
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 43,
+        "x": 718,
+        "y": 1809
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Expand"
+    },
+    {
+      "box": {
+        "h": 86,
+        "w": 657,
+        "x": 718,
+        "y": 1838
+      },
+      "color": "#0d0d0d",
+      "depth": 31,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 86,
+        "w": 86,
+        "x": 718,
+        "y": 1838
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "button"
+    },
+    {
+      "alt": "extended-0-6-desktop.png",
+      "box": {
+        "h": 84,
+        "w": 84,
+        "x": 719,
+        "y": 1839
+      },
+      "color": "#0d0d0d",
+      "depth": 34,
+      "font": "14px 400",
+      "src": "https://studio.demo.nocobase.com/main/api/projects/attachments/5942ad2e-22c2-479b-b7c2-a0e7306d18fa/content",
+      "tag": "img"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 86,
+        "w": 86,
+        "x": 812,
+        "y": 1838
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "button"
+    },
+    {
+      "alt": "extended-0-6-mobile.png",
+      "box": {
+        "h": 84,
+        "w": 84,
+        "x": 813,
+        "y": 1839
+      },
+      "color": "#0d0d0d",
+      "depth": 34,
+      "font": "14px 400",
+      "src": "https://studio.demo.nocobase.com/main/api/projects/attachments/def0d60b-5611-4bfb-a6a0-15688f55f663/content",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 111,
+        "x": 653,
+        "y": 1941
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "1 system record"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 1944
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 78,
+        "x": 903,
+        "y": 1976
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/85e0ea15-120b-4a68-9b11-b194762e324f",
+      "tag": "a",
+      "text": "View transcript"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 111,
+        "x": 653,
+        "y": 2005
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "1 system record"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 2008
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 78,
+        "x": 887,
+        "y": 2040
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/b6d3444b-799e-417d-b510-b463874c37b7",
+      "tag": "a",
+      "text": "View transcript"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 111,
+        "x": 653,
+        "y": 2069
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "1 system record"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 2072
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 78,
+        "x": 903,
+        "y": 2104
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "href": "https://studio.demo.nocobase.com/my-issues/PM-6297/runs/f1b20537-c5aa-43d4-a0df-dd44ea33fdc9",
+      "tag": "a",
+      "text": "View transcript"
+    },
+    {
+      "box": {
+        "h": 590,
+        "w": 730,
+        "x": 653,
+        "y": 2133
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "article"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 313,
+        "x": 653,
+        "y": 2133
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Lead Agent arranged: codex · gpt-6.1-sol · 1 comment"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 2136
+      },
+      "color": "#696969",
+      "depth": 28,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 686,
+        "x": 690,
+        "y": 2161
+      },
+      "color": "#0d0d0d",
+      "depth": 28,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 2161
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_41_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 2166
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 2161
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 2166
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 2161
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_45_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 2166
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 86,
+        "w": 657,
+        "x": 718,
+        "y": 2186
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Changes requested: client/features/task-view.tsx:38 applies the default before checking the existing value. Repeating the operation can lose the earlier selection. Reproduce it twice in tests/demo-sce"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 657,
+        "x": 718,
+        "y": 2280
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "The main path passes, but this boundary still blocks delivery. I have not edited the implementation."
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 346,
+        "x": 682,
+        "y": 2307
+      },
+      "color": "#696969",
+      "depth": 28,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Lead Agent arranged: claude · claude-sonnet-5 · 1 comment"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 686,
+        "y": 2310
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 686,
+        "x": 690,
+        "y": 2335
+      },
+      "color": "#0d0d0d",
+      "depth": 28,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 2335
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_4a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 2341
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 2335
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 2341
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 2335
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_4e_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 2341
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 657,
+        "x": 718,
+        "y": 2361
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Completed “Notify the owner automatically when an issue enters a status”. Focused tests passed; the change is ready for review."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 657,
+        "x": 718,
+        "y": 2411
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 376,
+        "x": 718,
+        "y": 2413
+      },
+      "color": "#002ad1",
+      "depth": 34,
+      "font": "14px 500",
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "tag": "a",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 657,
+        "x": 718,
+        "y": 2443
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Acceptance criteria"
+    },
+    {
+      "box": {
+        "h": 84,
+        "w": 639,
+        "x": 736,
+        "y": 2470
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 43,
+        "x": 718,
+        "y": 2484
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Expand"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 313,
+        "x": 682,
+        "y": 2515
+      },
+      "color": "#696969",
+      "depth": 28,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Lead Agent arranged: codex · gpt-6.1-sol · 1 comment"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 686,
+        "y": 2518
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 686,
+        "x": 690,
+        "y": 2543
+      },
+      "color": "#0d0d0d",
+      "depth": 28,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 2543
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_4j_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 2549
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 2543
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 2549
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 2543
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "id": "base-ui-_r_4n_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 2549
+      },
+      "color": "#696969",
+      "depth": 31,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 65,
+        "w": 657,
+        "x": 718,
+        "y": 2569
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Reviewed “Notify the owner automatically when an issue enters a status”: Notify the owner automatically when an issue enters a status. Review approved. Focused verification passed; no blocking finding"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 657,
+        "x": 718,
+        "y": 2640
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 376,
+        "x": 718,
+        "y": 2642
+      },
+      "color": "#002ad1",
+      "depth": 34,
+      "font": "14px 500",
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "tag": "a",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 657,
+        "x": 718,
+        "y": 2669
+      },
+      "color": "#0d0d0d",
+      "depth": 33,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Verification boundary: Notify the owner automatically when an issue enters a status. See this run for the recorded tools and results."
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 43,
+        "x": 718,
+        "y": 2692
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Expand"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 117,
+        "x": 653,
+        "y": 2733
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "2 system records"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 2737
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 79,
+        "w": 730,
+        "x": 653,
+        "y": 2800
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "article"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 716,
+        "x": 660,
+        "y": 2805
+      },
+      "color": "#0d0d0d",
+      "depth": 27,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1246,
+        "y": 2805
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "id": "base-ui-_r_4s_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1251,
+        "y": 2811
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 2805
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 2811
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 2805
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 2811
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 2805
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "id": "base-ui-_r_50_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 2811
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 687,
+        "x": 689,
+        "y": 2830
+      },
+      "color": "#0d0d0d",
+      "depth": 32,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "The delivery report is on the issue; independent review and the recorded checks passed. Please accept it or send it back."
+    },
+    {
+      "box": {
+        "h": 58,
+        "w": 730,
+        "x": 653,
+        "y": 2890
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "article"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 716,
+        "x": 660,
+        "y": 2895
+      },
+      "color": "#0d0d0d",
+      "depth": 27,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1246,
+        "y": 2895
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "id": "base-ui-_r_55_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1251,
+        "y": 2901
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 2895
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 2901
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 2895
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 2901
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 2895
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "id": "base-ui-_r_59_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 2901
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 687,
+        "x": 689,
+        "y": 2920
+      },
+      "color": "#0d0d0d",
+      "depth": 32,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Will people get spammed if I move twenty issues at once?"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 111,
+        "x": 653,
+        "y": 2958
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "1 system record"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 656,
+        "y": 2962
+      },
+      "color": "#696969",
+      "depth": 27,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 137,
+        "w": 730,
+        "x": 653,
+        "y": 2992
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "display": "block",
+      "font": "14px 400",
+      "tag": "article"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 716,
+        "x": 660,
+        "y": 2998
+      },
+      "color": "#0d0d0d",
+      "depth": 27,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1246,
+        "y": 2998
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "id": "base-ui-_r_5e_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1251,
+        "y": 3003
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1269,
+        "y": 2998
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1274,
+        "y": 3003
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 60,
+        "x": 1292,
+        "y": 2998
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "Reply"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1299,
+        "y": 3003
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1354,
+        "y": 2998
+      },
+      "color": "#696969",
+      "depth": 29,
+      "font": "14px 500",
+      "id": "base-ui-_r_5i_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1359,
+        "y": 3003
+      },
+      "color": "#696969",
+      "depth": 30,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 687,
+        "x": 689,
+        "y": 3023
+      },
+      "color": "#0d0d0d",
+      "depth": 32,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "No. A bulk move sends each owner one notification listing the issues, and nobody is notified about their own changes."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 687,
+        "x": 689,
+        "y": 3073
+      },
+      "color": "#0d0d0d",
+      "depth": 32,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Notifications go out for In review and Blocked. Reply \"accept\", or name another status that should notify."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 687,
+        "x": 689,
+        "y": 3102
+      },
+      "color": "#0d0d0d",
+      "depth": 32,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 376,
+        "x": 689,
+        "y": 3104
+      },
+      "color": "#002ad1",
+      "depth": 33,
+      "font": "14px 500",
+      "href": "https://github.example.com/acme-demo/platform/pull/105",
+      "tag": "a",
+      "text": "Notify the owner automatically when an issue enters a status"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 649,
+        "x": 646,
+        "y": 828
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "font": "14px 400",
+      "role": "textbox",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 628,
+        "x": 657,
+        "y": 833
+      },
+      "color": "#0d0d0d",
+      "depth": 24,
+      "font": "14px 400",
+      "tag": "p"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1298,
+        "y": 831
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1303,
+        "y": 837
+      },
+      "color": "#696969",
+      "depth": 23,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 40,
+        "x": 1325,
+        "y": 831
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Note"
+    },
+    {
+      "background": "#002ad1",
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1366,
+        "y": 831
+      },
+      "color": "#ffffff",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1371,
+        "y": 837
+      },
+      "color": "#ffffff",
+      "depth": 23,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 97,
+        "w": 352,
+        "x": 1074,
+        "y": 789
+      },
+      "color": "#0d0d0d",
+      "depth": 4,
+      "font": "16px 400",
+      "role": "dialog",
+      "tag": "div",
+      "text": "This is a demo. Changes cannot be saved. Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1094,
+        "y": 809
+      },
+      "color": "#964f0a",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 42,
+        "w": 253,
+        "x": 1125,
+        "y": 804
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "_r_k_",
+      "tag": "h2",
+      "text": "This is a demo. Changes cannot be saved."
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 253,
+        "x": 1125,
+        "y": 850
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "_r_l_",
+      "tag": "p",
+      "text": "Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1389,
+        "y": 804
+      },
+      "color": "#696969",
+      "depth": 6,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1392,
+        "y": 808
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "svg"
+    }
+  ],
+  "page": {
+    "h": 900,
+    "w": 1440
+  },
+  "text": "My issues 3 My sessions 1 Dashboard Development Issues Projects Knowledge Project memory Releases Releases Hosted environments Agent management Agents Runtimes Skills Usage Settings NocoBase Studio v1.0.0-beta.75 My issues Demo mode · Switch account 3 SA Search issues Search issues by title or identifier. My issues New issue C All projects Any owner Any executor Waiting for you 3 Notify the owner automatically when an issue enters a status Nov 6 PM-6297 Needs your acceptance Due dates show one day early in UTC-8 Nov 8 PM-6302 Needs your acceptance Issue list stutters when scrolling past 2,000 issues Nov 8 PM-6295 Needs your acceptance In progress 1 Hide private prerequisite titles from external contributors 06:28 PM-6305 Agent working Backlog 2 Language switcher and SEO hreflang for the website 00:30 PM-6344 Filter agent run logs by event type Oct 27 PM-6299 Done 15 J K Switch S Follow Enter Open / Search 1 / 21 PM-6297 · Studio Platform In review Follow Ask agent Notify the owner automatically when an issue enters a status Next: Notifications go out for In review and Blocked. Reply \"accept\", or name another status that should notify. Needs you Notifications go out for In review and Blocked. Reply \"accept\", or name another status that should notify. Checks passed View the Lead Agent’s latest explanation Merge Mark as merged View changes Send back Delivery report Delivery report Result Notify the owner automatically when an issue enters a status. The requested scope and independent verification are complete. Evidence Focused checks in tests/demo-scenarios/notify-the-owner-automatically-when-an-issue-enters-a-status.test.ts passed after the last change. The manager checked the expected CI set before requesting acceptance. Notify the owner automatically when an issue enters a status Acceptance decision Final acceptance belongs to the owner. Acceptance criteria Notify the owner automatically when an issue enters a status. Repeating the operation preserves existing data. Access outside the project remains unavailable. Delivery images The desktop and mobile previews below illustrate normal use, repeated requests and forbidden access. Enlarge the images to inspect the details. Expand Claude · Sonnet 5 · Nov 4 04:02 · 2 Priority High Owner Super Admin (you) Arrange L Lead Agent More properties Activity 7 Description Code & previews 1 Runs Conversation only All Activity 1 system record SA Super Admin Oct 30 12:07 Reply Please take care of “Notify the owner automatically when an issue enters a status”. A new notifyOwner rule: when an issue enters the given status, its owner gets an in-app notification (unless the owner made the change). Keep the agreed scope; bring me a delivery I can check against this criterion: Notify the owner automatically when an issue enters a status. 1 system record Super Admin changed the status Backlog → In progress 7 days ago 1 system record C Claude · Opus 5.5 ended its turn View transcript 7 days ago Lead Agent arranged: claude · claude-opus-5-5 · 1 comment C Claude · Opus 5.5 Agent Nov 4 03:24 Reply The change belongs in client/features/task-view.tsx. Reproduce the existing behavior first, keep the current data contract, then cover the boundary in tests/demo-scenarios/notify-the-owner-automatically-when-an-issue-enters-a-status.test.ts. The bounded approach is to Notify the owner automatically when an issue enters a status. Broader redesign can wait. No files were changed. 1 system record C Claude · Sonnet 5 ended its turn View transcript 7 days ago Lead Agent arranged: claude · claude-sonnet-5 · 1 comment C Claude · Sonnet 5 Agent Nov 4 04:02 Reply Completed “Notify the owner automatically when an issue enters a status”. Focused tests passed; the change is ready for review. Notify the owner automatically when an issue enters a status Acceptance criteria Notify the owner automatically when an issue enters a status. Evidence: tests/demo-scenarios/notify-the-owner-automatically-when-an-issue-enters-a-status.test.ts and the paired tool results in this run. Independent review and the owner's final acceptance are still separate steps. Attachments: desktop and mobile previews illustrating normal results, repeated requests and access boundaries. Expand 1 system record C Codex · GPT-6.1 Sol ended its turn View transcript 6 days ago 1 system record C Claude · Sonnet 5 ended its turn View transcript 6 days ago 1 system record C Codex · GPT-6.1 Sol ended its turn View transcript 6 days ago Lead Agent arranged: codex · gpt-6.1-sol · 1 comment C Codex · GPT-6.1 Sol Agent Review: changes requested Nov 4 09:13 Reply Changes requested: client/features/task-view.tsx:38 applies the default before checking the existing value. Repeating the operation can lose the earlier selection. Reproduce it twice in tests/demo-scenarios/notify-the-owner-automatically-when-an-issue-enters-a-status.test.ts; preserve the original value on the second call. The main path passes, but this boundary still blocks delivery. I have not edited the implementation. Lead Agent arranged: claude · claude-sonnet-5 · 1 comment C Claude · Sonnet 5 Agent Nov 4 09:51 Reply Completed “Notify the owner automatically when an issue enters a status”. Focused tests passed; the change is ready for review. Notify the owner automatically when an issue enters a status Acceptance criteria Notify the owner automatically when an issue enters a status. Evidence: tests/demo-scenarios/notify-the-owner-automatically-when-an-issue-enters-a-status.test.ts and the paired tool results in this run. Independent review and the owner's final acceptance are still separate steps. Expand Lead Agent arranged: codex · gpt-6.1-sol · 1 comment C Codex · GPT-6.1 Sol Agent Review: approved Nov 4 10:29 Reply Reviewed “Notify the owner automatically when an issue enters a status”: Notify the owner automatically when an issue enters a status. Review approved. Focused verification passed; no blocking findings. The manager still needs to check CI. Notify the owner automatically when an issue enters a status Verification boundary: Notify the owner automatically when an issue enters a status. See this run for the recorded tools and results. Expand 2 system records L Lead Agent via Lead Agent changed the status In progress → In review 6 days ago L Lead Agent Agent Nov 4 10:37 Reply The delivery report is on the issue; independent review and the recorded checks passed. Please accept it or send it back. SA Super Admin Nov 6 15:00 Reply Will people get spammed if I move twenty issues at once? 1 system record L Lead Agent Agent Nov 6 15:08 Reply No. A bulk move sends each owner one notification listing the issues, and nobody is notified about their own changes. Notifications go out for In review and Blocked. Reply \"accept\", or name another status that should notify. Notify the owner automatically when an issue enters a status Note This is a demo. Changes cannot be saved. Everything else works as usual.",
+  "title": "(3) NocoBase Studio",
+  "url": "https://studio.demo.nocobase.com/main/my-issues?issue=396925310337024",
+  "viewport": {
+    "h": 900,
+    "w": 1440
+  }
+}
