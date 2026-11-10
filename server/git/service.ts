@@ -51,6 +51,8 @@ import { ISSUE_BRANCH_PREFIX } from '../agents/ids.js';
 
 /** The status event a linked pull request's merge fires (`projectsStatusEventsToken`). */
 export const PR_MERGED_EVENT = 'ds.pr.merged';
+/** The status event a pull request merge fires when the issue should continue in progress. */
+export const PR_MERGED_CONTINUE_EVENT = 'ds.pr.merged.continue';
 /** Comment messages (`projects.comments.post` `message.type`) a reader's page may word in its own language. */
 export const PR_MERGED_MESSAGE = 'ds.pr.merged';
 export const PR_CLOSED_MESSAGE = 'ds.pr.closed';
@@ -1610,8 +1612,38 @@ export function createGitService(deps: GitServiceDeps) {
   ): Promise<void> {
     const projects = deps.projects();
     if (!projects || !pull.issueId) return;
+
+    let shouldComplete = !pull.autoCompleteDisabled;
+
+    // Check issue-level flag from dsAutopilotIssueFlags if available
+    if (shouldComplete) {
+      try {
+        const flagRow = (await conn()
+          .query.selectFrom('dsAutopilotIssueFlags')
+          .selectAll()
+          .where('issueId', '=', pull.issueId)
+          .executeTakeFirst()) as Row | undefined;
+        if (flagRow && 'autoCompleteOnMerge' in flagRow && !bool(flagRow.autoCompleteOnMerge)) {
+          shouldComplete = false;
+        }
+      } catch {
+        // Table or column may not exist in early tests
+      }
+    }
+
+    // Check if there are other open pull requests linked to this issue
+    if (shouldComplete) {
+      const allPulls = await listPullRequests({ issueId: pull.issueId });
+      const otherOpenPulls = allPulls.filter(
+        (p) => p.id !== pull.id && p.state === 'open',
+      );
+      if (otherOpenPulls.length > 0) {
+        shouldComplete = false;
+      }
+    }
+
     try {
-      if (!pull.autoCompleteDisabled)
+      if (shouldComplete) {
         await projects.statusEvents.fire({
           event: PR_MERGED_EVENT,
           issueIds: [pull.issueId],
@@ -1619,6 +1651,15 @@ export function createGitService(deps: GitServiceDeps) {
           note: `${repository.fullName}#${pull.number}`,
           details: { pullRequestId: pull.id, url: pull.url },
         });
+      } else {
+        await projects.statusEvents.fire({
+          event: PR_MERGED_CONTINUE_EVENT,
+          issueIds: [pull.issueId],
+          ...(actor ? { actor } : {}),
+          note: `${repository.fullName}#${pull.number}`,
+          details: { pullRequestId: pull.id, url: pull.url },
+        });
+      }
     } catch (error) {
       report(
         `Dương Sinh Studio could not move issue ${pull.issueId} for the merge of ${repository.fullName}#${pull.number}.`,
@@ -1777,6 +1818,7 @@ export function createGitService(deps: GitServiceDeps) {
           repositoryId: repository.id,
           number: hosted.number,
           createdAt: now,
+          autoCompleteDisabled: true,
           ...values,
         })
         .execute();

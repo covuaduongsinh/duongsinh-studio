@@ -772,6 +772,8 @@ const enUS = {
         waitingOwner: 'is waiting for the owner to confirm the work',
       },
       title: 'Activity',
+      filterAll: 'All',
+      filterConversations: 'Conversations & reports',
       empty: 'Nothing has happened yet.',
       loadOlder: 'Load older',
       reply: 'Reply',
@@ -974,6 +976,9 @@ const enUS = {
         'Only the issue’s owner, its project lead or an administrator can merge it.',
       blocked: 'Cannot merge yet: {{blocker}}',
       forced: 'Merged anyway: {{reason}}',
+      autoCompleteOnMerge: 'Complete issue when this PR is merged',
+      autoCompleted: 'Completed issue on PR merge.',
+      keptInProgress: 'Issue kept in progress (not completed automatically).',
     },
     states: {
       open: 'Open',
@@ -1473,6 +1478,7 @@ const enUS = {
       title: 'Autopilot',
       allowAutoStart: 'Automatically start when unblocked',
       inheritFromParent: 'Inherit auto-start from parent epic',
+      autoCompleteOnMerge: 'Complete issue when PR merged',
     },
     pr: {
       eligible: 'Autopilot merge eligible',

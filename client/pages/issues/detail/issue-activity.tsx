@@ -24,7 +24,8 @@ import type {
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
 import type { QueryKey } from '@tanstack/react-query';
 import { BotIcon, CogIcon } from 'lucide-react';
-import { useState, type ReactElement } from 'react';
+import { useState, type ReactElement, useMemo } from 'react';
+import { cn } from 'cn';
 
 import {
   AttachmentList,
@@ -233,6 +234,22 @@ export function IssueActivity({
     },
   );
 
+  const [filterMode, setFilterMode] = useState<'all' | 'conversations'>('all');
+
+  const filteredEntries = useMemo(() => {
+    if (filterMode === 'all') return entries;
+    return entries.filter((entry) => {
+      if (entry.kind === 'custom') return false;
+      if (entry.kind === 'thread') {
+        const root = entry.thread.root;
+        if (root.authorKind === 'user') return true;
+        if (root.content.includes('@') || root.content.length > 80) return true;
+        return false;
+      }
+      return true;
+    });
+  }, [entries, filterMode]);
+
   const submit = async (content: string): Promise<string> => {
     const comment = await comments.create({
       content,
@@ -254,8 +271,39 @@ export function IssueActivity({
       aria-label={threadLabels.title}
       className='flex flex-col gap-4'
     >
+      <div className='flex items-center justify-between border-b border-border/60 pb-2 text-xs'>
+        <span className='font-medium text-muted-foreground'>
+          {threadLabels.title}
+        </span>
+        <div className='inline-flex items-center rounded-lg bg-muted p-0.5 text-xs'>
+          <button
+            type='button'
+            onClick={() => setFilterMode('all')}
+            className={cn(
+              'rounded-md px-2.5 py-1 font-medium transition-colors cursor-pointer',
+              filterMode === 'all'
+                ? 'bg-background text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {t('issueDetail.activity.filterAll', 'Tất cả')}
+          </button>
+          <button
+            type='button'
+            onClick={() => setFilterMode('conversations')}
+            className={cn(
+              'rounded-md px-2.5 py-1 font-medium transition-colors cursor-pointer',
+              filterMode === 'conversations'
+                ? 'bg-background text-foreground shadow-xs'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {t('issueDetail.activity.filterConversations', 'Chỉ trao đổi & báo cáo')}
+          </button>
+        </div>
+      </div>
       <CommentTimeline
-        entries={entries}
+        entries={filteredEntries}
         renderMarkdown={(content) => <MarkdownView content={content} />}
         emojis={ISSUE_REACTION_EMOJIS}
         {...(mayComment

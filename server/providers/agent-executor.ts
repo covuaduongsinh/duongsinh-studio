@@ -315,7 +315,11 @@ export function createAgentKind(deps: {
       )
         targets.set(parent.authorId, 'comment');
       const executor = agentOf(issue);
-      if (executor && !targets.has(executor)) targets.set(executor, 'comment');
+      // Only auto-wake executor if comment is from a real user, or if explicitly mentioned.
+      // Do not auto-wake executor on agent comments to prevent idle/empty loop wakeups between agents.
+      if (actor.type === 'user' && executor && !targets.has(executor)) {
+        targets.set(executor, 'comment');
+      }
       const author = actor.type === AGENT_KIND ? actor.id : null;
       const readOnly = /mode:\s*read-only/i.test(comment.content);
       const attempts: RunAttempt[] = [];

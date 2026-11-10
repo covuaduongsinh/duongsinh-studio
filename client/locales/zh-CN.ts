@@ -942,6 +942,9 @@ const zhCN: AppResource = {
       mergeDenied: '只有任务负责人、项目负责人或管理员可以合并。',
       blocked: '暂时无法合并：{{blocker}}',
       forced: '已强制合并：{{reason}}',
+      autoCompleteOnMerge: '合并此拉取请求时自动完成任务',
+      autoCompleted: '已在合并拉取请求时完成任务。',
+      keptInProgress: '任务继续进行（未自动完成）。',
     },
     states: {
       open: '打开',
@@ -1400,6 +1403,7 @@ const zhCN: AppResource = {
       title: '自动驾驶',
       allowAutoStart: '解除阻塞后自动开启',
       inheritFromParent: '继承自父级史诗设置',
+      autoCompleteOnMerge: '合并拉取请求时自动完成任务',
     },
     pr: {
       eligible: '符合自动合并条件',

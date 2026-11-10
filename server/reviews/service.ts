@@ -188,6 +188,7 @@ export function createReviewsService(deps: {
       .query.selectFrom('agRunRepos as repos')
       .innerJoin('agRuns as runs', 'runs.id', 'repos.runId')
       .select([
+        'runs.id as runId',
         'runs.agentId as agentId',
         'runs.model as model',
         'runs.tool as tool',
@@ -202,6 +203,7 @@ export function createReviewsService(deps: {
         .query.selectFrom('agRunRepos as repos')
         .innerJoin('agRuns as runs', 'runs.id', 'repos.runId')
         .select([
+          'runs.id as runId',
           'runs.agentId as agentId',
           'runs.model as model',
           'runs.tool as tool',
@@ -221,20 +223,29 @@ export function createReviewsService(deps: {
     }
 
     const authorAgentId = str(authorRow.agentId);
-    if (reviewerAgentId === authorAgentId) {
-      throw new ReviewError(
-        'FAILED_PRECONDITION',
-        'SELF_REVIEW_NOT_ALLOWED',
-        'An agent may not review its own pull request.',
-      );
-    }
-
     const authorModel = strOrNull(authorRow.model) ?? strOrNull(authorRow.tool);
     const sameModel = Boolean(
       reviewerModel &&
       authorModel &&
       reviewerModel.toLowerCase() === authorModel.toLowerCase(),
     );
+
+    const isSameRun = Boolean(
+      input.runId &&
+      authorRow.runId &&
+      input.runId === str(authorRow.runId),
+    );
+
+    // An agent may not review its own PR if it is the exact same run,
+    // or if the same agent uses the same model (self-review).
+    // Cross-model reviews within the same team agent (e.g. Opus reviewing Sonnet's PR) are explicitly permitted.
+    if (isSameRun || (reviewerAgentId === authorAgentId && sameModel)) {
+      throw new ReviewError(
+        'FAILED_PRECONDITION',
+        'SELF_REVIEW_NOT_ALLOWED',
+        'An agent may not review its own pull request with the same model.',
+      );
+    }
 
     // 4. Validate kind and security checklist if security
     const kind = input.kind ?? 'code';

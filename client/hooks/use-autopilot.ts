@@ -54,6 +54,7 @@ export interface IssueAutopilotFlag {
   readonly issueId: string;
   readonly allowAutoStart: boolean;
   readonly inheritFromParent: boolean;
+  readonly autoCompleteOnMerge: boolean;
   readonly createdAt: string;
   readonly updatedAt: string;
 }
@@ -213,7 +214,11 @@ export function useSetIssueAutopilotFlag(
 ): UseMutationResult<
   IssueAutopilotFlag,
   unknown,
-  { allowAutoStart?: boolean; inheritFromParent?: boolean }
+  {
+    allowAutoStart?: boolean;
+    inheritFromParent?: boolean;
+    autoCompleteOnMerge?: boolean;
+  }
 > {
   const api = useApiClient();
   const queryClient = useQueryClient();
@@ -221,6 +226,7 @@ export function useSetIssueAutopilotFlag(
     mutationFn: async (input: {
       allowAutoStart?: boolean;
       inheritFromParent?: boolean;
+      autoCompleteOnMerge?: boolean;
     }) =>
       (
         await api.request<{ data: IssueAutopilotFlag }>({

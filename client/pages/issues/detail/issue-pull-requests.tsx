@@ -17,6 +17,7 @@ import { useState, type FormEvent, type ReactElement } from 'react';
 
 import { Badge } from '#components/ui/badge';
 import { Button } from '#components/ui/button';
+import { Checkbox } from '#components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ import {
   useIssuePullRequests,
   useMergePullRequest,
   useRefreshPullRequest,
+  useSetPullAutoComplete,
   type GitCheck,
   type GitPullRequest,
   type MergeBlocker,
@@ -170,6 +172,7 @@ function PullRequestItem({
   const errorText = useGitErrorText();
   const merge = useMergePullRequest(issueId);
   const refresh = useRefreshPullRequest(issueId);
+  const setAutoComplete = useSetPullAutoComplete(issueId);
   // What the server said when merging was last tried; the stored snapshot otherwise.
   const [refused, setRefused] = useState<MergeBlocker | null>(null);
   const [denied, setDenied] = useState(false);
@@ -342,6 +345,28 @@ function PullRequestItem({
       {canMerge && open && denied ? (
         <p role='status' className='text-sm text-muted-foreground'>
           {t('git.pullRequests.mergeDenied')}
+        </p>
+      ) : null}
+      {open ? (
+        <label className='inline-flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none'>
+          <Checkbox
+            checked={!pull.autoCompleteDisabled}
+            onCheckedChange={(checked) => {
+              setAutoComplete.mutate({
+                pullRequestId: pull.id,
+                autoCompleteDisabled: !checked,
+              });
+            }}
+            disabled={!canMerge || setAutoComplete.isPending}
+          />
+          <span>{t('git.pullRequests.autoCompleteOnMerge')}</span>
+        </label>
+      ) : null}
+      {state === 'merged' ? (
+        <p className='text-xs text-muted-foreground'>
+          {pull.autoCompleteDisabled
+            ? t('git.pullRequests.keptInProgress')
+            : t('git.pullRequests.autoCompleted')}
         </p>
       ) : null}
       <div className='flex flex-wrap items-center gap-2'>

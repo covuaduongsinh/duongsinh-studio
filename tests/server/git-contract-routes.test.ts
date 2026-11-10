@@ -519,6 +519,9 @@ test(
       status: 'success',
     });
 
+    // Pull requests default to not auto-completing issues on merge
+    expect(pull.autoCompleteDisabled).toBe(true);
+
     // Who may decide about the pull request: not the outsider.
     expect(
       (

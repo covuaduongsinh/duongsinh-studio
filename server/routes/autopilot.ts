@@ -137,6 +137,7 @@ const IssueFlagSchema = z
     issueId: z.string(),
     allowAutoStart: z.boolean(),
     inheritFromParent: z.boolean(),
+    autoCompleteOnMerge: z.boolean().default(false),
     createdAt: z.string(),
     updatedAt: z.string(),
   })
@@ -146,6 +147,7 @@ const UpdateIssueFlagBody = z
   .object({
     allowAutoStart: z.boolean().optional(),
     inheritFromParent: z.boolean().optional(),
+    autoCompleteOnMerge: z.boolean().optional(),
   })
   .strict();
 

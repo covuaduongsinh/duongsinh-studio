@@ -388,6 +388,45 @@ test('structured review submission, validation gates, security reviews, and list
     .where('id', '=', authorPayload.run.id)
     .execute();
 
+  // 5b. Test cross-model peer review under the same agent ID is allowed (e.g. Opus reviewing Sonnet's PR)
+  await admin.fetch(
+    `/projects/issues/${nonReadOnlyIssue.id}/comments`,
+    json({
+      content: `[@author-agent · claude-opus-5-5](mention://agent/${authorAgent.id}) Next: peer review. Mode: read-only`,
+    }),
+  );
+  const [crossModelPayload] = await agents.claims.claim(runner, 1);
+  const crossModelToken = String(crossModelPayload.cli.credential.content.token);
+  await conn.query
+    .updateTable('agRuns')
+    .set({ model: 'claude-opus-5-5' })
+    .where('id', '=', crossModelPayload.run.id)
+    .execute();
+
+  const crossModelReviewRes = await request('/reviews', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-nocobase-run-token': crossModelToken,
+    },
+    body: JSON.stringify({
+      pullRequestId: pullRequest.id,
+      headSha: HEAD_SHA,
+      verdict: 'approve',
+      summary: 'Cross-model peer review by Opus',
+      checklist: { tests: true },
+    }),
+  });
+  expect(crossModelReviewRes.status).toBe(200);
+  const crossModelJson = await crossModelReviewRes.json();
+  expect(crossModelJson.data.sameModel).toBe(false);
+
+  await conn.query
+    .updateTable('agRuns')
+    .set({ status: 'completed', finishedAt: new Date() })
+    .where('id', '=', crossModelPayload.run.id)
+    .execute();
+
   // 6. Test security review with incomplete checklist is rejected
   await admin.fetch(
     `/projects/issues/${nonReadOnlyIssue.id}/comments`,

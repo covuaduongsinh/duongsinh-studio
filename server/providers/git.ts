@@ -35,6 +35,7 @@ import {
   APP_WEBHOOK_SECRET_PURPOSE,
   CONNECTIONS,
   PR_MERGED_EVENT,
+  PR_MERGED_CONTINUE_EVENT,
   REPOSITORIES,
   TOKEN_SECRET_PURPOSE,
   createGitService,
@@ -229,7 +230,7 @@ export default class GitProvider extends ServiceProvider<Application> {
 
   override async boot(): Promise<void> {
     const { container } = this.app;
-    if (container.has(projectsStatusEventsToken))
+    if (container.has(projectsStatusEventsToken)) {
       this.releases.push(
         container.resolve(projectsStatusEventsToken).add({
           key: PR_MERGED_EVENT,
@@ -237,6 +238,14 @@ export default class GitProvider extends ServiceProvider<Application> {
           to: DONE_STATUS,
         }),
       );
+      this.releases.push(
+        container.resolve(projectsStatusEventsToken).add({
+          key: PR_MERGED_CONTINUE_EVENT,
+          from: [IN_REVIEW_STATUS, BLOCKED_STATUS],
+          to: IN_PROGRESS_STATUS,
+        }),
+      );
+    }
     if (container.has(agentsToken) && container.has(projectsToken))
       this.releases.push(
         container.resolve(agentsToken).repoAccess.register(

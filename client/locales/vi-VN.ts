@@ -762,6 +762,8 @@ const viVN: AppResource = {
         waitingOwner: 'đang chờ người phụ trách xác nhận',
       },
       title: 'Hoạt động',
+      filterAll: 'Tất cả',
+      filterConversations: 'Chỉ trao đổi & báo cáo',
       empty: 'Chưa có hoạt động nào.',
       loadOlder: 'Tải cũ hơn',
       reply: 'Trả lời',
@@ -963,6 +965,9 @@ const viVN: AppResource = {
         'Chỉ người phụ trách công việc, trưởng dự án hoặc quản trị viên mới gộp được.',
       blocked: 'Chưa gộp được: {{blocker}}',
       forced: 'Đã gộp bỏ qua kiểm tra: {{reason}}',
+      autoCompleteOnMerge: 'Tự động xong việc khi gộp PR này',
+      autoCompleted: 'Đã hoàn thành công việc khi gộp PR.',
+      keptInProgress: 'Công việc tiếp tục thực hiện (không tự động xong).',
     },
     states: {
       open: 'Đang mở',
@@ -1460,6 +1465,7 @@ const viVN: AppResource = {
       title: 'Tự lái',
       allowAutoStart: 'Tự động mở việc khi hết bị chặn',
       inheritFromParent: 'Kế thừa thiết lập từ việc/epic cha',
+      autoCompleteOnMerge: 'Tự động xong việc khi gộp PR',
     },
     pr: {
       eligible: 'Đủ điều kiện tự merge',

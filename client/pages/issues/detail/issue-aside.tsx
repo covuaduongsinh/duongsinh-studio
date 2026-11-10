@@ -76,6 +76,7 @@ function IssueAutopilotSection({
 
   const allowAutoStart = flag?.allowAutoStart ?? true;
   const inheritFromParent = flag?.inheritFromParent ?? true;
+  const autoCompleteOnMerge = flag?.autoCompleteOnMerge ?? false;
 
   return (
     <div className='rounded-lg border bg-card p-3 text-card-foreground shadow-xs space-y-3'>
@@ -105,6 +106,18 @@ function IssueAutopilotSection({
           />
           <span className='text-muted-foreground'>
             {t('autopilot.issueSection.inheritFromParent')}
+          </span>
+        </label>
+        <label className='flex items-center gap-2 cursor-pointer select-none'>
+          <Checkbox
+            checked={autoCompleteOnMerge}
+            onCheckedChange={(checked) => {
+              setFlag.mutate({ autoCompleteOnMerge: Boolean(checked) });
+            }}
+            disabled={!canEdit || isLoading || setFlag.isPending}
+          />
+          <span className='text-muted-foreground'>
+            {t('autopilot.issueSection.autoCompleteOnMerge')}
           </span>
         </label>
       </div>

@@ -11,6 +11,7 @@ export interface IssueFlagView {
   readonly issueId: string;
   readonly allowAutoStart: boolean;
   readonly inheritFromParent: boolean;
+  readonly autoCompleteOnMerge: boolean;
   readonly createdAt: string;
   readonly updatedAt: string;
 }
@@ -43,7 +44,11 @@ export interface AutopilotSchedulerDeps {
 export interface AutopilotScheduler {
   setIssueFlag(
     issueId: string,
-    input: { allowAutoStart?: boolean; inheritFromParent?: boolean },
+    input: {
+      allowAutoStart?: boolean;
+      inheritFromParent?: boolean;
+      autoCompleteOnMerge?: boolean;
+    },
   ): Promise<IssueFlagView>;
   getIssueFlag(issueId: string): Promise<IssueFlagView | null>;
   isIssueEligibleForAutoStart(issueId: string): Promise<boolean>;
@@ -61,7 +66,11 @@ export function createAutopilotScheduler(
 
   async function setIssueFlag(
     issueId: string,
-    input: { allowAutoStart?: boolean; inheritFromParent?: boolean },
+    input: {
+      allowAutoStart?: boolean;
+      inheritFromParent?: boolean;
+      autoCompleteOnMerge?: boolean;
+    },
   ): Promise<IssueFlagView> {
     const existing = await conn()
       .query.selectFrom(AUTOPILOT_ISSUE_FLAGS_TABLE)
@@ -82,6 +91,12 @@ export function createAutopilotScheduler(
         : existing
           ? bool(existing.inheritFromParent)
           : true;
+    const autoCompleteOnMerge =
+      input.autoCompleteOnMerge !== undefined
+        ? input.autoCompleteOnMerge
+        : existing && 'autoCompleteOnMerge' in existing
+          ? bool(existing.autoCompleteOnMerge)
+          : false;
 
     if (existing) {
       await conn()
@@ -89,6 +104,7 @@ export function createAutopilotScheduler(
         .set({
           allowAutoStart,
           inheritFromParent,
+          autoCompleteOnMerge,
           updatedAt: now,
         })
         .where('issueId', '=', issueId)
@@ -100,6 +116,7 @@ export function createAutopilotScheduler(
           issueId,
           allowAutoStart,
           inheritFromParent,
+          autoCompleteOnMerge,
           createdAt: now,
           updatedAt: now,
         })
@@ -110,6 +127,7 @@ export function createAutopilotScheduler(
       issueId,
       allowAutoStart,
       inheritFromParent,
+      autoCompleteOnMerge,
       createdAt: existing
         ? (iso(existing.createdAt) ?? now.toISOString())
         : now.toISOString(),
@@ -130,6 +148,8 @@ export function createAutopilotScheduler(
       issueId: str(row.issueId),
       allowAutoStart: bool(row.allowAutoStart),
       inheritFromParent: bool(row.inheritFromParent),
+      autoCompleteOnMerge:
+        'autoCompleteOnMerge' in row ? bool(row.autoCompleteOnMerge) : false,
       createdAt: iso(row.createdAt) ?? new Date().toISOString(),
       updatedAt: iso(row.updatedAt) ?? new Date().toISOString(),
     };

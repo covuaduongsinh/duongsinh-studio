@@ -119,6 +119,7 @@ export interface GitPullRequest {
   readonly ciState: 'pending' | 'success' | 'failure' | null;
   readonly checks: readonly GitCheck[];
   readonly issueId: string | null;
+  readonly autoCompleteDisabled: boolean;
   readonly mergedAt: string | null;
   readonly mergeForcedReason: string | null;
   readonly mergeBlocker: MergeBlocker | null;
@@ -455,6 +456,31 @@ export function useMergePullRequest(
           path: `git/pullRequests/${encodeURIComponent(pullRequestId)}/merge`,
           method: 'POST',
           json: force ? { force, reason } : { force },
+        })
+      ).data,
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: gitKeys.pullRequests(issueId),
+      }),
+  });
+}
+
+export function useSetPullAutoComplete(
+  issueId: string,
+): UseMutationResult<
+  GitPullRequest,
+  unknown,
+  { readonly pullRequestId: string; readonly autoCompleteDisabled: boolean }
+> {
+  const api = useApiClient();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ pullRequestId, autoCompleteDisabled }) =>
+      (
+        await api.request<{ data: GitPullRequest }>({
+          path: `git/pullRequests/${encodeURIComponent(pullRequestId)}`,
+          method: 'PATCH',
+          json: { autoCompleteDisabled },
         })
       ).data,
     onSettled: () =>
