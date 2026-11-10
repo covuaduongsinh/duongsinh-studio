@@ -96,6 +96,7 @@ export function nb3ComposeFile(input: Nb3ComposeInput): string {
   // Docker creates a named volume owned by root; the App runs as uid 1000, so this one-shot service hands it over first.
   const initService = `${name}-init`;
   const router = `ds-${name}`;
+  const wsPath = `${input.basePath === '/' ? '' : input.basePath}/ws`;
   const dbEnv = postgres
     ? [
         '      DB_DIALECT: postgres',
@@ -196,6 +197,16 @@ ${mounts}
       - traefik.http.routers.${router}.tls.certresolver=letsencrypt
       - traefik.http.routers.${router}.service=${router}
       - traefik.http.services.${router}.loadbalancer.server.port=${APP_PORT}
+      # Traefik sends X-Forwarded-Proto: wss for a WebSocket; the App builds wss://… and compares it with the Origin
+      # (https://…), so the realtime connection is refused with 403. A router for the WebSocket path alone, with a higher
+      # priority, forces the header back to https (the same fix as Studio's own compose, docs/chenh-lech-upstream.md).
+      - traefik.http.middlewares.${router}-https.headers.customrequestheaders.X-Forwarded-Proto=https
+      - ${yamlString(`traefik.http.routers.${router}-ws.rule=Host(\`${host}\`) && Path(\`${wsPath}\`)`)}
+      - traefik.http.routers.${router}-ws.entrypoints=websecure
+      - traefik.http.routers.${router}-ws.priority=1000
+      - traefik.http.routers.${router}-ws.tls.certresolver=letsencrypt
+      - traefik.http.routers.${router}-ws.middlewares=${router}-https@docker
+      - traefik.http.routers.${router}-ws.service=${router}
 
 networks:
   dokploy-network:

@@ -47,6 +47,21 @@ describe('NocoBase 3 compose', () => {
     expect(file).toContain('condition: service_completed_successfully');
   });
 
+  it('routes the WebSocket path with X-Forwarded-Proto forced to https', () => {
+    const root = nb3ComposeFile({ ...base, database: 'sqlite' });
+    expect(root).toContain('Path(`/ws`)');
+    expect(root).toContain(
+      'ds-nb3-nocolms-https.headers.customrequestheaders.X-Forwarded-Proto=https',
+    );
+    expect(root).toContain('ds-nb3-nocolms-ws.priority=1000');
+    const mounted = nb3ComposeFile({
+      ...base,
+      basePath: '/main',
+      database: 'sqlite',
+    });
+    expect(mounted).toContain('Path(`/main/ws`)');
+  });
+
   it('adds PostgreSQL with its password taken from the environment', () => {
     const file = nb3ComposeFile({ ...base, database: 'postgres' });
     expect(file).toContain('postgres:16-alpine');
