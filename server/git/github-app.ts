@@ -9,7 +9,12 @@ import { GITHUB_API_URL, GitHubError } from './github.js';
 
 const TIMEOUT_MS = 15_000;
 
-/** What Studio needs of an installation: read and push code, open and merge pull requests, read CI. */
+/**
+ * What Studio needs of an installation: read and push code, open and merge pull requests, read CI; and, to connect an
+ * NB3 app's repository in one step, write its Actions secrets, labels (`issues`) and workflow files (`workflows`).
+ * An App created before those three were added keeps working; Settings → Git lists them as missing until the App's
+ * owner adds them to the App and the installation accepts them on GitHub.
+ */
 export const REQUIRED_APP_PERMISSIONS: Readonly<
   Record<string, 'read' | 'write'>
 > = {
@@ -19,6 +24,9 @@ export const REQUIRED_APP_PERMISSIONS: Readonly<
   checks: 'write',
   statuses: 'read',
   actions: 'read',
+  secrets: 'write',
+  issues: 'write',
+  workflows: 'write',
 };
 
 /** The webhook events Studio subscribes to. */

@@ -141,6 +141,29 @@ export interface GitHubClient {
   commitDate(fullName: string, sha: string): Promise<string | null>;
   /** The artifacts a workflow run uploaded (names, ids and the API URL their zip downloads from). */
   runArtifacts(fullName: string, runId: number): Promise<GitHubArtifact[]>;
+  /**
+   * Creates a label, or leaves an existing one of the same name (GitHub compares names without case) untouched:
+   * `created` or `exists`. An App needs `issues: write` (or `pull_requests: write`).
+   */
+  createLabel(
+    fullName: string,
+    input: {
+      readonly name: string;
+      /** Six hexadecimal digits without `#`. */
+      readonly color: string;
+      readonly description: string;
+    },
+  ): Promise<'created' | 'exists'>;
+  /**
+   * Creates or replaces a GitHub Actions repository secret, sealed with the repository's public key
+   * (libsodium `crypto_box_seal`) so the value only leaves Studio encrypted: `created` or `updated`. An App needs
+   * `secrets: write`.
+   */
+  putSecret(
+    fullName: string,
+    name: string,
+    value: string,
+  ): Promise<'created' | 'updated'>;
 }
 
 export interface GitHubArtifact {
@@ -287,6 +310,14 @@ export function createGitHubClient(options: {
     path: string,
     body?: unknown,
   ): Promise<unknown> {
+    return (await send(method, path, body)).answer;
+  }
+
+  async function send(
+    method: string,
+    path: string,
+    body?: unknown,
+  ): Promise<{ readonly status: number; readonly answer: unknown }> {
     let response: Response;
     try {
       response = await globalThis.fetch(`${base}${path}`, {
@@ -307,14 +338,14 @@ export function createGitHubClient(options: {
         `GitHub could not be reached: ${error instanceof Error ? error.message : String(error)}`,
       );
     }
-    if (response.status === 204) return null;
+    if (response.status === 204) return { status: 204, answer: null };
     const answer: unknown = await response.json().catch(() => null);
     if (!response.ok)
       throw new GitHubError(
         response.status,
         `GitHub answered ${response.status} to ${method} ${path}: ${text(record(answer).message) ?? 'no message'}`,
       );
-    return answer;
+    return { status: response.status, answer };
   }
 
   const repoPath = (fullName: string) =>
@@ -606,5 +637,82 @@ export function createGitHubClient(options: {
         })
         .filter((artifact) => artifact.id > 0 && artifact.downloadUrl !== '');
     },
+    async createLabel(fullName, input) {
+      try {
+        await call('POST', `${repoPath(fullName)}/labels`, {
+          name: input.name,
+          color: input.color,
+          description: input.description,
+        });
+        return 'created';
+      } catch (error) {
+        // GitHub answers 422 `already_exists` for a label of the same name; anything else is a real failure.
+        if (
+          error instanceof GitHubError &&
+          error.status === 422 &&
+          (await labelExists(fullName, input.name))
+        )
+          return 'exists';
+        throw error;
+      }
+    },
+    async putSecret(fullName, name, value) {
+      if (!SECRET_NAME.test(name))
+        throw new GitHubError(
+          422,
+          `${name} is not a GitHub Actions secret name.`,
+        );
+      const key = record(
+        await call('GET', `${repoPath(fullName)}/actions/secrets/public-key`),
+      );
+      const keyId = text(key.key_id);
+      const publicKey = text(key.key);
+      if (!keyId || !publicKey)
+        throw new GitHubError(
+          502,
+          `GitHub answered no Actions public key for ${fullName}.`,
+        );
+      const encrypted = await sealForGitHub(publicKey, value);
+      const { status } = await send(
+        'PUT',
+        `${repoPath(fullName)}/actions/secrets/${encodeURIComponent(name)}`,
+        { encrypted_value: encrypted, key_id: keyId },
+      );
+      // GitHub answers 201 for a new secret and 204 for an existing one replaced.
+      return status === 201 ? 'created' : 'updated';
+    },
   };
+
+  async function labelExists(fullName: string, name: string) {
+    try {
+      await call(
+        'GET',
+        `${repoPath(fullName)}/labels/${encodeURIComponent(name)}`,
+      );
+      return true;
+    } catch (error) {
+      if (error instanceof GitHubError && error.status === 404) return false;
+      throw error;
+    }
+  }
+}
+
+/** GitHub's secret names: letters, digits and `_`, not starting with a digit or `GITHUB_`. */
+const SECRET_NAME = /^(?!GITHUB_)(?![0-9])[A-Z0-9_]+$/iu;
+
+/**
+ * `value` sealed for GitHub Actions (https://docs.github.com/rest/guides/encrypting-secrets-for-the-rest-api):
+ * libsodium's anonymous sealed box with the repository's base64 public key, answered in base64.
+ */
+export async function sealForGitHub(
+  publicKeyBase64: string,
+  value: string,
+): Promise<string> {
+  const sodium = (await import('libsodium-wrappers')).default;
+  await sodium.ready;
+  const sealed = sodium.crypto_box_seal(
+    sodium.from_string(value),
+    sodium.from_base64(publicKeyBase64, sodium.base64_variants.ORIGINAL),
+  );
+  return sodium.to_base64(sealed, sodium.base64_variants.ORIGINAL);
 }
