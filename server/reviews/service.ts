@@ -231,9 +231,7 @@ export function createReviewsService(deps: {
     );
 
     const isSameRun = Boolean(
-      input.runId &&
-      authorRow.runId &&
-      input.runId === str(authorRow.runId),
+      input.runId && authorRow.runId && input.runId === str(authorRow.runId),
     );
 
     // An agent may not review its own PR if it is the exact same run,

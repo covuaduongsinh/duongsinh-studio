@@ -10,6 +10,8 @@ const migration: MigrationDefinition = defineMigration({
     await query
       .updateTable('dsPullRequests')
       .set({ autoCompleteDisabled: true })
+      // Every pull request that exists before this migration keeps today's behaviour: no automatic completion.
+      .allowAllRows()
       .execute();
   },
 

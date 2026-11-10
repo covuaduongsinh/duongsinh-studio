@@ -286,6 +286,27 @@ test('structured review submission, validation gates, security reviews, and list
     ).json()
   ).data as { id: string };
 
+  // A comment can queue a run for more than one agent, and the queue does not promise which comes first. Claim until the
+  // run belongs to the agent the step needs, and close the others so they cannot be taken by a later step.
+  const claimFor = async (agentId: string) => {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const [payload] = await agents.claims.claim(runner, 1);
+      if (!payload) break;
+      const row = await conn.query
+        .selectFrom('agRuns')
+        .select(['agentId'])
+        .where('id', '=', payload.run.id)
+        .executeTakeFirst();
+      if (row?.agentId === agentId) return payload;
+      await conn.query
+        .updateTable('agRuns')
+        .set({ status: 'completed', finishedAt: new Date() })
+        .where('id', '=', payload.run.id)
+        .execute();
+    }
+    throw new Error(`No run of ${agentId} could be claimed`);
+  };
+
   const [nonReadOnlyPayload] = await agents.claims.claim(runner, 1);
   expect(nonReadOnlyPayload).toBeDefined();
   const nonReadOnlyToken = String(
@@ -323,7 +344,7 @@ test('structured review submission, validation gates, security reviews, and list
     }),
   );
 
-  const [readOnlyPayload] = await agents.claims.claim(runner, 1);
+  const readOnlyPayload = await claimFor(reviewerAgent.id);
   expect(readOnlyPayload).toBeDefined();
   const readOnlyToken = String(readOnlyPayload.cli.credential.content.token);
   const readOnlyRunId = readOnlyPayload.run.id;
@@ -361,7 +382,7 @@ test('structured review submission, validation gates, security reviews, and list
       content: `[@author-agent · ${MODEL}](mention://agent/${authorAgent.id}) Next: review self. Mode: read-only`,
     }),
   );
-  const [authorPayload] = await agents.claims.claim(runner, 1);
+  const authorPayload = await claimFor(authorAgent.id);
   const authorToken = String(authorPayload.cli.credential.content.token);
 
   const selfReviewRes = await request('/reviews', {
@@ -395,8 +416,10 @@ test('structured review submission, validation gates, security reviews, and list
       content: `[@author-agent · claude-opus-5-5](mention://agent/${authorAgent.id}) Next: peer review. Mode: read-only`,
     }),
   );
-  const [crossModelPayload] = await agents.claims.claim(runner, 1);
-  const crossModelToken = String(crossModelPayload.cli.credential.content.token);
+  const crossModelPayload = await claimFor(authorAgent.id);
+  const crossModelToken = String(
+    crossModelPayload.cli.credential.content.token,
+  );
   await conn.query
     .updateTable('agRuns')
     .set({ model: 'claude-opus-5-5' })
@@ -417,7 +440,7 @@ test('structured review submission, validation gates, security reviews, and list
       checklist: { tests: true },
     }),
   });
-  expect(crossModelReviewRes.status).toBe(200);
+  expect(crossModelReviewRes.status).toBe(201);
   const crossModelJson = await crossModelReviewRes.json();
   expect(crossModelJson.data.sameModel).toBe(false);
 
@@ -434,7 +457,7 @@ test('structured review submission, validation gates, security reviews, and list
       content: `[@reviewer-agent · ${MODEL}](mention://agent/${reviewerAgent.id}) Next: security review. Mode: read-only`,
     }),
   );
-  const [secPayload] = await agents.claims.claim(runner, 1);
+  const secPayload = await claimFor(reviewerAgent.id);
   const secToken = String(secPayload.cli.credential.content.token);
 
   const secIncompleteRes = await request('/reviews', {
@@ -549,13 +572,16 @@ test('structured review submission, validation gates, security reviews, and list
   );
   expect(listRes.status).toBe(200);
   const listJson = await listRes.json();
-  expect(listJson.data.length).toBe(2);
+  // The cross-model peer review (5b), the valid code review (7) and the valid security review (8).
+  expect(listJson.data.length).toBe(3);
 
   const listCodeRes = await admin.fetch(
     `/git/pullRequests/${pullRequest.id}/reviews?kind=code`,
   );
   expect(listCodeRes.status).toBe(200);
   const listCodeJson = await listCodeRes.json();
-  expect(listCodeJson.data.length).toBe(1);
-  expect(listCodeJson.data[0].kind).toBe('code');
+  expect(listCodeJson.data.length).toBe(2);
+  expect(
+    listCodeJson.data.every((r: { kind: string }) => r.kind === 'code'),
+  ).toBe(true);
 });

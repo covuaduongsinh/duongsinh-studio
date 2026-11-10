@@ -104,6 +104,10 @@ export function groupStudioSections(
   );
   result.push(...topItems);
 
+  // The section rows belong to the application, whose package name `create-app` rewrites; read it from one of its own
+  // routes instead of writing the template's name here.
+  const packageName = [...dev, ...rel, ...ag][0].route.packageName;
+
   if (dev.length > 0) {
     result.push({
       route: {
@@ -111,7 +115,7 @@ export function groupStudioSections(
         name: 'sectionDevelopment',
         path: '/',
         auth: 'required',
-        packageName: '@nocobase/app-template-default',
+        packageName,
         source: 'application',
         navigation: { title: 'navigation.sections.development' },
         authz: 'skip',
@@ -127,7 +131,7 @@ export function groupStudioSections(
         name: 'sectionReleases',
         path: '/',
         auth: 'required',
-        packageName: '@nocobase/app-template-default',
+        packageName,
         source: 'application',
         navigation: { title: 'navigation.sections.releases' },
         authz: 'skip',
@@ -143,7 +147,7 @@ export function groupStudioSections(
         name: 'sectionAgents',
         path: '/',
         auth: 'required',
-        packageName: '@nocobase/app-template-default',
+        packageName,
         source: 'application',
         navigation: { title: 'navigation.sections.agentManagement' },
         authz: 'skip',
