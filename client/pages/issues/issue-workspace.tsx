@@ -189,7 +189,13 @@ export function IssueWorkspace({
     searchRef,
   } = useUrlSearch();
   const [storedView] = useState(() => readStoredIssueView(page));
-  const view = resolveIssueView(params, storedView, VIEWS);
+  // My issues opens as the split view, as the demo does; the issue list keeps the plugin's default (the board).
+  const view = resolveIssueView(
+    params,
+    storedView,
+    VIEWS,
+    page === 'my-issues' ? 'split' : undefined,
+  );
   const ownFilters = readIssueFilters(params, view);
   const filters: IssueFilters = { ...ownFilters, ...fixedFilters };
   const filtered = hasIssueFilters(ownFilters);
