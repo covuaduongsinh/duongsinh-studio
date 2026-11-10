@@ -14,7 +14,6 @@ import {
   useMentionSearch,
   type CommentThread,
   type IssueComment,
-  type TimelineEntry,
 } from '@nocobase/app-plugin-projects/client/issues';
 import { useViewer } from '@nocobase/app-plugin-projects/client/kit';
 import type {
@@ -23,8 +22,8 @@ import type {
 } from '@nocobase/app-plugin-projects/shared/issues';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
 import type { QueryKey } from '@tanstack/react-query';
-import { BotIcon, CogIcon } from 'lucide-react';
-import { useState, type ReactElement, useMemo } from 'react';
+import { BotIcon, ChevronRightIcon, CogIcon } from 'lucide-react';
+import { useState, type ReactElement } from 'react';
 import { cn } from 'cn';
 
 import {
@@ -144,6 +143,43 @@ function ActivityLine({
   );
 }
 
+/** Records the system wrote on its own, folded under one line until a person opens it. */
+function SystemRecords({
+  activities,
+}: {
+  readonly activities: readonly Activity[];
+}): ReactElement {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const label =
+    activities.length === 1
+      ? t('issueDetail.activity.systemRecord')
+      : t('issueDetail.activity.systemRecords', { count: activities.length });
+  return (
+    <div className='flex flex-col gap-1'>
+      <button
+        type='button'
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+        className='inline-flex w-fit cursor-pointer items-center gap-1 text-xs text-muted-foreground hover:text-foreground'
+      >
+        <ChevronRightIcon
+          aria-hidden='true'
+          className={cn('size-3.5 transition-transform', open && 'rotate-90')}
+        />
+        {label}
+      </button>
+      {open ? (
+        <div className='flex flex-col gap-1 pl-5'>
+          {activities.map((activity) => (
+            <ActivityLine key={activity.id} activity={activity} />
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export function IssueActivity({
   detail,
   detailKey,
@@ -216,27 +252,42 @@ export function IssueActivity({
     resolved: thread.root.resolvedAt !== null,
     resolvedBy: thread.root.resolvedByName,
   });
-  const entries: CommentTimelineEntry[] = timeline.entries.flatMap(
-    (entry: TimelineEntry): CommentTimelineEntry[] => {
-      if (entry.kind === 'thread')
-        return [
-          { kind: 'thread', key: entry.key, thread: toThread(entry.thread) },
-        ];
-      if (entry.kind === 'activity')
-        return [
-          {
-            kind: 'custom',
-            key: entry.key,
-            node: <ActivityLine activity={entry.activity} />,
-          },
-        ];
-      return [];
-    },
-  );
+  // What the system recorded on its own, several in a row, folds into one line that opens (the demo's "N system records").
+  const entries: CommentTimelineEntry[] = [];
+  let system: Activity[] = [];
+  const flushSystem = (): void => {
+    if (system.length === 0) return;
+    entries.push({
+      kind: 'custom',
+      key: `system:${system[0]?.id ?? ''}`,
+      node: <SystemRecords activities={system} />,
+    });
+    system = [];
+  };
+  for (const entry of timeline.entries) {
+    if (entry.kind === 'activity' && entry.activity.actorType === 'system') {
+      system.push(entry.activity);
+      continue;
+    }
+    flushSystem();
+    if (entry.kind === 'thread')
+      entries.push({
+        kind: 'thread',
+        key: entry.key,
+        thread: toThread(entry.thread),
+      });
+    else if (entry.kind === 'activity')
+      entries.push({
+        kind: 'custom',
+        key: entry.key,
+        node: <ActivityLine activity={entry.activity} />,
+      });
+  }
+  flushSystem();
 
   const [filterMode, setFilterMode] = useState<'all' | 'conversations'>('all');
 
-  const filteredEntries = useMemo(() => {
+  const filteredEntries = ((): CommentTimelineEntry[] => {
     if (filterMode === 'all') return entries;
     return entries.filter((entry) => {
       if (entry.kind === 'custom') return false;
@@ -248,7 +299,7 @@ export function IssueActivity({
       }
       return true;
     });
-  }, [entries, filterMode]);
+  })();
 
   const submit = async (content: string): Promise<string> => {
     const comment = await comments.create({

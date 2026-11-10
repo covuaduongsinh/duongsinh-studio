@@ -19,7 +19,8 @@ import {
 import { PRIORITIES } from '@nocobase/app-plugin-projects/shared/common';
 import type { IssueDetail } from '@nocobase/app-plugin-projects/shared/issues';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
-import type { ReactElement } from 'react';
+import { SlidersHorizontalIcon } from 'lucide-react';
+import { useState, type ReactElement, type ReactNode } from 'react';
 
 import {
   AgentIcon,
@@ -31,6 +32,7 @@ import {
   PropertySelect,
   type PropertyOption,
 } from '#components/property-fields';
+import { Button } from '#components/ui/button';
 import { Checkbox } from '#components/ui/checkbox';
 import {
   IssueDates,
@@ -125,14 +127,199 @@ function IssueAutopilotSection({
   );
 }
 
+/** The owner and executor lists the property controls offer, shared by the chips and the side column. */
+function usePropertyChoices(detail: IssueDetail) {
+  const lookup = usePlanLookup();
+  const viewer = useViewer();
+  const canEdit = canEditIssues(viewer);
+  const others = useExecutorOptions(canEdit);
+  const members = lookup.members.map((member) => ({
+    value: member.userId,
+    label: member.name,
+  }));
+  const executorOptions = withCurrent(
+    [
+      ...others.map((option) => ({
+        value: executorValue(option),
+        label: option.name,
+        icon: <AgentIcon />,
+        ...(option.note ? { note: option.note } : {}),
+        ...(option.disabled ? { disabled: true } : {}),
+      })),
+      ...lookup.members.map((member) => ({
+        value: executorValue({ type: 'user', id: member.userId }),
+        label: member.name,
+      })),
+    ],
+    detail.executor ? executorValue(detail.executor) : null,
+    detail.executorName,
+  );
+  return { lookup, viewer, canEdit, members, executorOptions };
+}
+
+function Chip({
+  label,
+  htmlFor,
+  children,
+}: {
+  readonly label: string;
+  readonly htmlFor: string;
+  readonly children: ReactNode;
+}): ReactElement {
+  return (
+    <div className='flex items-center gap-1.5 rounded-lg border bg-card pl-2.5 text-sm'>
+      <label
+        htmlFor={htmlFor}
+        className='whitespace-nowrap text-muted-foreground'
+      >
+        {label}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * The issue's main properties as a row of chips under its title (priority, owner, executor), as the demo draws them,
+ * with "More properties" opening the rest in the side card's controls. Same updates as the side column's.
+ */
+export function IssuePropertyChips({
+  detail,
+  update,
+  more,
+}: {
+  readonly detail: IssueDetail;
+  readonly update: IssueUpdate;
+  /** What "More properties" opens: the rest of the properties. */
+  readonly more: ReactNode;
+}): ReactElement {
+  const { t } = useTranslation();
+  const { viewer, canEdit, members, executorOptions } =
+    usePropertyChoices(detail);
+  const [open, setOpen] = useState(false);
+  const status = useStatusPresenter();
+  const apply = update.mutate;
+  const mayClose = canCloseIssue(viewer, detail);
+  const mayChangeOwner = canEdit && canChangeIssueOwner(viewer, detail);
+  return (
+    <div className='flex flex-col gap-3'>
+      <div
+        role='group'
+        aria-label={t('issueDetail.properties')}
+        className='flex flex-wrap items-center gap-2'
+      >
+        <Chip label={t('issueDetail.status')} htmlFor='issue-status-chip'>
+          <PropertySelect
+            id='issue-status-chip'
+            disabled={!canEdit}
+            options={detail.statuses.map((entry) => ({
+              value: entry.key,
+              label: status(entry.key, detail.statuses).name,
+              disabled: !mayClose && isClosing(entry.category),
+            }))}
+            value={detail.statusKey}
+            onChange={(value) => {
+              if (value) apply({ statusKey: value });
+            }}
+          />
+        </Chip>
+        <Chip label={t('issueDetail.priority')} htmlFor='issue-priority-chip'>
+          <PropertySelect
+            id='issue-priority-chip'
+            disabled={!canEdit}
+            options={PRIORITIES.map((priority) => ({
+              value: priority,
+              label: t(`issues.priority.${priority}`),
+            }))}
+            value={detail.priority}
+            onChange={(value) => {
+              const priority = PRIORITIES.find((entry) => entry === value);
+              if (priority) apply({ priority });
+            }}
+          />
+        </Chip>
+        <Chip label={t('issueDetail.owner')} htmlFor='issue-owner-chip'>
+          <PropertySelect
+            id='issue-owner-chip'
+            disabled={!mayChangeOwner}
+            options={withCurrent(
+              members,
+              detail.ownerUserId,
+              detail.owner?.name,
+            )}
+            value={detail.ownerUserId}
+            renderValue={(value) => (
+              <PersonValue
+                name={
+                  members.find((member) => member.value === value)?.label ??
+                  detail.owner?.name ??
+                  value
+                }
+              />
+            )}
+            onChange={(value) => {
+              if (value) apply({ ownerUserId: value });
+            }}
+          />
+        </Chip>
+        <Chip label={t('issueDetail.executor')} htmlFor='issue-executor-chip'>
+          <PropertySelect
+            id='issue-executor-chip'
+            disabled={!canEdit}
+            noneLabel={t('issueDetail.nobody')}
+            options={executorOptions}
+            value={detail.executor ? executorValue(detail.executor) : null}
+            renderValue={(value) => (
+              <PersonValue
+                name={
+                  executorOptions.find((option) => option.value === value)
+                    ?.label ?? value
+                }
+                agent={!value.startsWith('user:')}
+              />
+            )}
+            onChange={(value) => {
+              if (value === null) {
+                apply({ executor: null });
+                return;
+              }
+              const split = value.indexOf(':');
+              apply({
+                executor: {
+                  type: value.slice(0, split),
+                  id: value.slice(split + 1),
+                },
+              });
+            }}
+          />
+        </Chip>
+        <Button
+          type='button'
+          variant='ghost'
+          size='sm'
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+        >
+          <SlidersHorizontalIcon data-icon='inline-start' />
+          {t('issueDetail.moreProperties')}
+        </Button>
+      </div>
+      {open ? more : null}
+    </div>
+  );
+}
+
 export function IssueAside({
   detail,
   update,
   actions,
+  compact = false,
 }: {
   readonly detail: IssueDetail;
   readonly update: IssueUpdate;
   readonly actions: IssuePageActions;
+  /** The chips above already carry priority, owner and executor: leave them out of this card. */
+  readonly compact?: boolean;
 }): ReactElement {
   const { t } = useTranslation();
   const { locale } = useLocale();
@@ -184,91 +371,105 @@ export function IssueAside({
         busy={update.isPending}
         labels={fieldLabels}
       >
-        <PropertyRow label={t('issueDetail.status')} htmlFor='issue-status'>
-          <PropertySelect
-            id='issue-status'
-            disabled={!canEdit}
-            options={detail.statuses.map((entry) => ({
-              value: entry.key,
-              label: status(entry.key, detail.statuses).name,
-              disabled: !mayClose && isClosing(entry.category),
-            }))}
-            value={detail.statusKey}
-            onChange={(value) => {
-              if (value) apply({ statusKey: value });
-            }}
-          />
-        </PropertyRow>
-        <PropertyRow label={t('issueDetail.priority')} htmlFor='issue-priority'>
-          <PropertySelect
-            id='issue-priority'
-            disabled={!canEdit}
-            options={PRIORITIES.map((priority) => ({
-              value: priority,
-              label: t(`issues.priority.${priority}`),
-            }))}
-            value={detail.priority}
-            onChange={(value) => {
-              const priority = PRIORITIES.find((entry) => entry === value);
-              if (priority) apply({ priority });
-            }}
-          />
-        </PropertyRow>
-        <PropertyRow label={t('issueDetail.owner')} htmlFor='issue-owner'>
-          <PropertySelect
-            id='issue-owner'
-            disabled={!mayChangeOwner}
-            options={withCurrent(
-              members,
-              detail.ownerUserId,
-              detail.owner?.name,
-            )}
-            value={detail.ownerUserId}
-            renderValue={(value) => (
-              <PersonValue
-                name={
-                  members.find((member) => member.value === value)?.label ??
-                  detail.owner?.name ??
-                  value
+        {!compact ? (
+          <PropertyRow label={t('issueDetail.status')} htmlFor='issue-status'>
+            <PropertySelect
+              id='issue-status'
+              disabled={!canEdit}
+              options={detail.statuses.map((entry) => ({
+                value: entry.key,
+                label: status(entry.key, detail.statuses).name,
+                disabled: !mayClose && isClosing(entry.category),
+              }))}
+              value={detail.statusKey}
+              onChange={(value) => {
+                if (value) apply({ statusKey: value });
+              }}
+            />
+          </PropertyRow>
+        ) : null}
+        {!compact ? (
+          <PropertyRow
+            label={t('issueDetail.priority')}
+            htmlFor='issue-priority'
+          >
+            <PropertySelect
+              id='issue-priority'
+              disabled={!canEdit}
+              options={PRIORITIES.map((priority) => ({
+                value: priority,
+                label: t(`issues.priority.${priority}`),
+              }))}
+              value={detail.priority}
+              onChange={(value) => {
+                const priority = PRIORITIES.find((entry) => entry === value);
+                if (priority) apply({ priority });
+              }}
+            />
+          </PropertyRow>
+        ) : null}
+        {!compact ? (
+          <PropertyRow label={t('issueDetail.owner')} htmlFor='issue-owner'>
+            <PropertySelect
+              id='issue-owner'
+              disabled={!mayChangeOwner}
+              options={withCurrent(
+                members,
+                detail.ownerUserId,
+                detail.owner?.name,
+              )}
+              value={detail.ownerUserId}
+              renderValue={(value) => (
+                <PersonValue
+                  name={
+                    members.find((member) => member.value === value)?.label ??
+                    detail.owner?.name ??
+                    value
+                  }
+                />
+              )}
+              onChange={(value) => {
+                if (value) apply({ ownerUserId: value });
+              }}
+            />
+          </PropertyRow>
+        ) : null}
+        {!compact ? (
+          <PropertyRow
+            label={t('issueDetail.executor')}
+            htmlFor='issue-executor'
+          >
+            <PropertySelect
+              id='issue-executor'
+              disabled={!canEdit}
+              noneLabel={t('issueDetail.nobody')}
+              options={executorOptions}
+              value={detail.executor ? executorValue(detail.executor) : null}
+              renderValue={(value) => (
+                <PersonValue
+                  name={
+                    executorOptions.find((option) => option.value === value)
+                      ?.label ?? value
+                  }
+                  agent={!value.startsWith('user:')}
+                />
+              )}
+              onChange={(value) => {
+                if (value === null) {
+                  apply({ executor: null });
+                  return;
                 }
-              />
-            )}
-            onChange={(value) => {
-              if (value) apply({ ownerUserId: value });
-            }}
-          />
-        </PropertyRow>
-        <PropertyRow label={t('issueDetail.executor')} htmlFor='issue-executor'>
-          <PropertySelect
-            id='issue-executor'
-            disabled={!canEdit}
-            noneLabel={t('issueDetail.nobody')}
-            options={executorOptions}
-            value={detail.executor ? executorValue(detail.executor) : null}
-            renderValue={(value) => (
-              <PersonValue
-                name={
-                  executorOptions.find((option) => option.value === value)
-                    ?.label ?? value
-                }
-                agent={!value.startsWith('user:')}
-              />
-            )}
-            onChange={(value) => {
-              if (value === null) {
-                apply({ executor: null });
-                return;
-              }
-              const split = value.indexOf(':');
-              apply({
-                executor: {
-                  type: value.slice(0, split),
-                  id: value.slice(split + 1),
-                },
-              });
-            }}
-          />
-        </PropertyRow>
+                const split = value.indexOf(':');
+                apply({
+                  executor: {
+                    type: value.slice(0, split),
+                    id: value.slice(split + 1),
+                  },
+                });
+              }}
+            />
+          </PropertyRow>
+        ) : null}
         <PropertyRow label={t('issueDetail.labels')} htmlFor='issue-labels'>
           <PropertyMultiSelect
             id='issue-labels'
