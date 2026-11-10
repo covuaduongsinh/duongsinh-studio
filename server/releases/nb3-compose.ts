@@ -93,6 +93,8 @@ export function nb3ComposeFile(input: Nb3ComposeInput): string {
   const postgres = input.database === 'postgres';
   const dbHost = `${name}-db`;
   const appService = `${name}-app`;
+  // Docker creates a named volume owned by root; the App runs as uid 1000, so this one-shot service hands it over first.
+  const initService = `${name}-init`;
   const router = `ds-${name}`;
   const dbEnv = postgres
     ? [
@@ -139,17 +141,29 @@ ${
 
 `
     : ''
-}  ${appService}:
+}  ${initService}:
+    image: ${NODE_IMAGE}
+    restart: "no"
+    user: "0:0"
+    command: ["chown", "-R", "1000:1000", "/app/storage"]
+    volumes:
+      - storage:/app/storage
+    mem_limit: 64m
+    cpus: 0.25
+
+  ${appService}:
     image: ${NODE_IMAGE}
     restart: unless-stopped
     init: true
     user: "1000:1000"
     working_dir: /app
     command: ["node", "dist/server/standalone.js"]
+    depends_on:
+      ${initService}:
+        condition: service_completed_successfully
 ${
   postgres
-    ? `    depends_on:
-      ${dbHost}:
+    ? `      ${dbHost}:
         condition: service_healthy
 `
     : ''
