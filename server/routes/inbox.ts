@@ -48,6 +48,8 @@ const PERSON: Record<string, string[]>[] = [
   { apiKeyAuth: [] },
 ];
 const ISSUE_LIMIT = 200;
+/** The followed issues `follow=all` adds to a list, at most; a person follows a handful, not thousands. */
+const FOLLOWED_EXTRA_MAX = 100;
 const DECISION_SCAN = 50;
 const MAX_UNREAD = 99;
 
@@ -165,8 +167,19 @@ const WaitsSchema = z.array(
   ]),
 );
 
+/** What holds an issue now: a dependency it is blocked by, or an earlier stage of its parent. */
+const BlockerSchema = z.object({
+  issueId: z.string(),
+  identifier: z.string(),
+  title: z.string(),
+  reason: z.enum(['dependency', 'stage']),
+});
+
 const TaskRow = z.object({
   issue: z.record(z.string(), z.unknown()),
+  /** True while at least one unfinished issue holds this one. */
+  dependencyWait: z.boolean(),
+  blockers: z.array(BlockerSchema),
   parent: z.object({ id: z.string(), identifier: z.string() }).nullable(),
   waits: WaitsSchema,
   waitingSince: z.string().nullable(),
@@ -557,13 +570,23 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
       const followed = await followedIds(viewer.userId, ids);
       const seen = await seenMap(viewer.userId, ids);
       const decisions = await decisionsOn(viewer, issues);
+      // One read for every issue: only the blockers the viewer may see, and only issues something holds.
+      const held = await projects().subtasks.visibleBlockers(viewer, ids);
       return Promise.all(
         issues.map(async (issue) => {
           const mine = decisions.filter((d) => d.issue.id === issue.id);
+          const blockers = (held.get(issue.id) ?? []).map((blocker) => ({
+            issueId: blocker.issueId,
+            identifier: blocker.identifier,
+            title: blocker.title,
+            reason: blocker.reason,
+          }));
           const seenAt = seen.get(issue.id);
           const isFollowed = followed.has(issue.id);
           return {
             issue: issue as unknown as Record<string, unknown>,
+            dependencyWait: blockers.length > 0,
+            blockers,
             parent: null,
             waits: mine.map((d) => d.wait),
             waitingSince: mine[0]?.since ?? null,
@@ -1234,42 +1257,68 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
         'query',
         ListFilters.extend({
           mode: z.enum(['split', 'table']).optional(),
+          /**
+           * `scope` (the default) lists exactly what the filters select. `all` also lists the issues the viewer follows
+           * that the filters leave out, so a person's own list keeps what they asked to watch.
+           */
+          follow: z.enum(['all', 'scope']).optional(),
           limit: z.coerce.number().int().min(1).max(200).optional(),
           cursor: z.string().min(1).optional(),
         }),
       ),
       async (context) => {
         const viewer = await viewerOf(context);
-        const { mode, limit, cursor, ...filters } = context.req.valid('query');
+        const { mode, follow, limit, cursor, ...filters } =
+          context.req.valid('query');
         const listed = await projects().issueQueries.page(viewer, {
           ...filters,
           limit: limit ?? ISSUE_LIMIT,
           ...(cursor ? { cursor } : {}),
         });
-        const issues = pageItems(listed);
+        const pageIssues = pageItems(listed);
         const nextCursor =
           (listed as { nextCursor?: string | null }).nextCursor ?? null;
+        const issues = [...pageIssues];
+        // Only the first page adds followed issues: they come once, not again with every cursor.
+        if (follow === 'all' && !cursor) {
+          const listedIds = new Set(pageIssues.map((issue) => issue.id));
+          const following = (await followingState(viewer)).following.filter(
+            (id) => !listedIds.has(id),
+          );
+          const extra = await Promise.all(
+            following
+              .slice(0, FOLLOWED_EXTRA_MAX)
+              .map((id) => visibleOrMissing(viewer, id).catch(() => null)),
+          );
+          for (const issue of extra) if (issue) issues.push(issue);
+        }
         const rows = await rowsOf(viewer, issues);
+        const split = (mode ?? 'split') === 'split';
         const groupOf = (row: (typeof rows)[number]): string => {
           const status = String(row.issue.statusKey);
           if (status === 'done') return 'done';
           if (status === 'cancelled' || status === 'canceled')
-            return 'cancelled';
+            // The split view has no group for what was cancelled: it is finished, so it goes with Done.
+            return split ? 'done' : 'cancelled';
           if (row.waits.length > 0) return 'wait';
           if (status === 'backlog') return 'backlog';
-          if (status === 'blocked') return 'blocked';
-          if (status === 'in_review') return 'review';
+          // The split view has four groups (wait, doing, backlog, done); what is blocked or in review without waiting
+          // for the viewer is still under way.
+          if (status === 'blocked') return split ? 'doing' : 'blocked';
+          if (status === 'in_review') return split ? 'doing' : 'review';
           return 'doing';
         };
-        const order = [
-          'wait',
-          'doing',
-          'review',
-          'blocked',
-          'backlog',
-          'done',
-          'cancelled',
-        ];
+        const order = split
+          ? ['wait', 'doing', 'backlog', 'done']
+          : [
+              'wait',
+              'doing',
+              'review',
+              'blocked',
+              'backlog',
+              'done',
+              'cancelled',
+            ];
         const groups = order
           .map((group) => {
             const data = rows.filter((row) => groupOf(row) === group);

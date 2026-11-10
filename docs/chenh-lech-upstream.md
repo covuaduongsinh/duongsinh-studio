@@ -635,3 +635,24 @@ Test với Dokploy giả không bắt được ba điều này; chúng chỉ l�
 - Thư mục giải nén dùng lại chỉ khi có `.extracted`; thư mục không có dấu bị xoá và giải nén lại.
 - Traefik gửi `X-Forwarded-Proto: wss` cho WebSocket nên realtime của app NB3 bị từ chối (trình duyệt báo "Không chuẩn bị được kết nối thời gian thực"); compose của app có router riêng cho `<basePath>/ws` với priority 1000 và middleware ép `X-Forwarded-Proto=https`, giống compose của Studio.
 - Biến "chỉ lần khởi động đầu" (như `INITIAL_ADMIN_PASSWORD`) chỉ đi vào lần deploy đầu; nếu lần đó thất bại trước khi DB được tạo, tài khoản quản trị sinh với mật khẩu mặc định. Chưa sửa; cách xử lý tạm: sao lưu và xoá DB rồi đặt biến ở tab Biến (đã làm với NocoLMS 10/11/2026).
+
+## 34. P1 — My issues: khung chia đôi theo `taskGroups` (10/11/2026)
+
+Khung chia đôi của My issues (`client/pages/issues/issue-split-view.tsx`) không còn đọc `useIssuePages` của plugin projects và tự đoán nhóm từ tên trạng thái; nó đọc
+`GET /api/taskGroups` của Studio (`server/routes/inbox.ts`), như demo. Chênh lệch so với plugin và so với demo:
+
+- **`taskGroups` mở rộng (server, của Studio, không sửa plugin):** thêm tham số `follow` (`all|scope`, mặc định `scope`); thêm `dependencyWait` và `blockers[{issueId,
+identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.visibleBlockers` (một lượt đọc cho cả danh sách, chỉ blocker người xem được thấy). `mode=split` chỉ có
+  bốn nhóm `wait`, `doing`, `backlog`, `done`: `in_review` và `blocked` không chờ người xem gộp vào `doing`, `cancelled` gộp vào `done`; `mode=table` giữ bảy nhóm.
+- **Suy luận, chưa kiểm chứng với demo:** ý nghĩa của `follow=all` là "thêm các issue người xem đang theo dõi mà bộ lọc loại ra" (chỉ ở trang đầu, tối đa 100). Demo
+  chỉ cho thấy tên tham số, không cho thấy khác biệt vì tài khoản demo không theo dõi issue nào. Nhóm `review`/`blocked` của chế độ `split` ở demo cũng chưa quan sát được
+  (dữ liệu của người xem không có issue ở hai trạng thái đó ngoài nhóm `wait`).
+- **Chưa làm so với demo:** `count` của nhóm là số dòng trong trang hiện tại, không phải tổng như demo (`done: 202`, chỉ trả 50), và con trỏ phân trang là một cho cả danh sách,
+  không phải một con trỏ cho mỗi nhóm.
+- **Phím tắt** J/K/S/Enter// nằm trong `IssueSplitView`, không sửa `PmShortcuts` của plugin (`C` và ⌘K vẫn của plugin). Bỏ qua khi gõ vào ô nhập hoặc có phím bổ trợ; Enter của một
+  nút đang được lấy nét thuộc về nút đó (hàng danh sách mở issue bằng Enter riêng).
+- Nhóm **thu gọn được, nhớ theo người dùng** trong `localStorage` (`studio.myIssues.collapsed.<id người dùng>`, lấy từ `membership` do server trả); **Done thu gọn mặc định**.
+  Issue đang chọn nằm ở `?issue=<id>` (mặc định là issue đầu danh sách, URL chỉ được ghi khi người dùng chọn).
+- **My issues mặc định mở dạng Chia đôi** (tham số `fallback` của `resolveIssueView`); trang Issues vẫn theo mặc định của plugin (bảng).
+- Khung phải vẫn là `IssueDetailView` của plugin (có liên kết "Quay lại" thừa trong khung chia đôi); phần chi tiết theo demo làm ở P2.
+- Test: `tests/server/task-groups-split.test.ts`, `tests/client/issue-split-view.test.tsx`.
