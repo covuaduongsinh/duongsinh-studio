@@ -190,6 +190,9 @@ describe('app client routes', () => {
       { name: 'home', authorizedAs: null },
       { name: 'inbox', authorizedAs: null },
       { name: 'my-issues', authorizedAs: 'pm-my-issues' },
+      // My sessions lists only the viewer's own conversations; the agents plugin scopes them on the server.
+      { name: 'my-sessions', authorizedAs: null },
+      { name: 'session-detail', authorizedAs: null },
       { name: 'dashboard', authorizedAs: 'reports' },
       { name: 'follow-ups', authorizedAs: 'pm-issues' },
       ...[

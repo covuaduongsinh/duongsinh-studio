@@ -648,6 +648,16 @@ const enUS = {
       executor: 'Executor',
       anyExecutor: 'Any executor',
     },
+    groups: {
+      waitingForYou: 'Needs you',
+      inProgress: 'In progress',
+      backlog: 'Backlog',
+      done: 'Done',
+    },
+    noIssues: 'No issues yet.',
+    noMatchingIssues: 'No issues match the filters.',
+    clearFilters: 'Clear filters',
+    selectToView: 'Pick an issue from the list to see its details.',
     loadMore: 'Load more',
     loadingMore: 'Loading…',
     table: {
@@ -687,6 +697,7 @@ const enUS = {
       all: 'All',
       needsMe: 'Needs me',
       inProgress: 'In progress',
+      archived: 'Archived',
     },
     groups: {
       today: 'Today',
@@ -696,7 +707,16 @@ const enUS = {
     },
     archived: 'Archived',
     archiveShortcut: 'E Archive',
-    empty: 'No sessions yet.',
+    empty: {
+      all: 'No sessions yet.',
+      needsMe: 'No session needs you.',
+      inProgress: 'No session is in progress.',
+      archived: 'No archived sessions.',
+    },
+    untitled: 'Untitled session',
+    issues: {
+      progress: '{{completed}}/{{total}} issues',
+    },
     emptyPrompt: 'Start a conversation or give an agent new work.',
     selectConversation: 'Pick a conversation from the list or start a new one.',
     needsYou: 'Needs you {{count}}',

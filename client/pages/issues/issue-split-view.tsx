@@ -1,4 +1,3 @@
-import { ApiClientError } from '@nocobase/app-client';
 import {
   flattenIssuePages,
   useIssueDetail,
@@ -11,20 +10,17 @@ import {
   useViewer,
 } from '@nocobase/app-plugin-projects/client/kit';
 import type { IssueListItem } from '@nocobase/app-plugin-projects/shared/issues';
-import { useTranslation } from '@nocobase/i18n/client';
 import {
-  AlertCircleIcon,
-  CheckCircle2Icon,
-  CircleDotIcon,
-  ClockIcon,
-  ListTodoIcon,
-  LoaderCircle,
-} from 'lucide-react';
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
-import { Link } from 'react-router';
+  IN_PROGRESS_STATUS,
+  isTerminalCategory,
+  OWNER_NOTIFIED_STATUSES,
+  statusCategory,
+} from '@nocobase/app-plugin-projects/shared/statuses';
+import { useTranslation } from '@nocobase/i18n/client';
+import { AlertCircleIcon, ListTodoIcon, LoaderCircle } from 'lucide-react';
+import { useState, type ReactElement } from 'react';
 
 import { IssueStatusBadge } from '#components/issue-table';
-import { ListFeedback, ListFeedbackActions } from '#components/list-feedback';
 import { Badge } from '#components/ui/badge';
 import { Button } from '#components/ui/button';
 import {
@@ -37,7 +33,7 @@ import {
 import { cn } from 'cn';
 
 import { IssueDetailView } from './detail/index.js';
-import { issueHref, useStatusPresenter } from './presentation.js';
+import { useStatusPresenter } from './presentation.js';
 
 interface IssueGroup {
   readonly key: 'waiting' | 'inProgress' | 'todo' | 'done';
@@ -64,89 +60,51 @@ export function IssueSplitView({
     null,
   );
 
-  // Grouping issues into Waiting, In progress, Todo, Done
-  const groups = useMemo<IssueGroup[]>(() => {
-    const waiting: IssueListItem[] = [];
-    const inProgress: IssueListItem[] = [];
-    const todo: IssueListItem[] = [];
-    const done: IssueListItem[] = [];
-
-    const myId = viewer?.userId;
-
-    for (const item of items) {
-      const s = (item.statusKey || '').toLowerCase();
-      const pres = statusPresenter(item.statusKey);
-      const sName = (pres.name || '').toLowerCase();
-
-      const isDone =
-        s === 'done' ||
-        s === 'closed' ||
-        s === 'resolved' ||
-        sName.includes('hoàn thành');
-      const isInProgress =
-        s === 'in-progress' ||
-        s === 'doing' ||
-        s === 'testing' ||
-        sName.includes('tiến hành') ||
-        sName.includes('đang');
-
-      if (isDone) {
-        done.push(item);
-      } else if (
-        myId &&
-        (item.ownerUserId === myId || item.owner?.id === myId) &&
-        (s.includes('review') || s.includes('wait') || s.includes('confirm'))
-      ) {
-        waiting.push(item);
-      } else if (isInProgress) {
-        inProgress.push(item);
-      } else {
-        todo.push(item);
-      }
-    }
-
-    const res: IssueGroup[] = [];
-    if (waiting.length > 0) {
-      res.push({
-        key: 'waiting',
-        label: t('issues.groups.waitingForYou', 'Cần bạn xử lý'),
-        items: waiting,
-      });
-    }
-    res.push({
-      key: 'inProgress',
-      label: t('issues.groups.inProgress', 'Đang thực hiện'),
-      items: inProgress,
-    });
-    res.push({
-      key: 'todo',
-      label: t('issues.groups.backlog', 'Tồn đọng / Chưa thực hiện'),
-      items: todo,
-    });
-    if (done.length > 0) {
-      res.push({
-        key: 'done',
-        label: t('issues.groups.done', 'Đã hoàn thành'),
-        items: done,
-      });
-    }
-
-    return res;
-  }, [items, viewer?.userId, t]);
-
-  // Keep first item selected if none selected or previous item no longer in list
-  useEffect(() => {
-    if (items.length > 0) {
-      if (
-        !selectedIdentifier ||
-        !items.some((it) => it.identifier === selectedIdentifier)
-      ) {
-        setSelectedIdentifier(items[0].identifier);
-      }
+  // Group by the plugin's fixed status keys, never by translated names: Waiting holds what the viewer owns and must
+  // decide (`blocked`, `in_review`), then In progress, Todo (backlog) and Done (done, cancelled).
+  const myId = viewer?.userId;
+  const buckets: Record<IssueGroup['key'], IssueListItem[]> = {
+    waiting: [],
+    inProgress: [],
+    todo: [],
+    done: [],
+  };
+  for (const item of items) {
+    if (isTerminalCategory(statusCategory(item.statusKey))) {
+      buckets.done.push(item);
+    } else if (
+      myId &&
+      item.ownerUserId === myId &&
+      OWNER_NOTIFIED_STATUSES.includes(item.statusKey)
+    ) {
+      buckets.waiting.push(item);
+    } else if (item.statusKey === IN_PROGRESS_STATUS) {
+      buckets.inProgress.push(item);
     } else {
-      setSelectedIdentifier(null);
+      buckets.todo.push(item);
     }
-  }, [items, selectedIdentifier]);
+  }
+  const groups: IssueGroup[] = [
+    {
+      key: 'waiting',
+      label: t('issues.groups.waitingForYou'),
+      items: buckets.waiting,
+    },
+    {
+      key: 'inProgress',
+      label: t('issues.groups.inProgress'),
+      items: buckets.inProgress,
+    },
+    { key: 'todo', label: t('issues.groups.backlog'), items: buckets.todo },
+    { key: 'done', label: t('issues.groups.done'), items: buckets.done },
+  ];
+
+  // The selection falls back to the first issue when nothing is chosen or the chosen one left the list.
+  const activeIdentifier = items.some(
+    (it) => it.identifier === selectedIdentifier,
+  )
+    ? selectedIdentifier
+    : (items[0]?.identifier ?? null);
 
   return (
     <div className='flex h-[calc(100vh-12rem)] w-full overflow-hidden rounded-xl border bg-card shadow-xs'>
@@ -159,7 +117,10 @@ export function IssueSplitView({
           {query.isPending && !query.data ? (
             <div className='space-y-3 p-2'>
               {[0, 1, 2, 3, 4].map((i) => (
-                <div key={i} className='h-16 w-full rounded-lg bg-muted/50 animate-pulse' />
+                <div
+                  key={i}
+                  className='h-16 w-full rounded-lg bg-muted/50 animate-pulse'
+                />
               ))}
             </div>
           ) : items.length === 0 ? (
@@ -180,13 +141,16 @@ export function IssueSplitView({
                 <div key={grp.key} className='space-y-1.5'>
                   <div className='flex items-center justify-between px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
                     <span>{grp.label}</span>
-                    <Badge variant='secondary' className='text-[10px] px-1.5 py-0 h-4'>
+                    <Badge
+                      variant='secondary'
+                      className='text-[10px] px-1.5 py-0 h-4'
+                    >
                       {grp.items.length}
                     </Badge>
                   </div>
                   <div className='space-y-1'>
                     {grp.items.map((item) => {
-                      const isSelected = item.identifier === selectedIdentifier;
+                      const isSelected = item.identifier === activeIdentifier;
                       const pres = statusPresenter(item.statusKey);
 
                       return (
@@ -205,9 +169,7 @@ export function IssueSplitView({
                             <span className='font-mono text-xs font-semibold text-primary truncate'>
                               {item.identifier}
                             </span>
-                            <IssueStatusBadge
-                              status={pres}
-                            />
+                            <IssueStatusBadge status={pres} />
                           </div>
 
                           <div className='text-sm font-medium line-clamp-2 break-all'>
@@ -256,8 +218,8 @@ export function IssueSplitView({
 
       {/* Right Pane: Selected Issue Detail */}
       <main className='flex-1 flex flex-col h-full min-w-0 bg-background overflow-y-auto'>
-        {selectedIdentifier ? (
-          <SplitDetailPane issueId={selectedIdentifier} />
+        {activeIdentifier ? (
+          <SplitDetailPane issueId={activeIdentifier} />
         ) : (
           <div className='flex h-full items-center justify-center p-6'>
             <Empty className='max-w-sm'>
@@ -266,9 +228,7 @@ export function IssueSplitView({
                   <ListTodoIcon className='size-8 text-muted-foreground' />
                 </EmptyMedia>
                 <EmptyTitle>{t('issues.title')}</EmptyTitle>
-                <EmptyDescription>
-                  {t('issues.selectToView', 'Chọn một công việc từ danh sách để xem chi tiết')}
-                </EmptyDescription>
+                <EmptyDescription>{t('issues.selectToView')}</EmptyDescription>
               </EmptyHeader>
             </Empty>
           </div>
@@ -278,7 +238,11 @@ export function IssueSplitView({
   );
 }
 
-function SplitDetailPane({ issueId }: { readonly issueId: string }): ReactElement {
+function SplitDetailPane({
+  issueId,
+}: {
+  readonly issueId: string;
+}): ReactElement {
   const { t } = useTranslation();
   const query = useIssueDetail(issueId);
 

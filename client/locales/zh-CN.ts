@@ -621,6 +621,16 @@ const zhCN: AppResource = {
       executor: '执行者',
       anyExecutor: '任意执行者',
     },
+    groups: {
+      waitingForYou: '需要你处理',
+      inProgress: '进行中',
+      backlog: '待办',
+      done: '已完成',
+    },
+    noIssues: '暂无任务。',
+    noMatchingIssues: '没有符合筛选条件的任务。',
+    clearFilters: '清除筛选',
+    selectToView: '从列表中选择一个任务以查看详情。',
     loadMore: '加载更多',
     loadingMore: '加载中…',
     table: {
@@ -660,6 +670,7 @@ const zhCN: AppResource = {
       all: '全部',
       needsMe: '需要我处理',
       inProgress: '进行中',
+      archived: '已归档',
     },
     groups: {
       today: '今天',
@@ -669,7 +680,16 @@ const zhCN: AppResource = {
     },
     archived: '已归档',
     archiveShortcut: 'E 归档',
-    empty: '暂无会话。',
+    empty: {
+      all: '暂无会话。',
+      needsMe: '没有需要你处理的会话。',
+      inProgress: '没有进行中的会话。',
+      archived: '暂无已归档的会话。',
+    },
+    untitled: '未命名会话',
+    issues: {
+      progress: '{{completed}}/{{total}} 个任务',
+    },
     emptyPrompt: '开始对话或为智能体安排新工作。',
     selectConversation: '从列表选择一个会话或开启新会话。',
     needsYou: '需要你 {{count}}',

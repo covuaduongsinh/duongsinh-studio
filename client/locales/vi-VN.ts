@@ -638,6 +638,16 @@ const viVN: AppResource = {
       executor: 'Người thực hiện',
       anyExecutor: 'Mọi người thực hiện',
     },
+    groups: {
+      waitingForYou: 'Cần bạn xử lý',
+      inProgress: 'Đang thực hiện',
+      backlog: 'Tồn đọng',
+      done: 'Đã hoàn thành',
+    },
+    noIssues: 'Chưa có công việc nào.',
+    noMatchingIssues: 'Không có công việc khớp bộ lọc.',
+    clearFilters: 'Xoá bộ lọc',
+    selectToView: 'Chọn một công việc trong danh sách để xem chi tiết.',
     loadMore: 'Tải thêm',
     loadingMore: 'Đang tải…',
     table: {
@@ -677,6 +687,7 @@ const viVN: AppResource = {
       all: 'Tất cả',
       needsMe: 'Cần tôi xử lý',
       inProgress: 'Đang thực hiện',
+      archived: 'Đã lưu trữ',
     },
     groups: {
       today: 'Hôm nay',
@@ -686,9 +697,19 @@ const viVN: AppResource = {
     },
     archived: 'Đã lưu trữ',
     archiveShortcut: 'E Lưu trữ',
-    empty: 'Chưa có phiên làm việc nào.',
+    empty: {
+      all: 'Chưa có phiên làm việc nào.',
+      needsMe: 'Không có phiên nào cần bạn xử lý.',
+      inProgress: 'Không có phiên nào đang thực hiện.',
+      archived: 'Chưa có phiên nào được lưu trữ.',
+    },
+    untitled: 'Phiên chưa đặt tên',
+    issues: {
+      progress: '{{completed}}/{{total}} công việc',
+    },
     emptyPrompt: 'Bắt đầu trao đổi hoặc giao việc mới cho agent.',
-    selectConversation: 'Chọn một phiên hội thoại từ danh sách hoặc bắt đầu phiên mới.',
+    selectConversation:
+      'Chọn một phiên hội thoại từ danh sách hoặc bắt đầu phiên mới.',
     needsYou: 'Cần bạn {{count}}',
     inProgressBadge: 'Đang làm',
     linkedIssues: '{{count}} công việc liên kết',

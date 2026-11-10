@@ -2,7 +2,6 @@ import {
   CHAT_MOBILE_QUERY,
   CHAT_PANEL_ATTRIBUTE,
   ChatPanelScope,
-  chatIsRunning,
   useChatPageTracking,
   useChatPanel,
   useConversation,
@@ -11,8 +10,6 @@ import {
   type ChatPanelValue,
 } from '@nocobase/app-plugin-agents/client/chat';
 import {
-  CONVERSATION_TITLE_MAX,
-  type ConversationDetail,
   type ConversationLink,
   type ConversationListQuery,
   type ConversationSummary,
@@ -21,13 +18,8 @@ import { useTranslation } from '@nocobase/i18n/client';
 import {
   ArchiveIcon,
   ArchiveRestoreIcon,
-  BotIcon,
-  CheckCircle2Icon,
   ChevronLeftIcon,
   CircleDotIcon,
-  ClockIcon,
-  ExternalLinkIcon,
-  FolderKanbanIcon,
   ListTodoIcon,
   MoreHorizontalIcon,
   PlusIcon,
@@ -73,10 +65,7 @@ import { cn } from 'cn';
 
 import { AgentLine } from '#extensions/nocobase-agent-chat/agent-status';
 import { useChatTranslation } from '#extensions/nocobase-agent-chat/chat-i18n';
-import {
-  ConversationView,
-  PAGE_COLUMN,
-} from '#extensions/nocobase-agent-chat/conversation-view';
+import { ConversationView } from '#extensions/nocobase-agent-chat/conversation-view';
 import { ConversationTitle } from '#extensions/nocobase-agent-chat/panel-header';
 import { useMediaQuery } from '#extensions/nocobase-agent-chat/use-media-query';
 
@@ -232,9 +221,7 @@ export default function SessionsPage(): ReactElement {
 
   const listQuery = useConversationList(query);
   const allItems = useMemo<ConversationSummary[]>(() => {
-    return (
-      listQuery.data?.pages.flatMap((page) => [...page.items]) ?? []
-    );
+    return listQuery.data?.pages.flatMap((page) => [...page.items]) ?? [];
   }, [listQuery.data]);
 
   // Tab filtering
@@ -485,7 +472,7 @@ export default function SessionsPage(): ReactElement {
                                 {item.needsYou && (
                                   <Badge
                                     variant='outline'
-                                    className='border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[10px] px-1.5 py-0'
+                                    className='border-(--status-warning)/30 bg-(--status-warning-background) text-(--status-warning) text-[10px] px-1.5 py-0'
                                   >
                                     {t('sessions.needsYou')}
                                   </Badge>
@@ -513,7 +500,7 @@ export default function SessionsPage(): ReactElement {
                                 <div className='flex h-1 w-full overflow-hidden rounded-full bg-muted/60 mt-0.5'>
                                   {progress.completedPercent > 0 && (
                                     <div
-                                      className='bg-emerald-500 transition-all'
+                                      className='bg-(--status-success) transition-all'
                                       style={{
                                         width: `${progress.completedPercent}%`,
                                       }}
@@ -521,7 +508,7 @@ export default function SessionsPage(): ReactElement {
                                   )}
                                   {progress.inProgressPercent > 0 && (
                                     <div
-                                      className='bg-amber-500 transition-all'
+                                      className='bg-(--status-warning) transition-all'
                                       style={{
                                         width: `${progress.inProgressPercent}%`,
                                       }}
@@ -616,7 +603,10 @@ function SessionDetailView({
   );
 
   return (
-    <div className='flex flex-col h-full min-h-0' data-conversation={conversationId}>
+    <div
+      className='flex flex-col h-full min-h-0'
+      data-conversation={conversationId}
+    >
       {/* Detail Header Bar */}
       <header className='flex shrink-0 items-center justify-between gap-3 px-4 py-2.5 border-b bg-card/40'>
         <div className='flex items-center gap-2 min-w-0 flex-1'>
@@ -666,7 +656,7 @@ function SessionDetailView({
                     </span>
                     <span className='inline-block w-12 h-1.5 rounded-full overflow-hidden bg-muted ml-1'>
                       <span
-                        className='h-full bg-emerald-500 block'
+                        className='h-full bg-(--status-success) block'
                         style={{ width: `${progress.completedPercent}%` }}
                       />
                     </span>
@@ -690,13 +680,13 @@ function SessionDetailView({
                   <div className='flex h-2 w-full overflow-hidden rounded-full bg-muted'>
                     {progress.completedPercent > 0 && (
                       <div
-                        className='bg-emerald-500'
+                        className='bg-(--status-success)'
                         style={{ width: `${progress.completedPercent}%` }}
                       />
                     )}
                     {progress.inProgressPercent > 0 && (
                       <div
-                        className='bg-amber-500'
+                        className='bg-(--status-warning)'
                         style={{ width: `${progress.inProgressPercent}%` }}
                       />
                     )}
@@ -764,7 +754,7 @@ function SessionDetailView({
                     {conversation.archivedAt ? (
                       <>
                         <ArchiveRestoreIcon className='size-4 mr-2' />
-                        {t('chat.restore')}
+                        {t('chat.unarchive')}
                       </>
                     ) : (
                       <>

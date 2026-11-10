@@ -53,13 +53,7 @@ const REL_NAMES = [
   'environments',
 ];
 
-const AGENT_NAMES = [
-  'agents',
-  'runtimes',
-  'skills',
-  'usage',
-  'models',
-];
+const AGENT_NAMES = ['agents', 'runtimes', 'skills', 'usage', 'models'];
 
 /**
  * Organizes Studio navigation items into distinct sections (Development, Releases, Agent Management)
@@ -101,10 +95,12 @@ export function groupStudioSections(
 
   // Top items (everything in others except settings)
   const settingsItem = others.find(
-    (item) => item.route.name === SETTINGS_GROUP || item.route.name === SETTINGS_HOME,
+    (item) =>
+      item.route.name === SETTINGS_GROUP || item.route.name === SETTINGS_HOME,
   );
   const topItems = others.filter(
-    (item) => item.route.name !== SETTINGS_GROUP && item.route.name !== SETTINGS_HOME,
+    (item) =>
+      item.route.name !== SETTINGS_GROUP && item.route.name !== SETTINGS_HOME,
   );
   result.push(...topItems);
 
