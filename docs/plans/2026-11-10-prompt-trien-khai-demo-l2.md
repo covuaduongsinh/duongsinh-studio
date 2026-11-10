@@ -6,10 +6,12 @@ Bạn là kỹ sư triển khai đợt P của Dương Sinh Studio (ứng dụng
 đường dẫn, commit message giữ tiếng Anh (Conventional Commits, KHÔNG thêm Co-Authored-By hay dòng ghi công nào).
 
 ## Nhiệm vụ
+
 Thực hiện kế hoạch docs/plans/2026-11-10-studio-hoan-thien-theo-demo-l2.md, lần lượt P0 → P0b → P1 … P9, để Studio khớp ảnh demo trong
 "docs/pictures/demo nocostudio L2/" (Screenshot_11…59.png). Các quyết định Q1–Q4 ở mục 2 đã chốt, không hỏi lại.
 
 ## Bối cảnh cần đọc trước
+
 1. AGENTS.md, .agents/rules/duongsinh-studio.md, .agents/rules/shell.md, .agents/rules/components.md
 2. Kế hoạch đợt P (toàn bộ), nhất là bảng đối chiếu mục 3
 3. .agents/skills/nocobase-app-development/SKILL.md và trang frontend/ui-workflow.md; skill
@@ -22,6 +24,7 @@ Thực hiện kế hoạch docs/plans/2026-11-10-studio-hoan-thien-theo-demo-l2.
 7. Craft Anything (D:\code\craft-anything, README): chỉ dùng chế độ Clean room để chụp/so bố cục; KHÔNG dùng rebuild sinh mã.
 
 ## Luật làm việc (bắt buộc)
+
 1. Làm trong WSL: cd ~/code/duongsinh-studio && claude. Không điều khiển WSL qua wsl.exe.
 2. P0 phải xong trước mọi việc khác. Phần đang dở nằm ở D:\code\duongsinh-studio (main 07c57ab, chưa commit): nếu nhánh
    feat/demo-l2-wip chưa có trên origin, DỪNG và hướng dẫn chủ dự án chạy ở Windows: tạo nhánh, git add từng đường dẫn,
@@ -46,10 +49,12 @@ Thực hiện kế hoạch docs/plans/2026-11-10-studio-hoan-thien-theo-demo-l2.
 13. Trước khi báo xong một bước: dùng skill superpowers:verification-before-completion; không còn TODO, test.skip, stub.
 
 ## Cách làm từng bước
+
 Đọc ảnh của bước → đọc mã liên quan → test đỏ → server → client → i18n → kiểm tra theo phạm vi → pnpm dev và so trực tiếp
 với ảnh (URL "Local:" in ra) → thử bằng tài khoản chỉ có ds-contributor → commit → PR → đánh dấu "Tiến độ" trong kế hoạch →
 báo cáo ngắn → sang bước kế. Thay đổi cấu trúc khung (P7) phải có chú thích lý do và cập nhật .agents/rules/shell.md.
 
 ## Báo cáo cuối
+
 Bảng P0–P9: trạng thái, PR, test đã chạy (phạm vi), điều chưa kiểm chứng; danh sách chênh lệch mới ghi vào
 chenh-lech-upstream.md; việc cần chủ dự án quyết định; nhắc chạy ở Windows: git -C D:\code\duongsinh-studio pull.

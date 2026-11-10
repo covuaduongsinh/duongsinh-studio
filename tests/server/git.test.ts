@@ -397,7 +397,8 @@ test('git connections, repositories, pull request sync, merge and run credential
       .status,
   );
 
-  // Passing checks: the pull request is squash-merged, the issue is done and says so.
+  // Passing checks: the pull request is squash-merged and the issue says so. An issue without `autoCompleteOnMerge`
+  // does not finish on a merge: it goes on (`in_progress`) so its people decide.
   github.checks = 'success';
   const merged = await admin.fetch(
     `/git/pullRequests/${pending.id}/merge`,
@@ -416,7 +417,7 @@ test('git connections, repositories, pull request sync, merge and run credential
   const after = (
     await (await admin.fetch(`/projects/issues/${issue.id}`)).json()
   ).data as { statusKey?: string; issue?: { statusKey: string } };
-  expect(after.issue?.statusKey ?? after.statusKey).toBe('done');
+  expect(after.issue?.statusKey ?? after.statusKey).toBe('in_progress');
   const threads = (
     await (await admin.fetch(`/projects/issues/${issue.id}/comments`)).json()
   ).data as { root: { content: string } }[];

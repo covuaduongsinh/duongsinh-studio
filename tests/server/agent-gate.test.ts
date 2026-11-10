@@ -78,7 +78,9 @@ test('the gate gives people their own actions and runs their agent’s within th
   expect([...DEFAULT_AGENT_ACTIONS].sort()).toEqual(
     [
       'pm.attachments/upload',
+      'pm.issues/close',
       'pm.issues/comment',
+      'pm.issues/create',
       'pm.issues/edit',
       'pm.issues/view',
       'pm.projects/view',
