@@ -1,0 +1,1846 @@
+{
+  "a11y": {
+    "images_without_alt": 0,
+    "landmarks": {
+      "banner": 2,
+      "main": 1,
+      "navigation": 2
+    },
+    "lang": "en-US",
+    "unnamed_controls": 2,
+    "unnamed_examples": [
+      "input",
+      "input"
+    ]
+  },
+  "assets": {
+    "images": [
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      }
+    ]
+  },
+  "design": {
+    "backgrounds": [
+      {
+        "count": 4,
+        "value": "#fafafa"
+      },
+      {
+        "count": 4,
+        "value": "#ffffff"
+      },
+      {
+        "count": 4,
+        "value": "#f2f2f2"
+      },
+      {
+        "count": 3,
+        "value": "#fe9a00"
+      },
+      {
+        "count": 2,
+        "value": "#fafafa99"
+      },
+      {
+        "count": 1,
+        "value": "#ebeefb"
+      },
+      {
+        "count": 1,
+        "value": "#fafafad9"
+      },
+      {
+        "count": 1,
+        "value": "#dedede99"
+      },
+      {
+        "count": 1,
+        "value": "#0027ce1a"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1"
+      },
+      {
+        "count": 1,
+        "value": "#fff6e5"
+      }
+    ],
+    "font_sizes": [
+      {
+        "count": 33,
+        "value": "14px"
+      },
+      {
+        "count": 14,
+        "value": "12px"
+      },
+      {
+        "count": 2,
+        "value": "16px"
+      },
+      {
+        "count": 1,
+        "value": "24px"
+      }
+    ],
+    "font_weights": [
+      {
+        "count": 27,
+        "value": "400"
+      },
+      {
+        "count": 19,
+        "value": "500"
+      },
+      {
+        "count": 4,
+        "value": "600"
+      }
+    ],
+    "fonts": [
+      {
+        "count": 50,
+        "value": "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      }
+    ],
+    "max_widths": [
+      {
+        "count": 1,
+        "value": "672px"
+      }
+    ],
+    "radii": [
+      {
+        "count": 25,
+        "value": "6.4px"
+      },
+      {
+        "count": 8,
+        "value": "8px"
+      },
+      {
+        "count": 6,
+        "value": "9999px"
+      },
+      {
+        "count": 4,
+        "value": "11.2px"
+      },
+      {
+        "count": 1,
+        "value": "4.8px"
+      }
+    ],
+    "shadows": [
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.985 0 0) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px"
+      }
+    ],
+    "spacing": [
+      {
+        "count": 105,
+        "value": "7.2px"
+      },
+      {
+        "count": 34,
+        "value": "12.6px"
+      },
+      {
+        "count": 34,
+        "value": "5.4px"
+      },
+      {
+        "count": 23,
+        "value": "1.8px"
+      },
+      {
+        "count": 19,
+        "value": "3.6px"
+      },
+      {
+        "count": 19,
+        "value": "14.4px"
+      },
+      {
+        "count": 17,
+        "value": "10.8px"
+      },
+      {
+        "count": 9,
+        "value": "9px"
+      },
+      {
+        "count": 5,
+        "value": "28.8px"
+      },
+      {
+        "count": 4,
+        "value": "18px"
+      },
+      {
+        "count": 4,
+        "value": "-1px"
+      },
+      {
+        "count": 4,
+        "value": "3px"
+      },
+      {
+        "count": 1,
+        "value": "21.6px"
+      }
+    ],
+    "text_colors": [
+      {
+        "count": 25,
+        "value": "#0d0d0d"
+      },
+      {
+        "count": 10,
+        "value": "#696969"
+      },
+      {
+        "count": 3,
+        "value": "#111826"
+      },
+      {
+        "count": 3,
+        "value": "#7a7a7a"
+      },
+      {
+        "count": 3,
+        "value": "#0d0d0d99"
+      },
+      {
+        "count": 2,
+        "value": "#002ad1"
+      },
+      {
+        "count": 2,
+        "value": "#1b1b1b"
+      },
+      {
+        "count": 1,
+        "value": "#0d0d0db3"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1cc"
+      }
+    ]
+  },
+  "forms": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Project memory"
+    },
+    {
+      "level": 2,
+      "text": "This is a demo. Changes cannot be saved."
+    }
+  ],
+  "lang": "en-US",
+  "layouts": [
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 1210,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 669,
+            "x": 259
+          },
+          "h": 842,
+          "heading": "Project memory",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 669,
+            "x": 259
+          },
+          "h": 389,
+          "heading": "Project memory",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 669,
+            "x": 259
+          },
+          "gap": 14,
+          "h": 58,
+          "heading": "Project memory",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 1152,
+          "y": 86
+        }
+      ],
+      "page_h": 900,
+      "page_w": 1440,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 14,
+        "h3": 0
+      },
+      "width": 1440
+    },
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 590,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 489,
+            "x": 259
+          },
+          "h": 842,
+          "heading": "Project memory",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 489,
+            "x": 259
+          },
+          "h": 469,
+          "heading": "Project memory",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 489,
+            "x": 259
+          },
+          "gap": 14,
+          "h": 79,
+          "heading": "Project memory",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 532,
+          "y": 86
+        }
+      ],
+      "page_h": 900,
+      "page_w": 820,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 14,
+        "h3": 0
+      },
+      "width": 820
+    },
+    {
+      "blocks": [
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            11,
+            0,
+            11
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 390,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "Project memory",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "main",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "h": 629,
+          "heading": "Project memory",
+          "pad": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "gap": 11,
+          "h": 29,
+          "heading": "Project memory",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 347,
+          "y": 79
+        }
+      ],
+      "page_h": 900,
+      "page_w": 390,
+      "type": {
+        "body": 14,
+        "h1": 20,
+        "h2": 14,
+        "h3": 0
+      },
+      "width": 390
+    }
+  ],
+  "links": [
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "text": "My issues 3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "text": "My sessions 1"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "text": "Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "text": "Issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "text": "Projects"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "text": "Knowledge"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "text": "Project memory"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Releases"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "text": "Hosted environments"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "text": "Agents"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "text": "Runtimes"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "text": "Skills"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "text": "Usage"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "text": "Settings"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "text": "3"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/dashboard/blob/03dcdf6b1bd409aaaba447702fb491c025c8087f/.nb-studio",
+      "text": "View in the Git repository"
+    }
+  ],
+  "outline": [
+    {
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main",
+      "tag": "a"
+    },
+    {
+      "alt": "NocoBase",
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/assets/logo.png",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 678,
+        "w": 229,
+        "x": 0,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 112,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "id": "base-ui-_r_n_",
+      "tag": "a",
+      "text": "My issues 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 76
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 103
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "id": "base-ui-_r_p_",
+      "tag": "a",
+      "text": "My sessions 1"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 113
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 140
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "id": "base-ui-_r_r_",
+      "tag": "a",
+      "text": "Dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 151
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Development Issues Projects Knowledge Project memory"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "id": "base-ui-_r_t_",
+      "tag": "a",
+      "text": "Issues"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 230
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 257
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "id": "base-ui-_r_v_",
+      "tag": "a",
+      "text": "Projects"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 268
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "id": "base-ui-_r_11_",
+      "tag": "a",
+      "text": "Knowledge"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 306
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#ebeefb",
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 333
+      },
+      "color": "#002ad1",
+      "depth": 13,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "id": "base-ui-_r_13_",
+      "tag": "a",
+      "text": "Project memory"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 344
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 117,
+        "w": 229,
+        "x": 0,
+        "y": 376
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Releases Releases Hosted environments"
+    },
+    {
+      "box": {
+        "h": 74,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "id": "base-ui-_r_15_",
+      "tag": "a",
+      "text": "Releases"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 423
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 450
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "id": "base-ui-_r_17_",
+      "tag": "a",
+      "text": "Hosted environments"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 461
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 493
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Agent management Agents Runtimes Skills Usage"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "id": "base-ui-_r_19_",
+      "tag": "a",
+      "text": "Agents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 540
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 567
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "id": "base-ui-_r_1b_",
+      "tag": "a",
+      "text": "Runtimes"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 578
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 605
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "id": "base-ui-_r_1d_",
+      "tag": "a",
+      "text": "Skills"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 615
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 642
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "id": "base-ui-_r_1f_",
+      "tag": "a",
+      "text": "Usage"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 653
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "id": "base-ui-_r_1h_",
+      "tag": "a",
+      "text": "Settings"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 704
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 18,
+        "y": 864
+      },
+      "color": "#0d0d0db3",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 900,
+        "w": 14,
+        "x": 222,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "background": "#fafafad9",
+      "box": {
+        "h": 58,
+        "w": 1210,
+        "x": 230,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 5,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 245,
+        "y": 12
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 254,
+        "y": 21
+      },
+      "color": "#696969",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 98,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 98,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#696969",
+      "depth": 8,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "ol"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 98,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "14px 500",
+      "role": "link",
+      "tag": "span",
+      "text": "Project memory"
+    },
+    {
+      "background": "#0027ce1a",
+      "box": {
+        "h": 29,
+        "w": 208,
+        "x": 1103,
+        "y": 14
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "12px 500",
+      "id": "base-ui-_r_7_",
+      "tag": "button",
+      "text": "Demo mode · Switch account"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1288,
+        "y": 22
+      },
+      "color": "#002ad1",
+      "depth": 8,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1318,
+        "y": 16
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "base-ui-_r_a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1323,
+        "y": 21
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 1350,
+        "y": 12
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "id": "base-ui-_r_c_",
+      "tag": "a",
+      "text": "3"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 16,
+        "x": 1358,
+        "y": 20
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 36,
+        "w": 36,
+        "x": 1390,
+        "y": 10
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "base-ui-_r_g_",
+      "tag": "button",
+      "text": "SA"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 6,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "main"
+    },
+    {
+      "box": {
+        "h": 201,
+        "w": 230,
+        "x": 1181,
+        "y": 58
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 389,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 58,
+        "w": 1152,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 669,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "24px 600",
+      "tag": "h1",
+      "text": "Project memory"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 669,
+        "x": 259,
+        "y": 122
+      },
+      "color": "#696969",
+      "depth": 11,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Agents note what they learn in issues and read it before starting the next one, so mistakes are not repeated."
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 1382,
+        "y": 115
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "14px 500",
+      "id": "base-ui-_r_1j_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1390,
+        "y": 122
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 55,
+        "w": 202,
+        "x": 259,
+        "y": 166
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Project Business Dashboard"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 202,
+        "x": 259,
+        "y": 192
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "14px 400",
+      "id": "project-memory-project",
+      "role": "combobox",
+      "tag": "button",
+      "text": "Business Dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 438,
+        "y": 199
+      },
+      "color": "#696969",
+      "depth": 13,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "16px 400",
+      "id": "base-ui-_r_1k_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 55,
+        "w": 230,
+        "x": 472,
+        "y": 166
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Repository acme-demo/dashboard"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 230,
+        "x": 472,
+        "y": 192
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "14px 400",
+      "id": "project-memory-repo",
+      "role": "combobox",
+      "tag": "button",
+      "text": "acme-demo/dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 679,
+        "y": 199
+      },
+      "color": "#696969",
+      "depth": 13,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "16px 400",
+      "id": "base-ui-_r_1o_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1190,
+        "y": 199
+      },
+      "color": "#696969",
+      "depth": 12,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 230,
+        "x": 1181,
+        "y": 192
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "14px 400",
+      "id": "base-ui-_r_1n_",
+      "name": "",
+      "placeholder": "Search memories",
+      "tag": "input",
+      "type": "search"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 172,
+        "x": 568,
+        "y": 235
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "14px 400",
+      "href": "https://github.example.com/acme-demo/dashboard/blob/03dcdf6b1bd409aaaba447702fb491c025c8087f/.nb-studio",
+      "tag": "a",
+      "text": "View in the Git repository"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 727,
+        "y": 238
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 29,
+        "w": 289,
+        "x": 259,
+        "y": 269
+      },
+      "color": "#696969",
+      "depth": 13,
+      "font": "16px 400",
+      "role": "tablist",
+      "tag": "div",
+      "text": "All 2 Feedback 1 Project 1 Reference 0"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 22,
+        "w": 40,
+        "x": 262,
+        "y": 272
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 500",
+      "id": "base-ui-_r_1r_",
+      "role": "tab",
+      "tag": "button",
+      "text": "All 2"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 86,
+        "x": 302,
+        "y": 272
+      },
+      "color": "#0d0d0d99",
+      "depth": 14,
+      "font": "14px 500",
+      "id": "base-ui-_r_1s_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Feedback 1"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 68,
+        "x": 388,
+        "y": 272
+      },
+      "color": "#0d0d0d99",
+      "depth": 14,
+      "font": "14px 500",
+      "id": "base-ui-_r_1t_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Project 1"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 89,
+        "x": 456,
+        "y": 272
+      },
+      "color": "#0d0d0d99",
+      "depth": 14,
+      "font": "14px 500",
+      "id": "base-ui-_r_1u_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Reference 0"
+    },
+    {
+      "box": {
+        "h": 106,
+        "w": 1152,
+        "x": 259,
+        "y": 312
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "display": "grid",
+      "font": "16px 400",
+      "grid": "570.609px 570.609px",
+      "tag": "ul"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 106,
+        "w": 571,
+        "x": 259,
+        "y": 312
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "16px 400",
+      "tag": "button",
+      "text": "missing-data Project Distinguish an empty reporting period from missing source data 5 days ago"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 106,
+        "w": 571,
+        "x": 841,
+        "y": 312
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "16px 400",
+      "tag": "button",
+      "text": "reporting-cohort Feedback Compare funnel figures using the same cohort and filters 5 days ago"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 97,
+        "w": 352,
+        "x": 1074,
+        "y": 789
+      },
+      "color": "#0d0d0d",
+      "depth": 4,
+      "font": "16px 400",
+      "role": "dialog",
+      "tag": "div",
+      "text": "This is a demo. Changes cannot be saved. Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1094,
+        "y": 809
+      },
+      "color": "#964f0a",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 42,
+        "w": 253,
+        "x": 1125,
+        "y": 804
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "_r_k_",
+      "tag": "h2",
+      "text": "This is a demo. Changes cannot be saved."
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 253,
+        "x": 1125,
+        "y": 850
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "_r_l_",
+      "tag": "p",
+      "text": "Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1389,
+        "y": 804
+      },
+      "color": "#696969",
+      "depth": 6,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1392,
+        "y": 808
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "svg"
+    }
+  ],
+  "page": {
+    "h": 900,
+    "w": 1440
+  },
+  "text": "My issues 3 My sessions 1 Dashboard Development Issues Projects Knowledge Project memory Releases Releases Hosted environments Agent management Agents Runtimes Skills Usage Settings NocoBase Studio v1.0.0-beta.75 Project memory Demo mode · Switch account 3 SA Project memory Agents note what they learn in issues and read it before starting the next one, so mistakes are not repeated. Project Business Dashboard Repository acme-demo/dashboard From main@03dcdf6 · checked just now · 2 / 50 View in the Git repository All 2 Feedback 1 Project 1 Reference 0 missing-data Project Distinguish an empty reporting period from missing source data 5 days ago reporting-cohort Feedback Compare funnel figures using the same cohort and filters 5 days ago This is a demo. Changes cannot be saved. Everything else works as usual.",
+  "title": "(3) NocoBase Studio",
+  "url": "https://studio.demo.nocobase.com/main/project-memory",
+  "viewport": {
+    "h": 900,
+    "w": 1440
+  }
+}

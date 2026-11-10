@@ -1,0 +1,2815 @@
+{
+  "a11y": {
+    "images_without_alt": 0,
+    "landmarks": {
+      "banner": 2,
+      "main": 1,
+      "navigation": 2
+    },
+    "lang": "en-US",
+    "unnamed_controls": 0,
+    "unnamed_examples": []
+  },
+  "assets": {
+    "images": [
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      }
+    ]
+  },
+  "design": {
+    "backgrounds": [
+      {
+        "count": 11,
+        "value": "#ffffff"
+      },
+      {
+        "count": 10,
+        "value": "#f2f2f2"
+      },
+      {
+        "count": 6,
+        "value": "#002ad1"
+      },
+      {
+        "count": 3,
+        "value": "#fafafa"
+      },
+      {
+        "count": 3,
+        "value": "#fe9a00"
+      },
+      {
+        "count": 3,
+        "value": "#dedede99"
+      },
+      {
+        "count": 2,
+        "value": "#fafafa99"
+      },
+      {
+        "count": 1,
+        "value": "#ebeefb"
+      },
+      {
+        "count": 1,
+        "value": "#fafafad9"
+      },
+      {
+        "count": 1,
+        "value": "#0027ce1a"
+      },
+      {
+        "count": 1,
+        "value": "#696969"
+      },
+      {
+        "count": 1,
+        "value": "#f54a00"
+      },
+      {
+        "count": 1,
+        "value": "#e7000b"
+      },
+      {
+        "count": 1,
+        "value": "#f6f6f6"
+      },
+      {
+        "count": 1,
+        "value": "#fff6e5"
+      }
+    ],
+    "font_sizes": [
+      {
+        "count": 87,
+        "value": "12px"
+      },
+      {
+        "count": 80,
+        "value": "14px"
+      },
+      {
+        "count": 6,
+        "value": "16px"
+      },
+      {
+        "count": 5,
+        "value": "20px"
+      },
+      {
+        "count": 4,
+        "value": "30px"
+      },
+      {
+        "count": 1,
+        "value": "24px"
+      }
+    ],
+    "font_weights": [
+      {
+        "count": 125,
+        "value": "400"
+      },
+      {
+        "count": 40,
+        "value": "500"
+      },
+      {
+        "count": 18,
+        "value": "600"
+      }
+    ],
+    "fonts": [
+      {
+        "count": 168,
+        "value": "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      },
+      {
+        "count": 15,
+        "value": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace"
+      }
+    ],
+    "max_widths": [
+      {
+        "count": 5,
+        "value": "230.4px"
+      },
+      {
+        "count": 1,
+        "value": "672px"
+      }
+    ],
+    "radii": [
+      {
+        "count": 28,
+        "value": "6.4px"
+      },
+      {
+        "count": 25,
+        "value": "9999px"
+      },
+      {
+        "count": 21,
+        "value": "4.8px"
+      },
+      {
+        "count": 11,
+        "value": "11.2px"
+      },
+      {
+        "count": 9,
+        "value": "11.2px 11.2px 0px 0px"
+      },
+      {
+        "count": 5,
+        "value": "8px"
+      },
+      {
+        "count": 4,
+        "value": "2px"
+      }
+    ],
+    "shadows": [
+      {
+        "count": 9,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.9 0 0 / 0.6) 0px 0px 0px 1px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.985 0 0) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px"
+      }
+    ],
+    "spacing": [
+      {
+        "count": 209,
+        "value": "7.2px"
+      },
+      {
+        "count": 112,
+        "value": "10.8px"
+      },
+      {
+        "count": 92,
+        "value": "14.4px"
+      },
+      {
+        "count": 50,
+        "value": "3.6px"
+      },
+      {
+        "count": 48,
+        "value": "5.4px"
+      },
+      {
+        "count": 34,
+        "value": "12.6px"
+      },
+      {
+        "count": 29,
+        "value": "1.8px"
+      },
+      {
+        "count": 12,
+        "value": "9px"
+      },
+      {
+        "count": 6,
+        "value": "28.8px"
+      },
+      {
+        "count": 6,
+        "value": "-7.2px"
+      },
+      {
+        "count": 5,
+        "value": "18px"
+      },
+      {
+        "count": 4,
+        "value": "21.6px"
+      }
+    ],
+    "text_colors": [
+      {
+        "count": 94,
+        "value": "#0d0d0d"
+      },
+      {
+        "count": 55,
+        "value": "#696969"
+      },
+      {
+        "count": 14,
+        "value": "#e7000b"
+      },
+      {
+        "count": 5,
+        "value": "#202020"
+      },
+      {
+        "count": 4,
+        "value": "#002ad1"
+      },
+      {
+        "count": 3,
+        "value": "#111826"
+      },
+      {
+        "count": 3,
+        "value": "#7a7a7a"
+      },
+      {
+        "count": 3,
+        "value": "#1b1b1b"
+      },
+      {
+        "count": 1,
+        "value": "#0d0d0db3"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1cc"
+      }
+    ]
+  },
+  "forms": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Dashboard"
+    },
+    {
+      "level": 3,
+      "text": "Runs by outcome"
+    },
+    {
+      "level": 2,
+      "text": "Needs attention"
+    },
+    {
+      "level": 2,
+      "text": "This is a demo. Changes cannot be saved."
+    }
+  ],
+  "lang": "en-US",
+  "layouts": [
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 1210,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 388,
+            "x": 259
+          },
+          "h": 842,
+          "heading": "Dashboard",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 5,
+          "tag": "main",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 388,
+            "x": 259
+          },
+          "h": 1722,
+          "heading": "Dashboard",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 5,
+          "tag": "section",
+          "w": 1204,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 388,
+            "x": 259
+          },
+          "gap": 14,
+          "h": 58,
+          "heading": "Dashboard",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 1146,
+          "y": 86
+        },
+        {
+          "gap": 14,
+          "h": 575,
+          "heading": "Needs attention",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 1146,
+          "y": 842
+        }
+      ],
+      "page_h": 900,
+      "page_w": 1440,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 16,
+        "h3": 14
+      },
+      "width": 1440
+    },
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 590,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 282,
+            "x": 259
+          },
+          "h": 842,
+          "heading": "Dashboard",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "main",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 282,
+            "x": 259
+          },
+          "h": 2034,
+          "heading": "Dashboard",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 584,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 282,
+            "x": 259
+          },
+          "gap": 14,
+          "h": 79,
+          "heading": "Dashboard",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 526,
+          "y": 86
+        },
+        {
+          "gap": 14,
+          "h": 597,
+          "heading": "Needs attention",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 526,
+          "y": 1126
+        }
+      ],
+      "page_h": 900,
+      "page_w": 820,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 16,
+        "h3": 14
+      },
+      "width": 820
+    },
+    {
+      "blocks": [
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            11,
+            0,
+            11
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 390,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "Dashboard",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "main",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "h": 2861,
+          "heading": "Dashboard",
+          "pad": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 384,
+          "y": 58
+        },
+        {
+          "gap": 11,
+          "h": 29,
+          "heading": "Dashboard",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "header",
+          "w": 341,
+          "y": 79
+        },
+        {
+          "gap": 14,
+          "h": 838,
+          "heading": "Needs attention",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 341,
+          "y": 1699
+        }
+      ],
+      "page_h": 900,
+      "page_w": 390,
+      "type": {
+        "body": 14,
+        "h1": 20,
+        "h2": 16,
+        "h3": 14
+      },
+      "width": 390
+    }
+  ],
+  "links": [
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "text": "My issues 3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "text": "My sessions 1"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "text": "Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "text": "Issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "text": "Projects"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "text": "Knowledge"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "text": "Project memory"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Releases"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "text": "Hosted environments"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "text": "Agents"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "text": "Runtimes"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "text": "Skills"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "text": "Usage"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "text": "Settings"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "text": "3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "text": "View all"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6401",
+      "text": "PM-6401 Reject field task closure when part quantities do not reconcile"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6415",
+      "text": "PM-6415 Keep unresolved asset warnings visible above completed repairs"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6388",
+      "text": "PM-6388 Connect the push notification service"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6385",
+      "text": "PM-6385 Require customer logo approval before publishing a story"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6329",
+      "text": "PM-6329 Cancel stale search responses when the query changes"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6387",
+      "text": "PM-6387 Sign-in screen and staying signed in"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6389",
+      "text": "PM-6389 Browse cached issues while offline"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6392",
+      "text": "PM-6392 Offer manual asset entry when camera permission is denied"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6393",
+      "text": "PM-6393 Require a unique asset match before opening a repair"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6400",
+      "text": "PM-6400 Retain the reason when a damaged part cannot return to stock"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/platform/pull/136",
+      "text": "acme-demo/platform#136 Copy approved project settings without copying members"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/website/pull/161",
+      "text": "acme-demo/website#161 Replace expired campaign forms with a clear closing notice"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/crm/pull/179",
+      "text": "acme-demo/crm#179 Require missing address fields before saving a contract"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/dashboard/pull/253",
+      "text": "acme-demo/dashboard#253 Explain settlement fee differences without classifying them as missing sales"
+    },
+    {
+      "href": "https://github.example.com/acme-demo/dashboard/pull/301",
+      "text": "acme-demo/dashboard#301 Use monthly partitions for quarterly report scans"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "text": "View all"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects/396925301948418",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects/396925301948430",
+      "text": "Business Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects/396925299851264",
+      "text": "Studio Platform"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects/396925299851278",
+      "text": "Website Redesign"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects/396925299851290",
+      "text": "Mobile App"
+    }
+  ],
+  "outline": [
+    {
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main",
+      "tag": "a"
+    },
+    {
+      "alt": "NocoBase",
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/assets/logo.png",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 678,
+        "w": 229,
+        "x": 0,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 112,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "id": "base-ui-_r_n_",
+      "tag": "a",
+      "text": "My issues 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 76
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 103
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "id": "base-ui-_r_p_",
+      "tag": "a",
+      "text": "My sessions 1"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 113
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#ebeefb",
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 140
+      },
+      "color": "#002ad1",
+      "depth": 13,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "id": "base-ui-_r_r_",
+      "tag": "a",
+      "text": "Dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 151
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Development Issues Projects Knowledge Project memory"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "id": "base-ui-_r_t_",
+      "tag": "a",
+      "text": "Issues"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 230
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 257
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "id": "base-ui-_r_v_",
+      "tag": "a",
+      "text": "Projects"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 268
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "id": "base-ui-_r_11_",
+      "tag": "a",
+      "text": "Knowledge"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 306
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 333
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "id": "base-ui-_r_13_",
+      "tag": "a",
+      "text": "Project memory"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 344
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 117,
+        "w": 229,
+        "x": 0,
+        "y": 376
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Releases Releases Hosted environments"
+    },
+    {
+      "box": {
+        "h": 74,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "id": "base-ui-_r_15_",
+      "tag": "a",
+      "text": "Releases"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 423
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 450
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "id": "base-ui-_r_17_",
+      "tag": "a",
+      "text": "Hosted environments"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 461
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 493
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Agent management Agents Runtimes Skills Usage"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "id": "base-ui-_r_19_",
+      "tag": "a",
+      "text": "Agents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 540
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 567
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "id": "base-ui-_r_1b_",
+      "tag": "a",
+      "text": "Runtimes"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 578
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 605
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "id": "base-ui-_r_1d_",
+      "tag": "a",
+      "text": "Skills"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 615
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 642
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "id": "base-ui-_r_1f_",
+      "tag": "a",
+      "text": "Usage"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 653
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "id": "base-ui-_r_1h_",
+      "tag": "a",
+      "text": "Settings"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 704
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 18,
+        "y": 864
+      },
+      "color": "#0d0d0db3",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 900,
+        "w": 14,
+        "x": 222,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "background": "#fafafad9",
+      "box": {
+        "h": 58,
+        "w": 1210,
+        "x": 230,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 5,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 245,
+        "y": 12
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 254,
+        "y": 21
+      },
+      "color": "#696969",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 69,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 69,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#696969",
+      "depth": 8,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "ol"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 69,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "14px 500",
+      "role": "link",
+      "tag": "span",
+      "text": "Dashboard"
+    },
+    {
+      "background": "#0027ce1a",
+      "box": {
+        "h": 29,
+        "w": 208,
+        "x": 1103,
+        "y": 14
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "12px 500",
+      "id": "base-ui-_r_7_",
+      "tag": "button",
+      "text": "Demo mode · Switch account"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1288,
+        "y": 22
+      },
+      "color": "#002ad1",
+      "depth": 8,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1318,
+        "y": 16
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "base-ui-_r_a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1323,
+        "y": 21
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 1350,
+        "y": 12
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "id": "base-ui-_r_c_",
+      "tag": "a",
+      "text": "3"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 16,
+        "x": 1358,
+        "y": 20
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 36,
+        "w": 36,
+        "x": 1390,
+        "y": 10
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "base-ui-_r_g_",
+      "tag": "button",
+      "text": "SA"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 6,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "main"
+    },
+    {
+      "box": {
+        "h": 201,
+        "w": 230,
+        "x": 1181,
+        "y": 58
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1722,
+        "w": 1204,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 58,
+        "w": 1146,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 388,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "24px 600",
+      "tag": "h1",
+      "text": "Dashboard"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 388,
+        "x": 259,
+        "y": 122
+      },
+      "color": "#696969",
+      "depth": 11,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "How delivery goes, how the agents perform, and what is stuck."
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 194,
+        "x": 1175,
+        "y": 117
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "7 days 30 days 90 days"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 55,
+        "x": 1175,
+        "y": 117
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "7 days"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 25,
+        "w": 62,
+        "x": 1238,
+        "y": 117
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "30 days"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 62,
+        "x": 1307,
+        "y": 117
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "90 days"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 1376,
+        "y": 115
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "14px 500",
+      "id": "base-ui-_r_1m_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1384,
+        "y": 122
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 388,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 400",
+      "id": "base-ui-_r_1o_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 388,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 274,
+        "y": 249
+      },
+      "color": "#002ad1",
+      "depth": 15,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 247,
+        "x": 274,
+        "y": 278
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "12px 400",
+      "role": "img",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 247,
+        "x": 274,
+        "y": 278
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "12px 400",
+      "role": "application",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 681,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 400",
+      "id": "base-ui-_r_1r_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 681,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 564,
+        "y": 249
+      },
+      "color": "#e7000b",
+      "depth": 15,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 247,
+        "x": 564,
+        "y": 278
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "12px 400",
+      "role": "img",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 247,
+        "x": 564,
+        "y": 278
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "12px 400",
+      "role": "application",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 991,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 400",
+      "id": "base-ui-_r_1u_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 991,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 247,
+        "x": 854,
+        "y": 278
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "12px 400",
+      "role": "img",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 247,
+        "x": 854,
+        "y": 278
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "12px 400",
+      "role": "application",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1239,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 400",
+      "id": "base-ui-_r_21_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1239,
+        "y": 183
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1144,
+        "y": 249
+      },
+      "color": "#e7000b",
+      "depth": 15,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 247,
+        "x": 1144,
+        "y": 278
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "12px 400",
+      "role": "img",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 247,
+        "x": 1144,
+        "y": 278
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "font": "12px 400",
+      "role": "application",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 387,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 400",
+      "id": "base-ui-_r_2c_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 387,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 274,
+        "y": 484
+      },
+      "color": "#e7000b",
+      "depth": 16,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 582,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 400",
+      "id": "base-ui-_r_2e_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 582,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 501,
+        "y": 484
+      },
+      "color": "#002ad1",
+      "depth": 16,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 828,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 400",
+      "id": "base-ui-_r_2g_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 828,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 729,
+        "y": 484
+      },
+      "color": "#e7000b",
+      "depth": 16,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1084,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 400",
+      "id": "base-ui-_r_2i_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1084,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 957,
+        "y": 484
+      },
+      "color": "#e7000b",
+      "depth": 16,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1308,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 16,
+      "font": "14px 400",
+      "id": "base-ui-_r_2k_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1308,
+        "y": 434
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#dedede99",
+      "box": {
+        "h": 1,
+        "w": 1117,
+        "x": 274,
+        "y": 520
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "role": "separator",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 1117,
+        "x": 274,
+        "y": 542
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 500",
+      "tag": "h3",
+      "text": "Runs by outcome"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 1117,
+        "x": 274,
+        "y": 563
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Runs queued each day, by how they ended so far."
+    },
+    {
+      "box": {
+        "h": 202,
+        "w": 1117,
+        "x": 274,
+        "y": 597
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "12px 400",
+      "role": "application",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 575,
+        "w": 1146,
+        "x": 259,
+        "y": 842
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 1146,
+        "x": 259,
+        "y": 842
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "16px 500",
+      "tag": "h2",
+      "text": "Needs attention"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 1146,
+        "x": 259,
+        "y": 866
+      },
+      "color": "#696969",
+      "depth": 12,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Only what is stuck or late now."
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 68,
+        "x": 743,
+        "y": 914
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "role": "button",
+      "tag": "a",
+      "text": "View all"
+    },
+    {
+      "box": {
+        "h": 172,
+        "w": 537,
+        "x": 274,
+        "y": 947
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 457,
+        "x": 274,
+        "y": 954
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6401",
+      "tag": "a",
+      "text": "PM-6401 Reject field task closure when part quantities do not reconcile"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 457,
+        "x": 274,
+        "y": 988
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6415",
+      "tag": "a",
+      "text": "PM-6415 Keep unresolved asset warnings visible above completed repairs"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 457,
+        "x": 274,
+        "y": 1023
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6388",
+      "tag": "a",
+      "text": "PM-6388 Connect the push notification service"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 464,
+        "x": 274,
+        "y": 1058
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6385",
+      "tag": "a",
+      "text": "PM-6385 Require customer logo approval before publishing a story"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 464,
+        "x": 274,
+        "y": 1092
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6329",
+      "tag": "a",
+      "text": "PM-6329 Cancel stale search responses when the query changes"
+    },
+    {
+      "box": {
+        "h": 27,
+        "w": 537,
+        "x": 274,
+        "y": 1111
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "6 more"
+    },
+    {
+      "box": {
+        "h": 172,
+        "w": 537,
+        "x": 854,
+        "y": 943
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 473,
+        "x": 854,
+        "y": 950
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6387",
+      "tag": "a",
+      "text": "PM-6387 Sign-in screen and staying signed in"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 473,
+        "x": 854,
+        "y": 985
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6389",
+      "tag": "a",
+      "text": "PM-6389 Browse cached issues while offline"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 473,
+        "x": 854,
+        "y": 1019
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6392",
+      "tag": "a",
+      "text": "PM-6392 Offer manual asset entry when camera permission is denied"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 473,
+        "x": 854,
+        "y": 1054
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6393",
+      "tag": "a",
+      "text": "PM-6393 Require a unique asset match before opening a repair"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 473,
+        "x": 854,
+        "y": 1089
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6400",
+      "tag": "a",
+      "text": "PM-6400 Retain the reason when a damaged part cannot return to stock"
+    },
+    {
+      "box": {
+        "h": 27,
+        "w": 537,
+        "x": 854,
+        "y": 1108
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "11 more"
+    },
+    {
+      "box": {
+        "h": 172,
+        "w": 537,
+        "x": 274,
+        "y": 1211
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 444,
+        "x": 274,
+        "y": 1218
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://github.example.com/acme-demo/platform/pull/136",
+      "tag": "a",
+      "text": "acme-demo/platform#136 Copy approved project settings without copying members"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 705,
+        "y": 1221
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 444,
+        "x": 274,
+        "y": 1252
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://github.example.com/acme-demo/website/pull/161",
+      "tag": "a",
+      "text": "acme-demo/website#161 Replace expired campaign forms with a clear closing notice"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 705,
+        "y": 1256
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 444,
+        "x": 274,
+        "y": 1287
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://github.example.com/acme-demo/crm/pull/179",
+      "tag": "a",
+      "text": "acme-demo/crm#179 Require missing address fields before saving a contract"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 705,
+        "y": 1290
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 444,
+        "x": 274,
+        "y": 1321
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://github.example.com/acme-demo/dashboard/pull/253",
+      "tag": "a",
+      "text": "acme-demo/dashboard#253 Explain settlement fee differences without classifying them as missing sales"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 705,
+        "y": 1325
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 444,
+        "x": 274,
+        "y": 1356
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 400",
+      "href": "https://github.example.com/acme-demo/dashboard/pull/301",
+      "tag": "a",
+      "text": "acme-demo/dashboard#301 Use monthly partitions for quarterly report scans"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 705,
+        "y": 1359
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 27,
+        "w": 537,
+        "x": 274,
+        "y": 1375
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "24 more"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 68,
+        "x": 1323,
+        "y": 1460
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "role": "button",
+      "tag": "a",
+      "text": "View all"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 230,
+        "x": 285,
+        "y": 1571
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/projects/396925301948418",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 5,
+        "w": 72,
+        "x": 547,
+        "y": 1577
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "14px 400",
+      "role": "progressbar",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 230,
+        "x": 285,
+        "y": 1605
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/projects/396925301948430",
+      "tag": "a",
+      "text": "Business Dashboard"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 5,
+        "w": 72,
+        "x": 547,
+        "y": 1612
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "14px 400",
+      "role": "progressbar",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 230,
+        "x": 285,
+        "y": 1640
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/projects/396925299851264",
+      "tag": "a",
+      "text": "Studio Platform"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 5,
+        "w": 72,
+        "x": 547,
+        "y": 1647
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "14px 400",
+      "role": "progressbar",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 230,
+        "x": 285,
+        "y": 1674
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/projects/396925299851278",
+      "tag": "a",
+      "text": "Website Redesign"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 5,
+        "w": 72,
+        "x": 547,
+        "y": 1681
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "14px 400",
+      "role": "progressbar",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 230,
+        "x": 285,
+        "y": 1709
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/projects/396925299851290",
+      "tag": "a",
+      "text": "Mobile App"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 5,
+        "w": 72,
+        "x": 547,
+        "y": 1716
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "14px 400",
+      "role": "progressbar",
+      "tag": "div"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 97,
+        "w": 352,
+        "x": 1074,
+        "y": 789
+      },
+      "color": "#0d0d0d",
+      "depth": 4,
+      "font": "16px 400",
+      "role": "dialog",
+      "tag": "div",
+      "text": "This is a demo. Changes cannot be saved. Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1094,
+        "y": 809
+      },
+      "color": "#964f0a",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 42,
+        "w": 253,
+        "x": 1125,
+        "y": 804
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "_r_k_",
+      "tag": "h2",
+      "text": "This is a demo. Changes cannot be saved."
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 253,
+        "x": 1125,
+        "y": 850
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "_r_l_",
+      "tag": "p",
+      "text": "Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1389,
+        "y": 804
+      },
+      "color": "#696969",
+      "depth": 6,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1392,
+        "y": 808
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "svg"
+    }
+  ],
+  "page": {
+    "h": 900,
+    "w": 1440
+  },
+  "text": "My issues 3 My sessions 1 Dashboard Development Issues Projects Knowledge Project memory Releases Releases Hosted environments Agent management Agents Runtimes Skills Usage Settings NocoBase Studio v1.0.0-beta.75 Dashboard Demo mode · Switch account 3 SA Dashboard How delivery goes, how the agents perform, and what is stuck. 7 days 30 days 90 days Issues completed 73 +4% vs 70 before Median cycle time 4 days +13% vs 3.6 days before Completed by agents 100% No change vs 100% before Cost per issue $2.69 +20% vs $2.24 before Agent performance How agents’ work went in the period, against the period before. Run success rate 99% −0 pts Rework rate 11% −0 pts Runs per issue 9 +3% Human intervention 2% +0 pts Median queue wait 1 min No change Runs by outcome Runs queued each day, by how they ended so far. Cancelled Completed Failed In progress 10/13 10/15 10/17 10/19 10/21 10/23 10/25 10/27 10/29 10/31 11/2 11/4 11/6 11/8 11/10 0 20 40 60 80 Needs attention Only what is stuck or late now. Blocked 11 View all PM-6401 Reject field task closure when part quantities do not reconcile for 30.5 days PM-6415 Keep unresolved asset warnings visible above completed repairs for 30.4 days PM-6388 Connect the push notification service for 29.3 days PM-6385 Require customer logo approval before publishing a story for 4.5 days PM-6329 Cancel stale search responses when the query changes for 4.2 days 6 more Overdue 16 PM-6387 Sign-in screen and staying signed in due 10/19 PM-6389 Browse cached issues while offline due 10/19 PM-6392 Offer manual asset entry when camera permission is denied due 10/19 PM-6393 Require a unique asset match before opening a repair due 10/19 PM-6400 Retain the reason when a damaged part cannot return to stock due 10/19 11 more Waiting for review over 2 days 29 acme-demo/platform#136 Copy approved project settings without copying members open 20.3 days acme-demo/website#161 Replace expired campaign forms with a clear closing notice open 20.1 days acme-demo/crm#179 Require missing address fields before saving a contract open 18.8 days acme-demo/dashboard#253 Explain settlement fee differences without classifying them as missing sales open 15.2 days acme-demo/dashboard#301 Use monthly partitions for quarterly report scans open 13.9 days 24 more By project Each project you can see: progress now, and delivery in the period. View all Project Progress Completed Median cycle time Blocked CRM System 78/97 · 80% 33 4.1 days 2 Business Dashboard 53/63 · 84% 19 3.8 days 0 Studio Platform 29/48 · 60% 8 3.3 days 3 Website Redesign 20/43 · 47% 7 4 days 3 Mobile App 23/38 · 61% 6 4.5 days 3 This is a demo. Changes cannot be saved. Everything else works as usual. 10/12",
+  "title": "(3) NocoBase Studio",
+  "url": "https://studio.demo.nocobase.com/main/dashboard",
+  "viewport": {
+    "h": 900,
+    "w": 1440
+  }
+}

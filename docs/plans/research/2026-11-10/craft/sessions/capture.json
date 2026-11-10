@@ -1,0 +1,3307 @@
+{
+  "a11y": {
+    "images_without_alt": 0,
+    "landmarks": {
+      "banner": 2,
+      "complementary": 1,
+      "main": 1,
+      "navigation": 2
+    },
+    "lang": "en-US",
+    "unnamed_controls": 2,
+    "unnamed_examples": [
+      "input",
+      "input"
+    ]
+  },
+  "assets": {
+    "images": [
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      }
+    ]
+  },
+  "design": {
+    "backgrounds": [
+      {
+        "count": 12,
+        "value": "#ffffff"
+      },
+      {
+        "count": 7,
+        "value": "#fafafa"
+      },
+      {
+        "count": 6,
+        "value": "#f2f2f2"
+      },
+      {
+        "count": 6,
+        "value": "#155dfc"
+      },
+      {
+        "count": 5,
+        "value": "#009966"
+      },
+      {
+        "count": 4,
+        "value": "#fe9a00"
+      },
+      {
+        "count": 4,
+        "value": "#ff9a0026"
+      },
+      {
+        "count": 3,
+        "value": "#0027ce1a"
+      },
+      {
+        "count": 3,
+        "value": "#002ad1"
+      },
+      {
+        "count": 3,
+        "value": "#cff2da"
+      },
+      {
+        "count": 2,
+        "value": "#fafafa99"
+      },
+      {
+        "count": 2,
+        "value": "#edf2ff"
+      },
+      {
+        "count": 2,
+        "value": "#7f22fe"
+      },
+      {
+        "count": 2,
+        "value": "#894eff1a"
+      },
+      {
+        "count": 2,
+        "value": "#8e51ff"
+      },
+      {
+        "count": 2,
+        "value": "#2780ff1a"
+      }
+    ],
+    "font_sizes": [
+      {
+        "count": 77,
+        "value": "12px"
+      },
+      {
+        "count": 57,
+        "value": "14px"
+      },
+      {
+        "count": 5,
+        "value": "10.5px"
+      },
+      {
+        "count": 4,
+        "value": "16px"
+      },
+      {
+        "count": 2,
+        "value": "11px"
+      },
+      {
+        "count": 1,
+        "value": "15px"
+      },
+      {
+        "count": 1,
+        "value": "9px"
+      }
+    ],
+    "font_weights": [
+      {
+        "count": 99,
+        "value": "400"
+      },
+      {
+        "count": 37,
+        "value": "500"
+      },
+      {
+        "count": 11,
+        "value": "600"
+      }
+    ],
+    "fonts": [
+      {
+        "count": 140,
+        "value": "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      },
+      {
+        "count": 7,
+        "value": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace"
+      }
+    ],
+    "max_widths": [
+      {
+        "count": 3,
+        "value": "100.8px"
+      },
+      {
+        "count": 2,
+        "value": "144px"
+      },
+      {
+        "count": 2,
+        "value": "768px"
+      },
+      {
+        "count": 1,
+        "value": "230.4px"
+      }
+    ],
+    "radii": [
+      {
+        "count": 48,
+        "value": "6.4px"
+      },
+      {
+        "count": 28,
+        "value": "9999px"
+      },
+      {
+        "count": 11,
+        "value": "8px"
+      },
+      {
+        "count": 5,
+        "value": "4.8px"
+      },
+      {
+        "count": 5,
+        "value": "3px"
+      },
+      {
+        "count": 3,
+        "value": "4px"
+      },
+      {
+        "count": 2,
+        "value": "11.2px"
+      },
+      {
+        "count": 1,
+        "value": "14.4px"
+      }
+    ],
+    "shadows": [
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.985 0 0) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.16 0 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px"
+      }
+    ],
+    "spacing": [
+      {
+        "count": 192,
+        "value": "7.2px"
+      },
+      {
+        "count": 99,
+        "value": "3.6px"
+      },
+      {
+        "count": 93,
+        "value": "5.4px"
+      },
+      {
+        "count": 51,
+        "value": "9px"
+      },
+      {
+        "count": 47,
+        "value": "10.8px"
+      },
+      {
+        "count": 37,
+        "value": "12.6px"
+      },
+      {
+        "count": 22,
+        "value": "-1px"
+      },
+      {
+        "count": 17,
+        "value": "14.4px"
+      },
+      {
+        "count": 13,
+        "value": "1.8px"
+      },
+      {
+        "count": 12,
+        "value": "18px"
+      },
+      {
+        "count": 10,
+        "value": "1.5px"
+      },
+      {
+        "count": 6,
+        "value": "21.6px"
+      },
+      {
+        "count": 1,
+        "value": "28.8px"
+      }
+    ],
+    "text_colors": [
+      {
+        "count": 63,
+        "value": "#0d0d0d"
+      },
+      {
+        "count": 55,
+        "value": "#696969"
+      },
+      {
+        "count": 8,
+        "value": "#002ad1"
+      },
+      {
+        "count": 4,
+        "value": "#973c00"
+      },
+      {
+        "count": 3,
+        "value": "#111826"
+      },
+      {
+        "count": 3,
+        "value": "#7a7a7a"
+      },
+      {
+        "count": 3,
+        "value": "#005e31"
+      },
+      {
+        "count": 2,
+        "value": "#696969cc"
+      },
+      {
+        "count": 2,
+        "value": "#7008e7"
+      },
+      {
+        "count": 2,
+        "value": "#1447e6"
+      },
+      {
+        "count": 1,
+        "value": "#0d0d0db3"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1cc"
+      }
+    ]
+  },
+  "forms": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "My sessions"
+    },
+    {
+      "level": 3,
+      "text": "Today"
+    },
+    {
+      "level": 3,
+      "text": "Yesterday"
+    },
+    {
+      "level": 3,
+      "text": "This week"
+    },
+    {
+      "level": 2,
+      "text": "Studio Platform: decision needed"
+    },
+    {
+      "level": 3,
+      "text": "Issues 3"
+    },
+    {
+      "level": 3,
+      "text": "Session"
+    },
+    {
+      "level": 3,
+      "text": "Usage"
+    },
+    {
+      "level": 2,
+      "text": "This is a demo. Changes cannot be saved."
+    }
+  ],
+  "lang": "en-US",
+  "layouts": [
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 1210,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "My sessions",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "h": 842,
+          "heading": "My sessions",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 264,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 144,
+            "pad": [
+              9,
+              9
+            ],
+            "w": 137,
+            "x": 512
+          },
+          "h": 842,
+          "heading": "Studio Platform: decision needed",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 650,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 144,
+            "pad": [
+              9,
+              9
+            ],
+            "w": 137,
+            "x": 512
+          },
+          "gap": 7,
+          "h": 82,
+          "heading": "Studio Platform: decision needed",
+          "pad": [
+            11,
+            18,
+            11,
+            18
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 650,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              22,
+              22
+            ],
+            "w": 644,
+            "x": 494
+          },
+          "h": 760,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 650,
+          "y": 140
+        },
+        {
+          "background": "#fafafa",
+          "column": {
+            "max_w": 101,
+            "pad": [
+              7,
+              7
+            ],
+            "w": 80,
+            "x": 1330
+          },
+          "h": 842,
+          "heading": "Issues 3",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "aside",
+          "w": 296,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 101,
+            "pad": [
+              7,
+              7
+            ],
+            "w": 80,
+            "x": 1330
+          },
+          "gap": 9,
+          "h": 287,
+          "heading": "Issues 3",
+          "pad": [
+            14,
+            18,
+            14,
+            18
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 295,
+          "y": 58
+        },
+        {
+          "gap": 9,
+          "h": 120,
+          "heading": "Session",
+          "pad": [
+            14,
+            18,
+            14,
+            18
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 295,
+          "y": 344
+        },
+        {
+          "gap": 9,
+          "h": 113,
+          "heading": "Usage",
+          "pad": [
+            14,
+            18,
+            14,
+            18
+          ],
+          "per_row": 1,
+          "tag": "section",
+          "w": 295,
+          "y": 465
+        }
+      ],
+      "page_h": 900,
+      "page_w": 1440,
+      "type": {
+        "body": 14,
+        "h1": 16,
+        "h2": 15,
+        "h3": 12
+      },
+      "width": 1440
+    },
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 590,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "Studio Platform: decision needed",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 144,
+            "pad": [
+              9,
+              9
+            ],
+            "w": 137,
+            "x": 248
+          },
+          "h": 842,
+          "heading": "Studio Platform: decision needed",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 144,
+            "pad": [
+              9,
+              9
+            ],
+            "w": 137,
+            "x": 248
+          },
+          "gap": 7,
+          "h": 114,
+          "heading": "Studio Platform: decision needed",
+          "pad": [
+            11,
+            18,
+            11,
+            18
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              22,
+              22
+            ],
+            "w": 584,
+            "x": 230
+          },
+          "h": 728,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 590,
+          "y": 172
+        }
+      ],
+      "page_h": 900,
+      "page_w": 820,
+      "type": {
+        "body": 14,
+        "h1": 0,
+        "h2": 15,
+        "h3": 0
+      },
+      "width": 820
+    },
+    {
+      "blocks": [
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            11,
+            0,
+            11
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 390,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "Studio Platform: decision needed",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "main",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 144,
+            "pad": [
+              9,
+              9
+            ],
+            "w": 137,
+            "x": 14
+          },
+          "h": 842,
+          "heading": "Studio Platform: decision needed",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 144,
+            "pad": [
+              9,
+              9
+            ],
+            "w": 137,
+            "x": 14
+          },
+          "gap": 7,
+          "h": 107,
+          "heading": "Studio Platform: decision needed",
+          "pad": [
+            7,
+            14,
+            7,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              14,
+              14
+            ],
+            "w": 384,
+            "x": 0
+          },
+          "h": 735,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 390,
+          "y": 165
+        }
+      ],
+      "page_h": 900,
+      "page_w": 390,
+      "type": {
+        "body": 14,
+        "h1": 0,
+        "h2": 15,
+        "h3": 0
+      },
+      "width": 390
+    }
+  ],
+  "links": [
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "text": "My issues 3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "text": "My sessions 1"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "text": "Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "text": "Issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "text": "Projects"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "text": "Knowledge"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "text": "Project memory"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Releases"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "text": "Hosted environments"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "text": "Agents"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "text": "Runtimes"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "text": "Skills"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "text": "Usage"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "text": "Settings"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "text": "3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/396925308239878",
+      "text": "Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/396925304045570",
+      "text": "Drag to reorder issues on the board and move them between columns"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/396925306142721",
+      "text": "Board drag and drop: check the workflow when moving between columns"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6295",
+      "text": "PM-6295 Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6291",
+      "text": "PM-6291 Drag to reorder issues on the board and move them between columns"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6293",
+      "text": "PM-6293 Board drag and drop: check the workflow when moving between columns"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/396925308239878",
+      "text": "Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6295",
+      "text": "PM-6295 Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6295",
+      "text": "Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6291",
+      "text": "Drag to reorder issues on the board and move them between columns"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6293",
+      "text": "Board drag and drop: check the workflow when moving between columns"
+    }
+  ],
+  "outline": [
+    {
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main",
+      "tag": "a"
+    },
+    {
+      "alt": "NocoBase",
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/assets/logo.png",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 678,
+        "w": 229,
+        "x": 0,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 112,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "id": "base-ui-_r_n_",
+      "tag": "a",
+      "text": "My issues 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 76
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#ebeefb",
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 103
+      },
+      "color": "#002ad1",
+      "depth": 13,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "id": "base-ui-_r_p_",
+      "tag": "a",
+      "text": "My sessions 1"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 113
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 140
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "id": "base-ui-_r_r_",
+      "tag": "a",
+      "text": "Dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 151
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Development Issues Projects Knowledge Project memory"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "id": "base-ui-_r_t_",
+      "tag": "a",
+      "text": "Issues"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 230
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 257
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "id": "base-ui-_r_v_",
+      "tag": "a",
+      "text": "Projects"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 268
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "id": "base-ui-_r_11_",
+      "tag": "a",
+      "text": "Knowledge"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 306
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 333
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "id": "base-ui-_r_13_",
+      "tag": "a",
+      "text": "Project memory"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 344
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 117,
+        "w": 229,
+        "x": 0,
+        "y": 376
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Releases Releases Hosted environments"
+    },
+    {
+      "box": {
+        "h": 74,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "id": "base-ui-_r_15_",
+      "tag": "a",
+      "text": "Releases"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 423
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 450
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "id": "base-ui-_r_17_",
+      "tag": "a",
+      "text": "Hosted environments"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 461
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 493
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Agent management Agents Runtimes Skills Usage"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "id": "base-ui-_r_19_",
+      "tag": "a",
+      "text": "Agents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 540
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 567
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "id": "base-ui-_r_1b_",
+      "tag": "a",
+      "text": "Runtimes"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 578
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 605
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "id": "base-ui-_r_1d_",
+      "tag": "a",
+      "text": "Skills"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 615
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 642
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "id": "base-ui-_r_1f_",
+      "tag": "a",
+      "text": "Usage"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 653
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "id": "base-ui-_r_1h_",
+      "tag": "a",
+      "text": "Settings"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 704
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 18,
+        "y": 864
+      },
+      "color": "#0d0d0db3",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 900,
+        "w": 14,
+        "x": 222,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "background": "#fafafad9",
+      "box": {
+        "h": 58,
+        "w": 1210,
+        "x": 230,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 5,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 245,
+        "y": 12
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 254,
+        "y": 21
+      },
+      "color": "#696969",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 77,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 77,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#696969",
+      "depth": 8,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "ol"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 77,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "14px 500",
+      "role": "link",
+      "tag": "span",
+      "text": "My sessions"
+    },
+    {
+      "background": "#0027ce1a",
+      "box": {
+        "h": 29,
+        "w": 208,
+        "x": 1103,
+        "y": 14
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "12px 500",
+      "id": "base-ui-_r_7_",
+      "tag": "button",
+      "text": "Demo mode · Switch account"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1288,
+        "y": 22
+      },
+      "color": "#002ad1",
+      "depth": 8,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1318,
+        "y": 16
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "base-ui-_r_a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1323,
+        "y": 21
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 1350,
+        "y": 12
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "id": "base-ui-_r_c_",
+      "tag": "a",
+      "text": "3"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 16,
+        "x": 1358,
+        "y": 20
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 36,
+        "w": 36,
+        "x": 1390,
+        "y": 10
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "base-ui-_r_g_",
+      "tag": "button",
+      "text": "SA"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 6,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "main"
+    },
+    {
+      "box": {
+        "h": 201,
+        "w": 230,
+        "x": 1181,
+        "y": 58
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 264,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 159,
+        "x": 243,
+        "y": 75
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "16px 600",
+      "tag": "h1",
+      "text": "My sessions"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 409,
+        "y": 70
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 418,
+        "y": 79
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 448,
+        "y": 70
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 457,
+        "y": 79
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 252,
+        "y": 119
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 29,
+        "w": 238,
+        "x": 243,
+        "y": 112
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "id": "base-ui-_r_1u_",
+      "name": "",
+      "placeholder": "Search conversations",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "box": {
+        "h": 27,
+        "w": 238,
+        "x": 243,
+        "y": 149
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "All Needs me 2 In progress 2"
+    },
+    {
+      "background": "#edf2ff",
+      "box": {
+        "h": 27,
+        "w": 33,
+        "x": 243,
+        "y": 149
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "12px 500",
+      "tag": "button",
+      "text": "All"
+    },
+    {
+      "box": {
+        "h": 27,
+        "w": 85,
+        "x": 280,
+        "y": 149
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Needs me 2"
+    },
+    {
+      "box": {
+        "h": 27,
+        "w": 90,
+        "x": 368,
+        "y": 149
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "In progress 2"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 249,
+        "x": 238,
+        "y": 184
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "h3",
+      "text": "Today"
+    },
+    {
+      "background": "#edf2ff",
+      "box": {
+        "h": 62,
+        "w": 249,
+        "x": 238,
+        "y": 214
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "16px 400",
+      "role": "link",
+      "tag": "div",
+      "text": "Studio Platform: decision needed 06:30 AM 3 issues Needs you 1"
+    },
+    {
+      "box": {
+        "h": 60,
+        "w": 249,
+        "x": 238,
+        "y": 276
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "16px 400",
+      "role": "link",
+      "tag": "div",
+      "text": "Delivery dependencies: work in progress 06:29 AM 3 issues In progress"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 249,
+        "x": 238,
+        "y": 337
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "h3",
+      "text": "Yesterday"
+    },
+    {
+      "box": {
+        "h": 60,
+        "w": 249,
+        "x": 238,
+        "y": 367
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "16px 400",
+      "role": "link",
+      "tag": "div",
+      "text": "Audit exports status 04:44 AM 3 issues"
+    },
+    {
+      "box": {
+        "h": 30,
+        "w": 249,
+        "x": 238,
+        "y": 427
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "h3",
+      "text": "This week"
+    },
+    {
+      "box": {
+        "h": 62,
+        "w": 249,
+        "x": 238,
+        "y": 458
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "16px 400",
+      "role": "link",
+      "tag": "div",
+      "text": "Issue search: what's next Sat 08:44 AM 3 issues Needs you 1"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 81,
+        "x": 238,
+        "y": 864
+      },
+      "color": "#696969",
+      "depth": 13,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Archived"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 245,
+        "y": 871
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 650,
+        "x": 494,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 82,
+        "w": 650,
+        "x": 494,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 527,
+        "x": 512,
+        "y": 70
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "15px 600",
+      "tag": "h2",
+      "text": "Studio Platform: decision needed"
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 246,
+        "x": 512,
+        "y": 70
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "15px 600",
+      "tag": "button",
+      "text": "Studio Platform: decision needed"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1043,
+        "y": 68
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1049,
+        "y": 74
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1072,
+        "y": 68
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1077,
+        "y": 74
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1101,
+        "y": 68
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 500",
+      "id": "base-ui-_r_22_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1106,
+        "y": 74
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 522,
+        "y": 107
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 664,
+        "y": 107
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 760,
+        "w": 650,
+        "x": 494,
+        "y": 140
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 969,
+        "w": 600,
+        "x": 516,
+        "y": -233
+      },
+      "color": "#0d0d0d",
+      "depth": 17,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "role": "log",
+      "tag": "ol"
+    },
+    {
+      "box": {
+        "h": 38,
+        "w": 489,
+        "x": 617,
+        "y": -222
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "#PM-6295 #PM-6291 #PM-6293 Bring the related issues together: what is finished, what is moving, and what needs my decision?"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1095,
+        "y": -175
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1100,
+        "y": -169
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 600,
+        "x": 516,
+        "y": -139
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "C Claude · Sonnet 5 11 hours ago"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 135,
+        "x": 516,
+        "y": -108
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Ran 3 commands"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 516,
+        "y": -102
+      },
+      "color": "#696969",
+      "depth": 23,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 536,
+        "y": -102
+      },
+      "color": "#696969",
+      "depth": 24,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 600,
+        "x": 516,
+        "y": -72
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "These issues belong to the same project; open each one to inspect its recorded work."
+    },
+    {
+      "box": {
+        "h": 35,
+        "w": 197,
+        "x": 524,
+        "y": 9
+      },
+      "color": "#002ad1",
+      "depth": 30,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/issues/396925308239878",
+      "tag": "a",
+      "text": "Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "box": {
+        "h": 54,
+        "w": 193,
+        "x": 524,
+        "y": 55
+      },
+      "color": "#002ad1",
+      "depth": 30,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/issues/396925304045570",
+      "tag": "a",
+      "text": "Drag to reorder issues on the board and move them between columns"
+    },
+    {
+      "box": {
+        "h": 54,
+        "w": 198,
+        "x": 524,
+        "y": 121
+      },
+      "color": "#002ad1",
+      "depth": 30,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/issues/396925306142721",
+      "tag": "a",
+      "text": "Board drag and drop: check the workflow when moving between columns"
+    },
+    {
+      "box": {
+        "h": 65,
+        "w": 600,
+        "x": 516,
+        "y": 189
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "The Lead Agent coordinates implementation and independent review. Dependent work proceeds after its prerequisites are met. Resolve blockers first, then inspect delivery images, PRs and checks for acce"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 43,
+        "x": 516,
+        "y": 171
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Expand"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 516,
+        "y": 228
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 521,
+        "y": 233
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 109,
+        "w": 600,
+        "x": 516,
+        "y": 257
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 526,
+        "y": 266
+      },
+      "color": "#696969",
+      "depth": 24,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 424,
+        "x": 605,
+        "y": 263
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6295",
+      "tag": "a",
+      "text": "PM-6295 Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 526,
+        "y": 304
+      },
+      "color": "#696969",
+      "depth": 24,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 412,
+        "x": 605,
+        "y": 301
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6291",
+      "tag": "a",
+      "text": "PM-6291 Drag to reorder issues on the board and move them between columns"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 526,
+        "y": 342
+      },
+      "color": "#696969",
+      "depth": 24,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 412,
+        "x": 605,
+        "y": 339
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6293",
+      "tag": "a",
+      "text": "PM-6293 Board drag and drop: check the workflow when moving between columns"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 398,
+        "x": 707,
+        "y": 387
+      },
+      "color": "#0d0d0d",
+      "depth": 21,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Which one should I look at first, and what does it need from me?"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1095,
+        "y": 415
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1100,
+        "y": 420
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 600,
+        "x": 516,
+        "y": 451
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "C Claude · Sonnet 5 11 hours ago"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 129,
+        "x": 516,
+        "y": 482
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "Ran 1 command"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 516,
+        "y": 488
+      },
+      "color": "#696969",
+      "depth": 23,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 536,
+        "y": 488
+      },
+      "color": "#696969",
+      "depth": 24,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 600,
+        "x": 516,
+        "y": 518
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Start with Issue list stutters when scrolling past 2,000 issues; it is waiting for your decision (in review):"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 310,
+        "x": 578,
+        "y": 520
+      },
+      "color": "#002ad1",
+      "depth": 26,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/issues/396925308239878",
+      "tag": "a",
+      "text": "Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 588,
+        "x": 529,
+        "y": 568
+      },
+      "color": "#696969",
+      "depth": 26,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Scroll the Support board in preview and reply \"accept\" if it feels smooth."
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 600,
+        "x": 516,
+        "y": 597
+      },
+      "color": "#0d0d0d",
+      "depth": 25,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "I left the question in this conversation. Answer here and I will post your decision on the task so the project manager can continue."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 516,
+        "y": 671
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 521,
+        "y": 677
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 33,
+        "w": 600,
+        "x": 516,
+        "y": 700
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 526,
+        "y": 709
+      },
+      "color": "#696969",
+      "depth": 24,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 424,
+        "x": 605,
+        "y": 707
+      },
+      "color": "#0d0d0d",
+      "depth": 23,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6295",
+      "tag": "a",
+      "text": "PM-6295 Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": 493,
+        "y": 139
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "16px 400",
+      "tag": "p"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": 493,
+        "y": 139
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "16px 400",
+      "role": "status",
+      "tag": "p"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 97,
+        "w": 606,
+        "x": 516,
+        "y": 765
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "C Claude · Sonnet 5 Studio Platform"
+    },
+    {
+      "box": {
+        "h": 50,
+        "w": 604,
+        "x": 517,
+        "y": 766
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 400",
+      "id": "_r_24_",
+      "name": "",
+      "placeholder": "Ask, or describe the work to organize…",
+      "tag": "textarea",
+      "type": "textarea"
+    },
+    {
+      "box": {
+        "h": 45,
+        "w": 604,
+        "x": 517,
+        "y": 816
+      },
+      "color": "#696969",
+      "depth": 19,
+      "font": "14px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "C Claude · Sonnet 5 Studio Platform"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": 527,
+        "y": 836
+      },
+      "color": "#696969",
+      "depth": 20,
+      "font": "14px 400",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "file"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 528,
+        "y": 824
+      },
+      "color": "#696969",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 533,
+        "y": 829
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": 527,
+        "y": 836
+      },
+      "color": "#696969",
+      "depth": 20,
+      "font": "14px 400",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "file"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 558,
+        "y": 824
+      },
+      "color": "#696969",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 564,
+        "y": 829
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 589,
+        "y": 824
+      },
+      "color": "#696969",
+      "depth": 20,
+      "font": "14px 500",
+      "id": "base-ui-_r_26_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 594,
+        "y": 829
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 149,
+        "x": 620,
+        "y": 824
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "C Claude · Sonnet 5"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 749,
+        "y": 830
+      },
+      "color": "#696969",
+      "depth": 23,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 106,
+        "x": 774,
+        "y": 824
+      },
+      "color": "#696969",
+      "depth": 21,
+      "font": "12px 400",
+      "id": "base-ui-_r_2f_",
+      "tag": "button",
+      "text": "Studio Platform"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 864,
+        "y": 831
+      },
+      "color": "#696969",
+      "depth": 22,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#002ad1",
+      "box": {
+        "h": 29,
+        "w": 29,
+        "x": 1082,
+        "y": 822
+      },
+      "color": "#ffffff",
+      "depth": 21,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1089,
+        "y": 829
+      },
+      "color": "#ffffff",
+      "depth": 22,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 606,
+        "x": 516,
+        "y": 870
+      },
+      "color": "#696969",
+      "depth": 17,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "Enter send Shift + Enter new line # link an issue"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 842,
+        "w": 296,
+        "x": 1144,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "aside"
+    },
+    {
+      "box": {
+        "h": 287,
+        "w": 295,
+        "x": 1145,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 259,
+        "x": 1163,
+        "y": 72
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Issues 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1163,
+        "y": 74
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 600",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1163,
+        "y": 118
+      },
+      "color": "#7f22fe",
+      "depth": 20,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1248,
+        "y": 118
+      },
+      "color": "#155dfc",
+      "depth": 20,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1163,
+        "y": 118
+      },
+      "color": "#7f22fe",
+      "depth": 19,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 187,
+        "w": 259,
+        "x": 1163,
+        "y": 142
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 210,
+        "x": 1175,
+        "y": 151
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6295",
+      "tag": "a",
+      "text": "Issue list stutters when scrolling past 2,000 issues"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1392,
+        "y": 150
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "id": "base-ui-_r_3e_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1398,
+        "y": 155
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1337,
+        "y": 179
+      },
+      "color": "#7f22fe",
+      "depth": 19,
+      "font": "12px 500",
+      "role": "img",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 210,
+        "x": 1175,
+        "y": 213
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6291",
+      "tag": "a",
+      "text": "Drag to reorder issues on the board and move them between columns"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1392,
+        "y": 212
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "id": "base-ui-_r_3j_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1398,
+        "y": 217
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1325,
+        "y": 242
+      },
+      "color": "#155dfc",
+      "depth": 19,
+      "font": "12px 400",
+      "role": "img",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 210,
+        "x": 1175,
+        "y": 275
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/issues/PM-6293",
+      "tag": "a",
+      "text": "Board drag and drop: check the workflow when moving between columns"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1392,
+        "y": 274
+      },
+      "color": "#0d0d0d",
+      "depth": 18,
+      "font": "14px 500",
+      "id": "base-ui-_r_3o_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 1398,
+        "y": 279
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1325,
+        "y": 304
+      },
+      "color": "#155dfc",
+      "depth": 19,
+      "font": "12px 400",
+      "role": "img",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 120,
+        "w": 295,
+        "x": 1145,
+        "y": 344
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 259,
+        "x": 1163,
+        "y": 359
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Session"
+    },
+    {
+      "box": {
+        "h": 113,
+        "w": 295,
+        "x": 1145,
+        "y": 465
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 259,
+        "x": 1163,
+        "y": 479
+      },
+      "color": "#0d0d0d",
+      "depth": 15,
+      "font": "14px 600",
+      "tag": "h3",
+      "text": "Usage"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 97,
+        "w": 352,
+        "x": 1074,
+        "y": 789
+      },
+      "color": "#0d0d0d",
+      "depth": 4,
+      "font": "16px 400",
+      "role": "dialog",
+      "tag": "div",
+      "text": "This is a demo. Changes cannot be saved. Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1094,
+        "y": 809
+      },
+      "color": "#964f0a",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 42,
+        "w": 253,
+        "x": 1125,
+        "y": 804
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "_r_k_",
+      "tag": "h2",
+      "text": "This is a demo. Changes cannot be saved."
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 253,
+        "x": 1125,
+        "y": 850
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "_r_l_",
+      "tag": "p",
+      "text": "Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1389,
+        "y": 804
+      },
+      "color": "#696969",
+      "depth": 6,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1392,
+        "y": 808
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "svg"
+    }
+  ],
+  "page": {
+    "h": 900,
+    "w": 1440
+  },
+  "text": "My issues 3 My sessions 1 Dashboard Development Issues Projects Knowledge Project memory Releases Releases Hosted environments Agent management Agents Runtimes Skills Usage Settings NocoBase Studio v1.0.0-beta.75 My sessions Demo mode · Switch account 3 SA My sessions All Needs me 2 In progress 2 Today Studio Platform: decision needed 06:30 AM 3 issues Needs you 1 Delivery dependencies: work in progress 06:29 AM 3 issues In progress Yesterday Audit exports status 04:44 AM 3 issues This week Issue search: what's next Sat 08:44 AM 3 issues Needs you 1 Archived E Archive Studio Platform: decision needed Claude · Sonnet 5 Studio Platform You #PM-6295 #PM-6291 #PM-6293 Bring the related issues together: what is finished, what is moving, and what needs my decision? 11 hours ago C Claude · Sonnet 5 11 hours ago Ran 3 commands These issues belong to the same project; open each one to inspect its recorded work. Issue Current state Next step or owner decision Issue list stutters when scrolling past 2,000 issues in review Scroll the Support board in preview and reply \"accept\" if it feels smooth. Drag to reorder issues on the board and move them between columns in progress Next: implement the agreed scope, then hand the result to an independent reviewer. Board drag and drop: check the workflow when moving between columns in progress Next: independently review the proposed change. The Lead Agent coordinates implementation and independent review. Dependent work proceeds after its prerequisites are met. Resolve blockers first, then inspect delivery images, PRs and checks for acceptance. Completed issues retain their evidence; backlog issues have not started. Expand Took 30 s · Input 5.4K · Cached 21.5K · Output 330 PM-6295 PM-6295 Issue list stutters when scrolling past 2,000 issues In review PM-6291 PM-6291 Drag to reorder issues on the board and move them between columns In progress PM-6293 PM-6293 Board drag and drop: check the workflow when moving between columns In progress You Which one should I look at first, and what does it need from me? 11 hours ago C Claude · Sonnet 5 11 hours ago Ran 1 command Start with Issue list stutters when scrolling past 2,000 issues; it is waiting for your decision (in review): Scroll the Support board in preview and reply \"accept\" if it feels smooth. I left the question in this conversation. Answer here and I will post your decision on the task so the project manager can continue. Took 18 s · Input 3.5K · Cached 13.8K · Output 118 PM-6295 PM-6295 Issue list stutters when scrolling past 2,000 issues In review Message to the agent C Claude · Sonnet 5 Studio Platform Enter send Shift + Enter new line # link an issue Issues 3 In review 1 In progress 2 In review 1 Needs you 1 Issue list stutters when scrolling past 2,000 issues PM-6295 In review Drag to reorder issues on the board and move them between columns PM-6291 In progress Board drag and drop: check the workflow when moving between columns PM-6293 In progress Session Agent Claude · Sonnet 5 Project Studio Platform Started Nov 10, 2026, 6:23 AM Usage Input 8,829 Cached 35,316 Output 448 This is a demo. Changes cannot be saved. Everything else works as usual.",
+  "title": "(3) NocoBase Studio",
+  "url": "https://studio.demo.nocobase.com/main/agent-sessions/runner/3ac804fc-6010-405b-9551-5dd57130bfb3",
+  "viewport": {
+    "h": 900,
+    "w": 1440
+  }
+}

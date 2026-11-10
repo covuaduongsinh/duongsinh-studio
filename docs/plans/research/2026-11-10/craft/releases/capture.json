@@ -1,0 +1,2448 @@
+{
+  "a11y": {
+    "images_without_alt": 0,
+    "landmarks": {
+      "banner": 2,
+      "main": 1,
+      "navigation": 3
+    },
+    "lang": "en-US",
+    "unnamed_controls": 1,
+    "unnamed_examples": [
+      "input"
+    ]
+  },
+  "assets": {
+    "images": [
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      }
+    ]
+  },
+  "design": {
+    "backgrounds": [
+      {
+        "count": 12,
+        "value": "#f2f2f2"
+      },
+      {
+        "count": 7,
+        "value": "#fafafa"
+      },
+      {
+        "count": 3,
+        "value": "#ffffff"
+      },
+      {
+        "count": 3,
+        "value": "#fe9a00"
+      },
+      {
+        "count": 2,
+        "value": "#0027ce1a"
+      },
+      {
+        "count": 2,
+        "value": "#fafafa99"
+      },
+      {
+        "count": 1,
+        "value": "#ebeefb"
+      },
+      {
+        "count": 1,
+        "value": "#fafafad9"
+      },
+      {
+        "count": 1,
+        "value": "#dedede99"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1"
+      },
+      {
+        "count": 1,
+        "value": "#f6f6f6"
+      },
+      {
+        "count": 1,
+        "value": "#fff6e5"
+      }
+    ],
+    "font_sizes": [
+      {
+        "count": 114,
+        "value": "14px"
+      },
+      {
+        "count": 55,
+        "value": "12px"
+      },
+      {
+        "count": 1,
+        "value": "24px"
+      },
+      {
+        "count": 1,
+        "value": "18px"
+      }
+    ],
+    "font_weights": [
+      {
+        "count": 137,
+        "value": "400"
+      },
+      {
+        "count": 25,
+        "value": "500"
+      },
+      {
+        "count": 9,
+        "value": "600"
+      }
+    ],
+    "fonts": [
+      {
+        "count": 147,
+        "value": "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      },
+      {
+        "count": 24,
+        "value": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace"
+      }
+    ],
+    "max_widths": [
+      {
+        "count": 1,
+        "value": "672px"
+      }
+    ],
+    "radii": [
+      {
+        "count": 44,
+        "value": "6.4px"
+      },
+      {
+        "count": 6,
+        "value": "9999px"
+      },
+      {
+        "count": 6,
+        "value": "8px"
+      },
+      {
+        "count": 3,
+        "value": "11.2px"
+      },
+      {
+        "count": 1,
+        "value": "4.8px"
+      }
+    ],
+    "shadows": [
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.985 0 0) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.16 0 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 1px 3px 0px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px"
+      }
+    ],
+    "spacing": [
+      {
+        "count": 313,
+        "value": "7.2px"
+      },
+      {
+        "count": 185,
+        "value": "10.8px"
+      },
+      {
+        "count": 61,
+        "value": "5.4px"
+      },
+      {
+        "count": 46,
+        "value": "3.6px"
+      },
+      {
+        "count": 34,
+        "value": "12.6px"
+      },
+      {
+        "count": 29,
+        "value": "1.8px"
+      },
+      {
+        "count": 14,
+        "value": "14.4px"
+      },
+      {
+        "count": 10,
+        "value": "-1px"
+      },
+      {
+        "count": 6,
+        "value": "18px"
+      },
+      {
+        "count": 5,
+        "value": "28.8px"
+      },
+      {
+        "count": 4,
+        "value": "9px"
+      },
+      {
+        "count": 4,
+        "value": "3px"
+      },
+      {
+        "count": 2,
+        "value": "21.6px"
+      }
+    ],
+    "text_colors": [
+      {
+        "count": 90,
+        "value": "#0d0d0d"
+      },
+      {
+        "count": 49,
+        "value": "#696969"
+      },
+      {
+        "count": 10,
+        "value": "#1b1b1b"
+      },
+      {
+        "count": 4,
+        "value": "#964f0a"
+      },
+      {
+        "count": 4,
+        "value": "#202020"
+      },
+      {
+        "count": 3,
+        "value": "#111826"
+      },
+      {
+        "count": 3,
+        "value": "#7a7a7a"
+      },
+      {
+        "count": 3,
+        "value": "#002ad1"
+      },
+      {
+        "count": 3,
+        "value": "#0d0d0d99"
+      },
+      {
+        "count": 1,
+        "value": "#0d0d0db3"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1cc"
+      }
+    ]
+  },
+  "forms": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Releases"
+    },
+    {
+      "level": 2,
+      "text": "All projects"
+    },
+    {
+      "level": 2,
+      "text": "This is a demo. Changes cannot be saved."
+    }
+  ],
+  "lang": "en-US",
+  "layouts": [
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 1210,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 672,
+            "x": 259
+          },
+          "h": 842,
+          "heading": "Releases",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 672,
+            "x": 259
+          },
+          "h": 1031,
+          "heading": "Releases",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 1204,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 672,
+            "x": 259
+          },
+          "gap": 14,
+          "h": 79,
+          "heading": "Releases",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 1146,
+          "y": 86
+        },
+        {
+          "background": "#ffffff",
+          "gap": 11,
+          "h": 374,
+          "pad": [
+            11,
+            11,
+            11,
+            11
+          ],
+          "per_row": 2,
+          "tag": "nav",
+          "w": 240,
+          "y": 184
+        },
+        {
+          "gap": 11,
+          "h": 836,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 884,
+          "y": 224
+        }
+      ],
+      "page_h": 900,
+      "page_w": 1440,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 18,
+        "h3": 0
+      },
+      "width": 1440
+    },
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 590,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 526,
+            "x": 259
+          },
+          "h": 842,
+          "heading": "Releases",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 4,
+          "tag": "main",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 526,
+            "x": 259
+          },
+          "h": 1426,
+          "heading": "Releases",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 584,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 672,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 526,
+            "x": 259
+          },
+          "gap": 14,
+          "h": 79,
+          "heading": "Releases",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 526,
+          "y": 86
+        },
+        {
+          "background": "#ffffff",
+          "gap": 11,
+          "h": 374,
+          "pad": [
+            11,
+            11,
+            11,
+            11
+          ],
+          "per_row": 2,
+          "tag": "nav",
+          "w": 526,
+          "y": 184
+        },
+        {
+          "gap": 11,
+          "h": 836,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 526,
+          "y": 619
+        }
+      ],
+      "page_h": 900,
+      "page_w": 820,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 18,
+        "h3": 0
+      },
+      "width": 820
+    },
+    {
+      "blocks": [
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            11,
+            0,
+            11
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 390,
+          "y": 0
+        },
+        {
+          "h": 842,
+          "heading": "Releases",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 4,
+          "tag": "main",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "h": 3939,
+          "heading": "Releases",
+          "pad": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 384,
+          "y": 58
+        },
+        {
+          "gap": 11,
+          "h": 26,
+          "heading": "Releases",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 341,
+          "y": 79
+        },
+        {
+          "background": "#ffffff",
+          "gap": 11,
+          "h": 374,
+          "pad": [
+            11,
+            11,
+            11,
+            11
+          ],
+          "per_row": 2,
+          "tag": "nav",
+          "w": 341,
+          "y": 123
+        },
+        {
+          "gap": 11,
+          "h": 3417,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 341,
+          "y": 558
+        }
+      ],
+      "page_h": 900,
+      "page_w": 390,
+      "type": {
+        "body": 12,
+        "h1": 20,
+        "h2": 18,
+        "h3": 0
+      },
+      "width": 390
+    }
+  ],
+  "links": [
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "text": "My issues 3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "text": "My sessions 1"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "text": "Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "text": "Issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "text": "Projects"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "text": "Knowledge"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "text": "Project memory"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Releases"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "text": "Hosted environments"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "text": "Agents"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "text": "Runtimes"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "text": "Skills"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "text": "Usage"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "text": "Settings"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "text": "3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Business Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Business Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Studio Platform"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Website Redesign"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Studio Platform"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Business Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Business Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Website Redesign"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Business Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "CRM System"
+    }
+  ],
+  "outline": [
+    {
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main",
+      "tag": "a"
+    },
+    {
+      "alt": "NocoBase",
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/assets/logo.png",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 678,
+        "w": 229,
+        "x": 0,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 112,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "id": "base-ui-_r_n_",
+      "tag": "a",
+      "text": "My issues 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 76
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 103
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "id": "base-ui-_r_p_",
+      "tag": "a",
+      "text": "My sessions 1"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 113
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 140
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "id": "base-ui-_r_r_",
+      "tag": "a",
+      "text": "Dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 151
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Development Issues Projects Knowledge Project memory"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "id": "base-ui-_r_t_",
+      "tag": "a",
+      "text": "Issues"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 230
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 257
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "id": "base-ui-_r_v_",
+      "tag": "a",
+      "text": "Projects"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 268
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "id": "base-ui-_r_11_",
+      "tag": "a",
+      "text": "Knowledge"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 306
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 333
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "id": "base-ui-_r_13_",
+      "tag": "a",
+      "text": "Project memory"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 344
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 117,
+        "w": 229,
+        "x": 0,
+        "y": 376
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Releases Releases Hosted environments"
+    },
+    {
+      "box": {
+        "h": 74,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "background": "#ebeefb",
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#002ad1",
+      "depth": 13,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "id": "base-ui-_r_15_",
+      "tag": "a",
+      "text": "Releases"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 423
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 450
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "id": "base-ui-_r_17_",
+      "tag": "a",
+      "text": "Hosted environments"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 461
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 493
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Agent management Agents Runtimes Skills Usage"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "id": "base-ui-_r_19_",
+      "tag": "a",
+      "text": "Agents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 540
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 567
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "id": "base-ui-_r_1b_",
+      "tag": "a",
+      "text": "Runtimes"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 578
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 605
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "id": "base-ui-_r_1d_",
+      "tag": "a",
+      "text": "Skills"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 615
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 642
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "id": "base-ui-_r_1f_",
+      "tag": "a",
+      "text": "Usage"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 653
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "id": "base-ui-_r_1h_",
+      "tag": "a",
+      "text": "Settings"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 704
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 18,
+        "y": 864
+      },
+      "color": "#0d0d0db3",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 900,
+        "w": 14,
+        "x": 222,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "background": "#fafafad9",
+      "box": {
+        "h": 58,
+        "w": 1210,
+        "x": 230,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 5,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 245,
+        "y": 12
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 254,
+        "y": 21
+      },
+      "color": "#696969",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 58,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 58,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#696969",
+      "depth": 8,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "ol"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 58,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "14px 500",
+      "role": "link",
+      "tag": "span",
+      "text": "Releases"
+    },
+    {
+      "background": "#0027ce1a",
+      "box": {
+        "h": 29,
+        "w": 208,
+        "x": 1103,
+        "y": 14
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "12px 500",
+      "id": "base-ui-_r_7_",
+      "tag": "button",
+      "text": "Demo mode · Switch account"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1288,
+        "y": 22
+      },
+      "color": "#002ad1",
+      "depth": 8,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1318,
+        "y": 16
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "base-ui-_r_a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1323,
+        "y": 21
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 1350,
+        "y": 12
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "id": "base-ui-_r_c_",
+      "tag": "a",
+      "text": "3"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 16,
+        "x": 1358,
+        "y": 20
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 36,
+        "w": 36,
+        "x": 1390,
+        "y": 10
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "base-ui-_r_g_",
+      "tag": "button",
+      "text": "SA"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 6,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "main"
+    },
+    {
+      "box": {
+        "h": 201,
+        "w": 230,
+        "x": 1181,
+        "y": 58
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1031,
+        "w": 1204,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 79,
+        "w": 1146,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 672,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "24px 600",
+      "tag": "h1",
+      "text": "Releases"
+    },
+    {
+      "box": {
+        "h": 43,
+        "w": 672,
+        "x": 259,
+        "y": 122
+      },
+      "color": "#696969",
+      "depth": 12,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Every project from previews to production. Production runs on your own server; Studio only records the version."
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 374,
+        "w": 240,
+        "x": 259,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 216,
+        "x": 271,
+        "y": 195
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 22,
+        "x": 272,
+        "y": 197
+      },
+      "color": "#696969",
+      "depth": 13,
+      "font": "14px 500",
+      "role": "group",
+      "tag": "div"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 279,
+        "y": 203
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 193,
+        "x": 294,
+        "y": 195
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "id": "base-ui-_r_1i_",
+      "name": "",
+      "placeholder": "Search projects",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "background": "#0027ce1a",
+      "box": {
+        "h": 32,
+        "w": 216,
+        "x": 271,
+        "y": 235
+      },
+      "color": "#002ad1",
+      "depth": 12,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "All projects 5"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 279,
+        "y": 244
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 216,
+        "x": 271,
+        "y": 278
+      },
+      "color": "#696969",
+      "depth": 13,
+      "font": "12px 400",
+      "tag": "p",
+      "text": "Pending release · 4"
+    },
+    {
+      "box": {
+        "h": 51,
+        "w": 216,
+        "x": 271,
+        "y": 303
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "tag": "button",
+      "text": "Business Dashboard v1.1.0-beta.1 · 17 pending issues"
+    },
+    {
+      "box": {
+        "h": 51,
+        "w": 216,
+        "x": 271,
+        "y": 355
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "tag": "button",
+      "text": "CRM System 2026-10-27.1 · 26 pending issues"
+    },
+    {
+      "box": {
+        "h": 51,
+        "w": 216,
+        "x": 271,
+        "y": 408
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "tag": "button",
+      "text": "Studio Platform v1.1.0-beta.1 · 9 pending issues"
+    },
+    {
+      "box": {
+        "h": 51,
+        "w": 216,
+        "x": 271,
+        "y": 460
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "tag": "button",
+      "text": "Website Redesign v1.1.0-beta.1 · 6 pending issues"
+    },
+    {
+      "box": {
+        "h": 23,
+        "w": 216,
+        "x": 271,
+        "y": 522
+      },
+      "color": "#696969",
+      "depth": 13,
+      "font": "12px 400",
+      "tag": "button",
+      "text": "No release lines configured · 1"
+    },
+    {
+      "box": {
+        "h": 11,
+        "w": 11,
+        "x": 278,
+        "y": 528
+      },
+      "color": "#696969",
+      "depth": 14,
+      "font": "12px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 26,
+        "w": 884,
+        "x": 521,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "18px 600",
+      "tag": "h2",
+      "text": "All projects"
+    },
+    {
+      "box": {
+        "h": 836,
+        "w": 884,
+        "x": 521,
+        "y": 224
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "display": "flex",
+      "flex": "column",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "background": "#f2f2f2",
+      "box": {
+        "h": 29,
+        "w": 485,
+        "x": 521,
+        "y": 224
+      },
+      "color": "#696969",
+      "depth": 15,
+      "font": "16px 400",
+      "role": "tablist",
+      "tag": "div",
+      "text": "Previews 13 Staging environments 2 Releases 10 Pending release 58"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 91,
+        "x": 524,
+        "y": 227
+      },
+      "color": "#0d0d0d99",
+      "depth": 16,
+      "font": "14px 500",
+      "id": "base-ui-_r_1j_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Previews 13"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 161,
+        "x": 614,
+        "y": 227
+      },
+      "color": "#0d0d0d99",
+      "depth": 16,
+      "font": "14px 500",
+      "id": "base-ui-_r_1k_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Staging environments 2"
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 92,
+        "x": 776,
+        "y": 227
+      },
+      "color": "#0d0d0d99",
+      "depth": 16,
+      "font": "14px 500",
+      "id": "base-ui-_r_1l_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Releases 10"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 22,
+        "w": 135,
+        "x": 868,
+        "y": 227
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "id": "base-ui-_r_1m_",
+      "role": "tab",
+      "tag": "button",
+      "text": "Pending release 58"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 316
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 351
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 129,
+        "x": 1056,
+        "y": 387
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Business Dashboard"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 422
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 458
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 129,
+        "x": 1056,
+        "y": 493
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Business Dashboard"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 96,
+        "x": 1056,
+        "y": 528
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Studio Platform"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 563
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 599
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 635
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 113,
+        "x": 1056,
+        "y": 671
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Website Redesign"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 96,
+        "x": 1056,
+        "y": 705
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Studio Platform"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 129,
+        "x": 1056,
+        "y": 740
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Business Dashboard"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 129,
+        "x": 1056,
+        "y": 774
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Business Dashboard"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 810
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 113,
+        "x": 1056,
+        "y": 845
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Website Redesign"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 129,
+        "x": 1056,
+        "y": 880
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "Business Dashboard"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 915
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 951
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 82,
+        "x": 1056,
+        "y": 987
+      },
+      "color": "#0d0d0d",
+      "depth": 22,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "tag": "a",
+      "text": "CRM System"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 94,
+        "x": 975,
+        "y": 1038
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "p",
+      "text": "Rows per page"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 70,
+        "x": 1076,
+        "y": 1035
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 400",
+      "id": "base-ui-_r_1o_",
+      "role": "combobox",
+      "tag": "button",
+      "text": "20"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1124,
+        "y": 1040
+      },
+      "color": "#696969",
+      "depth": 20,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 1,
+        "w": 1,
+        "x": -1,
+        "y": -1
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "16px 400",
+      "id": "base-ui-_r_1o_-hidden-input",
+      "name": "",
+      "placeholder": "",
+      "tag": "input",
+      "type": "text"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1276,
+        "y": 1035
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Go to first page"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1281,
+        "y": 1040
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1308,
+        "y": 1035
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Go to previous page"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1313,
+        "y": 1040
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1340,
+        "y": 1035
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Go to next page"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1346,
+        "y": 1040
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1373,
+        "y": 1035
+      },
+      "color": "#0d0d0d",
+      "depth": 19,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Go to last page"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1378,
+        "y": 1040
+      },
+      "color": "#0d0d0d",
+      "depth": 20,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 97,
+        "w": 352,
+        "x": 1074,
+        "y": 789
+      },
+      "color": "#0d0d0d",
+      "depth": 4,
+      "font": "16px 400",
+      "role": "dialog",
+      "tag": "div",
+      "text": "This is a demo. Changes cannot be saved. Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1094,
+        "y": 809
+      },
+      "color": "#964f0a",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 42,
+        "w": 253,
+        "x": 1125,
+        "y": 804
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "_r_k_",
+      "tag": "h2",
+      "text": "This is a demo. Changes cannot be saved."
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 253,
+        "x": 1125,
+        "y": 850
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "_r_l_",
+      "tag": "p",
+      "text": "Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1389,
+        "y": 804
+      },
+      "color": "#696969",
+      "depth": 6,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1392,
+        "y": 808
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "svg"
+    }
+  ],
+  "page": {
+    "h": 900,
+    "w": 1440
+  },
+  "text": "My issues 3 My sessions 1 Dashboard Development Issues Projects Knowledge Project memory Releases Releases Hosted environments Agent management Agents Runtimes Skills Usage Settings NocoBase Studio v1.0.0-beta.75 Releases Demo mode · Switch account 3 SA Releases Every project from previews to production. Production runs on your own server; Studio only records the version. All projects 5 Pending release · 4 Business Dashboard v1.1.0-beta.1 · 17 pending issues CRM System 2026-10-27.1 · 26 pending issues Studio Platform v1.1.0-beta.1 · 9 pending issues Website Redesign v1.1.0-beta.1 · 6 pending issues No release lines configured · 1 All projects Previews 13 Staging environments 2 Releases 10 Pending release 58 Issue Project Where it is Updated PM-6459 Editing follow-up notes changes the visit date CRM System Not deployed yet yesterday PM-6469 Customer search misses names with full-width punctuation CRM System In staging 2 days ago PM-6527 Prevent cumulative refunds from exceeding the original payment Business Dashboard Not deployed yet 2 days ago PM-6515 Document rollback criteria for the first regional CRM rollout CRM System In staging 2 days ago PM-6427 Import customers with row-level validation and a downloadable error file CRM System In staging 2 days ago PM-6550 Show incomplete store coverage beside daily totals Business Dashboard Not deployed yet 3 days ago PM-6292 Board drag and drop: reorder within a column Studio Platform Not deployed yet 3 days ago PM-6465 Return delegated reminders when leave coverage ends CRM System In staging 3 days ago PM-6590 Fix the time zone on the customer details page CRM System In staging 3 days ago PM-6589 Sign in with a WeCom QR code CRM System In staging 3 days ago PM-6381 Distinguish per-seat and organization-wide plan limits Website Redesign Not deployed yet 4 days ago PM-6304 Reject dependency cycles with the complete conflicting path Studio Platform Not deployed yet 4 days ago PM-6573 Use daily regional aggregates for quarterly summary queries Business Dashboard Not deployed yet 4 days ago PM-6577 Show metric owner and refund treatment beside revenue definitions Business Dashboard Not deployed yet 5 days ago PM-6514 Reconcile migrated customer and contact totals before CRM cutover CRM System In staging 5 days ago PM-6341 Build the homepage hero and product screenshot carousel Website Redesign Not deployed yet 5 days ago PM-6549 Distinguish confirmed zero sales from missing store data Business Dashboard Not deployed yet 5 days ago PM-6458 Visit dates shift by one day for users in other timezones CRM System In staging 6 days ago PM-6451 Compare quote revisions with discount, total and editor history CRM System In staging 6 days ago PM-6437 Route discounts at exactly 8% and 15% to the correct approver CRM System In staging 8 days ago Rows per page 20 Page 1 of 3 Go to first page Go to previous page Go to next page Go to last page This is a demo. Changes cannot be saved. Everything else works as usual.",
+  "title": "(3) NocoBase Studio",
+  "url": "https://studio.demo.nocobase.com/main/releases",
+  "viewport": {
+    "h": 900,
+    "w": 1440
+  }
+}

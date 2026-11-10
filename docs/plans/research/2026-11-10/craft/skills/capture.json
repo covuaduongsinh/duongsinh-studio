@@ -1,0 +1,1806 @@
+{
+  "a11y": {
+    "images_without_alt": 0,
+    "landmarks": {
+      "banner": 2,
+      "main": 1,
+      "navigation": 2
+    },
+    "lang": "en-US",
+    "unnamed_controls": 0,
+    "unnamed_examples": []
+  },
+  "assets": {
+    "images": [
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 466,
+        "w": 2813
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      },
+      {
+        "h": 1500,
+        "w": 1720
+      }
+    ]
+  },
+  "design": {
+    "backgrounds": [
+      {
+        "count": 3,
+        "value": "#fafafa"
+      },
+      {
+        "count": 3,
+        "value": "#fe9a00"
+      },
+      {
+        "count": 2,
+        "value": "#ffffff"
+      },
+      {
+        "count": 2,
+        "value": "#002ad1"
+      },
+      {
+        "count": 2,
+        "value": "#fafafa99"
+      },
+      {
+        "count": 1,
+        "value": "#ebeefb"
+      },
+      {
+        "count": 1,
+        "value": "#fafafad9"
+      },
+      {
+        "count": 1,
+        "value": "#dedede99"
+      },
+      {
+        "count": 1,
+        "value": "#0027ce1a"
+      },
+      {
+        "count": 1,
+        "value": "#f2f2f2"
+      },
+      {
+        "count": 1,
+        "value": "#f6f6f6"
+      },
+      {
+        "count": 1,
+        "value": "#fff6e5"
+      }
+    ],
+    "font_sizes": [
+      {
+        "count": 70,
+        "value": "14px"
+      },
+      {
+        "count": 21,
+        "value": "12px"
+      },
+      {
+        "count": 1,
+        "value": "24px"
+      }
+    ],
+    "font_weights": [
+      {
+        "count": 61,
+        "value": "400"
+      },
+      {
+        "count": 22,
+        "value": "500"
+      },
+      {
+        "count": 9,
+        "value": "600"
+      }
+    ],
+    "fonts": [
+      {
+        "count": 70,
+        "value": "ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"PingFang SC\", \"Microsoft YaHei\", sans-serif"
+      },
+      {
+        "count": 22,
+        "value": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace"
+      }
+    ],
+    "max_widths": [
+      {
+        "count": 11,
+        "value": "448px"
+      },
+      {
+        "count": 1,
+        "value": "768px"
+      }
+    ],
+    "radii": [
+      {
+        "count": 19,
+        "value": "6.4px"
+      },
+      {
+        "count": 6,
+        "value": "9999px"
+      },
+      {
+        "count": 6,
+        "value": "8px"
+      },
+      {
+        "count": 2,
+        "value": "11.2px"
+      },
+      {
+        "count": 1,
+        "value": "4.8px"
+      }
+    ],
+    "shadows": [
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, oklch(0.985 0 0) 0px 0px 0px 2px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      {
+        "count": 1,
+        "value": "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.1) 0px 4px 6px -4px"
+      }
+    ],
+    "spacing": [
+      {
+        "count": 196,
+        "value": "7.2px"
+      },
+      {
+        "count": 130,
+        "value": "10.8px"
+      },
+      {
+        "count": 34,
+        "value": "12.6px"
+      },
+      {
+        "count": 32,
+        "value": "3.6px"
+      },
+      {
+        "count": 11,
+        "value": "1.8px"
+      },
+      {
+        "count": 11,
+        "value": "5.4px"
+      },
+      {
+        "count": 6,
+        "value": "14.4px"
+      },
+      {
+        "count": 4,
+        "value": "18px"
+      },
+      {
+        "count": 4,
+        "value": "9px"
+      },
+      {
+        "count": 4,
+        "value": "28.8px"
+      },
+      {
+        "count": 1,
+        "value": "21.6px"
+      }
+    ],
+    "text_colors": [
+      {
+        "count": 51,
+        "value": "#0d0d0d"
+      },
+      {
+        "count": 25,
+        "value": "#696969"
+      },
+      {
+        "count": 5,
+        "value": "#202020"
+      },
+      {
+        "count": 3,
+        "value": "#111826"
+      },
+      {
+        "count": 3,
+        "value": "#7a7a7a"
+      },
+      {
+        "count": 2,
+        "value": "#002ad1"
+      },
+      {
+        "count": 1,
+        "value": "#0d0d0db3"
+      },
+      {
+        "count": 1,
+        "value": "#002ad1cc"
+      },
+      {
+        "count": 1,
+        "value": "#ffffff"
+      }
+    ]
+  },
+  "forms": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Skills"
+    },
+    {
+      "level": 2,
+      "text": "This is a demo. Changes cannot be saved."
+    }
+  ],
+  "lang": "en-US",
+  "layouts": [
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 1210,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 665,
+            "x": 259
+          },
+          "h": 842,
+          "heading": "Skills",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "main",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 665,
+            "x": 259
+          },
+          "h": 711,
+          "heading": "Skills",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 2,
+          "tag": "section",
+          "w": 1210,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 665,
+            "x": 259
+          },
+          "gap": 11,
+          "h": 53,
+          "heading": "Skills",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 1152,
+          "y": 86
+        }
+      ],
+      "page_h": 900,
+      "page_w": 1440,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 14,
+        "h3": 0
+      },
+      "width": 1440
+    },
+    {
+      "blocks": [
+        {
+          "h": 678,
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "nav",
+          "w": 229,
+          "y": 58
+        },
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            14,
+            0,
+            14
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 590,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 343,
+            "x": 259
+          },
+          "h": 842,
+          "heading": "Skills",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 3,
+          "tag": "main",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 343,
+            "x": 259
+          },
+          "h": 794,
+          "heading": "Skills",
+          "pad": [
+            29,
+            29,
+            29,
+            29
+          ],
+          "per_row": 3,
+          "tag": "section",
+          "w": 590,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 343,
+            "x": 259
+          },
+          "gap": 11,
+          "h": 73,
+          "heading": "Skills",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 1,
+          "tag": "header",
+          "w": 532,
+          "y": 86
+        }
+      ],
+      "page_h": 900,
+      "page_w": 820,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 14,
+        "h3": 0
+      },
+      "width": 820
+    },
+    {
+      "blocks": [
+        {
+          "background": "#fafafad9",
+          "h": 58,
+          "pad": [
+            0,
+            11,
+            0,
+            11
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 390,
+          "y": 0
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 347,
+            "x": 22
+          },
+          "h": 842,
+          "heading": "Skills",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 4,
+          "tag": "main",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 347,
+            "x": 22
+          },
+          "h": 819,
+          "heading": "Skills",
+          "pad": [
+            22,
+            22,
+            22,
+            22
+          ],
+          "per_row": 4,
+          "tag": "section",
+          "w": 390,
+          "y": 58
+        },
+        {
+          "column": {
+            "max_w": 768,
+            "pad": [
+              0,
+              0
+            ],
+            "w": 347,
+            "x": 22
+          },
+          "gap": 11,
+          "h": 112,
+          "heading": "Skills",
+          "pad": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "per_row": 2,
+          "tag": "header",
+          "w": 347,
+          "y": 79
+        }
+      ],
+      "page_h": 900,
+      "page_w": 390,
+      "type": {
+        "body": 14,
+        "h1": 24,
+        "h2": 14,
+        "h3": 0
+      },
+      "width": 390
+    }
+  ],
+  "links": [
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "text": "My issues 3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "text": "My sessions 1"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "text": "Dashboard"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "text": "Issues"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "text": "Projects"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "text": "Knowledge"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "text": "Project memory"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "text": "Releases"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "text": "Hosted environments"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "text": "Agents"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "text": "Runtimes"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "text": "Skills"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "text": "Usage"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "text": "Settings"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main",
+      "text": "NocoBase home"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "text": "3"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/new",
+      "text": "New skill"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/396925295656987",
+      "text": "code-review"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/396925295656989",
+      "text": "commit-messages"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/396925295656991",
+      "text": "frontend-components"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/394176894074880",
+      "text": "quality-plan"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/394176894074882",
+      "text": "quality-report"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/394176894074884",
+      "text": "quality-task"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686276",
+      "text": "studio-approach"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686280",
+      "text": "studio-comment-style"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686274",
+      "text": "studio-development"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686278",
+      "text": "studio-review"
+    },
+    {
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686272",
+      "text": "studio-workflow"
+    }
+  ],
+  "outline": [
+    {
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main",
+      "tag": "a"
+    },
+    {
+      "alt": "NocoBase",
+      "box": {
+        "h": 29,
+        "w": 174,
+        "x": 18,
+        "y": 14
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "16px 400",
+      "src": "https://studio.demo.nocobase.com/main/assets/logo.png",
+      "tag": "img"
+    },
+    {
+      "box": {
+        "h": 678,
+        "w": 229,
+        "x": 0,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 112,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 65
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/my-issues",
+      "id": "base-ui-_r_n_",
+      "tag": "a",
+      "text": "My issues 3"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 76
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 103
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agent-sessions",
+      "id": "base-ui-_r_p_",
+      "tag": "a",
+      "text": "My sessions 1"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 113
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 140
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/dashboard",
+      "id": "base-ui-_r_r_",
+      "tag": "a",
+      "text": "Dashboard"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 151
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 184
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Development Issues Projects Knowledge Project memory"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 220
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/issues",
+      "id": "base-ui-_r_t_",
+      "tag": "a",
+      "text": "Issues"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 230
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 257
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/projects",
+      "id": "base-ui-_r_v_",
+      "tag": "a",
+      "text": "Projects"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 268
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 295
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/knowledge",
+      "id": "base-ui-_r_11_",
+      "tag": "a",
+      "text": "Knowledge"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 306
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 333
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/project-memory",
+      "id": "base-ui-_r_13_",
+      "tag": "a",
+      "text": "Project memory"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 344
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 117,
+        "w": 229,
+        "x": 0,
+        "y": 376
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Releases Releases Hosted environments"
+    },
+    {
+      "box": {
+        "h": 74,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 412
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/releases",
+      "id": "base-ui-_r_15_",
+      "tag": "a",
+      "text": "Releases"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 423
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 450
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/environments",
+      "id": "base-ui-_r_17_",
+      "tag": "a",
+      "text": "Hosted environments"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 461
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 193,
+        "w": 229,
+        "x": 0,
+        "y": 493
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "font": "16px 400",
+      "role": "group",
+      "tag": "div",
+      "text": "Agent management Agents Runtimes Skills Usage"
+    },
+    {
+      "box": {
+        "h": 149,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 529
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/agents",
+      "id": "base-ui-_r_19_",
+      "tag": "a",
+      "text": "Agents"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 540
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 567
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/runtimes",
+      "id": "base-ui-_r_1b_",
+      "tag": "a",
+      "text": "Runtimes"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 578
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#ebeefb",
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 605
+      },
+      "color": "#002ad1",
+      "depth": 13,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills",
+      "id": "base-ui-_r_1d_",
+      "tag": "a",
+      "text": "Skills"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 615
+      },
+      "color": "#002ad1",
+      "depth": 14,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 642
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/usage",
+      "id": "base-ui-_r_1f_",
+      "tag": "a",
+      "text": "Usage"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 653
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "display": "flex",
+      "flex": "column",
+      "font": "14px 400",
+      "tag": "ul"
+    },
+    {
+      "box": {
+        "h": 36,
+        "w": 215,
+        "x": 7,
+        "y": 693
+      },
+      "color": "#0d0d0d",
+      "depth": 13,
+      "font": "14px 400",
+      "href": "https://studio.demo.nocobase.com/main/config",
+      "id": "base-ui-_r_1h_",
+      "tag": "a",
+      "text": "Settings"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 20,
+        "y": 704
+      },
+      "color": "#0d0d0d",
+      "depth": 14,
+      "font": "14px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 18,
+        "y": 864
+      },
+      "color": "#0d0d0db3",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 900,
+        "w": 14,
+        "x": 222,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "button"
+    },
+    {
+      "background": "#fafafad9",
+      "box": {
+        "h": 58,
+        "w": 1210,
+        "x": 230,
+        "y": 0
+      },
+      "color": "#0d0d0d",
+      "depth": 5,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 245,
+        "y": 12
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 254,
+        "y": 21
+      },
+      "color": "#696969",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 33,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "nav"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 33,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#696969",
+      "depth": 8,
+      "display": "flex",
+      "flex": "row",
+      "font": "14px 400",
+      "tag": "ol"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 33,
+        "x": 300,
+        "y": 19
+      },
+      "color": "#0d0d0d",
+      "depth": 10,
+      "font": "14px 500",
+      "role": "link",
+      "tag": "span",
+      "text": "Skills"
+    },
+    {
+      "background": "#0027ce1a",
+      "box": {
+        "h": 29,
+        "w": 208,
+        "x": 1103,
+        "y": 14
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "12px 500",
+      "id": "base-ui-_r_7_",
+      "tag": "button",
+      "text": "Demo mode · Switch account"
+    },
+    {
+      "box": {
+        "h": 13,
+        "w": 13,
+        "x": 1288,
+        "y": 22
+      },
+      "color": "#002ad1",
+      "depth": 8,
+      "font": "12px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 25,
+        "w": 25,
+        "x": 1318,
+        "y": 16
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "base-ui-_r_a_",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1323,
+        "y": 21
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 32,
+        "w": 32,
+        "x": 1350,
+        "y": 12
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "16px 400",
+      "href": "https://studio.demo.nocobase.com/main/inbox",
+      "id": "base-ui-_r_c_",
+      "tag": "a",
+      "text": "3"
+    },
+    {
+      "box": {
+        "h": 16,
+        "w": 16,
+        "x": 1358,
+        "y": 20
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "background": "#fafafa99",
+      "box": {
+        "h": 36,
+        "w": 36,
+        "x": 1390,
+        "y": 10
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "base-ui-_r_g_",
+      "tag": "button",
+      "text": "SA"
+    },
+    {
+      "box": {
+        "h": 842,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 6,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "main"
+    },
+    {
+      "box": {
+        "h": 201,
+        "w": 230,
+        "x": 1181,
+        "y": 58
+      },
+      "color": "#002ad1",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 711,
+        "w": 1210,
+        "x": 230,
+        "y": 58
+      },
+      "color": "#0d0d0d",
+      "depth": 8,
+      "display": "block",
+      "font": "16px 400",
+      "tag": "section"
+    },
+    {
+      "box": {
+        "h": 53,
+        "w": 1152,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 9,
+      "display": "flex",
+      "flex": "row",
+      "font": "16px 400",
+      "tag": "header"
+    },
+    {
+      "box": {
+        "h": 29,
+        "w": 665,
+        "x": 259,
+        "y": 86
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "24px 600",
+      "tag": "h1",
+      "text": "Skills"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 665,
+        "x": 259,
+        "y": 121
+      },
+      "color": "#696969",
+      "depth": 11,
+      "font": "14px 400",
+      "tag": "p",
+      "text": "Reusable instructions with supporting files. Attach team defaults globally or to a project or working directory."
+    },
+    {
+      "background": "#fafafa",
+      "box": {
+        "h": 29,
+        "w": 78,
+        "x": 1233,
+        "y": 99
+      },
+      "color": "#0d0d0d",
+      "depth": 11,
+      "font": "14px 500",
+      "tag": "button",
+      "text": "Import"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1241,
+        "y": 106
+      },
+      "color": "#0d0d0d",
+      "depth": 12,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "background": "#002ad1",
+      "box": {
+        "h": 29,
+        "w": 93,
+        "x": 1318,
+        "y": 99
+      },
+      "color": "#ffffff",
+      "depth": 11,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/new",
+      "role": "button",
+      "tag": "a",
+      "text": "New skill"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1326,
+        "y": 106
+      },
+      "color": "#ffffff",
+      "depth": 12,
+      "font": "14px 500",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 92,
+        "x": 271,
+        "y": 213
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/396925295656987",
+      "tag": "a",
+      "text": "code-review"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 126,
+        "x": 271,
+        "y": 248
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/396925295656989",
+      "tag": "a",
+      "text": "commit-messages"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 160,
+        "x": 271,
+        "y": 282
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/396925295656991",
+      "tag": "a",
+      "text": "frontend-components"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 101,
+        "x": 271,
+        "y": 327
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/394176894074880",
+      "tag": "a",
+      "text": "quality-plan"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 118,
+        "x": 271,
+        "y": 380
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/394176894074882",
+      "tag": "a",
+      "text": "quality-report"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 101,
+        "x": 271,
+        "y": 434
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/394176894074884",
+      "tag": "a",
+      "text": "quality-task"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 126,
+        "x": 271,
+        "y": 488
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686276",
+      "tag": "a",
+      "text": "studio-approach"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 168,
+        "x": 271,
+        "y": 542
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686280",
+      "tag": "a",
+      "text": "studio-comment-style"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 151,
+        "x": 271,
+        "y": 595
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686274",
+      "tag": "a",
+      "text": "studio-development"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 109,
+        "x": 271,
+        "y": 649
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686278",
+      "tag": "a",
+      "text": "studio-review"
+    },
+    {
+      "box": {
+        "h": 19,
+        "w": 126,
+        "x": 271,
+        "y": 703
+      },
+      "color": "#0d0d0d",
+      "depth": 16,
+      "font": "14px 500",
+      "href": "https://studio.demo.nocobase.com/main/skills/394176885686272",
+      "tag": "a",
+      "text": "studio-workflow"
+    },
+    {
+      "background": "#ffffff",
+      "box": {
+        "h": 97,
+        "w": 352,
+        "x": 1074,
+        "y": 789
+      },
+      "color": "#0d0d0d",
+      "depth": 4,
+      "font": "16px 400",
+      "role": "dialog",
+      "tag": "div",
+      "text": "This is a demo. Changes cannot be saved. Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1094,
+        "y": 809
+      },
+      "color": "#964f0a",
+      "depth": 7,
+      "font": "16px 400",
+      "tag": "svg"
+    },
+    {
+      "box": {
+        "h": 42,
+        "w": 253,
+        "x": 1125,
+        "y": 804
+      },
+      "color": "#0d0d0d",
+      "depth": 7,
+      "font": "14px 500",
+      "id": "_r_k_",
+      "tag": "h2",
+      "text": "This is a demo. Changes cannot be saved."
+    },
+    {
+      "box": {
+        "h": 21,
+        "w": 253,
+        "x": 1125,
+        "y": 850
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 400",
+      "id": "_r_l_",
+      "tag": "p",
+      "text": "Everything else works as usual."
+    },
+    {
+      "box": {
+        "h": 22,
+        "w": 22,
+        "x": 1389,
+        "y": 804
+      },
+      "color": "#696969",
+      "depth": 6,
+      "font": "14px 500",
+      "tag": "button"
+    },
+    {
+      "box": {
+        "h": 14,
+        "w": 14,
+        "x": 1392,
+        "y": 808
+      },
+      "color": "#696969",
+      "depth": 7,
+      "font": "14px 500",
+      "tag": "svg"
+    }
+  ],
+  "page": {
+    "h": 900,
+    "w": 1440
+  },
+  "text": "My issues 3 My sessions 1 Dashboard Development Issues Projects Knowledge Project memory Releases Releases Hosted environments Agent management Agents Runtimes Skills Usage Settings NocoBase Studio v1.0.0-beta.75 Skills Demo mode · Switch account 3 SA Skills Reusable instructions with supporting files. Attach team defaults globally or to a project or working directory. Import New skill Name Description Files Version Updated code-review What the team looks for in a code review, and how review comments are written. 0 v1 11 hours ago commit-messages Conventions for Git commit messages and pull request titles (Conventional Commits). 0 v1 11 hours ago frontend-components Conventions for React components, styling and translations. 0 v1 11 hours ago quality-plan Discuss the business objective and scope, present a structured quality plan, then create and start its native work after one user confirmation. 2 v5 last week quality-report Deliver readable function-oriented quality reports with truthful outcomes and registered follow-up work. 0 v5 2 weeks ago quality-task Execute a confirmed quality plan through native testing tasks, real observations and linked follow-up work. 5 v6 last week studio-approach How to write an approach (a design proposal) for a step of this project. Read it whenever you are asked for an approach, a design, a plan or a short proposal before implementation, and when you review one. 0 v2 2 weeks ago studio-comment-style How to write comments and attached documents on NocoBase Studio issues. Read it before you post any comment on an issue — a step's reply, a hand-over, a question or a delivery report — or attach a document such as an approach, a review or a verification record, and follow it. 0 v3 11 hours ago studio-development This project's development standard for agents doing a step — how to work on a step, design, verify, handle CI failures, review and deliver. Read it at the start of every step you are handed on an issue of this project. 0 v5 11 hours ago studio-review How to review a pull request on an issue of this project — what to look at (defects, security, design and simplicity, tests and their CI cost), how to grade findings, what blocks a merge and how to write the verdict. Read it whenever you are handed a review step. 0 v3 11 hours ago studio-workflow This project's development workflow for the project manager — how to split an issue into steps, which agent gets each step (design, implementation, review, CI), when an approach comes first, how reviews and rounds work and when work is ready to deliver. The project manager reads it before handing out any step. 0 v5 11 hours ago This is a demo. Changes cannot be saved. Everything else works as usual.",
+  "title": "(3) NocoBase Studio",
+  "url": "https://studio.demo.nocobase.com/main/skills",
+  "viewport": {
+    "h": 900,
+    "w": 1440
+  }
+}

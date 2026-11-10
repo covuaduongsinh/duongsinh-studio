@@ -190,4 +190,4 @@ Mỗi bước: một nhánh `feat/p<N>-<slug>` → một PR → CI xanh → gộ
 
 ## 6. Tiến độ
 
-- [x] Đặc tả REA lượt 1 (mục 3b) · [ ] P0 đồng bộ + PR phần dở · [ ] P0b đặc tả bù + đường cơ sở Craft Anything · [ ] P1 · [ ] P2 · [ ] P3 · [ ] P4 · [ ] P5 · [ ] P6 · [ ] P7 · [ ] P8 · [ ] P9
+- [x] Đặc tả REA lượt 1 (mục 3b) · [x] P0 đồng bộ + PR phần dở (#51, ef93538) · [x] P0b đặc tả bù + đường cơ sở Craft Anything (rea-luot-2, craft/) · [ ] P1 · [ ] P2 · [ ] P3 · [ ] P4 · [ ] P5 · [ ] P6 · [ ] P7 · [ ] P8 · [ ] P9
