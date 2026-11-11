@@ -531,7 +531,7 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 
 ## 27. U5 — Dashboard (07/11/2026)
 
-- **Thẻ KPI thứ tư là token mỗi công việc, không phải chi phí mỗi công việc:** agent của Studio chạy bằng gói thuê bao. `reports/delivery` vẫn trả `costPerIssue` đúng hợp đồng và thêm `tokensPerIssue` ở `current`, `previous`, `buckets`.
+- **(Đã thay ở §38: thẻ thứ tư nay là chi phí mỗi công việc, token ở chú thích.)** Trước đây thẻ KPI thứ tư là token mỗi công việc, không phải chi phí mỗi công việc: agent của Studio chạy bằng gói thuê bao. `reports/delivery` vẫn trả `costPerIssue` đúng hợp đồng và thêm `tokensPerIssue` ở `current`, `previous`, `buckets`.
 - **Biểu đồ lượt chạy dùng cột chồng tự vẽ thay cho vùng chồng của demo:** không kéo `echarts` vào trang, màu lấy từ token theme, có chú giải, tooltip và bảng số. Bốn token `--run-*` thêm vào `client/theme/themes/*.css` và `client/styles.css` (đã qua validator của skill `dataviz` ở nền sáng và tối); không đổi `--chart-*` vì `flow-diagram.tsx` đang dùng. Lúc nâng template cần giữ.
 - **`groupBy` của `reports/usage`:** theo enum của demo (`agent|person|project|issue|day|model|tool`), đổi sang `group`/`subject` khi gọi plugin. Không nhận `type` tuy mô tả của demo có nhắc tới.
 - **`SubjectFacts.group` giờ là project của công việc** (`server/providers/issue-subject.ts`), trước đó luôn `null`; nhờ vậy `?projectId=` và nhóm theo project mới có nghĩa.
@@ -698,3 +698,11 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Huy hiệu số phiên** trên sidebar (`my-sessions`) = `agents/conversationAttention` (`needsYou`, nếu 0 thì `unread`). Demo dùng `attention.counts.sessions`; `/api/attention` của ta chưa có trường đó.
 - **Chưa làm:** đăng ký topic ws `agents:conversations` và `studio:conversations:attention` (danh sách vẫn làm mới theo cách của plugin, huy hiệu theo chu kỳ 60 giây); khung phải trên điện thoại; nhóm "Ran N commands" và composer là của `ConversationView` (không đổi).
 - Test: `tests/client/sessions-page.test.tsx` (hook hội thoại của plugin agents trả từ fixture vì cần cả client của plugin; phần còn lại của trang là thật), `follow-ups.test.tsx` (số phiên).
+
+## 38. Dashboard (P5)
+
+- **Ô thứ 4 là Chi phí mỗi issue** (USD, theo `delivery.currency`), có sparkline từ `buckets[].costPerIssue`; số token mỗi issue giữ ở chú thích dưới số. Khi chưa có lượt chạy nào được định giá
+  (công cụ thuê bao) hiện "Chưa đặt giá" kèm liên kết "Đặt giá" sang `/usage`. Mục "cố ý khác: token" trước đây đã bỏ. Server không đổi (`costPerIssue` đã có từ trước); chỉ thêm test cho trường hợp chưa định giá.
+- **Biểu đồ lượt chạy là vùng xếp chồng** (SVG, bốn chuỗi theo thứ tự hoàn thành / lỗi / đang chạy / huỷ), thay cho cột; vẫn có chú giải, tooltip theo ngày và chế độ xem dạng bảng.
+- **Bảng dự án** thêm cột tiến độ (thanh `done/total`, `role=progressbar`).
+- Test: `tests/client/dashboard.test.tsx` (cập nhật), `tests/server/report-figures.test.ts` (chưa định giá).

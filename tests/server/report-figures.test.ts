@@ -258,6 +258,35 @@ describe('report figures', () => {
     });
   });
 
+  it('has no cost per issue while no run was priced (a subscription tool), and keeps the tokens', async () => {
+    const base = sources();
+    const unpriced = {
+      ...base,
+      reporting: {
+        ...base.reporting,
+        usage: async (caller: unknown, query: { from: string }) => {
+          const usage = await base.reporting.usage(caller, query);
+          return {
+            ...usage,
+            totals: { ...usage.totals, cost: null, pricedRuns: 0 },
+            daily: usage.daily.map((day: Record<string, unknown>) => ({
+              ...day,
+              cost: null,
+            })),
+          };
+        },
+      },
+    } as ReportSources;
+    const report = await createReportFigures(unpriced).delivery(scope, 7);
+    expect(report.current.costPerIssue).toBeNull();
+    expect(report.current.tokensPerIssue).toBe(500);
+    // The currency still reads, so the page can show a price once one is set.
+    expect(report.currency).toBe('USD');
+    expect(report.buckets.every((bucket) => bucket.costPerIssue === null)).toBe(
+      true,
+    );
+  });
+
   it('has ten points over 30 and 90 days', async () => {
     const figures = createReportFigures(sources());
     const month = await figures.delivery(scope, 30);

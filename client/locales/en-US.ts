@@ -156,6 +156,10 @@ const enUS = {
     cycleTime: 'Median cycle time',
     agentShare: 'Completed by agents',
     tokensPerIssue: 'Tokens per issue',
+    costPerIssue: 'Cost per issue',
+    tokensNote: '{{value}} tokens per issue',
+    noPrice: 'Not priced',
+    setPrices: 'Set prices',
     duration: {
       seconds: '{{count}} sec',
       minutes: '{{count}} min',
@@ -199,6 +203,7 @@ const enUS = {
     projects: {
       title: 'Projects',
       name: 'Project',
+      progress: 'Progress',
       done: 'Done',
       completed: 'Completed in the period',
       cycleTime: 'Median cycle time',

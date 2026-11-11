@@ -19,11 +19,55 @@ import type { RunDay } from '#hooks/use-reports';
 
 /** Stacked from the baseline up, in this order: the `--run-*` tokens are checked as a set, adjacent in this order. */
 const SERIES = [
-  { key: 'runsCompleted', label: 'completed', fill: 'bg-run-completed' },
-  { key: 'runsFailed', label: 'failed', fill: 'bg-run-failed' },
-  { key: 'runsOpen', label: 'open', fill: 'bg-run-open' },
-  { key: 'runsCancelled', label: 'cancelled', fill: 'bg-run-cancelled' },
+  {
+    key: 'runsCompleted',
+    label: 'completed',
+    fill: 'bg-run-completed',
+    area: 'fill-run-completed',
+  },
+  {
+    key: 'runsFailed',
+    label: 'failed',
+    fill: 'bg-run-failed',
+    area: 'fill-run-failed',
+  },
+  {
+    key: 'runsOpen',
+    label: 'open',
+    fill: 'bg-run-open',
+    area: 'fill-run-open',
+  },
+  {
+    key: 'runsCancelled',
+    label: 'cancelled',
+    fill: 'bg-run-cancelled',
+    area: 'fill-run-cancelled',
+  },
 ] as const;
+
+const WIDTH = 100;
+const HEIGHT = 100;
+
+/**
+ * The outline of one series stacked on the ones under it, as an SVG path in a 100 × 100 box: along the top of the
+ * series day by day, then back along the top of what lies under it. One day is a flat band across the box.
+ */
+function areaPath(
+  daily: readonly RunDay[],
+  index: number,
+  top: number,
+): string {
+  const x = (at: number): number =>
+    daily.length > 1 ? (at * WIDTH) / (daily.length - 1) : WIDTH / 2;
+  const y = (value: number): number => HEIGHT - (value / top) * HEIGHT;
+  const under = (day: RunDay): number =>
+    SERIES.slice(0, index).reduce((sum, { key }) => sum + day[key], 0);
+  const upper = daily.map(
+    (day, at) => `${x(at)},${y(under(day) + day[SERIES[index].key])}`,
+  );
+  const lower = daily.map((day, at) => `${x(at)},${y(under(day))}`).reverse();
+  return `M${[...upper, ...lower].join(' L')}Z`;
+}
 
 const totalOf = (day: RunDay): number =>
   SERIES.reduce((sum, { key }) => sum + day[key], 0);
@@ -36,7 +80,7 @@ function ceiling(value: number): number {
   return (step ?? 10) * unit;
 }
 
-/** Runs queued each day by how they ended so far: a stacked column per day, with a legend, a tooltip and a table. */
+/** Runs queued each day by how they ended so far: stacked areas over the days, with a legend, a tooltip and a table. */
 export function RunsChart({
   daily,
   dayText,
@@ -108,7 +152,7 @@ export function RunsChart({
                 </span>
               ))}
             </div>
-            <div className='relative flex h-48 items-end gap-0.5 border-b'>
+            <div className='relative flex h-48 items-stretch border-b'>
               <div
                 aria-hidden
                 className='absolute inset-x-0 top-0 border-t border-border'
@@ -117,32 +161,34 @@ export function RunsChart({
                 aria-hidden
                 className='absolute inset-x-0 top-1/2 border-t border-border'
               />
+              <svg
+                aria-hidden
+                className='absolute inset-0 h-full w-full'
+                preserveAspectRatio='none'
+                viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+              >
+                {SERIES.map(({ area, key }, index) =>
+                  daily.some((day) => day[key] > 0) ? (
+                    <path
+                      key={key}
+                      className={`${area} opacity-90`}
+                      d={areaPath(daily, index, top)}
+                      data-testid={`run-area-${key}`}
+                      data-values={daily.map((day) => day[key]).join(',')}
+                    />
+                  ) : null,
+                )}
+              </svg>
               {daily.map((day) => (
                 <Tooltip key={day.day}>
                   <TooltipTrigger
                     render={
                       <div
-                        className='relative flex h-full min-w-0 flex-1 flex-col-reverse items-center gap-0.5'
+                        className='relative h-full min-w-0 flex-1'
                         data-testid={`run-day-${day.day}`}
                       />
                     }
-                  >
-                    {SERIES.map(({ fill, key }, index) =>
-                      day[key] > 0 ? (
-                        <div
-                          key={key}
-                          className={`w-full max-w-6 ${fill} ${
-                            SERIES.slice(index + 1).some(
-                              (next) => day[next.key] > 0,
-                            )
-                              ? ''
-                              : 'rounded-t'
-                          }`}
-                          style={{ height: `${(day[key] / top) * 100}%` }}
-                        />
-                      ) : null,
-                    )}
-                  </TooltipTrigger>
+                  />
                   <TooltipContent>
                     <p className='font-medium'>{dayText(day.day)}</p>
                     {SERIES.map(({ key, label }) => (

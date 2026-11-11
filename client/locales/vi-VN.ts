@@ -151,6 +151,10 @@ const viVN: AppResource = {
     cycleTime: 'Chu kỳ trung vị',
     agentShare: 'Do agent làm',
     tokensPerIssue: 'Token mỗi công việc',
+    costPerIssue: 'Chi phí mỗi công việc',
+    tokensNote: '{{value}} token mỗi công việc',
+    noPrice: 'Chưa đặt giá',
+    setPrices: 'Đặt giá',
     duration: {
       seconds: '{{count}} giây',
       minutes: '{{count}} phút',
@@ -193,6 +197,7 @@ const viVN: AppResource = {
     projects: {
       title: 'Dự án',
       name: 'Dự án',
+      progress: 'Tiến độ',
       done: 'Đã xong',
       completed: 'Hoàn thành trong kỳ',
       cycleTime: 'Chu kỳ trung vị',

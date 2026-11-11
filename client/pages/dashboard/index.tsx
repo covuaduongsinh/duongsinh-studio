@@ -31,7 +31,7 @@ import {
   useAttentionReport,
   useDeliveryReport,
   useProjectsReport,
-  type DeliveryFigures,
+  type DeliveryReport,
   type ReportDays,
 } from '#hooks/use-reports';
 
@@ -116,10 +116,13 @@ function StatTile({
   current,
   kind,
   label,
+  note,
   points,
   upIsGood,
   value,
 }: {
+  /** Under the figure, after the comparison: what else the figure stands for (the tokens behind a cost). */
+  readonly note?: ReactNode;
   readonly before: number | null;
   readonly beforeText: string;
   readonly current: number | null;
@@ -144,6 +147,9 @@ function StatTile({
           />
           <span>{t('dashboard.before', { value: beforeText })}</span>
         </div>
+        {note ? (
+          <div className='text-xs text-muted-foreground'>{note}</div>
+        ) : null}
       </CardHeader>
       <CardContent>
         <Sparkline points={points} />
@@ -275,6 +281,18 @@ export default function DashboardPage(): ReactElement {
           notation: 'compact',
           maximumFractionDigits: 1,
         }).format(value);
+  const currency = delivery.data?.currency ?? 'USD';
+  const priced = (
+    costs: Readonly<Record<string, number>> | null,
+  ): number | null => costs?.[currency] ?? null;
+  const money = (value: number | null): string =>
+    value === null
+      ? t('dashboard.none')
+      : new Intl.NumberFormat(i18n.language, {
+          style: 'currency',
+          currency,
+          maximumFractionDigits: value < 1 ? 3 : 2,
+        }).format(value);
   const waited = (since: string): string =>
     t('dashboard.attention.for', {
       // As of when the list was read, so it stands still between refreshes.
@@ -282,7 +300,9 @@ export default function DashboardPage(): ReactElement {
     });
 
   const report = delivery.data;
-  const series = (pick: (figures: DeliveryFigures) => number | null) =>
+  const series = (
+    pick: (figures: DeliveryReport['buckets'][number]) => number | null,
+  ) =>
     (report?.buckets ?? []).map((bucket) => ({
       label:
         bucket.from === bucket.to
@@ -367,14 +387,36 @@ export default function DashboardPage(): ReactElement {
               value={formatPercent(t, report.current.agentShare)}
             />
             <StatTile
-              before={report.previous.tokensPerIssue}
-              beforeText={tokens(report.previous.tokensPerIssue)}
-              current={report.current.tokensPerIssue}
+              before={priced(report.previous.costPerIssue)}
+              beforeText={money(priced(report.previous.costPerIssue))}
+              current={priced(report.current.costPerIssue)}
               kind='relative'
-              label={t('dashboard.tokensPerIssue')}
-              points={series((figures) => figures.tokensPerIssue)}
+              label={t('dashboard.costPerIssue')}
+              note={
+                <>
+                  {t('dashboard.tokensNote', {
+                    value: tokens(report.current.tokensPerIssue),
+                  })}
+                  {report.current.costPerIssue === null ? (
+                    <>
+                      {' · '}
+                      <Link
+                        className='underline underline-offset-4'
+                        to='/usage'
+                      >
+                        {t('dashboard.setPrices')}
+                      </Link>
+                    </>
+                  ) : null}
+                </>
+              }
+              points={series((figures) => figures.costPerIssue)}
               upIsGood={false}
-              value={tokens(report.current.tokensPerIssue)}
+              value={
+                report.current.costPerIssue === null
+                  ? t('dashboard.noPrice')
+                  : money(priced(report.current.costPerIssue))
+              }
             />
           </div>
         ) : delivery.isLoading ? (
@@ -563,6 +605,9 @@ export default function DashboardPage(): ReactElement {
                 <TableHeader>
                   <TableRow>
                     <TableHead>{t('dashboard.projects.name')}</TableHead>
+                    <TableHead className='w-48'>
+                      {t('dashboard.projects.progress')}
+                    </TableHead>
                     <TableHead className='text-right'>
                       {t('dashboard.projects.done')}
                     </TableHead>
@@ -587,6 +632,23 @@ export default function DashboardPage(): ReactElement {
                         >
                           {project.name}
                         </Link>
+                      </TableCell>
+                      <TableCell>
+                        <div
+                          role='progressbar'
+                          aria-label={project.name}
+                          aria-valuemin={0}
+                          aria-valuemax={project.total}
+                          aria-valuenow={project.done}
+                          className='h-1.5 w-full overflow-hidden rounded-full bg-muted'
+                        >
+                          <div
+                            className='h-full rounded-full bg-primary'
+                            style={{
+                              width: `${project.total > 0 ? (project.done / project.total) * 100 : 0}%`,
+                            }}
+                          />
+                        </div>
                       </TableCell>
                       <TableCell className='text-right tabular-nums'>
                         {project.done}/{project.total}
