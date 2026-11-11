@@ -29,6 +29,8 @@ const words = enUS.releases;
 const AT = '2026-11-02T10:00:00.000Z';
 const getSession = vi.fn(async () => ({ data: null }));
 let me: { owner: boolean; admin: boolean; deployer: boolean };
+/** Whether the viewer holds every permission; false leaves them none. */
+let everything = true;
 
 const line = {
   repositoryId: 'r1',
@@ -82,7 +84,7 @@ const pending = [
 const api = vi.fn((call: ApiCall): unknown => {
   const { method, path } = call;
   if (method === 'GET' && path === 'authorization/permissions')
-    return { data: { unrestricted: true, permissions: [] } };
+    return { data: { unrestricted: everything, permissions: [] } };
   if (method === 'GET' && path === 'deploys/me')
     return { data: { userId: 'u1', ...me } };
   if (method === 'GET' && path === 'deploys/releases')
@@ -104,6 +106,17 @@ const api = vi.fn((call: ApiCall): unknown => {
           ],
         },
       ],
+    };
+  if (method === 'GET' && path === 'deploys/hubCounts')
+    return {
+      data: {
+        tagVersions: 5,
+        pendingVersionTasks: 1,
+        test: 1,
+        previews: 2,
+        releases: 0,
+        unreleased: 3,
+      },
     };
   if (method === 'GET' && path === 'deploys/versions')
     return {
@@ -162,6 +175,7 @@ describe('releases page', () => {
   beforeEach(() => {
     api.mockClear();
     me = { owner: true, admin: true, deployer: true };
+    everything = true;
   });
 
   it('lists the versions with where they run and lets the owner mark production with a note', async () => {
@@ -219,10 +233,64 @@ describe('releases page', () => {
     ).toBeGreaterThan(0);
 
     await user.click(
-      await screen.findByRole('tab', { name: `${words.tabs.pending} 1` }),
+      await screen.findByRole('tab', { name: `${words.tabs.pending} 3` }),
     );
     expect(await screen.findByText('Hàm ratingChange')).toBeInTheDocument();
     expect(screen.getByText('DS-2')).toBeInTheDocument();
+  });
+
+  it('counts the tabs from the hub counts', async () => {
+    await render(<ReleasesPage />);
+    expect(
+      await screen.findByRole('tab', { name: `${words.tabs.previews} 2` }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('tab', { name: `${words.tabs.staging} 1` }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('tab', { name: `${words.tabs.releases} 5` }),
+    ).toBeInTheDocument();
+    expect(
+      api.mock.calls
+        .map(([call]) => call)
+        .some((call) => call.path === 'deploys/hubCounts'),
+    ).toBe(true);
+  });
+
+  it('lists the projects down the left with their version and what waits, searchable, and narrows to one', async () => {
+    const user = userEvent.setup();
+    await render(<ReleasesPage />);
+    const list = await screen.findByRole('navigation', {
+      name: words.projects,
+    });
+    const row = within(list).getByRole('button', { name: /Sandbox/ });
+    expect(within(row).getByText('v1.0')).toBeInTheDocument();
+    expect(
+      within(row).getByLabelText(words.pendingCount.replace('{{count}}', '1')),
+    ).toBeInTheDocument();
+
+    await user.type(
+      within(list).getByRole('searchbox', { name: words.searchProjects }),
+      'zzz',
+    );
+    expect(
+      within(list).queryByRole('button', { name: /Sandbox/ }),
+    ).not.toBeInTheDocument();
+    await user.clear(
+      within(list).getByRole('searchbox', { name: words.searchProjects }),
+    );
+    await user.click(within(list).getByRole('button', { name: /Sandbox/ }));
+    await waitFor(() =>
+      expect(
+        api.mock.calls
+          .map(([call]) => call)
+          .some(
+            (call) =>
+              call.path === 'deploys/hubCounts' &&
+              call.query?.projectId === 'p1',
+          ),
+      ).toBe(true),
+    );
   });
 
   it('lists the hosted environments', async () => {
@@ -233,5 +301,22 @@ describe('releases page', () => {
     expect(screen.getByText(enUS.environments.protected)).toBeInTheDocument();
     expect(screen.getByText(enUS.environments.recordOnly)).toBeInTheDocument();
     expect(screen.getByText('https://nocobase.dsc.edu.vn')).toBeInTheDocument();
+  });
+
+  it('offers Add environment to whoever may manage environments, through the releases plugin’s own page', async () => {
+    await render(<EnvironmentsPage />);
+    const add = await screen.findByRole('link', {
+      name: enUS.environments.add,
+    });
+    expect(add.getAttribute('href')).toBe('/release-environments');
+  });
+
+  it('hides Add environment from someone who may not manage them', async () => {
+    everything = false;
+    await render(<EnvironmentsPage />);
+    await screen.findAllByText('Production');
+    expect(
+      screen.queryByRole('link', { name: enUS.environments.add }),
+    ).not.toBeInTheDocument();
   });
 });

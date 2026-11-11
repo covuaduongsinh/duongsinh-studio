@@ -1021,6 +1021,30 @@ const enUS = {
     releases: 'Releases',
     breadcrumb: 'Project details',
     loadFailed: 'The project could not be loaded.',
+    tabsLabel: 'Project sections',
+    sectionsLabel: 'Settings sections',
+    tabs: {
+      overview: 'Overview',
+      issues: 'Issues',
+      knowledge: 'Knowledge',
+      memory: 'Memory',
+      members: 'Members',
+      releases: 'Releases',
+      settings: 'Settings',
+    },
+    sections: {
+      general: 'General',
+      directories: 'Directories',
+      variables: 'Variables',
+      skills: 'Skills',
+    },
+    nextSteps: {
+      title: 'Next steps',
+      pending: 'The project is waiting to be set up.',
+      running: 'An agent is setting the project up.',
+      failed: 'Setting the project up did not finish.',
+      openIssue: 'Open the setup issue',
+    },
     notFound: 'This project does not exist, or you cannot see it.',
     viewIssues: 'View issues',
     properties: 'Properties',
@@ -1385,6 +1409,8 @@ const enUS = {
     description:
       'Where the work is: previews, staging, the versions of each repository and the merged issues not yet on production. Studio records; production is deployed through Dokploy and marked here by the owner.',
     projects: 'Projects',
+    searchProjects: 'Search projects',
+    pendingCount: '{{count}} waiting for production',
     allProjects: 'All projects',
     tabs: {
       previews: 'Previews',
@@ -1505,6 +1531,7 @@ const enUS = {
     },
   },
   environments: {
+    add: 'Add environment',
     title: 'Hosted environments',
     description:
       'Where Dương Sinh runs its work. All run outside Studio; Studio records what runs where.',

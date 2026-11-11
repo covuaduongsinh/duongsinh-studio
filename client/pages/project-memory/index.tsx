@@ -208,12 +208,35 @@ function MemoryDrawer({
 }
 
 export default function ProjectMemoryPage(): ReactElement {
-  const { t, i18n } = useTranslation();
-  const list = useProjectMemoryList();
+  const { t } = useTranslation();
   // A project's page links here with its id.
   const [params] = useSearchParams();
+  return (
+    <PageContainer>
+      <PageHeader
+        title={t('projectMemory.title')}
+        description={t('projectMemory.description')}
+      />
+      <ProjectMemoryView initialProjectId={params.get('project')} />
+    </PageContainer>
+  );
+}
+
+/**
+ * The memories of a project's repositories. `fixedProjectId` pins it to one project, as a project's own Memory tab does
+ * (no project picker); otherwise the person picks among the projects they see.
+ */
+export function ProjectMemoryView({
+  initialProjectId = null,
+  fixedProjectId,
+}: {
+  readonly initialProjectId?: string | null;
+  readonly fixedProjectId?: string;
+}): ReactElement {
+  const { t, i18n } = useTranslation();
+  const list = useProjectMemoryList();
   const [projectChoice, setProjectChoice] = useState<string | null>(
-    params.get('project'),
+    fixedProjectId ?? initialProjectId,
   );
   const [repoChoice, setRepoChoice] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('all');
@@ -281,19 +304,21 @@ export default function ProjectMemoryPage(): ReactElement {
     body = (
       <div className='flex flex-col gap-4'>
         <div className='grid gap-3 sm:grid-cols-2 lg:max-w-2xl'>
-          <Picker
-            id='project-memory-project'
-            label={t('projectMemory.project')}
-            items={projects.map((item) => ({
-              value: item.project.id,
-              label: item.project.name,
-            }))}
-            value={project.project.id}
-            onChange={(value) => {
-              setProjectChoice(value);
-              setRepoChoice(null);
-            }}
-          />
+          {fixedProjectId ? null : (
+            <Picker
+              id='project-memory-project'
+              label={t('projectMemory.project')}
+              items={projects.map((item) => ({
+                value: item.project.id,
+                label: item.project.name,
+              }))}
+              value={project.project.id}
+              onChange={(value) => {
+                setProjectChoice(value);
+                setRepoChoice(null);
+              }}
+            />
+          )}
           <Picker
             id='project-memory-repository'
             label={t('projectMemory.repository')}
@@ -413,13 +438,5 @@ export default function ProjectMemoryPage(): ReactElement {
       </div>
     );
 
-  return (
-    <PageContainer>
-      <PageHeader
-        title={t('projectMemory.title')}
-        description={t('projectMemory.description')}
-      />
-      {body}
-    </PageContainer>
-  );
+  return body;
 }

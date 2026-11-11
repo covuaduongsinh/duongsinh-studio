@@ -1012,6 +1012,30 @@ const viVN: AppResource = {
     releases: 'Phát hành',
     breadcrumb: 'Chi tiết dự án',
     loadFailed: 'Không tải được dự án.',
+    tabsLabel: 'Các phần của dự án',
+    sectionsLabel: 'Các phần của cài đặt',
+    tabs: {
+      overview: 'Tổng quan',
+      issues: 'Công việc',
+      knowledge: 'Tri thức',
+      memory: 'Bộ nhớ',
+      members: 'Thành viên',
+      releases: 'Phát hành',
+      settings: 'Cài đặt',
+    },
+    sections: {
+      general: 'Chung',
+      directories: 'Thư mục',
+      variables: 'Biến',
+      skills: 'Skill',
+    },
+    nextSteps: {
+      title: 'Bước tiếp theo',
+      pending: 'Dự án đang chờ được thiết lập.',
+      running: 'Một agent đang thiết lập dự án.',
+      failed: 'Việc thiết lập dự án chưa xong.',
+      openIssue: 'Mở công việc thiết lập',
+    },
     notFound: 'Dự án này không tồn tại, hoặc bạn không có quyền xem.',
     viewIssues: 'Xem công việc',
     properties: 'Thuộc tính',
@@ -1369,6 +1393,8 @@ const viVN: AppResource = {
     description:
       'Công việc đang ở đâu: preview, staging, các phiên bản của từng repository và các công việc đã gộp nhưng chưa lên production. Studio chỉ ghi nhận; production được deploy qua Dokploy và chủ dự án đánh dấu ở đây.',
     projects: 'Dự án',
+    searchProjects: 'Tìm dự án',
+    pendingCount: '{{count}} đang chờ lên production',
     allProjects: 'Mọi dự án',
     tabs: {
       previews: 'Preview',
@@ -1491,6 +1517,7 @@ const viVN: AppResource = {
     },
   },
   environments: {
+    add: 'Thêm môi trường',
     title: 'Môi trường',
     description:
       'Nơi Dương Sinh chạy sản phẩm. Tất cả chạy ngoài Studio; Studio chỉ ghi nhận cái gì chạy ở đâu.',

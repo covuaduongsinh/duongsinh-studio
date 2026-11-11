@@ -20,9 +20,12 @@ const PROJECT_SCOPE = 'project';
 export function ProjectAgentSettings({
   projectId,
   canManage,
+  only,
 }: {
   readonly projectId: string;
   readonly canManage: boolean;
+  /** Show just one of the two sections, as the Settings tab's sections do. */
+  readonly only?: 'variables' | 'skills';
 }): ReactElement | null {
   const { t } = useTranslation();
   if (!canManage) return null;
@@ -32,18 +35,22 @@ export function ProjectAgentSettings({
       description={t('projectAgentSettings.description')}
     >
       <div className='flex flex-col gap-6'>
-        <VariablesSection
-          scope={PROJECT_SCOPE}
-          scopeId={projectId}
-          canEdit
-          description={t('projectAgentSettings.variables')}
-        />
-        <DefaultSkillsSection
-          scope={PROJECT_SCOPE}
-          scopeId={projectId}
-          canEdit
-          description={t('projectAgentSettings.skills')}
-        />
+        {only === 'skills' ? null : (
+          <VariablesSection
+            scope={PROJECT_SCOPE}
+            scopeId={projectId}
+            canEdit
+            description={t('projectAgentSettings.variables')}
+          />
+        )}
+        {only === 'variables' ? null : (
+          <DefaultSkillsSection
+            scope={PROJECT_SCOPE}
+            scopeId={projectId}
+            canEdit
+            description={t('projectAgentSettings.skills')}
+          />
+        )}
       </div>
     </ProjectSection>
   );

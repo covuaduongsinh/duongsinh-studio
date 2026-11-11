@@ -72,7 +72,74 @@ const projectsPage: AppClientRouteDefinition = {
       name: 'project-detail',
       path: ':projectId',
       breadcrumb: { title: 'projectDetail.breadcrumb' },
-      componentLoader: () => import('./pages/projects/detail.js'),
+      componentLoader: () => import('./pages/projects/detail/index.js'),
+      // One route per tab; the bare path opens Overview (the page redirects). The tabs inherit the project page's
+      // authorization, and each has its own breadcrumb title (which also names it among the page permissions).
+      children: [
+        {
+          name: 'project-overview',
+          path: 'overview',
+          breadcrumb: { title: 'projectDetail.tabs.overview' },
+          componentLoader: () =>
+            import('./pages/projects/detail/overview.js').then((module) => ({
+              default: module.ProjectOverviewTab,
+            })),
+        },
+        {
+          name: 'project-issues',
+          path: 'issues',
+          breadcrumb: { title: 'projectDetail.tabs.issues' },
+          componentLoader: () =>
+            import('./pages/projects/detail/issues.js').then((module) => ({
+              default: module.ProjectIssuesTab,
+            })),
+        },
+        {
+          name: 'project-knowledge',
+          path: 'knowledge',
+          breadcrumb: { title: 'projectDetail.tabs.knowledge' },
+          componentLoader: () =>
+            import('./pages/projects/detail/knowledge.js').then((module) => ({
+              default: module.ProjectKnowledgeTab,
+            })),
+        },
+        {
+          name: 'project-memory-tab',
+          path: 'memory',
+          breadcrumb: { title: 'projectDetail.tabs.memory' },
+          componentLoader: () =>
+            import('./pages/projects/detail/memory.js').then((module) => ({
+              default: module.ProjectMemoryTab,
+            })),
+        },
+        {
+          name: 'project-members',
+          path: 'members',
+          breadcrumb: { title: 'projectDetail.tabs.members' },
+          componentLoader: () =>
+            import('./pages/projects/detail/members.js').then((module) => ({
+              default: module.ProjectMembersTab,
+            })),
+        },
+        {
+          name: 'project-releases',
+          path: 'releases',
+          breadcrumb: { title: 'projectDetail.tabs.releases' },
+          componentLoader: () =>
+            import('./pages/projects/detail/releases.js').then((module) => ({
+              default: module.ProjectReleasesTab,
+            })),
+        },
+        {
+          name: 'project-settings',
+          path: 'settings',
+          breadcrumb: { title: 'projectDetail.tabs.settings' },
+          componentLoader: () =>
+            import('./pages/projects/detail/settings.js').then((module) => ({
+              default: module.ProjectSettingsTab,
+            })),
+        },
+      ],
     },
   ],
 };
