@@ -52,9 +52,10 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
     () => ({
       inbox: counts.decisions,
       'my-issues': counts.myIssues,
+      'my-sessions': counts.sessions,
       'releases-hub': counts.releases,
     }),
-    [counts.decisions, counts.myIssues, counts.releases],
+    [counts.decisions, counts.myIssues, counts.sessions, counts.releases],
   );
   const navigationLabel = t('navigation.label', {
     defaultValue: 'Application navigation',

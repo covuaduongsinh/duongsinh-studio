@@ -14,11 +14,14 @@ import {
   type ConversationListQuery,
   type ConversationSummary,
 } from '@nocobase/app-plugin-agents/shared/conversations';
+import { usePlanLookup } from '@nocobase/app-plugin-projects/client/kit';
 import { useTranslation } from '@nocobase/i18n/client';
 import {
   ArchiveIcon,
   ArchiveRestoreIcon,
+  BotIcon,
   ChevronLeftIcon,
+  FolderIcon,
   CircleDotIcon,
   ListTodoIcon,
   MoreHorizontalIcon,
@@ -33,6 +36,7 @@ import {
   useRef,
   useState,
   type ReactElement,
+  type ReactNode,
 } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 
@@ -54,20 +58,23 @@ import {
   EmptyTitle,
 } from '#components/ui/empty';
 import { Input } from '#components/ui/input';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '#components/ui/popover';
 import { Skeleton } from '#components/ui/skeleton';
 import { Tabs, TabsList, TabsTrigger } from '#components/ui/tabs';
 import { cn } from 'cn';
+
+import {
+  useConversationUsage,
+  useIssueSummaries,
+  type IssueSummary,
+} from '#hooks/use-session-panel';
 
 import { AgentLine } from '#extensions/nocobase-agent-chat/agent-status';
 import { useChatTranslation } from '#extensions/nocobase-agent-chat/chat-i18n';
 import { ConversationView } from '#extensions/nocobase-agent-chat/conversation-view';
 import { ConversationTitle } from '#extensions/nocobase-agent-chat/panel-header';
 import { useMediaQuery } from '#extensions/nocobase-agent-chat/use-media-query';
+
+import { useStatusPresenter } from '../issues/presentation.js';
 
 const UNITS: readonly [Intl.RelativeTimeFormatUnit, number][] = [
   ['year', 365 * 24 * 3600],
@@ -127,50 +134,47 @@ interface IssueProgressStats {
   inProgressPercent: number;
 }
 
+/** The ids of the issues a session is tied to. */
+function issueIdsOf(links?: readonly ConversationLink[]): string[] {
+  return (links ?? [])
+    .filter((link) => link.kind === 'issue')
+    .map((link) => link.targetId);
+}
+
+/** How far the issues a session is tied to have come, by their real status (not by reading the words of a label). */
 function computeIssueProgress(
-  links?: readonly ConversationLink[],
+  links: readonly ConversationLink[] | undefined,
+  summaries: ReadonlyMap<string, IssueSummary>,
 ): IssueProgressStats | null {
-  if (!links || links.length === 0) return null;
-  const issueLinks = links.filter(
-    (l) => l.kind === 'issue' || l.view?.key != null || l.view?.title,
-  );
-  if (issueLinks.length === 0) return null;
-
-  let completed = 0;
-  let inProgress = 0;
-
-  for (const l of issueLinks) {
-    const s = l.view?.status?.toLowerCase() ?? '';
-    if (
-      s.includes('done') ||
-      s.includes('closed') ||
-      s.includes('resolved') ||
-      s.includes('hoàn thành')
-    ) {
-      completed++;
-    } else if (
-      s.includes('progress') ||
-      s.includes('doing') ||
-      s.includes('review') ||
-      s.includes('đang')
-    ) {
-      inProgress++;
-    }
-  }
-
-  const total = issueLinks.length;
-  const todo = Math.max(0, total - completed - inProgress);
-  const completedPercent = total > 0 ? (completed / total) * 100 : 0;
-  const inProgressPercent = total > 0 ? (inProgress / total) * 100 : 0;
-
+  const known = issueIdsOf(links)
+    .map((id) => summaries.get(id))
+    .filter((summary): summary is IssueSummary => summary !== undefined);
+  if (known.length === 0) return null;
+  const completed = known.filter((issue) =>
+    ['done', 'cancelled'].includes(issue.statusKey),
+  ).length;
+  const inProgress = known.filter((issue) =>
+    ['in_progress', 'in_review'].includes(issue.statusKey),
+  ).length;
+  const total = known.length;
   return {
     total,
     completed,
     inProgress,
-    todo,
-    completedPercent,
-    inProgressPercent,
+    todo: Math.max(0, total - completed - inProgress),
+    completedPercent: (completed / total) * 100,
+    inProgressPercent: (inProgress / total) * 100,
   };
+}
+
+/** A conversation the agent is working in now. */
+function isRunning(item: ConversationSummary): boolean {
+  return item.execution?.status === 'running' || item.run?.status === 'running';
+}
+
+/** Messages the person has not read. */
+function isUnread(item: ConversationSummary): boolean {
+  return (item.lastSeq ?? 0) > (item.seenSeq ?? 0);
 }
 
 function finePointer(): boolean {
@@ -224,21 +228,18 @@ export default function SessionsPage(): ReactElement {
     return listQuery.data?.pages.flatMap((page) => [...page.items]) ?? [];
   }, [listQuery.data]);
 
-  // Tab filtering
+  // The issues the listed sessions are tied to, read once for the whole list.
+  const summaries = useIssueSummaries(
+    allItems.flatMap((item) => issueIdsOf(item.links)),
+  );
+  const needsMeCount = allItems.filter((item) => item.needsYou != null).length;
+
+  // Tab filtering happens here, in the browser, as it does in the demo: the address does not change.
   const filteredItems = useMemo<ConversationSummary[]>(() => {
     if (activeTab === 'needsMe') {
       return allItems.filter((item) => item.needsYou != null);
     }
-    if (activeTab === 'inProgress') {
-      return allItems.filter(
-        (item) =>
-          item.run?.status === 'running' ||
-          item.execution?.status === 'running' ||
-          item.links?.some((l) =>
-            l.view?.status?.toLowerCase().includes('progress'),
-          ),
-      );
-    }
+    if (activeTab === 'inProgress') return allItems.filter(isRunning);
     return allItems;
   }, [allItems, activeTab]);
 
@@ -399,6 +400,11 @@ export default function SessionsPage(): ReactElement {
                 </TabsTrigger>
                 <TabsTrigger value='needsMe' className='text-xs py-1 px-1.5'>
                   {t('sessions.tabs.needsMe')}
+                  {needsMeCount > 0 ? (
+                    <span className='tabular-nums text-(--status-warning)'>
+                      {needsMeCount}
+                    </span>
+                  ) : null}
                 </TabsTrigger>
                 <TabsTrigger value='inProgress' className='text-xs py-1 px-1.5'>
                   {t('sessions.tabs.inProgress')}
@@ -439,10 +445,12 @@ export default function SessionsPage(): ReactElement {
                       <div className='space-y-1'>
                         {items.map((item) => {
                           const isActive = item.id === activeId;
-                          const progress = computeIssueProgress(item.links);
-                          const isRunning =
-                            item.run?.status === 'running' ||
-                            item.execution?.status === 'running';
+                          const progress = computeIssueProgress(
+                            item.links,
+                            summaries,
+                          );
+                          const running = isRunning(item);
+                          const unread = isUnread(item) && !isActive;
 
                           return (
                             <button
@@ -460,6 +468,13 @@ export default function SessionsPage(): ReactElement {
                                 <span className='text-sm font-medium line-clamp-1 break-all'>
                                   {item.title?.trim() || t('sessions.untitled')}
                                 </span>
+                                {unread ? (
+                                  <span
+                                    role='img'
+                                    aria-label={t('sessions.unread')}
+                                    className='mt-1.5 size-2 shrink-0 rounded-full bg-primary'
+                                  />
+                                ) : null}
                                 <span className='text-xs text-muted-foreground shrink-0'>
                                   {formatRelativeTime(
                                     item.lastMessageAt || item.updatedAt,
@@ -472,13 +487,14 @@ export default function SessionsPage(): ReactElement {
                                 {item.needsYou && (
                                   <Badge
                                     variant='outline'
+                                    title={item.needsYou.text ?? undefined}
                                     className='border-(--status-warning)/30 bg-(--status-warning-background) text-(--status-warning) text-[10px] px-1.5 py-0'
                                   >
                                     {t('sessions.needsYou')}
                                   </Badge>
                                 )}
 
-                                {isRunning && (
+                                {running && (
                                   <span className='inline-flex items-center gap-1 text-[11px] text-primary animate-pulse'>
                                     <CircleDotIcon className='size-3 animate-spin' />
                                     <span>{t('sessions.tabs.inProgress')}</span>
@@ -559,7 +575,9 @@ export default function SessionsPage(): ReactElement {
                     </EmptyMedia>
                     <EmptyTitle>{t('sessions.title')}</EmptyTitle>
                     <EmptyDescription>
-                      {t('sessions.empty.all')}
+                      {allItems.length > 0
+                        ? t('sessions.selectConversation')
+                        : t('sessions.empty.all')}
                     </EmptyDescription>
                   </EmptyHeader>
                   <EmptyContent>
@@ -588,34 +606,39 @@ function SessionDetailView({
   readonly onBack: () => void;
   readonly mobile: boolean;
 }): ReactElement {
-  const { t } = useChatTranslation();
+  // `chat.*` keys are the chat plugin's; this page's own `sessions.*` keys are the application's.
+  const { t: chat } = useChatTranslation();
   const detail = useConversation(conversationId);
   const conversation = detail.data ?? null;
   const actions = useConversationActions();
+  const lookup = usePlanLookup();
+  const summaries = useIssueSummaries(issueIdsOf(conversation?.links));
+  const project = conversation?.projectId
+    ? lookup.projects.find((entry) => entry.id === conversation.projectId)
+    : undefined;
 
   const shownTitle = conversation
-    ? conversation.title?.trim() || t('chat.untitled')
+    ? conversation.title?.trim() || chat('chat.untitled')
     : '';
 
   const progress = useMemo(
-    () => computeIssueProgress(conversation?.links),
-    [conversation?.links],
+    () => computeIssueProgress(conversation?.links, summaries),
+    [conversation?.links, summaries],
   );
 
   return (
     <div
-      className='flex flex-col h-full min-h-0'
+      className='flex h-full min-h-0 flex-col'
       data-conversation={conversationId}
     >
-      {/* Detail Header Bar */}
-      <header className='flex shrink-0 items-center justify-between gap-3 px-4 py-2.5 border-b bg-card/40'>
-        <div className='flex items-center gap-2 min-w-0 flex-1'>
+      <header className='flex shrink-0 items-center justify-between gap-3 border-b bg-card/40 px-4 py-2.5'>
+        <div className='flex min-w-0 flex-1 items-center gap-2'>
           {mobile && (
             <Button
               variant='ghost'
               size='icon-sm'
               onClick={onBack}
-              aria-label={t('chat.history.title')}
+              aria-label={chat('chat.history.title')}
               className='shrink-0'
             >
               <ChevronLeftIcon className='size-5' />
@@ -623,159 +646,238 @@ function SessionDetailView({
           )}
 
           <div className='flex min-w-0 flex-1 flex-col gap-0.5'>
-            <div className='flex items-center gap-2 min-w-0'>
+            <div className='flex min-w-0 items-center gap-2'>
               <ConversationTitle
                 conversation={conversation}
                 shown={shownTitle}
                 level={1}
-                className='text-base font-semibold truncate'
+                className='truncate text-base font-semibold'
               />
             </div>
-            {conversation ? <AgentLine conversation={conversation} /> : null}
+            {conversation ? (
+              <div className='flex flex-wrap items-center gap-x-3 gap-y-1'>
+                <AgentLine conversation={conversation} />
+                {project ? (
+                  <Link
+                    to={`/projects/${encodeURIComponent(project.id)}`}
+                    className='inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground'
+                  >
+                    <FolderIcon className='size-3' aria-hidden='true' />
+                    {project.name}
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
 
-        {/* Chips and status popover */}
-        <div className='flex items-center gap-2 shrink-0'>
-          {/* Linked Issues Progress Popover */}
-          {progress && conversation?.links && (
-            <Popover>
-              <PopoverTrigger
-                render={
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    className='h-8 gap-1.5 px-2.5 text-xs font-normal'
-                  >
-                    <ListTodoIcon className='size-3.5 text-primary' />
-                    <span>
-                      {t('sessions.issues.progress', {
-                        completed: progress.completed,
-                        total: progress.total,
-                      })}
-                    </span>
-                    <span className='inline-block w-12 h-1.5 rounded-full overflow-hidden bg-muted ml-1'>
-                      <span
-                        className='h-full bg-(--status-success) block'
-                        style={{ width: `${progress.completedPercent}%` }}
-                      />
-                    </span>
-                  </Button>
-                }
-              />
-              <PopoverContent align='end' className='w-80 p-3'>
-                <div className='space-y-2'>
-                  <div className='flex items-center justify-between border-b pb-2'>
-                    <span className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
-                      {t('sessions.issues.progress', {
-                        completed: progress.completed,
-                        total: progress.total,
-                      })}
-                    </span>
-                    <span className='text-xs text-muted-foreground'>
-                      {Math.round(progress.completedPercent)}%
-                    </span>
-                  </div>
-
-                  <div className='flex h-2 w-full overflow-hidden rounded-full bg-muted'>
-                    {progress.completedPercent > 0 && (
-                      <div
-                        className='bg-(--status-success)'
-                        style={{ width: `${progress.completedPercent}%` }}
-                      />
-                    )}
-                    {progress.inProgressPercent > 0 && (
-                      <div
-                        className='bg-(--status-warning)'
-                        style={{ width: `${progress.inProgressPercent}%` }}
-                      />
-                    )}
-                  </div>
-
-                  <div className='space-y-1.5 max-h-60 overflow-y-auto pt-1'>
-                    {conversation.links.map((link) => {
-                      const v = link.view;
-                      if (!v) return null;
-                      return (
-                        <Link
-                          key={link.id}
-                          to={v.url || `/issues/${link.targetId}`}
-                          className='flex items-center justify-between gap-2 p-1.5 rounded-md hover:bg-muted text-xs transition-colors'
-                        >
-                          <div className='flex items-center gap-1.5 min-w-0'>
-                            <span className='font-mono font-medium text-primary shrink-0'>
-                              {v.key || link.targetId.slice(0, 8)}
-                            </span>
-                            <span className='truncate text-foreground'>
-                              {v.title}
-                            </span>
-                          </div>
-                          <Badge
-                            variant='outline'
-                            className='text-[10px] px-1.5 py-0 shrink-0 capitalize'
-                          >
-                            {v.status || 'open'}
-                          </Badge>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-          )}
-
-          {/* Action menu */}
-          {conversation && (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant='ghost'
-                    size='icon-sm'
-                    aria-label={t('chat.more')}
-                  >
-                    <MoreHorizontalIcon className='size-4' />
-                  </Button>
-                }
-              />
-              <DropdownMenuContent align='end' className='w-44'>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      const willArchive = !conversation.archivedAt;
-                      actions.archive.mutate({
-                        id: conversation.id,
-                        archived: willArchive,
-                      });
-                      if (willArchive) onBack();
-                    }}
-                  >
-                    {conversation.archivedAt ? (
-                      <>
-                        <ArchiveRestoreIcon className='size-4 mr-2' />
-                        {t('chat.unarchive')}
-                      </>
-                    ) : (
-                      <>
-                        <ArchiveIcon className='size-4 mr-2' />
-                        {t('chat.archive')}
-                      </>
-                    )}
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+        {conversation && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant='ghost'
+                  size='icon-sm'
+                  aria-label={chat('chat.more')}
+                >
+                  <MoreHorizontalIcon className='size-4' />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align='end' className='w-44'>
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => {
+                    const willArchive = !conversation.archivedAt;
+                    actions.archive.mutate({
+                      id: conversation.id,
+                      archived: willArchive,
+                    });
+                    if (willArchive) onBack();
+                  }}
+                >
+                  {conversation.archivedAt ? (
+                    <>
+                      <ArchiveRestoreIcon className='mr-2 size-4' />
+                      {chat('chat.unarchive')}
+                    </>
+                  ) : (
+                    <>
+                      <ArchiveIcon className='mr-2 size-4' />
+                      {chat('chat.archive')}
+                    </>
+                  )}
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </header>
 
-      {/* Conversation Messages and Composer */}
-      <ConversationView
-        conversationId={conversationId}
-        variant='page'
-        className='flex-1 min-h-0'
-      />
+      <div className='flex min-h-0 flex-1'>
+        <ConversationView
+          conversationId={conversationId}
+          variant='page'
+          className='min-w-0 flex-1'
+        />
+        {conversation && !mobile ? (
+          <SessionSidePanel
+            conversation={conversation}
+            summaries={summaries}
+            progress={progress}
+            projectName={project?.name ?? null}
+          />
+        ) : null}
+      </div>
     </div>
+  );
+}
+
+function Fact({
+  label,
+  children,
+}: {
+  readonly label: string;
+  readonly children: ReactNode;
+}): ReactElement {
+  return (
+    <div className='flex items-baseline justify-between gap-3 text-xs'>
+      <dt className='text-muted-foreground'>{label}</dt>
+      <dd className='min-w-0 truncate text-right font-medium'>{children}</dd>
+    </div>
+  );
+}
+
+const numberOf = (value: number, locale?: string): string =>
+  new Intl.NumberFormat(locale).format(value);
+
+/** Beside the conversation, from `xl` up: the issues it is tied to, the session's facts and what its runs used. */
+function SessionSidePanel({
+  conversation,
+  summaries,
+  progress,
+  projectName,
+}: {
+  readonly conversation: ConversationSummary;
+  readonly summaries: ReadonlyMap<string, IssueSummary>;
+  readonly progress: IssueProgressStats | null;
+  readonly projectName: string | null;
+}): ReactElement {
+  const { t, i18n } = useTranslation();
+  const status = useStatusPresenter();
+  const usage = useConversationUsage(conversation.id);
+  const locale = i18n?.language;
+  const issues = issueIdsOf(conversation.links)
+    .map((id) => summaries.get(id))
+    .filter((issue): issue is IssueSummary => issue !== undefined);
+  const used = usage.data;
+  const running = isRunning(conversation);
+
+  return (
+    <aside
+      aria-label={t('sessions.panel.label')}
+      className='hidden w-72 shrink-0 flex-col gap-4 overflow-y-auto border-l bg-sidebar/20 p-3 xl:flex'
+    >
+      <section aria-label={t('sessions.panel.issues')} className='space-y-2'>
+        <div className='flex items-center justify-between'>
+          <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+            {t('sessions.panel.issues')}
+          </h2>
+          {progress ? (
+            <span className='text-xs text-muted-foreground tabular-nums'>
+              {t('sessions.issues.progress', {
+                completed: progress.completed,
+                total: progress.total,
+              })}
+            </span>
+          ) : null}
+        </div>
+        {issues.length === 0 ? (
+          <p className='text-xs text-muted-foreground'>
+            {t('sessions.panel.noIssues')}
+          </p>
+        ) : (
+          <ul className='space-y-1'>
+            {issues.map((issue) => (
+              <li key={issue.id}>
+                <Link
+                  to={`/issues/${encodeURIComponent(issue.identifier)}`}
+                  className='flex flex-col gap-0.5 rounded-md p-1.5 text-xs transition-colors hover:bg-muted'
+                >
+                  <span className='flex items-center justify-between gap-2'>
+                    <span className='font-mono font-medium text-primary'>
+                      {issue.identifier}
+                    </span>
+                    <Badge
+                      variant='outline'
+                      className='px-1.5 py-0 text-[10px]'
+                    >
+                      {status(issue.statusKey).name}
+                    </Badge>
+                  </span>
+                  <span className='truncate text-foreground'>
+                    {issue.title}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section aria-label={t('sessions.panel.session')} className='space-y-2'>
+        <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+          {t('sessions.panel.session')}
+        </h2>
+        <dl className='space-y-1.5'>
+          <Fact label={t('sessions.panel.agent')}>
+            <span className='inline-flex items-center gap-1'>
+              <BotIcon className='size-3' aria-hidden='true' />
+              {conversation.agent.name}
+            </span>
+          </Fact>
+          {projectName ? (
+            <Fact label={t('sessions.panel.project')}>{projectName}</Fact>
+          ) : null}
+          <Fact label={t('sessions.panel.state')}>
+            {running
+              ? t('sessions.tabs.inProgress')
+              : conversation.needsYou
+                ? t('sessions.needsYou')
+                : t('sessions.panel.idle')}
+          </Fact>
+        </dl>
+      </section>
+
+      <section aria-label={t('sessions.panel.usage')} className='space-y-2'>
+        <h2 className='text-xs font-semibold uppercase tracking-wider text-muted-foreground'>
+          {t('sessions.panel.usage')}
+        </h2>
+        {used ? (
+          <dl className='space-y-1.5'>
+            <Fact label={t('sessions.panel.input')}>
+              {numberOf(used.inputTokens, locale)}
+            </Fact>
+            <Fact label={t('sessions.panel.cacheRead')}>
+              {numberOf(used.cacheReadTokens, locale)}
+            </Fact>
+            <Fact label={t('sessions.panel.output')}>
+              {numberOf(used.outputTokens, locale)}
+            </Fact>
+            <Fact label={t('sessions.panel.cost')}>
+              {used.costUsd === null
+                ? t('sessions.panel.noCost')
+                : `$${used.costUsd.toFixed(2)}`}
+            </Fact>
+          </dl>
+        ) : (
+          <p className='text-xs text-muted-foreground'>
+            {usage.isError
+              ? t('sessions.panel.usageFailed')
+              : t('sessions.panel.loading')}
+          </p>
+        )}
+      </section>
+    </aside>
   );
 }
