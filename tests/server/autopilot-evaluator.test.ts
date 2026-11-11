@@ -224,6 +224,21 @@ test('evaluates 7 autopilot conditions and merges when eligible', async ({
     })
     .execute();
 
+  // H1b: PR requires passing verification matching headSha
+  await conn.query
+    .insertInto('dsVerifications')
+    .values({
+      id: 'verif-auto-1',
+      issueId: issue.id,
+      runId: 'run-auto-1',
+      agentId: 'agent-author-1',
+      headSha: HEAD_SHA,
+      attempt: 1,
+      result: 'passed',
+      createdAt: new Date(),
+    })
+    .execute();
+
   // Create autopilot evaluator
   const evaluator = createAutopilotEvaluator({
     database: app.container.resolve(databaseManagerToken),

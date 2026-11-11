@@ -107,18 +107,22 @@ export const VerificationSettingsSchema = z.object({
   maxConsecutiveFailures: z.number().int().min(1).max(10),
 });
 
+const DOMAIN = 'verifications';
 const IssueParam = z.object({ issueId: z.string() });
 
 const notFound = (what: string): ApiError =>
   new ApiError({
     status: 'NOT_FOUND',
-    code: 'NOT_FOUND',
+    reason: 'NOT_FOUND',
+    domain: DOMAIN,
     message: `${what} not found.`,
   });
 
-const denied = (message: string): ApiError =>
+const denied = (message: string, reason = 'ACCESS_DENIED'): ApiError =>
   new ApiError({
     status: 'PERMISSION_DENIED',
+    reason,
+    domain: DOMAIN,
     message,
   });
 

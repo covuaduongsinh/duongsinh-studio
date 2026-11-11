@@ -7,6 +7,7 @@ import {
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
 import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
+import { databaseManagerToken } from '@nocobase/db';
 import { createStandaloneServer } from '../../server/standalone.js';
 import { DEFAULT_AGENT_ACTIONS } from '../../server/agents/actions.js';
 import { AGENT_KIND } from '../../server/agents/ids.js';
@@ -150,6 +151,35 @@ test('a run token acts as its agent: comments are the agent’s and status moves
   expect(JSON.stringify(await backlog.json())).toContain(
     'TRANSITION_NOT_ALLOWED',
   );
+
+  // H1b: moving to in_review requires criteria and passing verification
+  const conn = app.container.resolve(databaseManagerToken).connection();
+  await conn.query
+    .insertInto('dsIssueCriteria')
+    .values({
+      id: 'crit-run-actor-1',
+      issueId: issue.id,
+      text: 'Tiêu chí kiểm thử run actor',
+      checkKind: 'command',
+      checkValue: 'pnpm test',
+      position: 0,
+      source: 'human',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .execute();
+  await conn.query
+    .insertInto('dsVerifications')
+    .values({
+      id: 'verif-run-actor-1',
+      issueId: issue.id,
+      headSha: 'abc1234def5678',
+      attempt: 1,
+      result: 'passed',
+      createdAt: new Date(),
+    })
+    .execute();
+
   const review = await asRun(
     `/projects/issues/${issue.id}`,
     json(
