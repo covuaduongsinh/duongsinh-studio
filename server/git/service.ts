@@ -1553,11 +1553,14 @@ export function createGitService(deps: GitServiceDeps) {
   async function listPullRequests(
     filter: {
       readonly issueId?: string;
+      readonly issueIds?: readonly string[];
       readonly repositoryId?: string;
     } = {},
   ): Promise<GitPullRequestView[]> {
     let query = conn().query.selectFrom(PULL_REQUESTS).selectAll();
     if (filter.issueId) query = query.where('issueId', '=', filter.issueId);
+    if (filter.issueIds)
+      query = query.where('issueId', 'in', [...filter.issueIds]);
     if (filter.repositoryId)
       query = query.where('repositoryId', '=', filter.repositoryId);
     const rows: Row[] = await query

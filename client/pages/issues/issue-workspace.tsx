@@ -6,7 +6,6 @@ import { ApiClientError, type ListState } from '@nocobase/app-client';
 import {
   buildBoardColumns,
   canEditIssues,
-  flattenIssuePages,
   hasIssueFilters,
   readIssueFilters,
   readStoredIssueView,
@@ -15,11 +14,9 @@ import {
   useBoardMove,
   useBoardPages,
   useExecutorOptions,
-  useIssuePages,
   useStatusName,
   useUrlSearch,
   withIssueFilter,
-  withIssueSort,
   withIssueView,
   withoutIssueFilters,
   type IssueFilterKey,
@@ -41,15 +38,9 @@ import {
   SearchIcon,
 } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
-import { useHref, useNavigate } from 'react-router';
 
 import { IssueCard } from '#components/issue-card';
-import {
-  IssueStatusBadge,
-  IssueTable,
-  type IssueTableSort,
-  type IssueTableSortColumn,
-} from '#components/issue-table';
+import { IssueStatusBadge } from '#components/issue-table';
 import {
   KanbanBoard,
   KanbanCard,
@@ -77,30 +68,16 @@ import { ToggleGroup, ToggleGroupItem } from '#components/ui/toggle-group';
 import {
   issueHref,
   useIssueRow,
-  useIssueTableLabels,
   useKanbanLabels,
   useStatusPresenter,
 } from './presentation.js';
-import { useReleaseLabels } from './release-labels.js';
 import { AgentQueueView } from './agent-queue.js';
+import { IssueGroupedList } from './issue-grouped-list.js';
 import { IssueSplitView } from './issue-split-view.js';
 import { RouterAnchor } from './router-anchor.js';
 
 const VIEWS = ['split', 'list', 'board', 'queue'] as const;
 const ALL = '__all__';
-
-/** The table's sortable columns and the order the API knows each by. */
-const SORT_OF_COLUMN = {
-  identifier: 'number',
-  priority: 'priority',
-  updated: 'updated',
-} as const;
-
-function columnOfSort(sort: IssueFilters['sort']): IssueTableSortColumn {
-  if (sort === 'number') return 'identifier';
-  if (sort === 'priority') return 'priority';
-  return 'updated';
-}
 
 /** What a read that has no rows to show says, by why it has none. */
 function readState(
@@ -189,12 +166,13 @@ export function IssueWorkspace({
     searchRef,
   } = useUrlSearch();
   const [storedView] = useState(() => readStoredIssueView(page));
-  // My issues opens as the split view, as the demo does; the issue list keeps the plugin's default (the board).
+  // My issues opens as the split view and the Issues page as the grouped table, as the demo does (the plugin's own
+  // default is the board, which stays one click away).
   const view = resolveIssueView(
     params,
     storedView,
     VIEWS,
-    page === 'my-issues' ? 'split' : undefined,
+    page === 'my-issues' ? 'split' : 'list',
   );
   const ownFilters = readIssueFilters(params, view);
   const filters: IssueFilters = { ...ownFilters, ...fixedFilters };
@@ -354,100 +332,12 @@ export function IssueWorkspace({
           onClear={clearFilters}
         />
       ) : (
-        <IssueListView
+        <IssueGroupedList
           filters={filters}
           filtered={filtered}
           onClear={clearFilters}
-          onSort={(sort) =>
-            updateParams((current) =>
-              withIssueSort(
-                current,
-                SORT_OF_COLUMN[sort.column],
-                sort.direction,
-              ),
-            )
-          }
         />
       )}
-    </div>
-  );
-}
-
-function IssueListView({
-  filters,
-  filtered,
-  onClear,
-  onSort,
-}: {
-  readonly filters: IssueFilters;
-  readonly filtered: boolean;
-  readonly onClear: () => void;
-  readonly onSort: (sort: IssueTableSort) => void;
-}): ReactElement {
-  const { t } = useTranslation();
-  const { locale } = useLocale();
-  const navigate = useNavigate();
-  const issuesBase = useHref('/issues');
-  const query = useIssuePages(filters, true);
-  const toRow = useIssueRow();
-  const labels = useIssueTableLabels();
-  const items = flattenIssuePages(query.data?.pages);
-  const withRelease = useReleaseLabels(items.map((item) => item.id));
-  const state = readState(
-    query.error,
-    query.data !== undefined,
-    items.length === 0,
-    filtered,
-  );
-
-  return (
-    <div className='flex flex-col gap-3'>
-      <ListFeedback state={state}>
-        <IssueTable
-          rows={items.map(toRow).map(withRelease)}
-          sort={{
-            column: columnOfSort(filters.sort),
-            direction: filters.direction ?? 'desc',
-          }}
-          onSortChange={onSort}
-          rowHref={(row) =>
-            `${issuesBase}/${encodeURIComponent(row.identifier)}`
-          }
-          onRowClick={(row) => {
-            const pending = navigate(issueHref(row));
-            if (pending) pending.catch(() => undefined);
-          }}
-          locale={locale}
-          labels={labels}
-        />
-      </ListFeedback>
-      <div className='flex justify-center gap-2 empty:hidden'>
-        <ListFeedbackActions
-          state={state}
-          onClear={onClear}
-          // The query keeps its own error state, so a failed retry or page shows through `state`, not a rejection.
-          onRetry={() => {
-            query.refetch().catch(() => undefined);
-          }}
-          busy={query.isFetching}
-        />
-        {state === 'ready' && query.hasNextPage ? (
-          <Button
-            variant='outline'
-            disabled={query.isFetchingNextPage}
-            onClick={() => {
-              query.fetchNextPage().catch(() => undefined);
-            }}
-          >
-            {query.isFetchingNextPage ? (
-              <LoaderCircle data-icon='inline-start' className='animate-spin' />
-            ) : null}
-            {query.isFetchingNextPage
-              ? t('issues.loadingMore')
-              : t('issues.loadMore')}
-          </Button>
-        ) : null}
-      </div>
     </div>
   );
 }

@@ -169,6 +169,7 @@ test(
   async ({ testApp, app, request }) => {
     for (const [path, init] of [
       ['/git/status'],
+      ['/git/pullRequests/marks?issueIds=a'],
       ['/git/authorizations'],
       ['/git/resources/x'],
       ['/git/commitChecks?issueId=a&resourceId=b&sha=abcdef1'],
@@ -332,6 +333,25 @@ test(
     ).data as Pull[];
     expect(pulls).toHaveLength(1);
     const pull = pulls[0] as Pull;
+
+    // The list's marks: one summary per issue, open before merged; an issue nobody may see is left out.
+    const marksOf = async (client: typeof admin, ids: string) =>
+      (
+        await (
+          await client.fetch(`/git/pullRequests/marks?issueIds=${ids}`)
+        ).json()
+      ).data as Record<
+        string,
+        { count: number; merged: boolean; state: string }
+      >;
+    expect(
+      (await marksOf(admin, `${issue.id},no-such-issue`))[issue.id],
+    ).toMatchObject({
+      count: 1,
+      merged: false,
+      state: 'open',
+    });
+    expect(Object.keys(await marksOf(admin, 'no-such-issue'))).toEqual([]);
 
     // Checks read from the host: a report is refused, failures are listed, and one marked reference no longer decides.
     const report = (body: object) =>

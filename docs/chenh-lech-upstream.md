@@ -672,3 +672,16 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - Trong khung chia đôi của My issues, chi tiết dựng với `embedded` (bỏ liên kết "Quay lại" thừa, đã nêu ở §34).
 - **Chưa làm so với demo:** nút "…" ở đầu trang (Xoá vẫn là nút riêng); số đếm tab Lượt chạy; "Thêm thuộc tính" mở cả thẻ thay vì từng thuộc tính chưa đặt; chưa so Craft Anything (P0b chỉ chụp đường cơ sở).
 - Test: `tests/client/issue-detail-p2.test.tsx`; `tests/client/issues-pages.test.tsx` đổi theo bố cục tab.
+
+## 36. Issues: bảng nhóm (P3)
+
+- Trang **Issues mở mặc định ở dạng bảng nhóm** (`resolveIssueView` với `fallback='list'`; mặc định của plugin là board, vẫn chọn được bằng `?view=board`). Bảng đọc `GET taskGroups?mode=table&follow=scope`
+  (`issue-grouped-list.tsx`): bảy nhóm Cần bạn xử lý / Đang thực hiện / Đang duyệt / Bị chặn / Tồn đọng / Hoàn thành / Đã huỷ, thu gọn được, nhớ theo người dùng
+  (`studio.issues.collapsed.<id>`, Hoàn thành và Đã huỷ thu gọn mặc định), cột Dự án, Trạng thái, Người thực hiện, Cập nhật.
+- Dấu hiệu trên dòng: việc người xem phải làm (`waits`), việc đang chặn (`blockers`), "Agent đang làm", việc con `n/m` (`progress`), và PR + kiểm tra.
+- **Thêm `GET /api/git/pullRequests/marks?issueIds=`** (tối đa 100 id; đường dẫn nằm dưới `/pullRequests/*` nên có `auth.required` + `authz.middleware`): mỗi issue người xem thấy →
+  `{count, merged, state, ciState, url}`, ưu tiên PR đang mở rồi đã merge rồi đã đóng; issue không thấy được thì bị bỏ khỏi kết quả. Thay cho `git/marks` của demo (chưa giải mã được hình dạng).
+- Bỏ sắp xếp theo cột và nút "Tải thêm" của bảng phẳng cũ: bảng nhóm là một lượt đọc của server (cùng giới hạn trang như khung chia đôi, §34), chưa có phân trang theo nhóm.
+  `IssueTable` và `release-labels.ts` không còn trang nào dùng (board và Releases có bản riêng); chưa xoá.
+- Chưa làm: nhãn phát hành (`deploys/marks`) trên dòng; chưa so Craft Anything.
+- Test: `tests/client/issue-grouped-list.test.tsx`, `tests/server/git-contract-routes.test.ts` (marks, gồm 401), `tests/client/issues-pages.test.tsx` đổi theo mặc định mới.

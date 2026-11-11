@@ -398,6 +398,21 @@ const CodeLocationBody = z
   })
   .strict();
 
+const PullMarksQuery = z.object({
+  issueIds: z.string().min(1).meta({
+    description: 'Issue ids, comma separated (at most 100).',
+  }),
+});
+
+/** What one issue's pull requests come to, for a list row: how many, and the state that matters most. */
+const PullMarkSchema = z.object({
+  count: z.number().int(),
+  merged: z.boolean(),
+  state: z.enum(['open', 'merged', 'closed']),
+  ciState: z.enum(['pending', 'success', 'failure']).nullable(),
+  url: z.string(),
+});
+
 const PullListQuery = z.object({
   issueId: z
     .string()
@@ -983,6 +998,60 @@ export const gitRoutes: AppApiRouteContribution<Application> = defineApiRoutes(
           }),
         );
         return context.json({ data: linked }, 201);
+      },
+    );
+
+    git.get(
+      '/pullRequests/marks',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Summarize the pull requests of several issues',
+        description:
+          'For the issue list: per issue the caller may see, how many pull requests it has, whether one is merged, the state that matters most (open before merged before closed) and that pull request’s checks.',
+        operationId: 'studioGitPullRequestMarks',
+        responses: {
+          '200': dataResponse(z.record(z.string(), PullMarkSchema)),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('query', PullMarksQuery),
+      async (context) => {
+        const { viewer, seesPull } = await reader(context);
+        const asked = context.req.valid('query').issueIds.split(',');
+        const ids: string[] = [];
+        for (const id of [...new Set(asked.map((entry) => entry.trim()))]
+          .filter(Boolean)
+          .slice(0, 100)) {
+          const issue = await visibleIssue(viewer, id);
+          if (issue) ids.push(issue.id);
+        }
+        const marks: Record<
+          string,
+          {
+            count: number;
+            merged: boolean;
+            state: 'open' | 'merged' | 'closed';
+            ciState: 'pending' | 'success' | 'failure' | null;
+            url: string;
+          }
+        > = {};
+        if (ids.length > 0)
+          for (const pull of await service().listPullRequests({
+            issueIds: ids,
+          })) {
+            if (!pull.issueId || !(await seesPull(pull))) continue;
+            const known = marks[pull.issueId];
+            const rank = { open: 0, merged: 1, closed: 2 } as const;
+            const better = !known || rank[pull.state] < rank[known.state];
+            marks[pull.issueId] = {
+              count: (known?.count ?? 0) + 1,
+              merged: (known?.merged ?? false) || pull.state === 'merged',
+              state: better ? pull.state : (known?.state ?? pull.state),
+              ciState: better ? pull.ciState : (known?.ciState ?? null),
+              url: better ? pull.url : (known?.url ?? pull.url),
+            };
+          }
+        return context.json({ data: marks });
       },
     );
 
