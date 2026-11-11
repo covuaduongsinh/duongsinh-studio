@@ -12,6 +12,7 @@ import {
   FileCheckIcon,
   GitMergeIcon,
   GitPullRequestIcon,
+  GraduationCap,
   LoaderCircle,
   RefreshCwIcon,
   XCircleIcon,
@@ -20,6 +21,7 @@ import { useState, type FormEvent, type ReactElement } from 'react';
 
 import { Badge } from '#components/ui/badge';
 import { Button } from '#components/ui/button';
+import { ProposeLessonDialog } from '#components/propose-lesson-dialog';
 import { Checkbox } from '#components/ui/checkbox';
 import {
   Dialog,
@@ -189,6 +191,7 @@ function PullRequestItem({
   const [refused, setRefused] = useState<MergeBlocker | null>(null);
   const [denied, setDenied] = useState(false);
   const [forcing, setForcing] = useState(false);
+  const [lessonDialogOpen, setLessonDialogOpen] = useState(false);
   const open = pull.state === 'open';
   const blocker = open ? (refused ?? pull.mergeBlocker) : null;
   const mayMerge = canMerge && open && !denied;
@@ -365,6 +368,16 @@ function PullRequestItem({
                   {t('git.reviews.mustFix', { count: latestReview.mustFix })}
                 </Badge>
               ) : null}
+              <Button
+                size='sm'
+                variant='ghost'
+                className='h-6 px-1.5 text-xs text-muted-foreground hover:text-foreground'
+                title={t('lessons.buttonLabel')}
+                onClick={() => setLessonDialogOpen(true)}
+              >
+                <GraduationCap className='mr-1 size-3' />
+                {t('lessons.buttonLabel')}
+              </Button>
             </div>
           </div>
 
@@ -525,6 +538,13 @@ function PullRequestItem({
         pending={merge.isPending}
         onOpenChange={setForcing}
         onConfirm={(reason) => send(true, reason)}
+      />
+      <ProposeLessonDialog
+        open={lessonDialogOpen}
+        onOpenChange={setLessonDialogOpen}
+        issueId={issueId}
+        reviewId={latestReview?.id}
+        defaultMistake={latestReview?.summary ?? ''}
       />
     </li>
   );

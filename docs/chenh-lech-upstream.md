@@ -863,3 +863,29 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
   - Hộp thoại cảnh báo và xác nhận chạy cưỡng chế khi hết hạn mức tháng.
 - **Đa ngữ i18n**: Cung cấp đầy đủ chuỗi bản dịch cho cả 3 ngôn ngữ (`vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
 - **Test**: `tests/database/ds-bench-migration.test.ts`, `tests/server/bench.test.ts`, `tests/client/bench-section.test.tsx`.
+
+## 49. H2a — Ghi thành bài học (11/11/2026)
+
+- Template NocoBase và plugin không có cơ chế chuẩn hoá và tự động chuyển hoá sai lầm trong quá trình thực hiện thành các quy tắc bền vững cho hệ thống. `dsKbOffers` chỉ gắn với tệp đính kèm người dùng tải lên và không có đích chuyển giao cụ thể cho kỹ năng hay cấu hình dự án.
+- **Migration `202611110007_ds_lessons.ts`**:
+  - Tạo bảng `dsLessons`: `projectId`, `issueId`, `reviewId`, `mistake`, `rule`, `tag`, `target` (`skill` | `knowledge` | `sensitivePath` | `projectCriteria`), `targetRef`, `status` (`proposed` | `accepted` | `rejected` | `applied`), `proposedByType` (`user` | `agent`), `proposedById`, `decidedBy`, `appliedRef`, `createdAt`, `updatedAt`.
+  - Có hàm `down` hoàn chỉnh để rollback schema.
+- **Lessons Service & Provider (`server/lessons/service.ts`, `server/providers/lessons.ts`)**:
+  - Hỗ trợ đề xuất bài học từ người dùng hoặc agent run (giới hạn tối đa 3 đề xuất/run cho agent).
+  - Phê duyệt và áp dụng bài học vào 4 đích chuyển hoá:
+    1. `skill`: Cập nhật nội dung skill `ds-*` tương ứng bằng cách thêm dòng bài học vào mục `## Bài học`, lưu và phát hành phiên bản mới với `expectedRevision` khớp với `detail.version`.
+    2. `knowledge`: Tạo file Markdown bài học tải lên kho tri thức của dự án.
+    3. `sensitivePath`: Tự động bổ sung đường dẫn vào danh sách `sensitivePaths` trong cấu hình tự lái (`autopilot`) của dự án.
+    4. `projectCriteria`: Tự động thêm tiêu chí mặc định vào danh sách `dsProjectDefaultCriteria` của dự án.
+- **Tuyến API (`server/routes/lessons.ts`)**:
+  - `GET /api/lessons`: Danh sách bài học kèm bộ lọc `tag`, `target`, `status`, `limit`.
+  - `GET /api/lessons/:id`: Chi tiết bài học theo mã định danh.
+  - `POST /api/lessons/propose`: Đề xuất bài học mới từ người hoặc agent run.
+  - `POST /api/lessons/:id/decide`: Phê duyệt (`accept`) hoặc từ chối (`reject`) bài học (yêu cầu quyền quản lý `agents.agents` hoặc `unrestricted`).
+  - `POST /api/lessons/:id/apply`: Áp dụng bài học đã duyệt vào đích tương ứng.
+- **Giao diện Client & Cài đặt hệ thống**:
+  - Thêm nút và hộp thoại "Ghi thành bài học" (`ProposeLessonDialog`) trên thẻ Review (`client/pages/issues/detail/issue-pull-requests.tsx`).
+  - Trang quản trị "Bài học kinh nghiệm" tại Cài đặt > Trí tuệ nhân tạo (`client/pages/settings/lessons.tsx`), cho phép quản trị viên xem, lọc trạng thái, duyệt và áp dụng trực tiếp bài học.
+  - Bổ sung định nghĩa route `settingsLessons` trong `client/routes.ts` với quyền `settings:agents.agents`.
+- **Đa ngữ i18n**: Cung cấp đầy đủ chuỗi bản dịch cho 3 ngôn ngữ (`vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
+- **Test**: `tests/database/ds-lessons-migration.test.ts`, `tests/server/lessons.test.ts`, `tests/client/lessons-settings.test.tsx`, `tests/client/client-routes.test.ts`, `tests/client/foundation-integration.test.ts`.

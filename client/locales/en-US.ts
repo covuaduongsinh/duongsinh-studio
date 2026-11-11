@@ -286,6 +286,52 @@ const enUS = {
     forceRunConfirm: 'Force Run',
     cancel: 'Cancel',
   },
+  lessons: {
+    settingsTitle: 'Lessons Learned',
+    settingsDescription:
+      'Rules distilled from real mistakes, standardized and automatically propagated into skills, knowledge, sensitive paths, or project criteria.',
+    listTitle: 'Lessons List',
+    listDescription: 'All lessons proposed by people or agents.',
+    newAction: 'Propose Lesson',
+    buttonLabel: 'Record as Lesson',
+    refresh: 'Refresh',
+    saving: 'Saving...',
+    empty: 'No lessons recorded yet.',
+    tag: 'Tag',
+    mistake: 'Mistake / Phenomenon',
+    mistakePlaceholder: 'Describe the mistake or unexpected behavior...',
+    rule: 'Rule / Lesson Learned',
+    rulePlaceholder: 'Rule or guidance to prevent this mistake...',
+    target: 'Target Destination',
+    targetRef: 'Target Reference (skill slug / file path / test command)',
+    mistakePrefix: 'Mistake',
+    rulePrefix: 'Lesson',
+    mistakeAndRule: 'Mistake & Lesson Learned',
+    statusLabel: 'Status',
+    actions: 'Actions',
+    acceptAndApply: 'Accept & Apply',
+    reject: 'Reject',
+    filterStatus: 'Filter Status',
+    proposeTitle: 'Record Lesson Learned',
+    proposeDescription:
+      'Capture mistakes and preventive rules into Studio learning loop.',
+    proposeAction: 'Submit Proposal',
+    filters: {
+      all: 'All statuses',
+    },
+    targets: {
+      skill: 'Agent skill (skill)',
+      knowledge: 'Knowledge space (knowledge)',
+      sensitivePath: 'Sensitive path (sensitivePath)',
+      projectCriteria: 'Project default criteria (projectCriteria)',
+    },
+    status: {
+      proposed: 'Proposed',
+      accepted: 'Accepted',
+      applied: 'Applied',
+      rejected: 'Rejected',
+    },
+  },
   budgets: {
     title: 'Budgets',
     description:
@@ -822,6 +868,9 @@ const enUS = {
     reviews: 'Reviews',
     reviewsDescription:
       'Inspect pull request reviews and acceptance criteria checks.',
+    lessons: 'Lessons',
+    lessonsDescription:
+      'Rules and takeaways learned from mistakes across work.',
     followUps: 'Follow-ups',
     projects: 'Projects',
     issuePrefix: 'Issue prefix',
