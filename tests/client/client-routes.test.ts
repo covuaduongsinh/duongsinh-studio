@@ -326,6 +326,10 @@ const settingsAuthorizations = [
     name: 'settingsProjectDefaultSkills',
     authorizedAs: 'settings:agents.agents',
   },
+  {
+    name: 'settingsVerifications',
+    authorizedAs: 'settings:agents.agents',
+  },
   { name: 'settingsGit', authorizedAs: 'settings:pm.members' },
   { name: 'settingsOrganizationKeys', authorizedAs: 'settings:studio.apiKeys' },
   {
