@@ -963,3 +963,17 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
   - Trang "Playbooks" trong Cài đặt hệ thống (mục Agents): hiển thị danh sách playbook, tham số, tiêu chí mặc định và bảng lịch sử sử dụng.
 - **Đa ngữ i18n**: Cung cấp đầy đủ chuỗi bản dịch cho 3 ngôn ngữ (`vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
 - **Test**: `tests/server/playbook-parser.test.ts`, `tests/server/playbooks.test.ts`, `tests/client/client-routes.test.ts`, `tests/client/foundation-integration.test.ts`.
+
+## 53. H3b — Đo runner và đề xuất giới hạn tài nguyên, an toàn mạng (12/11/2026)
+
+- Runner chạy agent trên VPS production (`217.15.160.118`) theo `user-1002.slice` hiện có `MemoryMax=2.5GiB` nhưng không có ngưỡng cảnh báo và chưa có giới hạn mạng outbound, tiềm ẩn nguy cơ OOM-killer SIGKILL đột ngột làm mất lượt chạy (hành vi sai #3) hoặc gọi ra domain lạ ngoài ý muốn.
+- **Quan sát & Đề xuất cấu hình (`server/runner/service.ts`, `server/runner/types.ts`)**:
+  - `observeRunnerMetrics(conn)`: Đo đạc thời gian chạy (duration), tính trung vị và P95 từ 20 lượt chạy gần nhất.
+  - `getRunnerRecommendations(conn)`: Đề xuất cấu hình tài nguyên tối ưu:
+    - Bổ sung `MemoryHigh=2.0GiB` trên `user-1002.slice` để kernel cgroup v2 ép thu hồi page cache và throttle I/O an toàn trước khi chạm trần OOM 2.5GiB.
+    - Giới hạn mạng ra ngoài (proxy allowlist) gói gọn trong 5 domain thiết yếu: `registry.npmjs.org`, `github.com` & `api.github.com`, `api.anthropic.com`, `open.larksuite.com`, và `studio.dsc.edu.vn`.
+- **Tuyến API (`server/routes/runner.ts`)**:
+  - `GET /api/runner/recommendations`: Trả về số liệu quan sát thời gian chạy, cấu hình tài nguyên đề xuất, danh sách domain mạng được phép và lệnh shell drop-in áp dụng cho systemd.
+- **Tài liệu hướng dẫn & Đề xuất (`docs/runner-resource-limits-proposal.md`)**:
+  - Tài liệu chi tiết hiện trạng, kết quả đo, hướng dẫn tạo drop-in `override.conf`, quy trình rollback an toàn và câu hỏi xin ý kiến chủ dự án trước khi áp dụng trên VPS.
+- **Test**: `tests/server/runner-recommendations.test.ts`.
