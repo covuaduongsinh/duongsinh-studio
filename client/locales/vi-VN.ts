@@ -289,6 +289,7 @@ const viVN: AppResource = {
     newAction: 'Đề xuất bài học',
     buttonLabel: 'Ghi thành bài học',
     refresh: 'Làm mới',
+    saving: 'Đang lưu...',
     empty: 'Chưa có bài học nào được ghi nhận.',
     tag: 'Thẻ phân loại',
     mistake: 'Sai lầm / Hiện tượng',

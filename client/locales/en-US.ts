@@ -295,6 +295,7 @@ const enUS = {
     newAction: 'Propose Lesson',
     buttonLabel: 'Record as Lesson',
     refresh: 'Refresh',
+    saving: 'Saving...',
     empty: 'No lessons recorded yet.',
     tag: 'Tag',
     mistake: 'Mistake / Phenomenon',

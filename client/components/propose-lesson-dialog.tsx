@@ -210,7 +210,7 @@ export function ProposeLessonDialog({
               }
             >
               {propose.isPending
-                ? t('common.saving')
+                ? t('lessons.saving')
                 : t('lessons.proposeAction')}
             </Button>
           </DialogFooter>

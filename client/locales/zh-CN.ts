@@ -286,6 +286,7 @@ const zhCN: AppResource = {
     newAction: '提出教训',
     buttonLabel: '沉淀为教训',
     refresh: '刷新',
+    saving: '正在保存...',
     empty: '暂无记录的经验教训。',
     tag: '分类标签',
     mistake: '错误 / 现象',
