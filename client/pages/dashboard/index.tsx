@@ -36,6 +36,7 @@ import {
 } from '#hooks/use-reports';
 
 import { BudgetUsage } from './budget-usage.js';
+import { BenchSection } from './bench-section.js';
 
 import { RunsChart } from './runs-chart.js';
 import { Sparkline } from './sparkline.js';
@@ -427,6 +428,7 @@ export default function DashboardPage(): ReactElement {
         ) : null}
 
         <BudgetUsage />
+        <BenchSection />
 
         {agents.data ? (
           <Card>

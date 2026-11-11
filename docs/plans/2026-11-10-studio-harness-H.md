@@ -320,7 +320,7 @@ thay vì trong CI; kind `agent` quan sát mọi việc và mọi bình luận.
   - [x] H1b lượt Kiểm chứng và cổng `in_review` (#71)
   - [x] H1c review theo tiêu chí (#72)
   - [x] H1d cổng xác định trước review (#73)
-- [ ] H4 — Bộ đo
+- [x] H4 — Bộ đo (#74)
 - [ ] H2 — Vòng học từ lỗi
   - [ ] H2a ghi thành bài học
   - [ ] H2b bài học đầu tiên và cảnh báo bí mật
