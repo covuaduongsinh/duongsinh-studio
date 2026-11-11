@@ -36,6 +36,7 @@ const PEOPLE = [
   '/reports/agents',
   '/reports/projects',
   '/reports/attention',
+  '/reports/learning',
 ];
 const ALL = [...PEOPLE, '/reports/metrics', '/reports/usage'];
 
@@ -190,6 +191,14 @@ test(
       (await admin.fetch('/reports/metrics?projectId=nowhere')).status,
     ).toBe(404);
     expect((await admin.fetch('/reports/metrics?from=nope')).status).toBe(400);
+
+    const learningRes = await admin.fetch('/reports/learning?days=7');
+    expect(learningRes.status).toBe(200);
+    const learningData = (await learningRes.json()) as {
+      data: { repeatedMistakes: unknown[]; newLessonsCount: number };
+    };
+    expect(learningData.data.repeatedMistakes).toBeDefined();
+    expect(typeof learningData.data.newLessonsCount).toBe('number');
 
     const usage = (await (
       await admin.fetch('/reports/usage?groupBy=project')

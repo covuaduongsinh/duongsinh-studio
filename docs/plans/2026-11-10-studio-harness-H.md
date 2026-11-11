@@ -321,10 +321,10 @@ thay vì trong CI; kind `agent` quan sát mọi việc và mọi bình luận.
   - [x] H1c review theo tiêu chí (#72)
   - [x] H1d cổng xác định trước review (#73)
 - [x] H4 — Bộ đo (#74)
-- [ ] H2 — Vòng học từ lỗi
+- [x] H2 — Vòng học từ lỗi
   - [x] H2a ghi thành bài học (#75)
-  - [x] H2b bài học đầu tiên và cảnh báo bí mật
-  - [ ] H2c báo cáo tuần
+  - [x] H2b bài học đầu tiên và cảnh báo bí mật (#76)
+  - [x] H2c báo cáo tuần
 - [ ] H3 — Playbook và giới hạn
   - [ ] H3a playbook
   - [ ] H3b đo runner, đề xuất, hỏi

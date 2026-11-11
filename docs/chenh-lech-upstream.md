@@ -917,3 +917,20 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
   - Tự động hiển thị khi có finding ở trạng thái `active` và cung cấp nút thao tác trực tiếp: "Đã xoay khoá / Đã xử lý" và "Báo nhầm / Bỏ qua".
 - **Đa ngữ i18n**: Cung cấp đầy đủ chuỗi bản dịch cho 3 ngôn ngữ (`vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
 - **Test**: `tests/database/ds-secret-findings-migration.test.ts`, `tests/server/secret-patterns.test.ts`, `tests/server/secret-findings.test.ts`, `tests/client/secret-findings-banner.test.tsx`, `tests/client/app-locale-coverage.test.ts`.
+
+## 51. H2c — Báo cáo tuần (12/11/2026)
+
+- Báo cáo tuần định kỳ thứ Hai (`server/reports/weekly.ts`) của template NocoBase chỉ tổng hợp số liệu giao việc cơ bản (`delivery`, `agents`, `attention`), chưa phản ánh được các trục trặc lặp lại và tiến độ cải thiện thông qua bài học kinh nghiệm hay cảnh báo bảo mật.
+- **Figures học từ lỗi (`server/reports/service.ts`)**:
+  - Bổ sung phương thức `learning(scope, days)` vào `ReportFigures`:
+    - Tổng hợp các lỗi lặp lại (`repeatedMistakes`): lọc các thẻ bài học (`tag`) xuất hiện từ 2 lần trở lên trong tuần từ bảng `dsLessons`.
+    - Số lượng bài học mới được đề xuất/chấp thuận (`newLessonsCount`).
+    - Số vụ phát hiện chuỗi nghi là bí mật (`secretFindingsCount`) và số vụ còn đang mở (`activeSecretsCount`) từ bảng `dsSecretFindings`.
+    - Các tiêu chí nghiệm thu bị đánh chưa đạt nhiều nhất (`topFailedCriteria`) từ bảng `dsReviewCriteriaChecks`.
+    - Phân tích nguyên nhân thất bại của các lượt chạy (`failuresByReason`) từ dữ liệu `reporting.runRecords`.
+- **Nâng cấp nội dung gửi thông báo tuần (`server/reports/weekly.ts`)**:
+  - Gộp các chỉ số học hỏi vào bản tin tổng kết gửi In-app Inbox cho từng chủ dự án/chủ việc vào sáng thứ Hai: số bài học mới, danh sách lỗi lặp lại, tiêu chí chưa đạt, và cảnh báo bí mật.
+- **Tuyến API (`server/routes/reports.ts`)**:
+  - Bổ sung endpoint `GET /api/reports/learning?days=7|30|90` kèm schema `LearningReport`.
+- **Đa ngữ i18n**: Cập nhật chuỗi bản dịch thông báo tuần trong cả 3 ngôn ngữ (`server/locales/vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
+- **Test**: `tests/server/report-figures.test.ts`, `tests/server/report-routes.test.ts`.

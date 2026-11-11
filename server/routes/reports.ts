@@ -217,6 +217,26 @@ const AttentionReport = z.object({
 
 const Status = z.enum(['ok', 'warn', 'n/a']);
 
+const LearningReport = z.object({
+  ...PeriodHead,
+  repeatedMistakes: z.array(
+    z.object({
+      tag: z.string(),
+      count: Int,
+    }),
+  ),
+  newLessonsCount: Int,
+  secretFindingsCount: Int,
+  activeSecretsCount: Int,
+  topFailedCriteria: z.array(
+    z.object({
+      criterionId: z.string(),
+      count: Int,
+    }),
+  ),
+  failuresByReason: z.record(z.string(), Int),
+});
+
 const MetricsReport = z.object({
   from: z.string(),
   to: z.string(),
@@ -461,6 +481,7 @@ export const reportRoutes: AppApiRouteContribution<Application> =
       '/reports/agents',
       '/reports/projects',
       '/reports/attention',
+      '/reports/learning',
     ])
       routes.use(path, auth.required(), authz.middleware());
     for (const path of ['/reports/metrics', '/reports/usage'])
@@ -555,6 +576,30 @@ export const reportRoutes: AppApiRouteContribution<Application> =
       async (context) =>
         context.json({
           data: await figures().attention(await scopeOf(context)),
+        }),
+    );
+
+    routes.get(
+      '/reports/learning',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Get learning and repeated mistakes report',
+        operationId: 'reportsGetLearning',
+        description: `Summary of lessons learned, repeated mistakes by tag, secret leak findings, and unmet review criteria in the last \`days\` days. ${GRANT_NOTE}`,
+        security: PERSON,
+        ...cliRoute({
+          command: 'report learning',
+          examples: ['report learning --days 7'],
+        }),
+        responses: { 200: dataResponse(LearningReport), ...apiErrorResponses },
+      }),
+      apiValidator('query', DaysQuery),
+      async (context) =>
+        context.json({
+          data: await figures().learning(
+            await scopeOf(context),
+            context.req.valid('query').days as ReportDays,
+          ),
         }),
     );
 

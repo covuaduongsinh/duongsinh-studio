@@ -4,7 +4,7 @@ import { durationText, percentText } from './text.js';
 export interface WeeklyReportDeps {
   readonly figures: () => Pick<
     ReportFigures,
-    'delivery' | 'agents' | 'attention'
+    'delivery' | 'agents' | 'attention' | 'learning'
   >;
   readonly owners: () => Promise<readonly string[]>;
   readonly scopeOf: (userId: string) => Promise<ReportScope>;
@@ -33,10 +33,11 @@ export async function sendWeeklyReport(
   const figures = deps.figures();
   for (const owner of owners) {
     const scope = await deps.scopeOf(owner);
-    const [delivery, agents, attention] = await Promise.all([
+    const [delivery, agents, attention, learning] = await Promise.all([
       figures.delivery(scope, 7),
       figures.agents(scope, 7),
       figures.attention(scope),
+      figures.learning ? figures.learning(scope, 7) : Promise.resolve(null),
     ]);
     const params = {
       from: delivery.from,
@@ -55,6 +56,14 @@ export async function sendWeeklyReport(
       overdue: attention.overdue.total,
       reviews: attention.reviewWaits.total,
       failed: attention.failedRuns.total,
+      repeatedMistakes: learning
+        ? learning.repeatedMistakes
+            .map((r) => `${r.tag} (${r.count})`)
+            .join(', ') || '0'
+        : '0',
+      newLessons: learning ? learning.newLessonsCount : 0,
+      secretFindings: learning ? learning.secretFindingsCount : 0,
+      failedCriteria: learning ? learning.topFailedCriteria.length : 0,
     };
     await deps.notify({
       to: [owner],
