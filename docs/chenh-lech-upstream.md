@@ -531,7 +531,7 @@ Nguồn: registry npm, phiên bản chỉ định theo kế hoạch (`beta` lúc
 
 ## 27. U5 — Dashboard (07/11/2026)
 
-- **Thẻ KPI thứ tư là token mỗi công việc, không phải chi phí mỗi công việc:** agent của Studio chạy bằng gói thuê bao. `reports/delivery` vẫn trả `costPerIssue` đúng hợp đồng và thêm `tokensPerIssue` ở `current`, `previous`, `buckets`.
+- **(Đã thay ở §38: thẻ thứ tư nay là chi phí mỗi công việc, token ở chú thích.)** Trước đây thẻ KPI thứ tư là token mỗi công việc, không phải chi phí mỗi công việc: agent của Studio chạy bằng gói thuê bao. `reports/delivery` vẫn trả `costPerIssue` đúng hợp đồng và thêm `tokensPerIssue` ở `current`, `previous`, `buckets`.
 - **Biểu đồ lượt chạy dùng cột chồng tự vẽ thay cho vùng chồng của demo:** không kéo `echarts` vào trang, màu lấy từ token theme, có chú giải, tooltip và bảng số. Bốn token `--run-*` thêm vào `client/theme/themes/*.css` và `client/styles.css` (đã qua validator của skill `dataviz` ở nền sáng và tối); không đổi `--chart-*` vì `flow-diagram.tsx` đang dùng. Lúc nâng template cần giữ.
 - **`groupBy` của `reports/usage`:** theo enum của demo (`agent|person|project|issue|day|model|tool`), đổi sang `group`/`subject` khi gọi plugin. Không nhận `type` tuy mô tả của demo có nhắc tới.
 - **`SubjectFacts.group` giờ là project của công việc** (`server/providers/issue-subject.ts`), trước đó luôn `null`; nhờ vậy `?projectId=` và nhóm theo project mới có nghĩa.
