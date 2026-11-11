@@ -326,5 +326,5 @@ thay vì trong CI; kind `agent` quan sát mọi việc và mọi bình luận.
   - [x] H2b bài học đầu tiên và cảnh báo bí mật (#76)
   - [x] H2c báo cáo tuần
 - [ ] H3 — Playbook và giới hạn
-  - [ ] H3a playbook
+  - [x] H3a playbook
   - [ ] H3b đo runner, đề xuất, hỏi

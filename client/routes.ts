@@ -432,6 +432,22 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
     componentLoader: () => import('./pages/settings/lessons.js'),
   },
   {
+    name: 'settingsPlaybooks',
+    parent: 'settingsAi',
+    path: '/playbooks',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'agents.agents' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.playbooks',
+      description: 'navigation.playbooksDescription',
+      icon: BookOpen,
+    },
+    componentLoader: () => import('./pages/settings/playbooks.js'),
+  },
+  {
     // GitHub connections and linked repositories. Every endpoint of `server/routes/git.ts` the page calls requires an
     // administrator: the `pm.members` `define-roles` settings item, which the page checks too.
     name: 'settingsGit',

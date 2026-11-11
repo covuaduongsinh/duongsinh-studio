@@ -19,6 +19,7 @@ import { reviewRoutes } from './reviews.js';
 import { benchRoutes } from './bench.js';
 import { lessonRoutes } from './lessons.js';
 import { secretFindingsRoutes } from './secret-findings.js';
+import { playbookRoutes } from './playbooks.js';
 import { verificationRoutes } from './verifications.js';
 import { webhookRoutes } from './webhooks.js';
 
@@ -32,6 +33,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   benchRoutes,
   lessonRoutes,
   secretFindingsRoutes,
+  playbookRoutes,
   issueWorkRoutes,
   issueCriteriaRoutes,
   inboxRoutes,

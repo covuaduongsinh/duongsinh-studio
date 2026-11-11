@@ -34,6 +34,11 @@ import {
 } from '../agents/ids.js';
 import { num, str } from '../git/rows.js';
 import { maskSecrets } from '../security/secret-patterns.js';
+import { parsePlaybookInvocations } from '../playbooks/parser.js';
+import {
+  findPlaybookDefinition,
+  applyPlaybookToIssue,
+} from '../playbooks/service.js';
 
 /** Translates a key of the application's namespace, with `{{name}}` parameters. */
 export type Translate = (
@@ -304,6 +309,7 @@ function assemblyOf(
       readonly checkValue: string | null;
     }[];
     readonly latestVerificationSummary?: string | null;
+    readonly playbookRules?: readonly string[];
   },
 ): SubjectAssembly {
   const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
@@ -323,6 +329,7 @@ function assemblyOf(
           ? `Hand steps to agents by mentioning them in a comment; move the issue only between in_progress, blocked and in_review (${commandRef(claim.cli, 'issue update')}).`
           : 'Never change the issue’s status or assign it; the project manager does.',
         'Write every comment and your final run summary in Vietnamese; keep commands, paths and identifiers as they are.',
+        ...(extras.playbookRules ?? []),
         ...(coordinating && extras.autopilotOn ? [AUTOPILOT_ON_RULE] : []),
         ...(readOnly ? [READ_ONLY_TURN_RULE] : []),
         ...(readOnly && extras.criteria.length > 0
@@ -428,6 +435,31 @@ export function createIssueSubject(deps: {
           );
         const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
         const readOnly = isReadOnlyTurn(claim);
+
+        const fullText = [
+          issue.description,
+          ...issue.comments.map((c) => c.content),
+        ].join('\n');
+        const invocations = parsePlaybookInvocations(fullText);
+        const playbookRules: string[] = [];
+        for (const inv of invocations) {
+          const pb = findPlaybookDefinition(inv.slug);
+          if (pb) {
+            await applyPlaybookToIssue(conn, {
+              issueId: claim.run.subject.id,
+              slug: inv.slug,
+              params: inv.params,
+            });
+            playbookRules.push(
+              `Playbook đang áp dụng [!${pb.slug} - ${pb.name}]: ${pb.description}\nHướng dẫn quy trình:\n${pb.instructions}`,
+            );
+          } else {
+            playbookRules.push(
+              `Cảnh báo: Playbook "!${inv.slug}" không tồn tại. Danh sách playbook khả dụng: !nang-template, !tao-app-nocobase, !nhap-lark, !deploy-dokploy.`,
+            );
+          }
+        }
+
         const criteriaRows = await conn.query
           .selectFrom('dsIssueCriteria')
           .select(['id', 'text', 'checkKind', 'checkValue'])
@@ -464,6 +496,7 @@ export function createIssueSubject(deps: {
         return assemblyOf(issue, claim, {
           criteria,
           latestVerificationSummary,
+          playbookRules,
           autopilotOn:
             coordinating && issue.project
               ? await autopilotOn(conn, issue.project.id)

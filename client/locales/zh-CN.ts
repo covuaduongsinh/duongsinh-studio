@@ -322,6 +322,26 @@ const zhCN: AppResource = {
       rejected: '已拒绝',
     },
   },
+  playbooks: {
+    settingsTitle: '标准剧本 (Playbooks)',
+    settingsDescription:
+      '通过事项描述或评论中的 !<slug> 语法触发的标准工作流。',
+    syntaxTitle: '剧本触发语法',
+    syntaxDescription:
+      '在事项描述或评论中键入 !<slug> 或 !<slug> key=value 即可自动附加工作指引并导入默认验收标准。',
+    listTitle: '可用剧本列表',
+    listDescription: 'Studio 的标准化流程与自动化模板。',
+    historyTitle: '剧本执行历史',
+    historyDescription: '工作区事项中应用剧本的记录。',
+    refresh: '刷新',
+    empty: '暂无可用剧本。',
+    noInvocations: '暂无剧本调用记录。',
+    params: '参数',
+    defaultCriteria: '默认标准',
+    time: '时间',
+    playbook: '剧本',
+    issue: '事项',
+  },
   secretFindings: {
     bannerTitle: '密钥 / 敏感凭据泄露告警',
     bannerDescription:
@@ -846,6 +866,8 @@ const zhCN: AppResource = {
     reviewsDescription: '查看拉取请求评审历史及验收标准检查。',
     lessons: '经验教训',
     lessonsDescription: '工作中从错误中总结出的规则与经验。',
+    playbooks: '剧本 (Playbooks)',
+    playbooksDescription: '标准剧本目录 (!slug)、参数及使用历史。',
     followUps: '跟进',
     projects: '项目',
     issuePrefix: '任务编号前缀',

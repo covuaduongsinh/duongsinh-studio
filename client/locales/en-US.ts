@@ -332,6 +332,26 @@ const enUS = {
       rejected: 'Rejected',
     },
   },
+  playbooks: {
+    settingsTitle: 'Playbooks',
+    settingsDescription:
+      'Standard workflow procedures triggered via !<slug> syntax in issue descriptions or comments.',
+    syntaxTitle: 'Playbook Trigger Syntax',
+    syntaxDescription:
+      'Type !<slug> or !<slug> key=value in issue descriptions or comments to automatically attach instructions and seed default criteria.',
+    listTitle: 'Available Playbooks',
+    listDescription: "Studio's standard workflow templates and automations.",
+    historyTitle: 'Playbook Execution History',
+    historyDescription: 'Log of playbook applications across workspace issues.',
+    refresh: 'Refresh',
+    empty: 'No playbooks available.',
+    noInvocations: 'No playbook invocations recorded yet.',
+    params: 'Parameters',
+    defaultCriteria: 'Default Criteria',
+    time: 'Time',
+    playbook: 'Playbook',
+    issue: 'Issue',
+  },
   secretFindings: {
     bannerTitle: 'Secret / API Key Leak Alert',
     bannerDescription:
@@ -885,6 +905,9 @@ const enUS = {
     lessons: 'Lessons',
     lessonsDescription:
       'Rules and takeaways learned from mistakes across work.',
+    playbooks: 'Playbooks',
+    playbooksDescription:
+      'Standard playbook catalog (!slug), parameters, and execution history.',
     followUps: 'Follow-ups',
     projects: 'Projects',
     issuePrefix: 'Issue prefix',

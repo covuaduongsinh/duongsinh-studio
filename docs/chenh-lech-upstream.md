@@ -934,3 +934,32 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
   - Bổ sung endpoint `GET /api/reports/learning?days=7|30|90` kèm schema `LearningReport`.
 - **Đa ngữ i18n**: Cập nhật chuỗi bản dịch thông báo tuần trong cả 3 ngôn ngữ (`server/locales/vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
 - **Test**: `tests/server/report-figures.test.ts`, `tests/server/report-routes.test.ts`.
+
+## 52. H3a — Playbook và kích hoạt quy trình chuẩn (12/11/2026)
+
+- Template NocoBase chưa có cơ chế quy trình mẫu (Playbooks) định nghĩa sẵn các bước thực hiện và tiêu chí nghiệm thu tiêu chuẩn cho những loại công việc định kỳ.
+- **Migration & Bảng cơ sở dữ liệu (`database/main/migrations/202611110009_ds_playbook_invocations.ts`)**:
+  - Tạo bảng `dsPlaybookInvocations` (id, playbookSlug, issueId, commentId, params json, invokedByUserId, createdAt) có hàm `down` đảo ngược.
+- **Định nghĩa mã nguồn Playbook (`server/playbooks/definitions.ts`)**:
+  - Bốn playbook chuẩn đầu tiên:
+    1. `!nang-template`: Quy trình nâng cấp template NocoBase (beta.89, kế hoạch N) với 3 tiêu chí mặc định (`pnpm check:packages`, `pnpm typecheck`, review giữ tính năng Dương Sinh Studio).
+    2. `!tao-app-nocobase`: Khởi tạo và thiết lập ứng dụng NocoBase mới theo chuẩn template Studio.
+    3. `!nhap-lark`: Nhập và đồng bộ dữ liệu từ Lark Base sang NocoBase, luôn yêu cầu dry-run trước khi ghi đè.
+    4. `!deploy-dokploy`: Quy trình triển khai ứng dụng lên Dokploy an toàn, sao lưu database trước khi deploy.
+- **Phân tích cú pháp (`server/playbooks/parser.ts`)**:
+  - Hàm `parsePlaybookInvocations(text)` nhận diện `!<slug>` hoặc `!<slug> key=value key2="value 2"` trong mô tả việc hoặc bình luận.
+- **Tự động chép tiêu chí & hướng dẫn agent (`server/playbooks/service.ts`, `server/providers/issue-subject.ts`, `server/providers/agent-executor.ts`)**:
+  - Khi phát hiện playbook invocation hợp lệ:
+    - Nếu việc chưa có tiêu chí nghiệm thu, tự động chép các tiêu chí mặc định của playbook vào `dsIssueCriteria` với `source: 'playbook'`.
+    - Ghi nhận lịch sử chạy vào `dsPlaybookInvocations`.
+    - Đưa hướng dẫn quy trình của playbook vào ngữ cảnh làm việc của agent.
+  - Khi phát hiện playbook không tồn tại:
+    - Bình luận hệ thống trên việc cảnh báo tên playbook không tồn tại kèm danh sách playbook khả dụng.
+- **Tuyến API (`server/routes/playbooks.ts`)**:
+  - `GET /api/playbooks`: Danh sách các playbook có sẵn kèm tham số và tiêu chí mặc định.
+  - `GET /api/playbooks/invocations`: Lịch sử các lần chạy playbook.
+  - `POST /api/playbooks/apply`: Áp dụng playbook lên một công việc.
+- **Giao diện Client (`client/pages/settings/playbooks.tsx`, `client/hooks/use-playbooks.ts`)**:
+  - Trang "Playbooks" trong Cài đặt hệ thống (mục Agents): hiển thị danh sách playbook, tham số, tiêu chí mặc định và bảng lịch sử sử dụng.
+- **Đa ngữ i18n**: Cung cấp đầy đủ chuỗi bản dịch cho 3 ngôn ngữ (`vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
+- **Test**: `tests/server/playbook-parser.test.ts`, `tests/server/playbooks.test.ts`, `tests/client/client-routes.test.ts`, `tests/client/foundation-integration.test.ts`.

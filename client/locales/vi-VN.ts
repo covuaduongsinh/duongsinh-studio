@@ -326,6 +326,26 @@ const viVN: AppResource = {
       rejected: 'Đã từ chối',
     },
   },
+  playbooks: {
+    settingsTitle: 'Kịch bản mẫu (Playbooks)',
+    settingsDescription:
+      'Các quy trình làm việc chuẩn được kích hoạt bằng cú pháp !<slug> trong mô tả hoặc bình luận của công việc.',
+    syntaxTitle: 'Cú pháp kích hoạt Playbook',
+    syntaxDescription:
+      'Gõ !<slug> hoặc !<slug> key=value trong mô tả hoặc bình luận để tự động gắn hướng dẫn và nạp tiêu chí mặc định.',
+    listTitle: 'Danh sách Playbook có sẵn',
+    listDescription: 'Các kịch bản tự động hoá và quy trình mẫu của Studio.',
+    historyTitle: 'Lịch sử kích hoạt Playbook',
+    historyDescription: 'Nhật ký các lần áp dụng playbook trên các công việc.',
+    refresh: 'Làm mới',
+    empty: 'Chưa có playbook nào.',
+    noInvocations: 'Chưa có lượt kích hoạt playbook nào.',
+    params: 'Tham số',
+    defaultCriteria: 'Tiêu chí mặc định',
+    time: 'Thời gian',
+    playbook: 'Playbook',
+    issue: 'Công việc',
+  },
   secretFindings: {
     bannerTitle: 'Cảnh báo rò rỉ bí mật / khoá bảo mật',
     bannerDescription:
@@ -876,6 +896,9 @@ const viVN: AppResource = {
     lessons: 'Bài học',
     lessonsDescription:
       'Các bài học và quy tắc rút ra từ sai lầm trong quá trình làm việc.',
+    playbooks: 'Playbooks',
+    playbooksDescription:
+      'Danh sách kịch bản mẫu (!slug), tham số và lịch sử sử dụng.',
     followUps: 'Theo dõi',
     projects: 'Dự án',
     issuePrefix: 'Tiền tố công việc',
