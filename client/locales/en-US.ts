@@ -1619,6 +1619,9 @@ const enUS = {
       sensitivePolicy: 'Sensitive paths policy',
       sensitivePaths: 'Sensitive paths (one per line)',
       sensitivePathsHint: 'E.g. database/, server/security/, package.json',
+      autoMergeStages: 'Merge each finished stage by itself',
+      autoMergeStagesHint:
+        'When a stage’s checks pass and it has been handed over, Studio merges its pull request and the work goes on to the next stage. Stops with a pause or the emergency stop, and leaves pull requests that touch sensitive paths for a person.',
     },
     mergeMethods: {
       squash: 'Squash and merge',

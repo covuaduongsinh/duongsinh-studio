@@ -7,6 +7,7 @@ import {
   signIn,
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
+import { autopilotServiceToken } from '../../server/providers/autopilot.js';
 import { gitServiceToken } from '../../server/providers/git.js';
 import { createStandaloneServer } from '../../server/standalone.js';
 
@@ -105,6 +106,13 @@ function fakeGitHub(pulls: Map<number, Hosted>, merges: number[]): void {
         merges.push(number);
         return answer({ sha: `merge${number}`, merged: true });
       }
+      const files = /^\/repos\/acme\/sandbox\/pulls\/(\d+)\/files$/u.exec(path);
+      if (files)
+        return answer([
+          {
+            filename: Number(files[1]) === 15 ? 'package.json' : 'src/stage.ts',
+          },
+        ]);
       const one = /^\/repos\/acme\/sandbox\/pulls\/(\d+)$/u.exec(path);
       if (one) {
         const hosted = pulls.get(Number(one[1]));
@@ -246,6 +254,17 @@ test(
       merged: false,
       checks: 'failure',
     });
+    const sensitive = await make({
+      title: 'Giai đoạn đụng cấu hình',
+      parentIssueId: parent.id,
+      stage: 4,
+      statusKey: 'in_review',
+    });
+    pulls.set(15, {
+      branch: `agent/${sensitive.identifier}`,
+      merged: false,
+      checks: 'success',
+    });
     pulls.set(14, {
       branch: `agent/${plain.identifier}`,
       merged: false,
@@ -258,9 +277,51 @@ test(
     expect(merges).toEqual([11]);
     expect(await statusOf(stageDone.id)).toBe('done');
     expect(await statusOf(parent.id)).not.toBe('done');
-    // Still at work, checks failing, or not a stage at all: left for a person.
+    // Still at work, checks failing, not a stage at all, or touching package.json: left for a person.
     expect(await statusOf(stageWorking.id)).toBe('in_progress');
     expect(await statusOf(stageFailing.id)).toBe('in_review');
     expect(await statusOf(plain.id)).toBe('in_review');
+    expect(await statusOf(sensitive.id)).toBe('in_review');
+
+    // The project's say: switched off, or paused by the emergency stop, it merges nothing; resumed, it does.
+    const git = app.container.resolve(gitServiceToken);
+    const autopilot = app.container.resolve(autopilotServiceToken);
+    const later = await make({
+      title: 'Giai đoạn sau',
+      parentIssueId: parent.id,
+      stage: 5,
+      statusKey: 'in_review',
+    });
+    pulls.set(16, {
+      branch: `agent/${later.identifier}`,
+      merged: false,
+      checks: 'success',
+    });
+    expect(
+      (
+        await admin.fetch(
+          `/projects/${project.id}/autopilot`,
+          json({ autoMergeStages: false }, 'PUT'),
+        )
+      ).status,
+    ).toBe(200);
+    await git.syncRepository(repository.id);
+    expect(merges).toEqual([11]);
+
+    await admin.fetch(
+      `/projects/${project.id}/autopilot`,
+      json({ autoMergeStages: true }, 'PUT'),
+    );
+    await autopilot.stopAll('emergency stop');
+    await git.syncRepository(repository.id);
+    expect(merges).toEqual([11]);
+
+    await autopilot.resume(project.id);
+    await git.syncRepository(repository.id);
+    expect(merges).toEqual([11, 16]);
+    expect(await statusOf(later.id)).toBe('done');
+    // Both merges are written down, which is also what the daily limit counts.
+    const events = await autopilot.listEvents({ projectId: project.id });
+    expect(events.filter((event) => event.kind === 'merged')).toHaveLength(2);
   },
 );

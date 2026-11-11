@@ -210,6 +210,35 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
   }
 
   override async boot(): Promise<void> {
+    // Studio merges the pull request of a finished stage by itself only as far as the project's autopilot lets it
+    // (switch, pause and emergency stop, daily limit, sensitive paths); it is written down and the owners are told.
+    {
+      const { container } = this.app;
+      if (
+        container.has(gitServiceToken) &&
+        container.has(autopilotServiceToken)
+      )
+        container.resolve(gitServiceToken).setStageMergePolicy({
+          allow: async (input) =>
+            (
+              await container
+                .resolve(autopilotServiceToken)
+                .stageMergeAllowed(input)
+            ).allowed,
+          merged: async (input) => {
+            await container
+              .resolve(autopilotServiceToken)
+              .recordStageMerge(input);
+            await this.notifyInbox({
+              to: await this.ownerIds(),
+              key: `stage-merged:${input.pullRequestId}`,
+              title: `Studio đã tự merge một giai đoạn: ${input.repo}#${input.number}`,
+              body: 'Công việc con của giai đoạn đã Xong và công việc tiếp tục sang giai đoạn sau.',
+              path: `/issues/${input.issueId}`,
+            });
+          },
+        });
+    }
     const { container } = this.app;
     if (!container.has(gitServiceToken)) return;
 

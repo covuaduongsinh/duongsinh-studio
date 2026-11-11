@@ -747,7 +747,10 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Điều kiện** (chủ dự án chọn "kiểm tra đạt + giai đoạn ở Đang duyệt"): PR gắn với một công việc con **có giai đoạn** (`stage` khác rỗng, có `parentIssueId`), công việc con đó đang **Đang duyệt** (agent đã bàn giao), PR không phải nháp,
   không xung đột và mọi kiểm tra bắt buộc đạt (cùng `mergeBlockerOf` với nút Merge, **không ép**). Không đủ điều kiện hoặc GitHub từ chối thì để người xử lý như cũ.
 - **Hệ quả:** merge bằng danh nghĩa chủ sở hữu công việc con; công việc con chuyển **Xong** (sự kiện `ds.pr.merged`) để giai đoạn sau được mở, còn công việc cha không bị đóng. Công việc không có giai đoạn vẫn theo công tắc của PR như trước.
-  Công tắc "hoàn tất khi merge" của PR không được xét cho PR giai đoạn.
+- **Hàng rào của Tự lái áp dụng cho việc này** (`stageMergeAllowed` trong `server/autopilot/evaluator.ts`; git service chỉ merge khi chính sách này cho phép, không có chính sách thì không merge): công tắc **"Tự merge từng giai đoạn đã xong"** của dự án
+  (cột `autoMergeStages`, mặc định bật, ở phần Tự lái của dự án); dự án đang tạm dừng; **dừng khẩn cấp** (nay đặt tạm dừng cho **mọi** dự án, kể cả dự án chưa từng cấu hình Tự lái); hạn mức merge mỗi ngày (`maxMergesPerDay`); và đường dẫn nhạy cảm
+  (migration, workflow, `package.json`, cấu hình…): PR đụng tới thì để người xử lý. Mỗi lần merge ghi một sự kiện `merged` vào nhật ký Tự lái (cũng là cái hạn mức đếm) và gửi thông báo vào Hộp thư của chủ sở hữu.
+- **Khác Tự lái đầy đủ:** Tự lái (`mergeIfEligible`) còn đòi phiếu review của agent khác, review bảo mật, báo cáo bàn giao và không có bình luận người sau review; merge giai đoạn **không** đòi các điều đó (theo lựa chọn của chủ dự án).
 - **Thời điểm:** chạy mỗi lần Studio đọc lại PR (đồng bộ định kỳ, báo cáo kiểm tra, nút đọc lại), nên merge xảy ra trong lần đồng bộ kế tiếp sau khi đủ điều kiện, chưa phải ngay khi agent bàn giao.
-- **Chưa làm:** công tắc tắt riêng cho từng công việc/dự án (hiện luôn bật cho PR giai đoạn đủ điều kiện); báo trong Hộp thư khi Studio tự merge (có bình luận "đã merge" trên issue như mọi merge).
-- Test: `tests/server/stage-auto-merge.test.ts` (một PR giai đoạn đạt được merge; giai đoạn đang làm, giai đoạn kiểm tra lỗi và công việc không có giai đoạn thì không).
+- Thẻ **Dừng khẩn cấp** ở Cài đặt → Tiền tố công việc chỉ hiện với quản trị viên không giới hạn (đúng người server cho phép).
+- Test: `tests/server/stage-auto-merge.test.ts`, `tests/database/ds-autopilot-stage-merge-migration.test.ts`, `tests/client/stage-auto-merge-ui.test.tsx`.

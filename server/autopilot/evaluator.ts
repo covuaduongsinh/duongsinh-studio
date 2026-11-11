@@ -25,6 +25,8 @@ export const DEFAULT_SENSITIVE_PATHS: readonly string[] = [
 export interface AutopilotSettingsView {
   readonly projectId: string;
   readonly enabled: boolean;
+  /** Whether Studio merges the pull request of a finished stage by itself (on unless the project turned it off). */
+  readonly autoMergeStages: boolean;
   readonly mergeMethod: string;
   readonly maxMergesPerDay: number | null;
   readonly maxActiveIssues: number | null;
@@ -38,6 +40,7 @@ export interface AutopilotSettingsView {
 
 export interface AutopilotSettingsInput {
   readonly enabled?: boolean;
+  readonly autoMergeStages?: boolean;
   readonly mergeMethod?: string;
   readonly maxMergesPerDay?: number | null;
   readonly maxActiveIssues?: number | null;
@@ -120,6 +123,8 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     return {
       projectId: str(row.projectId),
       enabled: bool(row.enabled),
+      autoMergeStages:
+        'autoMergeStages' in row ? bool(row.autoMergeStages) : true,
       mergeMethod: str(row.mergeMethod) || 'squash',
       maxMergesPerDay:
         row.maxMergesPerDay !== null ? num(row.maxMergesPerDay) : null,
@@ -179,6 +184,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
         input.enabled !== undefined
           ? input.enabled
           : (existing?.enabled ?? false),
+      autoMergeStages:
+        input.autoMergeStages !== undefined
+          ? input.autoMergeStages
+          : (existing?.autoMergeStages ?? true),
       mergeMethod:
         input.mergeMethod !== undefined
           ? input.mergeMethod
@@ -540,6 +549,91 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     }
   }
 
+  /**
+   * Whether Studio may merge the pull request of a finished stage by itself: the project has not turned it off, is not
+   * paused (the emergency stop included), is within its daily merge limit, and the pull request touches none of the
+   * sensitive paths (migrations, workflows, dependencies, configuration). A pull request whose files cannot be read is
+   * left to a person. The merge is the git service's; this only decides.
+   */
+  async function stageMergeAllowed(input: {
+    readonly issueId: string;
+    readonly pullRequestId: string;
+  }): Promise<{ readonly allowed: boolean; readonly reason: string | null }> {
+    const issue = await conn()
+      .query.selectFrom('pmIssues')
+      .select(['projectId'])
+      .where('id', '=', input.issueId)
+      .executeTakeFirst();
+    const projectId = issue ? strOrNull(issue.projectId) : null;
+    if (!projectId)
+      return { allowed: false, reason: 'The issue has no project.' };
+    const settings = await getSettings(projectId);
+    if (settings && !settings.autoMergeStages)
+      return {
+        allowed: false,
+        reason: 'Stage merging is off for the project.',
+      };
+    if (settings?.pausedReason)
+      return {
+        allowed: false,
+        reason: `Autopilot is paused: ${settings.pausedReason}`,
+      };
+    if (settings?.maxMergesPerDay != null) {
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const recent = await conn()
+        .query.selectFrom(EVENTS_TABLE)
+        .select('id')
+        .where('projectId', '=', projectId)
+        .where('kind', '=', 'merged')
+        .where('createdAt', '>=', since)
+        .execute();
+      if (recent.length >= settings.maxMergesPerDay)
+        return {
+          allowed: false,
+          reason: `Daily merge limit of ${settings.maxMergesPerDay} reached.`,
+        };
+    }
+    let files: string[];
+    try {
+      files = await deps.git().pullFiles(input.pullRequestId);
+    } catch {
+      return { allowed: false, reason: 'The changed files could not be read.' };
+    }
+    const touched = files.filter((file) =>
+      isSensitive(file, settings?.sensitivePaths ?? DEFAULT_SENSITIVE_PATHS),
+    );
+    if (touched.length > 0)
+      return {
+        allowed: false,
+        reason: `The pull request touches sensitive paths (${touched.join(', ')}).`,
+      };
+    return { allowed: true, reason: null };
+  }
+
+  /** Writes down that Studio merged a stage by itself: the audit trail, and what the daily limit counts. */
+  async function recordStageMerge(input: {
+    readonly issueId: string;
+    readonly pullRequestId: string;
+    readonly number: number;
+    readonly repo: string;
+  }): Promise<void> {
+    const issue = await conn()
+      .query.selectFrom('pmIssues')
+      .select(['projectId'])
+      .where('id', '=', input.issueId)
+      .executeTakeFirst();
+    const projectId = issue ? strOrNull(issue.projectId) : null;
+    if (!projectId) return;
+    await recordEvent({
+      projectId,
+      issueId: input.issueId,
+      pullRequestId: input.pullRequestId,
+      kind: 'merged',
+      reason: `Stage merged by Studio: ${input.repo}#${input.number}`,
+      data: { stage: true, pullNumber: input.number },
+    });
+  }
+
   async function pause(
     projectId: string,
     reason: string,
@@ -561,12 +655,22 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
   }
 
   async function stopAll(reason: string, updatedById?: string): Promise<void> {
-    const all = await conn()
+    // Every project, not only those that configured autopilot: what Studio does by itself in a project with no settings
+    // (merging a finished stage) must stop too, and a paused row is how a project says so.
+    const configured = await conn()
       .query.selectFrom(SETTINGS_TABLE)
       .select('projectId')
       .execute();
-    for (const row of all) {
-      await pause(str(row.projectId), reason, updatedById);
+    const projects = await conn()
+      .query.selectFrom('pmProjects')
+      .select('id')
+      .execute();
+    const ids = new Set([
+      ...configured.map((row) => str(row.projectId)),
+      ...projects.map((row) => str(row.id)),
+    ]);
+    for (const projectId of ids) {
+      await pause(projectId, reason, updatedById);
     }
   }
 
@@ -577,6 +681,8 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     recordEvent,
     evaluate,
     mergeIfEligible,
+    stageMergeAllowed,
+    recordStageMerge,
     pause,
     resume,
     stopAll,

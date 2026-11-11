@@ -119,6 +119,9 @@ function ProjectAutopilotForm({
   const updateMutation = useUpdateProjectAutopilot(projectId);
 
   const [enabled, setEnabled] = useState(settings?.enabled ?? false);
+  const [autoMergeStages, setAutoMergeStages] = useState(
+    settings?.autoMergeStages ?? true,
+  );
   const [mergeMethod, setMergeMethod] = useState<'squash' | 'merge' | 'rebase'>(
     (settings?.mergeMethod as 'squash' | 'merge' | 'rebase') || 'squash',
   );
@@ -142,6 +145,7 @@ function ProjectAutopilotForm({
     event.preventDefault();
     const payload: AutopilotUpdateInput = {
       enabled,
+      autoMergeStages,
       mergeMethod,
       maxActiveIssues: maxActiveIssues.trim()
         ? Number.parseInt(maxActiveIssues.trim(), 10)
@@ -205,6 +209,23 @@ function ProjectAutopilotForm({
             disabled={!canManage || updateMutation.isPending}
           />
         </div>
+      </div>
+
+      <div className='flex items-center justify-between pb-2 border-b'>
+        <div>
+          <Label className='text-base font-medium'>
+            {t('autopilot.fields.autoMergeStages')}
+          </Label>
+          <p className='text-xs text-muted-foreground'>
+            {t('autopilot.fields.autoMergeStagesHint')}
+          </p>
+        </div>
+        <Switch
+          aria-label={t('autopilot.fields.autoMergeStages')}
+          checked={autoMergeStages}
+          onCheckedChange={setAutoMergeStages}
+          disabled={!canManage || updateMutation.isPending}
+        />
       </div>
 
       <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>

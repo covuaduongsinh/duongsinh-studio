@@ -1543,6 +1543,9 @@ const zhCN: AppResource = {
       sensitivePolicy: '敏感路径策略',
       sensitivePaths: '敏感路径列表（每行一个）',
       sensitivePathsHint: '例如: database/, server/security/, package.json',
+      autoMergeStages: '自动合并每个已完成的阶段',
+      autoMergeStagesHint:
+        '当某阶段的检查通过且已交付时，Studio 会自动合并其拉取请求，工作继续进入下一阶段。暂停或紧急停止时不会合并，涉及敏感路径的拉取请求留给人工处理。',
     },
     mergeMethods: {
       squash: 'Squash (压缩提交并合并)',
