@@ -1,6 +1,6 @@
 # Kế hoạch H: harness của Dương Sinh Studio — 10/11/2026
 
-> Trạng thái: **chờ duyệt**. Bốn câu hỏi ở mục 6 đã chốt ngày 11/11/2026. Tên bước dùng chữ **H** để không trùng
+> Trạng thái: **hoàn thành 100%** (11 PR #69–#79 đã merge vào `main` ngày 12/11/2026; bản phát hành `7d1625f` đã triển khai lên production). Nhật ký chi tiết: `docs/plans/2026-11-12-nhat-ky-dot-harness-h.md`. Tên bước dùng chữ **H** để không trùng
 > S, AP, U, K, L, M, N, P. Nguồn: LangChain "Improving Deep Agents with harness engineering" (02/2026), Addy Osmani
 > "Agent Harness Engineering" (04/2026), Mitchell Hashimoto (02/2026), Spotify (verifier xác định trước, LLM judge sau),
 > Devin (Knowledge, Playbook), khảo sát 11 coding agent (07/2026). Đối chiếu với `main` = `3bfc28d` (sau đợt P, production
@@ -324,7 +324,7 @@ thay vì trong CI; kind `agent` quan sát mọi việc và mọi bình luận.
 - [x] H2 — Vòng học từ lỗi
   - [x] H2a ghi thành bài học (#75)
   - [x] H2b bài học đầu tiên và cảnh báo bí mật (#76)
-  - [x] H2c báo cáo tuần
+  - [x] H2c báo cáo tuần (#77)
 - [x] H3 — Playbook và giới hạn
   - [x] H3a playbook (#78)
-  - [x] H3b đo runner, đề xuất, hỏi
+  - [x] H3b đo runner, đề xuất, hỏi (#79)

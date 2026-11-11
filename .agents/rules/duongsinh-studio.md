@@ -17,6 +17,9 @@ operating notes live in `docs/`; moving to a newer NocoBase follows `docs/nang-c
   `@nocobase/app-client` and `@nocobase/i18n` (breaking the authorization client with `watchReadiness is not a
 function`) and put client-only libraries in `dependencies`. Restore the core ranges and move client libraries to
   `devDependencies` before continuing.
+- Production builds targeting Linux x64 (`pnpm build --target linux-x64 --node-version 24`) must be compiled inside the WSL Ubuntu
+  environment (`wsl -d Ubuntu -- bash -c "..."`) to ensure Linux native binary packages (`@napi-rs/canvas-linux-x64-gnu`, `sqlite-vec-linux-x64`)
+  are properly resolved and retargeted.
 
 ## Plugin assembly
 
@@ -54,6 +57,7 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
 - Rules every NocoBase 3 project follows (licenses, data, permissions) belong in the built-in `ds-app-rules` skill, not in each issue
   description. Built-in skills have revisions: `ensureBuiltinSkills` upgrades unmodified skills to new revisions, keeps hand-modified skills, and alerts administrators in the inbox.
 - Do not create issues from a long prompt through intake: each bullet line becomes its own issue (DS-25…DS-56 were made this way and cancelled).
+- Harness engineering (Plan H, `docs/plans/2026-11-12-nhat-ky-dot-harness-h.md`): structured acceptance criteria (`dsIssueCriteria`), mandatory verification before moving to `in_review` (`dsVerifications`), criteria checklist reviews (`dsReviewCriteriaChecks`), pre-review gate (clean branch, CI pass, secrets scan), lessons learned loop (`dsLessons`), secrets masking & alerts (`dsSecretFindings`), benchmark suite (`dsBenchRuns`), playbooks (`!<slug>`), and runner resource observation (`/api/runner/recommendations`).
 
 ## Repository hygiene
 
