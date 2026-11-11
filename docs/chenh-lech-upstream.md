@@ -740,3 +740,14 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Skills, ảnh 56–59 (Set prices):** chưa so từng ảnh; mở trang Usage → "Thiết lập giá" hiện đúng.
 - **Từ ngữ:** plugin dịch máy tiếng Việt ("Mã thông báo" cho token, "đặc vụ", "nhiệm vụ"/"tác vụ" cho issue, "tổng đài viên"). Thêm bản dịch lại qua `overrides` (`client/locales/overrides/vi-VN.ts`, phần `agentsAdditions`/`otherAdditions`) cho plugin agents, projects, releases và agent-sessions; quét lại bằng cách so khóa của plugin với phần override cho thấy không còn chuỗi nào trong nhóm từ này chưa được dịch lại cho knowledge, projects, releases, agents.
 - Test: `tests/client/vi-plugin-overrides.test.ts`; bài kiểm tra có sẵn "rewords only keys the plugins still have" giữ cho override không trỏ vào khóa không tồn tại.
+
+## 42. Tự merge PR của từng giai đoạn (chủ dự án chốt 11/11/2026)
+
+- **Quyết định:** `autoCompleteOnMerge` **giữ mặc định tắt**. Với công việc nhiều giai đoạn, Studio tự merge PR của từng giai đoạn đã xong rồi công việc đi tiếp sang giai đoạn sau (`server/git/service.ts`, `autoMergeStage`).
+- **Điều kiện** (chủ dự án chọn "kiểm tra đạt + giai đoạn ở Đang duyệt"): PR gắn với một công việc con **có giai đoạn** (`stage` khác rỗng, có `parentIssueId`), công việc con đó đang **Đang duyệt** (agent đã bàn giao), PR không phải nháp,
+  không xung đột và mọi kiểm tra bắt buộc đạt (cùng `mergeBlockerOf` với nút Merge, **không ép**). Không đủ điều kiện hoặc GitHub từ chối thì để người xử lý như cũ.
+- **Hệ quả:** merge bằng danh nghĩa chủ sở hữu công việc con; công việc con chuyển **Xong** (sự kiện `ds.pr.merged`) để giai đoạn sau được mở, còn công việc cha không bị đóng. Công việc không có giai đoạn vẫn theo công tắc của PR như trước.
+  Công tắc "hoàn tất khi merge" của PR không được xét cho PR giai đoạn.
+- **Thời điểm:** chạy mỗi lần Studio đọc lại PR (đồng bộ định kỳ, báo cáo kiểm tra, nút đọc lại), nên merge xảy ra trong lần đồng bộ kế tiếp sau khi đủ điều kiện, chưa phải ngay khi agent bàn giao.
+- **Chưa làm:** công tắc tắt riêng cho từng công việc/dự án (hiện luôn bật cho PR giai đoạn đủ điều kiện); báo trong Hộp thư khi Studio tự merge (có bình luận "đã merge" trên issue như mọi merge).
+- Test: `tests/server/stage-auto-merge.test.ts` (một PR giai đoạn đạt được merge; giai đoạn đang làm, giai đoạn kiểm tra lỗi và công việc không có giai đoạn thì không).

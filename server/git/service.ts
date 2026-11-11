@@ -1608,6 +1608,64 @@ export function createGitService(deps: GitServiceDeps) {
     return null;
   }
 
+  /** Pull requests Studio is merging for a finished stage now; read by `onMerged`, which completes the stage issue. */
+  const stageMerges = new Set<string>();
+
+  /**
+   * Merges the pull request of a finished stage by itself, so the work goes on to the next stage without waiting for a
+   * person. Only a stage issue (a sub-issue with a stage) that has been handed over (In review) qualifies, and only
+   * when the pull request could be merged without forcing: not a draft, no conflict and every required check passed.
+   * Anything else, and any refusal from the host, leaves the pull request for a person, as before. It merges as the
+   * issue's owner. The pull request's own "complete when merged" switch (off by default) is not consulted: it decides
+   * whether a merge completes an issue that is not a stage, while a stage always ends with its merge.
+   */
+  async function autoMergeStage(
+    pull: PullRecord,
+    repository: RepositoryRecord,
+  ): Promise<void> {
+    if (
+      !pull.issueId ||
+      pull.state !== 'open' ||
+      pull.draft ||
+      stageMerges.has(pull.id)
+    )
+      return;
+    if (
+      mergeBlockerOf({ ...pull, checksSource: repository.checksSource }) !==
+      null
+    )
+      return;
+    stageMerges.add(pull.id);
+    try {
+      const issue: Row | undefined = await conn()
+        .query.selectFrom('pmIssues')
+        .select(['statusKey', 'stage', 'parentIssueId', 'ownerUserId'])
+        .where('id', '=', pull.issueId)
+        .executeTakeFirst();
+      if (
+        !issue ||
+        issue.stage === null ||
+        issue.stage === undefined ||
+        !issue.parentIssueId ||
+        issue.statusKey !== 'in_review' ||
+        !issue.ownerUserId
+      )
+        return;
+      await mergePullRequest(pull.id, {
+        byUserId: str(issue.ownerUserId),
+        force: false,
+        reason: null,
+      });
+    } catch (error) {
+      report(
+        `Dương Sinh Studio could not merge the pull request of a finished stage (${repository.fullName}#${pull.number}); it waits for a person.`,
+        error,
+      );
+    } finally {
+      stageMerges.delete(pull.id);
+    }
+  }
+
   async function onMerged(
     pull: PullRecord,
     repository: RepositoryRecord,
@@ -1616,10 +1674,12 @@ export function createGitService(deps: GitServiceDeps) {
     const projects = deps.projects();
     if (!projects || !pull.issueId) return;
 
-    let shouldComplete = !pull.autoCompleteDisabled;
+    let shouldComplete = stageMerges.has(pull.id) || !pull.autoCompleteDisabled;
 
-    // Check issue-level flag from dsAutopilotIssueFlags if available
-    if (shouldComplete) {
+    // Check issue-level flag from dsAutopilotIssueFlags if available. A stage Studio merged by itself (`autoMergeStage`)
+    // is the exception: its stage issue is done with its merge so the next stage can start, whatever the flag says; the
+    // flag keeps meaning "a merge completes the issue" for an issue that is not one stage of a larger one.
+    if (shouldComplete && !stageMerges.has(pull.id)) {
       try {
         const flagRow = await conn()
           .query.selectFrom('dsAutopilotIssueFlags')
@@ -1850,6 +1910,7 @@ export function createGitService(deps: GitServiceDeps) {
         PR_CLOSED_MESSAGE,
         repository,
       );
+    else if (state === 'open') await autoMergeStage(pull, repository);
     return pull;
   }
 
