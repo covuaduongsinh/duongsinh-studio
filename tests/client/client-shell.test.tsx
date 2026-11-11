@@ -130,10 +130,9 @@ describe('application shell', () => {
       'href',
       '/inbox',
     );
-    expect(screen.getByRole('link', { name: /my\s?sessions/i })).toHaveAttribute(
-      'href',
-      '/sessions',
-    );
+    expect(
+      screen.getByRole('link', { name: /my\s?sessions/i }),
+    ).toHaveAttribute('href', '/sessions');
   });
 
   it('renders nested pages through manual outlets and selects the nearest menu ancestor', async () => {

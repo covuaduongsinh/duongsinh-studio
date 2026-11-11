@@ -83,7 +83,8 @@ it('offers appearance only inside the account menu with keyboard selection', asy
   expect(
     screen.queryByRole('button', { name: 'Theme' }),
   ).not.toBeInTheDocument();
-  await user.tab();
+  // Dương Sinh's My sessions and Inbox shortcuts come first in the tab order: go to the account menu itself.
+  screen.getByRole('button', { name: 'Open account menu' }).focus();
   await user.keyboard('{Enter}');
   const appearance = screen.getByRole('menuitem', { name: 'Theme' });
   appearance.focus();
