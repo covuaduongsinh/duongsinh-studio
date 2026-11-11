@@ -37,7 +37,7 @@ export function useIssueCriteria(issueId: string | undefined) {
       const res = await api.request<{ data: CriteriaItem[] }>({
         method: 'PUT',
         path: `issues/${issueId}/criteria`,
-        data: { criteria },
+        json: { criteria },
       });
       return res.data;
     },
@@ -51,7 +51,7 @@ export function useIssueCriteria(issueId: string | undefined) {
       const res = await api.request<{ data: CriteriaItem[] }>({
         method: 'POST',
         path: `issues/${issueId}/criteria/propose`,
-        data: { criteria },
+        json: { criteria },
       });
       return res.data;
     },
@@ -90,7 +90,7 @@ export function useProjectDefaultCriteria(projectId: string | undefined) {
       const res = await api.request<{ data: CriteriaItem[] }>({
         method: 'PUT',
         path: `projects/${projectId}/defaultCriteria`,
-        data: { criteria },
+        json: { criteria },
       });
       return res.data;
     },
