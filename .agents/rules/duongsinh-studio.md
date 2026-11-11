@@ -52,7 +52,7 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
   `pnpm test`, `pnpm build` or a repository-wide `tsc`: `pnpm check` overloaded the VPS and lost a run to `leaseExpired`. One command
   at a time, scoped to the changed files.
 - Rules every NocoBase 3 project follows (licenses, data, permissions) belong in the built-in `ds-app-rules` skill, not in each issue
-  description. Built-in skills are created once: `ensureBuiltinSkills` does not update an existing one.
+  description. Built-in skills have revisions: `ensureBuiltinSkills` upgrades unmodified skills to new revisions, keeps hand-modified skills, and alerts administrators in the inbox.
 - Do not create issues from a long prompt through intake: each bullet line becomes its own issue (DS-25…DS-56 were made this way and cancelled).
 
 ## Repository hygiene

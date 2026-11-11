@@ -492,6 +492,11 @@ const zhCN: AppResource = {
       declined: '已拒绝',
     },
   },
+  studioBuiltinSkills: {
+    retainedTitle: '内置技能 {{slug}} 有新版本（修订版本 {{revision}}）',
+    retainedBody:
+      '技能“{{slug}}”已被手动编辑，因此 Studio 保留了当前版本，未自动覆盖。您可以在技能库中查看并手动更新。',
+  },
   studioOrgKeys: {
     checksTitle: '上报检查',
     checksDescription: '允许 CI 上报其仓库的检查结果。',
