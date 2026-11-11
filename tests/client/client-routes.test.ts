@@ -338,6 +338,10 @@ const settingsAuthorizations = [
     name: 'settingsReviews',
     authorizedAs: 'settings:agents.agents',
   },
+  {
+    name: 'settingsLessons',
+    authorizedAs: 'settings:agents.agents',
+  },
   { name: 'settingsGit', authorizedAs: 'settings:pm.members' },
   { name: 'settingsOrganizationKeys', authorizedAs: 'settings:studio.apiKeys' },
   {

@@ -280,6 +280,51 @@ const viVN: AppResource = {
     forceRunConfirm: 'Chạy cưỡng chế',
     cancel: 'Huỷ',
   },
+  lessons: {
+    settingsTitle: 'Bài học kinh nghiệm',
+    settingsDescription:
+      'Các quy tắc rút ra từ sai lầm thực tế, được chuẩn hoá và tự động chuyển vào kỹ năng, tri thức, đường dẫn nhạy cảm hoặc tiêu chí dự án.',
+    listTitle: 'Danh sách bài học',
+    listDescription: 'Tất cả bài học do người hoặc agent đề xuất.',
+    newAction: 'Đề xuất bài học',
+    buttonLabel: 'Ghi thành bài học',
+    refresh: 'Làm mới',
+    empty: 'Chưa có bài học nào được ghi nhận.',
+    tag: 'Thẻ phân loại',
+    mistake: 'Sai lầm / Hiện tượng',
+    mistakePlaceholder: 'Mô tả sai lầm hoặc hành vi sai gặp phải...',
+    rule: 'Quy tắc / Bài học rút ra',
+    rulePlaceholder: 'Quy tắc hoặc hướng dẫn để không lặp lại sai lầm...',
+    target: 'Đích chuyển hoá',
+    targetRef: 'Tham chiếu đích (slug skill / đường dẫn / lệnh test)',
+    mistakePrefix: 'Sai lầm',
+    rulePrefix: 'Bài học',
+    mistakeAndRule: 'Sai lầm & Bài học rút ra',
+    statusLabel: 'Trạng thái',
+    actions: 'Thao tác',
+    acceptAndApply: 'Duyệt & Áp dụng',
+    reject: 'Từ chối',
+    filterStatus: 'Lọc trạng thái',
+    proposeTitle: 'Ghi nhận bài học kinh nghiệm',
+    proposeDescription:
+      'Lưu lại sai lầm và quy tắc phòng tránh để đưa vào hệ thống học tập của Studio.',
+    proposeAction: 'Gửi đề xuất',
+    filters: {
+      all: 'Tất cả trạng thái',
+    },
+    targets: {
+      skill: 'Kỹ năng agent (skill)',
+      knowledge: 'Không gian tri thức (knowledge)',
+      sensitivePath: 'Đường dẫn nhạy cảm (sensitivePath)',
+      projectCriteria: 'Tiêu chí mặc định dự án (projectCriteria)',
+    },
+    status: {
+      proposed: 'Đề xuất',
+      accepted: 'Đã duyệt',
+      applied: 'Đã áp dụng',
+      rejected: 'Đã từ chối',
+    },
+  },
   budgets: {
     title: 'Ngân sách',
     description:
@@ -813,6 +858,9 @@ const viVN: AppResource = {
     reviews: 'Phiếu review',
     reviewsDescription:
       'Xem lịch sử đánh giá PR và kiểm tra tiêu chí nghiệm thu.',
+    lessons: 'Bài học',
+    lessonsDescription:
+      'Các bài học và quy tắc rút ra từ sai lầm trong quá trình làm việc.',
     followUps: 'Theo dõi',
     projects: 'Dự án',
     issuePrefix: 'Tiền tố công việc',

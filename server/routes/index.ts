@@ -17,6 +17,7 @@ import { projectSetupRoutes } from './project-setups.js';
 import { reportRoutes } from './reports.js';
 import { reviewRoutes } from './reviews.js';
 import { benchRoutes } from './bench.js';
+import { lessonRoutes } from './lessons.js';
 import { verificationRoutes } from './verifications.js';
 import { webhookRoutes } from './webhooks.js';
 
@@ -28,6 +29,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   reviewRoutes,
   verificationRoutes,
   benchRoutes,
+  lessonRoutes,
   issueWorkRoutes,
   issueCriteriaRoutes,
   inboxRoutes,

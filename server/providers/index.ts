@@ -19,6 +19,7 @@ import PreviewsProvider from './previews.js';
 import Nb3AppsProvider from './nb3-apps.js';
 import ReviewsProvider from './reviews.js';
 import BenchProvider from './bench.js';
+import LessonsProvider from './lessons.js';
 import AutopilotProvider from './autopilot.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
@@ -50,6 +51,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   ReviewsProvider,
   // Harness benchmarks and grade evaluation (H4).
   BenchProvider,
+  // Lessons learned from mistakes across projects (H2a).
+  LessonsProvider,
   // Studio autopilot: automatic evaluation, merge, and sweep (AP2).
   AutopilotProvider,
   // Projects as a skill scope, the skills new projects start with, and Studio's own skills (U6).
