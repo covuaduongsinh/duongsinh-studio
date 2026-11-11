@@ -9,6 +9,7 @@ import { Link, useSearchParams } from 'react-router';
 
 import { cn } from 'cn';
 
+import { ProjectDefaultCriteriaCard } from '#components/criteria/criteria-editor';
 import { ProjectAgentSettings } from '../project-agent-settings.js';
 import { ProjectAutopilot } from '../project-autopilot.js';
 import { ProjectCode } from '../project-code.js';
@@ -49,7 +50,13 @@ export function ProjectSettingsTab(): ReactElement {
       </nav>
       <div className='min-w-0'>
         {section === 'general' ? (
-          <ProjectAutopilot projectId={project.id} />
+          <div className='flex flex-col gap-6'>
+            <ProjectAutopilot projectId={project.id} />
+            <ProjectDefaultCriteriaCard
+              projectId={project.id}
+              canManage={canManage}
+            />
+          </div>
         ) : null}
         {section === 'directories' ? (
           <ProjectCode projectId={project.id} />

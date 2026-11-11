@@ -255,6 +255,49 @@ export default class ProjectDefaultsProvider extends ServiceProvider<Application
           skillIds,
         );
       }),
+      projects.events.on('issue.created', async ({ issueId }) => {
+        try {
+          const connection = conn();
+          const issueRows = await connection.query
+            .selectFrom('pmIssues')
+            .select(['projectId'])
+            .where('id', '=', issueId)
+            .execute();
+          const projectId = issueRows[0]?.projectId;
+          if (!projectId) return;
+
+          const defaultCriteria = await connection.query
+            .selectFrom('dsProjectDefaultCriteria')
+            .selectAll()
+            .where('projectId', '=', str(projectId))
+            .orderBy('position', 'asc')
+            .execute();
+          if (defaultCriteria.length === 0) return;
+
+          const now = new Date();
+          for (const row of defaultCriteria) {
+            await connection.query
+              .insertInto('dsIssueCriteria')
+              .values({
+                id: crypto.randomUUID(),
+                issueId,
+                text: str(row.text),
+                checkKind: str(row.checkKind),
+                checkValue: row.checkValue != null ? str(row.checkValue) : null,
+                position: Number(row.position),
+                source: 'projectDefault',
+                createdAt: now,
+                updatedAt: now,
+              })
+              .execute();
+          }
+        } catch (error) {
+          console.warn(
+            'Could not copy project default criteria to new issue',
+            error,
+          );
+        }
+      }),
     );
     // Starting the application matters more than these skills; the skill library can make them by hand.
     try {

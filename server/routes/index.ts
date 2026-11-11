@@ -7,6 +7,7 @@ import { buildRoutes } from './builds.js';
 import { deployRoutes } from './deploys.js';
 import { gitRoutes } from './git.js';
 import { inboxRoutes } from './inbox.js';
+import { issueCriteriaRoutes } from './issue-criteria.js';
 import { issueWorkRoutes } from './issue-work.js';
 import { kbRoutes } from './kb.js';
 import { projectManagerRoutes } from './project-manager.js';
@@ -24,6 +25,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   gitRoutes,
   reviewRoutes,
   issueWorkRoutes,
+  issueCriteriaRoutes,
   inboxRoutes,
   reportRoutes,
   projectSetupRoutes,

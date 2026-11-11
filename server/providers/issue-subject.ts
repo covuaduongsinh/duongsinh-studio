@@ -32,6 +32,7 @@ import {
   RUN_FINISHED_MESSAGE,
   appText,
 } from '../agents/ids.js';
+import { str } from '../git/rows.js';
 
 /** Translates a key of the application's namespace, with `{{name}}` parameters. */
 export type Translate = (
@@ -295,6 +296,11 @@ function assemblyOf(
   extras: {
     readonly autopilotOn: boolean;
     readonly handOver: string;
+    readonly criteria: readonly {
+      readonly text: string;
+      readonly checkKind: string;
+      readonly checkValue: string | null;
+    }[];
   },
 ): SubjectAssembly {
   const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
@@ -316,6 +322,20 @@ function assemblyOf(
         'Write every comment and your final run summary in Vietnamese; keep commands, paths and identifiers as they are.',
         ...(coordinating && extras.autopilotOn ? [AUTOPILOT_ON_RULE] : []),
         ...(readOnly ? [READ_ONLY_TURN_RULE] : []),
+        ...(coordinating && extras.criteria.length === 0
+          ? [
+              'Việc chưa có tiêu chí nghiệm thu: đề xuất bằng ds-studio criteria propose trước khi giao code',
+            ]
+          : extras.criteria.length > 0
+            ? [
+                `Tiêu chí nghiệm thu công việc: ${extras.criteria
+                  .map(
+                    (c, i) =>
+                      `${i + 1}. [${c.checkKind}] ${c.text}${c.checkValue ? ` (${c.checkValue})` : ''}`,
+                  )
+                  .join('; ')}`,
+              ]
+            : []),
       ],
       whenBlocked: `Say what is missing in one reply with ${comment} and end your turn.`,
     },
@@ -390,7 +410,19 @@ export function createIssueSubject(deps: {
             `Issue ${claim.run.subject.id} does not exist any more.`,
           );
         const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
+        const criteriaRows = await conn.query
+          .selectFrom('dsIssueCriteria')
+          .select(['text', 'checkKind', 'checkValue'])
+          .where('issueId', '=', claim.run.subject.id)
+          .orderBy('position', 'asc')
+          .execute();
+        const criteria = criteriaRows.map((r) => ({
+          text: str(r.text),
+          checkKind: str(r.checkKind),
+          checkValue: r.checkValue != null ? str(r.checkValue) : null,
+        }));
         return assemblyOf(issue, claim, {
+          criteria,
           autopilotOn:
             coordinating && issue.project
               ? await autopilotOn(conn, issue.project.id)
