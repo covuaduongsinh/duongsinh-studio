@@ -326,6 +326,20 @@ const viVN: AppResource = {
       rejected: 'Đã từ chối',
     },
   },
+  secretFindings: {
+    bannerTitle: 'Cảnh báo rò rỉ bí mật / khoá bảo mật',
+    bannerDescription:
+      'Hệ thống phát hiện chuỗi nghi là bí mật (token, API key, khoá riêng tư) trong mô tả việc hoặc bình luận. Chuỗi đã được che khi đưa vào ngữ cảnh agent. Vui lòng thu hồi hoặc xoay khoá ngay lập tức trên dịch vụ tương ứng!',
+    detectedPattern: 'Loại khoá phát hiện:',
+    resolve: 'Đã xoay khoá / Đã xử lý',
+    ignore: 'Báo nhầm / Bỏ qua',
+    statusActive: 'Chưa xử lý',
+    statusResolved: 'Đã xử lý',
+    statusIgnored: 'Đã bỏ qua',
+    inboxNotificationTitle: 'Phát hiện rò rỉ bí mật trong việc #{{identifier}}',
+    inboxNotificationBody:
+      'Phát hiện {{count}} chuỗi nghi là bí mật ({{patterns}}) trong việc "{{title}}". Vui lòng kiểm tra và xoay khoá ngay.',
+  },
   budgets: {
     title: 'Ngân sách',
     description:

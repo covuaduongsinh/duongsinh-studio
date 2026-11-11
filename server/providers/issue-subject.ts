@@ -33,6 +33,7 @@ import {
   appText,
 } from '../agents/ids.js';
 import { num, str } from '../git/rows.js';
+import { maskSecrets } from '../security/secret-patterns.js';
 
 /** Translates a key of the application's namespace, with `{{name}}` parameters. */
 export type Translate = (
@@ -198,7 +199,7 @@ function contextOf(issue: IssueContext): string {
     '',
     '## Description',
     '',
-    issue.description.trim() || '(none)',
+    maskSecrets(issue.description.trim()) || '(none)',
   ];
   if (issue.children.length > 0)
     lines.push(
@@ -222,7 +223,7 @@ function contextOf(issue: IssueContext): string {
       lines.push(
         `### ${comment.author.name ?? comment.author.type} · ${comment.createdAt} · ${comment.id}${comment.parentId ? ` (reply to ${comment.parentId})` : ''}`,
         '',
-        clip(comment.content, COMMENT_CHARS),
+        maskSecrets(clip(comment.content, COMMENT_CHARS)),
         '',
       );
   }

@@ -8,6 +8,9 @@ import type { CiState } from '../git/pull-state.js';
 import { evaluatePreReviewGate } from '../gates/pre-review.js';
 import { gitServiceToken } from './git.js';
 import { str, num } from '../git/rows.js';
+import { scanSecrets } from '../security/secret-patterns.js';
+import type { SecretFindingsService } from '../security/service.js';
+import { secretFindingsServiceToken } from './security.js';
 import {
   agentsToken,
   type Agents,
@@ -90,6 +93,7 @@ export function createAgentKind(deps: {
   readonly projects: Projects;
   readonly budgets: () => BudgetService;
   readonly git?: () => GitService;
+  readonly secrets?: () => SecretFindingsService;
 }): PrincipalKind {
   const { agents, projects } = deps;
 
@@ -326,7 +330,31 @@ export function createAgentKind(deps: {
     actor.type === 'user' && actor.id ? actor.id : undefined;
 
   const work: IssueWorkHandler = {
+    observesIssueChanges: true,
+    observesComments: true,
+
     async onIssueChanged(tx, { before, after, actor }) {
+      if (
+        deps.secrets &&
+        after.description &&
+        (!before || before.description !== after.description)
+      ) {
+        const matches = scanSecrets(after.description);
+        if (matches.length > 0) {
+          try {
+            await deps.secrets().recordFindings({
+              issueId: after.id,
+              commentId: null,
+              matches,
+              ownerUserId: after.ownerUserId,
+              issueIdentifier: after.identifier,
+            });
+          } catch (error) {
+            console.warn('Failed to record secret findings for issue:', error);
+          }
+        }
+      }
+
       const previous = agentOf(before);
       const next = agentOf(after);
       if (!tx.rehearsal) {
@@ -381,6 +409,26 @@ export function createAgentKind(deps: {
       tx,
       { comment, issue, parent, actor, userId, mentions },
     ) {
+      if (deps.secrets && comment.content) {
+        const matches = scanSecrets(comment.content);
+        if (matches.length > 0) {
+          try {
+            await deps.secrets().recordFindings({
+              issueId: issue.id,
+              commentId: comment.id,
+              matches,
+              ownerUserId: issue.ownerUserId,
+              issueIdentifier: issue.identifier,
+            });
+          } catch (error) {
+            console.warn(
+              'Failed to record secret findings for comment:',
+              error,
+            );
+          }
+        }
+      }
+
       // Each agent the comment concerns, once: those it mentions, the agent whose comment it answers, the executor.
       const targets = new Map<string, Trigger>();
       for (const mention of mentions)
@@ -566,6 +614,7 @@ export default class AgentExecutorProvider extends ServiceProvider<Application> 
         git: container.has(gitServiceToken)
           ? () => container.resolve(gitServiceToken)
           : undefined,
+        secrets: () => container.resolve(secretFindingsServiceToken),
       }),
     );
   }

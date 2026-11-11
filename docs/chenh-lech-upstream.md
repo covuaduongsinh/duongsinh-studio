@@ -889,3 +889,31 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
   - Bổ sung định nghĩa route `settingsLessons` trong `client/routes.ts` với quyền `settings:agents.agents`.
 - **Đa ngữ i18n**: Cung cấp đầy đủ chuỗi bản dịch cho 3 ngôn ngữ (`vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
 - **Test**: `tests/database/ds-lessons-migration.test.ts`, `tests/server/lessons.test.ts`, `tests/client/lessons-settings.test.tsx`, `tests/client/client-routes.test.ts`, `tests/client/foundation-integration.test.ts`.
+
+## 50. H2b — Bài học đầu tiên và cảnh báo bí mật (11/11/2026)
+
+- Template NocoBase chưa có cơ chế chủ động rà soát và bảo vệ chống lộ lọt chuỗi bí mật (API keys, token, private keys) trong mô tả việc và bình luận, dẫn đến rủi ro lộ bí mật ra ngoài hoặc nạp chuỗi nhạy cảm vào ngữ cảnh LLM của các agent.
+- **Migration `202611110008_ds_secret_findings.ts`**:
+  - Tạo bảng `dsSecretFindings`: `issueId`, `commentId`, `patternKey`, `fingerprint` (sha256 hex 16 ký tự đầu của chuỗi bí mật đã chuẩn hoá), `status` (`active` | `resolved` | `ignored`), `createdAt`, `updatedAt`.
+  - Có hàm `down` hoàn chỉnh để rollback schema.
+- **Seed bài học đầu tiên (`database/main/seeds/202611110001_ds_initial_lesson.ts`)**:
+  - Ghi bài học mẫu đầu tiên vào `dsLessons`: Cấm đưa thông tin nhạy cảm/khoá bí mật vào mô tả việc hoặc bình luận; luôn dùng biến môi trường hoặc kho bí mật.
+  - Cập nhật quy tắc bài học bí mật này vào tài liệu hướng dẫn mặc định của agent (`server/agents/agent-instructions.ts`, cả tiếng Việt và tiếng Anh).
+- **Phát hiện và che chuỗi bí mật (`server/security/secret-patterns.ts`)**:
+  - Hỗ trợ nhận diện các mẫu khoá có độ tin cậy cao: GitHub PAT (`ghp_`, `github_pat_`, `gho_`, `ghu_`, `ghs_`), GitLab PAT (`glpat-`), Slack Token (`xox[baprs]-`), OpenAI Key (`sk-`), Anthropic Key (`sk-ant-`), Google AI Key (`AIza...`), PEM Private Key (`BEGIN ... PRIVATE KEY`).
+  - Hàm `hashSecret(secret)` tạo fingerprint sha256 an toàn; tuyệt đối không bao giờ lưu hoặc xuất raw secret ra ngoài cơ sở dữ liệu hay API.
+  - Hàm `maskSecrets(text)` che chuỗi bí mật thành `[NGHI LÀ BÍ MẬT]`.
+  - Hàm `scanAddedLines(patch)` quét các dòng thêm mới trong unified diff, kết nối trực tiếp với cổng kiểm soát trước nghiệm thu (`server/gates/pre-review.ts`).
+- **Tự động quét và cảnh báo In-app Inbox (`server/providers/agent-executor.ts`, `server/providers/issue-subject.ts`)**:
+  - Bật `observesIssueChanges: true` và `observesComments: true` trên `IssueWorkHandler`.
+  - Khi người dùng hoặc hệ thống tạo/sửa mô tả việc hoặc gửi bình luận, tự động quét tìm bí mật và ghi nhận finding vào `dsSecretFindings`.
+  - Gửi thông báo In-app Inbox cho chủ việc (`ownerUserId`) nhắc nhở thu hồi hoặc xoay khoá ngay lập tức trên dịch vụ tương ứng.
+  - Tự động áp dụng `maskSecrets` trên mô tả và bình luận trước khi tổng hợp ngữ cảnh đưa cho agent (`server/providers/issue-subject.ts`).
+- **Tuyến API (`server/routes/secret-findings.ts`)**:
+  - `GET /api/issues/:id/secret-findings`: Danh sách các finding phát hiện được của một việc.
+  - `POST /api/secret-findings/:id/status`: Đánh dấu trạng thái finding thành `resolved` (đã xoay khoá/đã xử lý) hoặc `ignored` (báo nhầm/bỏ qua).
+- **Giao diện Client (`client/components/secret-findings-banner.tsx`, `client/hooks/use-secret-findings.ts`)**:
+  - Banner cảnh báo nổi bật gắn trên trang chi tiết công việc (`client/pages/issues/detail/index.tsx`).
+  - Tự động hiển thị khi có finding ở trạng thái `active` và cung cấp nút thao tác trực tiếp: "Đã xoay khoá / Đã xử lý" và "Báo nhầm / Bỏ qua".
+- **Đa ngữ i18n**: Cung cấp đầy đủ chuỗi bản dịch cho 3 ngôn ngữ (`vi-VN.ts`, `en-US.ts`, `zh-CN.ts`).
+- **Test**: `tests/database/ds-secret-findings-migration.test.ts`, `tests/server/secret-patterns.test.ts`, `tests/server/secret-findings.test.ts`, `tests/client/secret-findings-banner.test.tsx`, `tests/client/app-locale-coverage.test.ts`.

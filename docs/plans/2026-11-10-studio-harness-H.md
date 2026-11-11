@@ -323,7 +323,7 @@ thay vì trong CI; kind `agent` quan sát mọi việc và mọi bình luận.
 - [x] H4 — Bộ đo (#74)
 - [ ] H2 — Vòng học từ lỗi
   - [x] H2a ghi thành bài học (#75)
-  - [ ] H2b bài học đầu tiên và cảnh báo bí mật
+  - [x] H2b bài học đầu tiên và cảnh báo bí mật
   - [ ] H2c báo cáo tuần
 - [ ] H3 — Playbook và giới hạn
   - [ ] H3a playbook
