@@ -26,6 +26,12 @@ describe('Vietnamese plugin overrides', () => {
     expect(at(agents, 'usage.groups.agent')).toBe('Agent');
   });
 
+  it('names the plugin’s own-computer sessions for what they are, apart from My sessions', () => {
+    const sessions = overrides['@nocobase/app-plugin-agent-sessions'];
+    expect(at(sessions, 'navigation.agentSessions')).toBe('Agent trên máy tôi');
+    expect(at(sessions, 'list.title')).toBe('Agent trên máy tôi');
+  });
+
   it('calls an issue "công việc" in the sessions plugin and the projects plan', () => {
     expect(
       at(overrides['@nocobase/app-plugin-agent-sessions'], 'links.count_other'),
