@@ -14,6 +14,8 @@ export interface RoleListRole {
   readonly title: string;
   readonly to: To;
   readonly protected: boolean;
+  /** How many people hold the role; left out while it is not known (the column is then not shown). */
+  readonly holders?: number;
 }
 
 export interface RoleListProps {
@@ -24,6 +26,8 @@ export interface RoleListProps {
     readonly type: string;
     readonly protected: string;
     readonly custom: string;
+    /** The column of how many people hold each role; needed when the rows carry `holders`. */
+    readonly holders?: string;
   };
   readonly ariaLabel?: string;
   /**
@@ -90,8 +94,22 @@ export function RoleList({
           </Badge>
         ),
       },
+      ...(roles.some((role) => role.holders !== undefined)
+        ? [
+            {
+              accessorKey: 'holders',
+              enableSorting: false,
+              header: labels.holders ?? '',
+              cell: ({ row }: { row: { original: RoleListRole } }) => (
+                <span className='tabular-nums'>
+                  {row.original.holders ?? ''}
+                </span>
+              ),
+            } satisfies ColumnDef<RoleListRole>,
+          ]
+        : []),
     ],
-    [labels],
+    [labels, roles],
   );
   return (
     <div role='region' aria-label={ariaLabel}>

@@ -119,15 +119,20 @@ describe('application shell', () => {
     ).toBeVisible();
   });
 
-  it('renders no Settings or Inbox entry in the header', async () => {
+  it('renders no Settings entry in the header, and Dương Sinh’s Inbox and My sessions shortcuts', async () => {
     renderApplication('/', true);
     await screen.findByRole('heading', { name: 'App client is ready' });
     expect(
       screen.queryByRole('link', { name: 'Settings' }),
     ).not.toBeInTheDocument();
+    // Studio adds these two on purpose (`.agents/rules/shell.md`).
+    expect(screen.getByRole('link', { name: /inbox/i })).toHaveAttribute(
+      'href',
+      '/inbox',
+    );
     expect(
-      screen.queryByRole('link', { name: /inbox/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('link', { name: /my\s?sessions/i }),
+    ).toHaveAttribute('href', '/sessions');
   });
 
   it('renders nested pages through manual outlets and selects the nearest menu ancestor', async () => {

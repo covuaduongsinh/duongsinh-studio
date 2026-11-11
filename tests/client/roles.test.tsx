@@ -58,7 +58,8 @@ it('keeps the standard role table sorted, searchable and linked to the current q
     name: 'Roles and permissions',
   });
   const table = within(region).getByRole('table');
-  expect(within(table).getAllByRole('columnheader')).toHaveLength(3);
+  // Name, key, type, and how many people hold the role.
+  expect(within(table).getAllByRole('columnheader')).toHaveLength(4);
   expect(
     within(table)
       .getAllByRole('link')
@@ -121,6 +122,8 @@ it('announces a slow retry after a refresh failure once, from the retry button',
       fetch: answerApi(async ({ path }) => {
         if (path === 'authorization/permissions')
           return { data: { unrestricted: true, permissions: [] } };
+        // The holders column reads the people; only the role list is counted here.
+        if (path === 'access/members') return { data: [], meta: { total: 0 } };
         reads += 1;
         if (reads === 2)
           return Response.json(
@@ -163,4 +166,56 @@ it('announces a slow retry after a refresh failure once, from the retry button',
     ).not.toBeInTheDocument(),
   );
   expect(screen.queryByRole('status')).not.toBeInTheDocument();
+});
+
+it('counts how many people hold each role', async () => {
+  await renderWithApp(
+    <Routes>
+      <Route path='/settings/roles' element={<RolesPage />} />
+    </Routes>,
+    {
+      route: '/settings/roles',
+      namespace: settingsNamespace,
+      namespaces,
+      services,
+      fetch: answerApi(({ path }) => {
+        if (path === 'authorization/permissions')
+          return { data: { unrestricted: false, permissions: [] } };
+        if (path === 'access/members')
+          return {
+            data: [
+              {
+                userId: 'u1',
+                name: 'Ada',
+                disabled: false,
+                roles: ['team', 'member', 'contributor'],
+              },
+              { userId: 'u2', name: 'Bo', disabled: false, roles: ['team'] },
+            ],
+            meta: { total: 2 },
+          };
+        return {
+          data: [
+            { key: 'team', title: 'Team', grants: [] },
+            { key: 'member', title: 'Member', grants: [] },
+            { key: 'idle', title: 'Idle', grants: [] },
+            { key: 'ds-contributor', title: 'Contributor', grants: [] },
+          ],
+        };
+      }),
+    },
+  );
+  await screen.findByTitle('Team');
+  expect(
+    screen.getByRole('columnheader', { name: enUS.settingsStudio.holders }),
+  ).toBeInTheDocument();
+  const holders = (title: string) =>
+    within(screen.getByTitle(title).closest('tr') as HTMLElement)
+      .getAllByRole('cell')
+      .at(-1)?.textContent;
+  await waitFor(() => expect(holders('Team')).toBe('2'));
+  expect(holders('Member')).toBe('1');
+  expect(holders('Idle')).toBe('0');
+  // A built-in role is a permission set `ds-<role>`.
+  expect(holders('Contributor')).toBe('1');
 });

@@ -47,31 +47,41 @@ describe('default Foundation integration', () => {
       ]),
     ).toEqual([
       [
-        'settingsAccount',
-        [
-          ['settingsUsers', '/settings/users'],
-          ['permissionManagement', '/settings/roles'],
-          ['settingsNewMemberRole', '/settings/new-member-role'],
-          ['settingsMyAccount', '/settings/my-account'],
-          ['settingsMyNotifications', '/settings/my-notifications'],
-        ],
-      ],
-      [
         'settingsBusiness',
         [
           ['settingsIssuePrefix', '/settings/issue-prefix'],
           ['settingsIssueLabels', '/settings/issue-labels'],
-          ['settingsProjectDefaultSkills', '/settings/project-default-skills'],
+        ],
+      ],
+      [
+        'settingsAccount',
+        [
+          ['settingsUsers', '/settings/users'],
+          ['permissionManagement', '/settings/roles'],
+          ['settingsOrganizationKeys', '/settings/organization-keys'],
+          ['settingsNewMemberRole', '/settings/new-member-role'],
         ],
       ],
       [
         'settingsSystem',
         [
           ['settingsGit', '/settings/git'],
-          ['settingsOrganizationKeys', '/settings/organization-keys'],
+          ['foundation', '/foundation'],
+        ],
+      ],
+      [
+        'settingsAi',
+        [
+          ['settingsProjectDefaultSkills', '/settings/project-default-skills'],
           ['settingsProjectManager', '/settings/project-manager'],
           ['settingsBudgets', '/settings/budgets'],
-          ['foundation', '/foundation'],
+        ],
+      ],
+      [
+        'settingsPersonal',
+        [
+          ['settingsMyAccount', '/settings/my-account'],
+          ['settingsMyNotifications', '/settings/my-notifications'],
         ],
       ],
     ]);

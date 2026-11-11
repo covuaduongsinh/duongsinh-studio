@@ -2,7 +2,7 @@ import type { AppClientRegisteredRoute } from '@nocobase/app-client/plugins';
 import { useTranslation } from '@nocobase/i18n/client';
 import { ChevronRight, Settings } from 'lucide-react';
 import { useMemo, type ReactElement } from 'react';
-import { Link } from 'react-router';
+import { Link, Navigate } from 'react-router';
 
 import { Loading } from '#components/loading';
 import { PageContainer } from '#components/page-container';
@@ -29,6 +29,10 @@ export default function SettingsHomePage(): ReactElement {
     () => buildSettingsCatalog(routes, denied),
     [routes, denied],
   );
+  // Dương Sinh: Settings has a sidebar of its own, so its home is not a page to read: it opens the first module the
+  // viewer may open (the cards below stay for a viewer with no module, who gets the explanation).
+  const first = categories[0]?.modules[0]?.target;
+  if (!loading && first) return <Navigate to={first.path} replace />;
   return (
     <PageContainer className='space-y-8'>
       <PageHeader

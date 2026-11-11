@@ -2,7 +2,6 @@ import packageMetadata from '../../package.json' with { type: 'json' };
 import { createAuthenticatedClientRenderer } from '../helpers/authenticated-client.js';
 import { resolveAppClientContributions } from '@nocobase/app-client/plugins';
 import { screen, waitFor, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { Route, Routes, useLocation } from 'react-router';
 import { expect, it } from 'vitest';
@@ -52,31 +51,16 @@ function mount(
   );
 }
 
-it('groups the modules an administrator may open into categories of cards that open by keyboard', async () => {
-  const user = userEvent.setup();
+it('opens the first module an administrator may open: Settings has a sidebar, not a page of cards', async () => {
   await mount();
-  const account = await screen.findByRole('region', {
-    name: 'Accounts and permissions',
-  });
-  const cards = within(account).getAllByRole('link');
-  expect(cards.map((card) => card.textContent)).toEqual([
-    'UsersManage accounts, access and active sessions.',
-    'Permission managementSet what each role can open and do, and the data it can see.',
-  ]);
-  expect(cards[0]).toHaveAttribute('href', '/main/settings/users');
-  expect(cards[1]).toHaveAttribute('href', '/main/settings/roles');
-  // Categories without a module this viewer may open are not shown.
-  expect(screen.getAllByRole('region')).toHaveLength(1);
-  cards[1].focus();
-  await user.keyboard('{Enter}');
   await waitFor(() =>
     expect(screen.getByRole('status', { name: 'Route' })).toHaveTextContent(
-      '/settings/roles',
+      '/settings/users',
     ),
   );
 });
 
-it('shows a restricted viewer only what they may open, opening a tabbed module on its readable view', async () => {
+it('opens the first module a restricted viewer may open, a tabbed one on its readable view', async () => {
   await mount({
     member: true,
     grants: [
@@ -86,14 +70,11 @@ it('shows a restricted viewer only what they may open, opening a tabbed module o
       },
     ],
   });
-  const account = await screen.findByRole('region', {
-    name: 'Accounts and permissions',
-  });
-  // Categories without a module this viewer may open are not shown.
-  expect(screen.getAllByRole('region')).toHaveLength(1);
-  const cards = within(account).getAllByRole('link');
-  expect(cards).toHaveLength(1);
-  expect(cards[0]).toHaveAttribute('href', '/main/settings/default-access');
+  await waitFor(() =>
+    expect(screen.getByRole('status', { name: 'Route' })).toHaveTextContent(
+      '/settings/default-access',
+    ),
+  );
 });
 
 it('explains when there is nothing to manage', async () => {

@@ -186,62 +186,65 @@ describe('app client routes', () => {
     // The landing page and the inbox opted out of page authorization, so they are reachable by every signed-in user.
     // The issue and project pages check the projects plugin's page grants; the plugin's own overlays (`pm-*`) and the
     // application's issue and project pages under them inherit them.
-    expect(pageAuthorizations(resolved.routes)).toEqual([
-      { name: 'home', authorizedAs: null },
-      { name: 'inbox', authorizedAs: null },
-      { name: 'my-issues', authorizedAs: 'pm-my-issues' },
-      // My sessions lists only the viewer's own conversations; the agents plugin scopes them on the server.
-      { name: 'my-sessions', authorizedAs: null },
-      { name: 'session-detail', authorizedAs: null },
-      { name: 'dashboard', authorizedAs: 'reports' },
-      { name: 'follow-ups', authorizedAs: 'pm-issues' },
-      ...[
-        'issues',
-        'pm-issue-new',
-        'pm-plan',
-        'issue-detail',
-        'pm-subtask-new',
-      ].map((name) => ({ name, authorizedAs: 'pm-issues' })),
-      ...[
-        'pm-projects',
-        'pm-project-new',
-        'project-detail',
-        // The tabs of a project's page inherit its authorization.
-        'project-overview',
-        'project-issues',
-        'project-knowledge',
-        'project-memory-tab',
-        'project-members',
-        'project-releases',
-        'project-settings',
-        'project-memory',
-      ].map((name) => ({
-        name,
-        authorizedAs: 'pm-projects',
-      })),
-      // Stage S4: the knowledge page, behind the knowledge plugin's own page grant.
-      { name: 'knowledge', authorizedAs: 'knowledge' },
-      // Stage S5.4: Releases and Hosted environments, behind the releases plugin's page grant.
-      { name: 'project-setup', authorizedAs: 'pm-projects' },
-      { name: 'releases-hub', authorizedAs: 'rel-apps' },
-      { name: 'hosted-environments', authorizedAs: 'rel-apps' },
-      // Stage S4: a conversation with an agent as a page, and the links that open the chat panel. The agents plugin
-      // answers each person's own conversations only, so they opt out of page authorization like the inbox.
-      { name: 'chat-conversation', authorizedAs: null },
-      { name: 'chat-link', authorizedAs: null },
-      { name: 'chat-link-conversation', authorizedAs: null },
-      // The agents plugin's pages (stage S2) check its own page grants; Models stands behind `agents.services`.
-      { name: 'agents', authorizedAs: 'agents' },
-      { name: 'runtimes', authorizedAs: 'runtimes' },
-      { name: 'runtimes-connect', authorizedAs: 'runtimes' },
-      { name: 'skills', authorizedAs: 'skills' },
-      { name: 'skills-new', authorizedAs: 'skills' },
-      { name: 'skills-detail', authorizedAs: 'skills' },
-      { name: 'usage', authorizedAs: 'usage' },
-      { name: 'models', authorizedAs: 'settings:agents.services' },
-      { name: 'settingsHome', authorizedAs: null },
-      ...settingsAuthorizations,
-    ]);
+    // Compared by name: the order of the settings pages follows their categories, which is not what is pinned here.
+    expect(byName(pageAuthorizations(resolved.routes))).toEqual(
+      byName([
+        { name: 'home', authorizedAs: null },
+        { name: 'inbox', authorizedAs: null },
+        { name: 'my-issues', authorizedAs: 'pm-my-issues' },
+        // My sessions lists only the viewer's own conversations; the agents plugin scopes them on the server.
+        { name: 'my-sessions', authorizedAs: null },
+        { name: 'session-detail', authorizedAs: null },
+        { name: 'dashboard', authorizedAs: 'reports' },
+        { name: 'follow-ups', authorizedAs: 'pm-issues' },
+        ...[
+          'issues',
+          'pm-issue-new',
+          'pm-plan',
+          'issue-detail',
+          'pm-subtask-new',
+        ].map((name) => ({ name, authorizedAs: 'pm-issues' })),
+        ...[
+          'pm-projects',
+          'pm-project-new',
+          'project-detail',
+          // The tabs of a project's page inherit its authorization.
+          'project-overview',
+          'project-issues',
+          'project-knowledge',
+          'project-memory-tab',
+          'project-members',
+          'project-releases',
+          'project-settings',
+          'project-memory',
+        ].map((name) => ({
+          name,
+          authorizedAs: 'pm-projects',
+        })),
+        // Stage S4: the knowledge page, behind the knowledge plugin's own page grant.
+        { name: 'knowledge', authorizedAs: 'knowledge' },
+        // Stage S5.4: Releases and Hosted environments, behind the releases plugin's page grant.
+        { name: 'project-setup', authorizedAs: 'pm-projects' },
+        { name: 'releases-hub', authorizedAs: 'rel-apps' },
+        { name: 'hosted-environments', authorizedAs: 'rel-apps' },
+        // Stage S4: a conversation with an agent as a page, and the links that open the chat panel. The agents plugin
+        // answers each person's own conversations only, so they opt out of page authorization like the inbox.
+        { name: 'chat-conversation', authorizedAs: null },
+        { name: 'chat-link', authorizedAs: null },
+        { name: 'chat-link-conversation', authorizedAs: null },
+        // The agents plugin's pages (stage S2) check its own page grants; Models stands behind `agents.services`.
+        { name: 'agents', authorizedAs: 'agents' },
+        { name: 'runtimes', authorizedAs: 'runtimes' },
+        { name: 'runtimes-connect', authorizedAs: 'runtimes' },
+        { name: 'skills', authorizedAs: 'skills' },
+        { name: 'skills-new', authorizedAs: 'skills' },
+        { name: 'skills-detail', authorizedAs: 'skills' },
+        { name: 'usage', authorizedAs: 'usage' },
+        { name: 'models', authorizedAs: 'settings:agents.services' },
+        { name: 'settingsHome', authorizedAs: null },
+        ...settingsAuthorizations,
+      ]),
+    );
   });
 
   it('registers the prepared settings and the projects settings once the application has business capabilities', () => {
@@ -363,6 +366,9 @@ function componentLoadersIn(
     ...componentLoadersIn(route.children ?? []),
   ]);
 }
+
+const byName = <T extends { name: string }>(entries: T[]): T[] =>
+  [...entries].sort((a, b) => a.name.localeCompare(b.name));
 
 /** Page authorization comes directly from the registered tree. */
 function pageAuthorizations(
