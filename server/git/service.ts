@@ -2852,6 +2852,22 @@ export function createGitService(deps: GitServiceDeps) {
     return client.pullFiles(repo.fullName, pull.number);
   }
 
+  /** Relative file paths and diff patches changed by a pull request (read via GitHub client). */
+  async function pullFileDetails(
+    id: string,
+  ): Promise<Array<{ readonly filename: string; readonly patch?: string }>> {
+    const pull = await pullRecord(id);
+    const repo = await repositoryRecord(pull.repositoryId);
+    const client = await clientForRepository(repo.id);
+    return client.pullFileDetails(repo.fullName, pull.number);
+  }
+
+  /** Complete patch/diff of added and removed lines across all files changed by a pull request. */
+  async function pullPatch(id: string): Promise<string> {
+    const details = await pullFileDetails(id);
+    return details.map((d) => d.patch ?? '').join('\n');
+  }
+
   /**
    * Squash-merges a pull request on GitHub after reading it again. Refused with its `mergeBlocker`; `force` with a reason
    * ("Merge anyway") overrides the blockers of `FORCEABLE_BLOCKERS`, records the reason and says so on the pull request.
@@ -3107,6 +3123,8 @@ export function createGitService(deps: GitServiceDeps) {
     getPullRequest,
     refreshPullRequest,
     pullFiles,
+    pullFileDetails,
+    pullPatch,
     setStageMergePolicy: (policy: NonNullable<typeof stageMergePolicy>) => {
       stageMergePolicy = policy;
     },

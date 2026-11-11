@@ -100,6 +100,11 @@ export interface GitHubClient {
   pull(fullName: string, number: number): Promise<GitHubPull>;
   /** The files changed by a pull request (relative file paths). */
   pullFiles(fullName: string, number: number): Promise<string[]>;
+  /** The files and diff patches changed by a pull request. */
+  pullFileDetails(
+    fullName: string,
+    number: number,
+  ): Promise<Array<{ readonly filename: string; readonly patch?: string }>>;
   /** The open pull requests whose head is `branch` of the repository itself (not of a fork). */
   openPullsFrom(fullName: string, branch: string): Promise<GitHubPull[]>;
   createPull(
@@ -393,6 +398,23 @@ export function createGitHubClient(options: {
       return answer
         .map((entry) => text(record(entry).filename) ?? '')
         .filter((name) => name !== '');
+    },
+    async pullFileDetails(fullName, number) {
+      const answer = items(
+        await call(
+          'GET',
+          `${repoPath(fullName)}/pulls/${number}/files?per_page=100`,
+        ),
+      );
+      return answer
+        .map((entry) => {
+          const rec = record(entry);
+          return {
+            filename: text(rec.filename) ?? '',
+            patch: text(rec.patch) ?? '',
+          };
+        })
+        .filter((entry) => entry.filename !== '');
     },
     async openPullsFrom(fullName, branch) {
       const query = new URLSearchParams({
