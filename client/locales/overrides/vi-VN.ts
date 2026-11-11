@@ -1041,4 +1041,131 @@ const overrides: TranslationOverrides = {
   },
 };
 
-export default overrides;
+/**
+ * What P8 (matching the plugin pages to the demo) still found machine-translated in the agents plugin ("Mã thông báo"
+ * for tokens, "đặc vụ" and "vấn đề" for agent and issue). Kept apart and merged below so the older block above stays as
+ * generated; fold them in at the next regeneration.
+ */
+const agentsAdditions: Record<string, unknown> = {
+  modelSuggestions: {
+    design:
+      'Suy luận mạnh nhất: đề xuất, kiến trúc, điều tra sự cố khó và đánh giá thay đổi quan trọng; cũng triển khai thông thường và thay đổi nhiều gói.',
+    review:
+      'Đánh giá mã và phân tích lỗi CI; cũng viết đề xuất và điều tra sự cố khó.',
+  },
+  brief: {
+    previewDescription:
+      'Đúng như agent này sẽ nhận nếu được gọi lúc này, với một chủ đề giả định. Không có gì được xếp hàng.',
+    platform:
+      'Quy tắc và nhiệm vụ của nền tảng · khoảng {{size}} ký tự (tiếng Anh)',
+  },
+  usage: { chart: { tokens: 'Token' } },
+  runs: {
+    processDataCleared:
+      'Dữ liệu quá trình chạy đã bị xoá theo chính sách lưu giữ.',
+  },
+  transcript: { tokens: 'Token vào {{input}}, ra {{output}}' },
+  runtimes: {
+    quota: {
+      workspaceStatus: {
+        ambiguousSubject: 'Được giữ lại: công việc không rõ ràng',
+        subjectUnknown: 'Được giữ lại: không xác định được công việc',
+      },
+    },
+  },
+  chat: { agents: { unknown: 'Agent không rõ' } },
+  prices: {
+    section: {
+      description:
+        'Trên một triệu token, vào / ra. Các báo cáo tính chi phí từ đây.',
+    },
+    tool: { seen: 'Các mô hình thấy được trong các lượt chạy' },
+  },
+  skills: {
+    frontMatter: {
+      reasons: { yaml: 'Phần đầu (front matter) không phải YAML hợp lệ.' },
+    },
+  },
+};
+
+/** The same for the other plugins: "nhiệm vụ"/"tác vụ" for issue, "tổng đài viên" and "đặc vụ" for agent, "mã thông báo" for token. */
+const otherAdditions: Record<string, Record<string, unknown>> = {
+  '@nocobase/app-plugin-projects': {
+    resources: {
+      initPromptHint:
+        'Tuỳ chọn. Hướng dẫn ngắn mà agent làm theo lần đầu tiên làm việc ở đây cho một công việc, trước khi bắt đầu. Không phải một tập lệnh: nó không tự chạy.',
+    },
+    plans: {
+      // The plugin's keys carry the dot themselves (`'issue.retract'`).
+      undoPreview: { ops: { 'issue.retract': 'Xoá công việc {{target}}' } },
+      ops: {
+        'issue.update': 'Đổi công việc',
+        'issue.retract': 'Xoá công việc',
+      },
+    },
+  },
+  '@nocobase/app-plugin-releases': {
+    ui: { registries: { password: 'Mật khẩu hoặc token' } },
+  },
+  '@nocobase/app-plugin-agent-sessions': {
+    links: {
+      count_one: '{{count}} công việc',
+      count_other: '{{count}} công việc',
+      none: 'Không có công việc',
+      empty:
+        'Phiên này chưa có công việc nào. Hãy nhờ agent chuyển những gì bạn đã thảo luận thành công việc.',
+      created_one: 'Đã tạo {{count}} công việc',
+      created_other: 'Đã tạo {{count}} công việc',
+      start_one: 'Bắt đầu {{count}} công việc',
+      start_other: 'Bắt đầu {{count}} công việc',
+    },
+    session: {
+      offlineBody:
+        'Cuộc hội thoại và các công việc của nó được giữ ở đây để đọc như bình thường. Phiên tiếp tục khi máy tính hoạt động trở lại.',
+    },
+    composer: {
+      commands: 'Lệnh của agent',
+      mentions: 'Nhắc tới một công việc',
+    },
+  },
+};
+
+function merge(
+  base: Record<string, unknown>,
+  extra: Record<string, unknown>,
+): Record<string, unknown> {
+  const result: Record<string, unknown> = { ...base };
+  for (const [key, value] of Object.entries(extra)) {
+    const current = result[key];
+    result[key] =
+      typeof value === 'object' &&
+      value !== null &&
+      typeof current === 'object' &&
+      current !== null
+        ? merge(
+            current as Record<string, unknown>,
+            value as Record<string, unknown>,
+          )
+        : value;
+  }
+  return result;
+}
+
+const merged: TranslationOverrides = {
+  ...overrides,
+  '@nocobase/app-plugin-agents': merge(
+    overrides['@nocobase/app-plugin-agents'] as Record<string, unknown>,
+    agentsAdditions,
+  ) as TranslationOverrides[string],
+  ...Object.fromEntries(
+    Object.entries(otherAdditions).map(([name, extra]) => [
+      name,
+      merge(
+        (overrides[name] ?? {}) as Record<string, unknown>,
+        extra,
+      ) as TranslationOverrides[string],
+    ]),
+  ),
+};
+
+export default merged;
