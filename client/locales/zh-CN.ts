@@ -148,6 +148,10 @@ const zhCN: AppResource = {
     cycleTime: '周期中位数',
     agentShare: '智能体完成',
     tokensPerIssue: '每任务令牌',
+    costPerIssue: '每个任务的成本',
+    tokensNote: '每个任务 {{value}} 个 Token',
+    noPrice: '未定价',
+    setPrices: '设置价格',
     duration: {
       seconds: '{{count}} 秒',
       minutes: '{{count}} 分钟',
@@ -190,6 +194,7 @@ const zhCN: AppResource = {
     projects: {
       title: '项目',
       name: '项目',
+      progress: '进度',
       done: '已完成',
       completed: '本期完成',
       cycleTime: '周期中位数',

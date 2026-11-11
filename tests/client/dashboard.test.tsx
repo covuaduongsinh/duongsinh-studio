@@ -18,7 +18,7 @@ vi.mock('@nocobase/app-plugin-authorization/client', async (original) => ({
   useCan: () => ({ can: false, loading: false }),
 }));
 
-const delivery = {
+const delivery: Record<string, any> = {
   days: 30,
   from: '2026-11-01',
   to: '2026-11-07',
@@ -28,14 +28,14 @@ const delivery = {
     completed: 73,
     cycleTimeP50Ms: 4 * 86_400_000,
     agentShare: 0.5,
-    costPerIssue: null,
+    costPerIssue: { USD: 1.5 },
     tokensPerIssue: 12_000,
   },
   previous: {
     completed: 70,
     cycleTimeP50Ms: 8 * 86_400_000,
     agentShare: 0.5,
-    costPerIssue: null,
+    costPerIssue: { USD: 3 },
     tokensPerIssue: null,
   },
   buckets: [
@@ -45,7 +45,7 @@ const delivery = {
       completed: 3,
       cycleTimeP50Ms: 1000,
       agentShare: 1,
-      costPerIssue: null,
+      costPerIssue: 1,
       tokensPerIssue: 100,
     },
     {
@@ -54,7 +54,7 @@ const delivery = {
       completed: 5,
       cycleTimeP50Ms: 2000,
       agentShare: 0,
-      costPerIssue: null,
+      costPerIssue: 2,
       tokensPerIssue: 200,
     },
   ],
@@ -204,8 +204,30 @@ describe('dashboard', () => {
     const share = screen.getByRole('group', { name: 'Completed by agents' });
     expect(within(share).getByText('No change')).toBeTruthy();
 
-    const tokens = screen.getByRole('group', { name: 'Tokens per issue' });
-    expect(within(tokens).getByText('12K')).toBeTruthy();
+    // The fourth figure is what an issue cost; the tokens behind it stay as a note.
+    const cost = screen.getByRole('group', { name: 'Cost per issue' });
+    expect(within(cost).getByText('$1.50')).toBeTruthy();
+    expect(within(cost).getByText('−50%').className).toContain('text-primary');
+    expect(within(cost).getByText('12K tokens per issue')).toBeTruthy();
+  });
+
+  it('says a cost is not priced yet and points to the prices', async () => {
+    const priced = delivery.current.costPerIssue;
+    delivery.current.costPerIssue = null;
+    try {
+      render();
+      const cost = await screen.findByRole('group', {
+        name: 'Cost per issue',
+      });
+      expect(within(cost).getByText('Not priced')).toBeTruthy();
+      expect(
+        within(cost)
+          .getByRole('link', { name: 'Set prices' })
+          .getAttribute('href'),
+      ).toContain('/usage');
+    } finally {
+      delivery.current.costPerIssue = priced;
+    }
   });
 
   it('asks again for the period chosen', async () => {
@@ -235,16 +257,19 @@ describe('dashboard', () => {
     const legend = within(section).getByRole('list', { name: 'Run outcomes' });
     for (const name of ['Completed', 'Failed', 'Cancelled', 'In progress'])
       expect(within(legend).getByText(name)).toBeTruthy();
-    // 8 and 2 out of an axis ending at 10.
-    const column = within(section).getByTestId('run-day-2026-11-06');
+    // One area per outcome that happened, stacked, with each day's count kept in order.
     expect(
-      [...column.querySelectorAll<HTMLElement>('div')].map(
-        (segment) => segment.style.height,
-      ),
-    ).toEqual(['80%', '20%']);
+      within(section)
+        .getByTestId('run-area-runsCompleted')
+        .getAttribute('data-values'),
+    ).toBe('8,0');
     expect(
-      within(section).getByTestId('run-day-2026-11-07').children,
-    ).toHaveLength(0);
+      within(section)
+        .getByTestId('run-area-runsFailed')
+        .getAttribute('data-values'),
+    ).toBe('2,0');
+    expect(within(section).queryByTestId('run-area-runsOpen')).toBeNull();
+    expect(within(section).getByTestId('run-day-2026-11-06')).toBeTruthy();
 
     await userEvent.click(
       within(section).getByRole('button', { name: 'Show as table' }),
@@ -286,6 +311,9 @@ describe('dashboard', () => {
     const link = await screen.findByRole('link', { name: 'Dương Sinh App' });
     expect(link.getAttribute('href')).toContain('/projects/p1');
     expect(screen.getByText('4/10')).toBeTruthy();
+    const bar = screen.getByRole('progressbar', { name: 'Dương Sinh App' });
+    expect(bar.getAttribute('aria-valuenow')).toBe('4');
+    expect(bar.getAttribute('aria-valuemax')).toBe('10');
   });
 
   it('says so when figures cannot be read, and keeps the others', async () => {

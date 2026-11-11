@@ -8,16 +8,22 @@ export interface DeliveryFigures {
   readonly completed: number;
   readonly cycleTimeP50Ms: number | null;
   readonly agentShare: number | null;
+  /** What the runs cost per issue completed, by currency; null while no run reported a price. */
+  readonly costPerIssue: Readonly<Record<string, number>> | null;
   readonly tokensPerIssue: number | null;
 }
 
 export interface DeliveryReport {
   readonly subjects: boolean;
+  /** The currency of the buckets' `costPerIssue`. */
+  readonly currency: string;
   readonly current: DeliveryFigures;
   readonly previous: DeliveryFigures;
-  readonly buckets: readonly (DeliveryFigures & {
+  readonly buckets: readonly (Omit<DeliveryFigures, 'costPerIssue'> & {
     readonly from: string;
     readonly to: string;
+    /** In `currency`; null when nothing was priced that stretch. */
+    readonly costPerIssue: number | null;
   })[];
 }
 
