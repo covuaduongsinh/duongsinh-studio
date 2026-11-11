@@ -48,6 +48,11 @@ const AutopilotSettingsSchema = z
   .object({
     projectId: z.string(),
     enabled: z.boolean(),
+    autoMergeStages: z
+      .boolean()
+      .describe(
+        'Whether Studio merges the pull request of a finished stage by itself; on unless the project turned it off.',
+      ),
     mergeMethod: z.string(),
     maxMergesPerDay: z.number().int().nullable(),
     maxActiveIssues: z.number().int().nullable(),
@@ -63,6 +68,7 @@ const AutopilotSettingsSchema = z
 const UpdateAutopilotSettingsBody = z
   .object({
     enabled: z.boolean().optional(),
+    autoMergeStages: z.boolean().optional(),
     mergeMethod: z.enum(['squash', 'merge', 'rebase']).optional(),
     maxMergesPerDay: z.number().int().min(1).nullable().optional(),
     maxActiveIssues: z.number().int().min(1).nullable().optional(),
@@ -282,6 +288,7 @@ export const autopilotRoutes: AppApiRouteContribution<Application> =
         const settings = (await autopilot().getSettings(projectId)) ?? {
           projectId,
           enabled: false,
+          autoMergeStages: true,
           mergeMethod: 'squash',
           maxMergesPerDay: null,
           maxActiveIssues: null,

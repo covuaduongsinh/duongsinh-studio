@@ -1608,6 +1608,23 @@ export function createGitService(deps: GitServiceDeps) {
     return null;
   }
 
+  /**
+   * What decides whether a finished stage's pull request may be merged by Studio, and hears of it when it is: the
+   * autopilot (`server/autopilot/evaluator.ts`) sets it at boot. Without one, nothing is merged by itself.
+   */
+  let stageMergePolicy: {
+    readonly allow: (input: {
+      readonly issueId: string;
+      readonly pullRequestId: string;
+    }) => Promise<boolean>;
+    readonly merged: (input: {
+      readonly issueId: string;
+      readonly pullRequestId: string;
+      readonly number: number;
+      readonly repo: string;
+    }) => Promise<void>;
+  } | null = null;
+
   /** Pull requests Studio is merging for a finished stage now; read by `onMerged`, which completes the stage issue. */
   const stageMerges = new Set<string>();
 
@@ -1615,8 +1632,8 @@ export function createGitService(deps: GitServiceDeps) {
    * Merges the pull request of a finished stage by itself, so the work goes on to the next stage without waiting for a
    * person. Only a stage issue (a sub-issue with a stage) that has been handed over (In review) qualifies, and only
    * when the pull request could be merged without forcing: not a draft, no conflict and every required check passed.
-   * Anything else, and any refusal from the host, leaves the pull request for a person, as before. It merges as the
-   * issue's owner. The pull request's own "complete when merged" switch (off by default) is not consulted: it decides
+   * The project's autopilot settings have the last word (`stageMergePolicy`). Anything else, and any refusal from the
+   * host, leaves the pull request for a person, as before. It merges as the issue's owner. The pull request's own "complete when merged" switch (off by default) is not consulted: it decides
    * whether a merge completes an issue that is not a stage, while a stage always ends with its merge.
    */
   async function autoMergeStage(
@@ -1624,6 +1641,7 @@ export function createGitService(deps: GitServiceDeps) {
     repository: RepositoryRecord,
   ): Promise<void> {
     if (
+      !stageMergePolicy ||
       !pull.issueId ||
       pull.state !== 'open' ||
       pull.draft ||
@@ -1651,10 +1669,24 @@ export function createGitService(deps: GitServiceDeps) {
         !issue.ownerUserId
       )
         return;
+      // The project's say: switched off, paused (emergency stop), over its daily limit, or touching sensitive paths.
+      if (
+        !(await stageMergePolicy.allow({
+          issueId: pull.issueId,
+          pullRequestId: pull.id,
+        }))
+      )
+        return;
       await mergePullRequest(pull.id, {
         byUserId: str(issue.ownerUserId),
         force: false,
         reason: null,
+      });
+      await stageMergePolicy.merged({
+        issueId: pull.issueId,
+        pullRequestId: pull.id,
+        number: pull.number,
+        repo: repository.fullName,
       });
     } catch (error) {
       report(
@@ -3075,6 +3107,9 @@ export function createGitService(deps: GitServiceDeps) {
     getPullRequest,
     refreshPullRequest,
     pullFiles,
+    setStageMergePolicy: (policy: NonNullable<typeof stageMergePolicy>) => {
+      stageMergePolicy = policy;
+    },
     syncRepository,
     syncDue,
     pollIntervals,

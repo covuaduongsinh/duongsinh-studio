@@ -1607,6 +1607,9 @@ const viVN: AppResource = {
       sensitivePolicy: 'Chính sách đường dẫn nhạy cảm',
       sensitivePaths: 'Các đường dẫn nhạy cảm (mỗi dòng một đường dẫn)',
       sensitivePathsHint: 'Ví dụ: database/, server/security/, package.json',
+      autoMergeStages: 'Tự merge từng giai đoạn đã xong',
+      autoMergeStagesHint:
+        'Khi kiểm tra của một giai đoạn đạt và agent đã bàn giao, Studio tự merge PR của giai đoạn đó để công việc đi tiếp sang giai đoạn sau. Dừng khi tạm dừng hoặc dừng khẩn cấp, và để người xử lý các PR đụng tới đường dẫn nhạy cảm.',
     },
     mergeMethods: {
       squash: 'Squash (ghép commit)',

@@ -10,6 +10,8 @@ import {
 export interface AutopilotSettings {
   readonly projectId: string;
   readonly enabled: boolean;
+  /** Whether Studio merges the pull request of a finished stage by itself (on unless turned off). */
+  readonly autoMergeStages: boolean;
   readonly mergeMethod: string;
   readonly maxMergesPerDay: number | null;
   readonly maxActiveIssues: number | null;
@@ -23,6 +25,7 @@ export interface AutopilotSettings {
 
 export interface AutopilotUpdateInput {
   readonly enabled?: boolean;
+  readonly autoMergeStages?: boolean;
   readonly mergeMethod?: 'squash' | 'merge' | 'rebase';
   readonly maxMergesPerDay?: number | null;
   readonly maxActiveIssues?: number | null;

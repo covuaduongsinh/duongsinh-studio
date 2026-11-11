@@ -1,4 +1,5 @@
 import { useToaster } from '@nocobase/app-client';
+import { useCan } from '@nocobase/app-plugin-authorization/client';
 import { GeneralSettings } from '@nocobase/app-plugin-projects/client/config';
 import { useTranslation } from '@nocobase/i18n/client';
 import { AlertOctagonIcon, LoaderCircle } from 'lucide-react';
@@ -154,6 +155,8 @@ function EmergencyStopAutopilotSection(): ReactElement {
  */
 export default function ProjectsGeneralSettingsPage(): ReactElement {
   const { t } = useTranslation();
+  // The server lets only an unrestricted administrator stop autopilot everywhere; the card is shown to no one else.
+  const { can: unrestricted } = useCan('unrestricted');
   return (
     <PageContainer>
       <PageHeader
@@ -161,7 +164,7 @@ export default function ProjectsGeneralSettingsPage(): ReactElement {
         description={t('projectSettings.generalDescription')}
       />
       <GeneralSettings />
-      <EmergencyStopAutopilotSection />
+      {unrestricted ? <EmergencyStopAutopilotSection /> : null}
     </PageContainer>
   );
 }
