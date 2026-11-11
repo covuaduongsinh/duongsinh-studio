@@ -97,6 +97,8 @@ test('the gate gives people their own actions and runs their agent’s within th
       'studio.reviews/submit',
       // H1a: executing agents propose acceptance criteria for their issues.
       'studio.criteria/propose',
+      // H1b: executing agents submit verifications for their issues.
+      'studio.verifications/submit',
     ].sort(),
   );
   expect((await agents.agents.get(PROJECT_MANAGER_ID)).actions).toEqual(

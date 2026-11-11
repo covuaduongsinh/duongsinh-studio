@@ -16,6 +16,7 @@ import { projectMemoryRoutes } from './project-memory.js';
 import { projectSetupRoutes } from './project-setups.js';
 import { reportRoutes } from './reports.js';
 import { reviewRoutes } from './reviews.js';
+import { verificationRoutes } from './verifications.js';
 import { webhookRoutes } from './webhooks.js';
 
 const routes: readonly AppRouteContribution<Application>[] = [
@@ -24,6 +25,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   projectManagerRoutes,
   gitRoutes,
   reviewRoutes,
+  verificationRoutes,
   issueWorkRoutes,
   issueCriteriaRoutes,
   inboxRoutes,

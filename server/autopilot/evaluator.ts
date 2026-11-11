@@ -373,6 +373,23 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       reasons.push('CI checks have not passed on current head.');
     }
 
+    // Condition 4b: Verification passes on current headSha
+    const latestVerification = await conn()
+      .query.selectFrom('dsVerifications')
+      .selectAll()
+      .where('issueId', '=', issueId)
+      .orderBy('createdAt', 'desc')
+      .executeTakeFirst();
+    if (!latestVerification || latestVerification.result !== 'passed') {
+      reasons.push(
+        'Chưa có lượt Kiểm chứng nào đạt kết quả (passed) cho việc này.',
+      );
+    } else if (latestVerification.headSha !== pr.headSha) {
+      reasons.push(
+        `Lượt Kiểm chứng mới nhất (commit ${String(latestVerification.headSha).slice(0, 7)}) không khớp với đầu PR (${pr.headSha.slice(0, 7)}).`,
+      );
+    }
+
     // Condition 5: Code review approve, mustFix = 0, reviewer != author
     const codeReview = await deps
       .reviews()
@@ -592,6 +609,31 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
           allowed: false,
           reason: `Daily merge limit of ${settings.maxMergesPerDay} reached.`,
         };
+    }
+    const prRow = await conn()
+      .query.selectFrom('dsPullRequests')
+      .select(['headSha'])
+      .where('id', '=', input.pullRequestId)
+      .executeTakeFirst();
+    if (prRow?.headSha) {
+      const latestVerif = await conn()
+        .query.selectFrom('dsVerifications')
+        .selectAll()
+        .where('issueId', '=', input.issueId)
+        .orderBy('createdAt', 'desc')
+        .executeTakeFirst();
+      if (!latestVerif || latestVerif.result !== 'passed') {
+        return {
+          allowed: false,
+          reason: 'Kiểm chứng chưa đạt kết quả (passed) cho việc này.',
+        };
+      }
+      if (latestVerif.headSha !== prRow.headSha) {
+        return {
+          allowed: false,
+          reason: `Kiểm chứng mới nhất không khớp với commit đầu PR (${str(prRow.headSha).slice(0, 7)}).`,
+        };
+      }
     }
     let files: string[];
     try {
