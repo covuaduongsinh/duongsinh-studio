@@ -88,7 +88,7 @@ function ThresholdForm({
 export default function VerificationSettingsPage(): ReactElement {
   const { t } = useTranslation();
   const toaster = useToaster();
-  const canManage = useCan({
+  const { can: canManage } = useCan({
     resource: { type: 'settings', id: 'agents.agents' },
     action: 'manage',
   });
