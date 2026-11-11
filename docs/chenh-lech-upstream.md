@@ -729,3 +729,14 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Đầu trang:** biểu tượng My sessions và Inbox kèm số đang chờ (cùng nguồn với huy hiệu sidebar: `inbox/pending` = quyết định + thông tin, `agents/conversationAttention`). Demo lấy từ `/api/attention` `counts{tasks,sessions}`; `/api/attention` của ta chưa có trường đó nên không đổi nguồn.
 - **Menu avatar:** thêm "Cài đặt tài khoản" (`/settings/my-account`) và "Dùng Studio trong agent của bạn" (hộp thoại: tạo lệnh cài CLI bằng download token `agents/dist/downloadTokens` của plugin agents, lệnh `ds-studio login`, nhắc dùng API key cá nhân ở Tài khoản của tôi).
 - Test: `tests/client/settings-sidebar.test.ts`, `settings-back.test.tsx`, `settings-home.test.tsx` (chuyển hướng), `roles.test.tsx` (số người giữ), `agent-cli-dialog.test.tsx`, `header-quick-links.test.tsx`, `client-routes.test.ts`/`settings-navigation.test.ts` (nhóm mới, so theo tên).
+
+## 41. Đối chiếu các trang plugin với demo (P8)
+
+Đã mở bằng admin trên bản dev và so với ảnh 34, 37, 41, 42, 44 (các ảnh 43, 56–59 chưa so từng cái): Agents, Runtimes, Usage, Knowledge, Projects. Bố cục, cột, bộ lọc, nút "Thiết lập giá" và biểu đồ **giống demo**; khác biệt còn lại là của phiên bản plugin hoặc của dữ liệu, không sửa được bằng option:
+
+- **Agents:** demo có thẻ **Lead Agent** ở đầu trang (tên, "Chạy bằng", nguyên tắc phân việc, giới hạn chạy theo bình luận, nút Settings). Plugin agents beta.19 của ta chưa vẽ thẻ này và không có chỗ cắm; Lead Agent của ta nằm ở `Cài đặt → Agent & vận hành → Lead Agent`. Cần nâng plugin hoặc xin chỗ cắm ở upstream; chưa làm.
+- **Knowledge:** demo có dòng hướng dẫn phía trên khung ("Người có quyền sửa tri thức có thể sửa trực tiếp…") còn ta có thêm hàng "Tất cả đề nghị"; cả hai do phiên bản plugin knowledge.
+- **Usage:** số rút gọn theo vi-VN (N = nghìn, Tr = triệu) thay cho K/M của demo: là quy ước tiếng Việt, giữ.
+- **Skills, ảnh 56–59 (Set prices):** chưa so từng ảnh; mở trang Usage → "Thiết lập giá" hiện đúng.
+- **Từ ngữ:** plugin dịch máy tiếng Việt ("Mã thông báo" cho token, "đặc vụ", "nhiệm vụ"/"tác vụ" cho issue, "tổng đài viên"). Thêm bản dịch lại qua `overrides` (`client/locales/overrides/vi-VN.ts`, phần `agentsAdditions`/`otherAdditions`) cho plugin agents, projects, releases và agent-sessions; quét lại bằng cách so khóa của plugin với phần override cho thấy không còn chuỗi nào trong nhóm từ này chưa được dịch lại cho knowledge, projects, releases, agents.
+- Test: `tests/client/vi-plugin-overrides.test.ts`; bài kiểm tra có sẵn "rewords only keys the plugins still have" giữ cho override không trỏ vào khóa không tồn tại.
