@@ -776,3 +776,23 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - `server/providers/issue-subject.ts` tự động chèn danh sách tiêu chí nghiệm thu vào `guidance.rules` khi tạo đề bài cho agent (hoặc nhắc đề xuất tiêu chí nếu issue chưa có).
 - Giao diện: `client/components/criteria/criteria-editor.tsx` (`CriteriaEditor`, `IssueCriteriaSection`, `ProjectDefaultCriteriaCard`), gắn vào trang chi tiết issue cạnh `IssueDeliveryReport` và vào tab Cài đặt dự án.
 - Test: `tests/database/ds-issue-criteria-migration.test.ts`, `tests/server/issue-criteria-routes.test.ts`, `tests/client/criteria-editor.test.tsx`.
+
+## 45. H1b — Lượt Kiểm chứng bắt buộc và cổng `in_review` (11/11/2026)
+
+- Plugin `projects` không có cơ chế bắt buộc agent phải chạy kiểm chứng tự động trước khi chuyển việc sang `in_review` và không theo dõi số lần kiểm chứng thất bại.
+- Studio tạo các bảng `dsVerifications`, `dsVerificationItems`, và `dsVerificationSettings` qua migration `202611110004_ds_verifications.ts`.
+- Hành động `studio.verifications/submit` (`VERIFICATIONS_SUBMIT_ACTION`) được cấp mặc định cho mọi run agent (`STUDIO_ACTIONS`).
+- Tuyến đường `server/routes/verifications.ts`:
+  - `POST /api/verifications`: nộp kết quả kiểm chứng. Studio tự động đánh giá tiêu chí `ci` từ `dsPullRequests` (`headSha` khớp và `ciState === 'success'`).
+  - Khi kiểm chứng thất bại liên tiếp chạm ngưỡng $N$ (mặc định $N = 2$, cấu hình ở `dsVerificationSettings`): hệ thống tự động chuyển trạng thái việc sang `blocked` (Đang vướng), ghi chú lý do vào `needsYou`, đăng bình luận hệ thống và gửi thông báo qua Hộp thư / outbound cho chủ sở hữu.
+  - `GET /api/issues/:issueId/verifications`: lịch sử kiểm chứng của việc.
+  - `GET /api/verifications/recent`: 20 lượt kiểm chứng mới nhất của toàn hệ thống.
+  - `GET/PUT /api/verifications/settings`: đọc và cập nhật cấu hình ngưỡng dừng (dành cho quản trị viên).
+- Cổng di chuyển trạng thái `mayMove` của `AGENT_KIND` (`server/providers/agent-executor.ts`):
+  - Khi chuyển sang `in_review`: bắt buộc việc phải có ít nhất một tiêu chí nghiệm thu (`dsIssueCriteria`), lượt kiểm chứng mới nhất phải đạt (`result = 'passed'`), và nếu việc có PR mở thì `headSha` của lượt kiểm chứng mới nhất phải khớp với đầu commit của PR mở đó.
+- Cổng merge: Bổ sung điều kiện kiểm chứng mới nhất phải `passed` tại đúng `headSha` của PR ở cả 2 đường:
+  - Bộ đánh giá Tự lái đầy đủ (`evaluate` trong `server/autopilot/evaluator.ts`).
+  - Bộ đánh giá tự merge giai đoạn (`stageMergeAllowed` trong `server/autopilot/evaluator.ts`).
+- Nâng phiên bản `revision: 2` của kỹ năng dựng sẵn `ds-workflow` và `ds-development` (`server/agents/builtin-skills.ts`), hướng dẫn agent nộp kết quả kiểm chứng (`ds-studio verify submit`) trước khi chuyển trạng thái việc sang `in_review`.
+- Giao diện quản trị Cài đặt Kiểm chứng tại `client/pages/settings/verifications.tsx` được gắn vào Cài đặt hệ thống dưới nhóm `settingsAi` (`/settings/verifications`), cho phép quản trị viên xem/sửa ngưỡng $N$ và theo dõi bảng lịch sử kiểm chứng gần đây.
+- Test: `tests/database/ds-verifications-migration.test.ts`, `tests/server/verification-gate.test.ts`, `tests/server/builtin-skills-upgrade.test.ts`, `tests/client/page-permission-titles.test.ts`, `tests/server/authorization-assignment-safety.test.ts`.

@@ -317,7 +317,7 @@ thay vì trong CI; kind `agent` quan sát mọi việc và mọi bình luận.
 - [x] H0 — Nâng phiên bản skill dựng sẵn (#69)
 - [ ] H1 — Cổng kiểm chứng
   - [x] H1a tiêu chí có cấu trúc (#70)
-  - [ ] H1b lượt Kiểm chứng và cổng `in_review`
+  - [x] H1b lượt Kiểm chứng và cổng `in_review` (#71)
   - [ ] H1c review theo tiêu chí
   - [ ] H1d cổng xác định trước review
 - [ ] H4 — Bộ đo

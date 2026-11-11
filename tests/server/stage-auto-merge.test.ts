@@ -7,6 +7,7 @@ import {
   signIn,
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
+import { databaseManagerToken } from '@nocobase/db';
 import { autopilotServiceToken } from '../../server/providers/autopilot.js';
 import { gitServiceToken } from '../../server/providers/git.js';
 import { createStandaloneServer } from '../../server/standalone.js';
@@ -271,6 +272,20 @@ test(
       checks: 'success',
     });
 
+    // H1b: finished stage PR requires a passed verification matching headSha to merge
+    const conn = app.container.resolve(databaseManagerToken).connection();
+    await conn.query
+      .insertInto('dsVerifications')
+      .values({
+        id: 'verif-stage-11',
+        issueId: stageDone.id,
+        headSha: `${HEAD}11`,
+        attempt: 1,
+        result: 'passed',
+        createdAt: new Date(),
+      })
+      .execute();
+
     await app.container.resolve(gitServiceToken).syncRepository(repository.id);
 
     // Only the finished stage with passing checks is merged; its stage issue is done, the larger issue is not.
@@ -297,6 +312,17 @@ test(
       merged: false,
       checks: 'success',
     });
+    await conn.query
+      .insertInto('dsVerifications')
+      .values({
+        id: 'verif-stage-16',
+        issueId: later.id,
+        headSha: `${HEAD}16`,
+        attempt: 1,
+        result: 'passed',
+        createdAt: new Date(),
+      })
+      .execute();
     expect(
       (
         await admin.fetch(

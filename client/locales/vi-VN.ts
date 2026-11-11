@@ -566,6 +566,60 @@ const viVN: AppResource = {
     delete: 'Xóa',
     deleteConfirm: 'Bạn có chắc chắn muốn xóa tiêu chí này?',
   },
+  studioVerifications: {
+    actions: {
+      groupTitle: 'Kiểm chứng',
+      submit: {
+        title: 'Nộp kết quả kiểm chứng',
+        description:
+          'Chạy kiểm chứng tiêu chí và nộp kết quả trước khi bàn giao.',
+      },
+    },
+    title: 'Kiểm chứng',
+    recent: 'Lượt kiểm chứng gần đây',
+    empty: 'Chưa có lượt kiểm chứng nào.',
+    status: {
+      passed: 'Đạt',
+      failed: 'Không đạt',
+      pending: 'Đang chờ',
+    },
+    settings: {
+      title: 'Cài đặt Kiểm chứng',
+      description:
+        'Quy định số lượt kiểm chứng thất bại liên tiếp trước khi dừng việc.',
+      maxFailures: 'Số lượt thất bại liên tiếp tối đa (N)',
+      maxFailuresDescription:
+        'Khi kiểm chứng thất bại N lần liên tiếp, việc sẽ chuyển sang Đang vướng và báo Cần bạn.',
+      save: 'Lưu cài đặt',
+      saveSuccess: 'Đã lưu cài đặt kiểm chứng.',
+      saveFailed: 'Lưu cài đặt thất bại.',
+    },
+  },
+  settingsVerifications: {
+    title: 'Kiểm chứng',
+    description:
+      'Quản lý ngưỡng thất bại liên tiếp và theo dõi lịch sử kiểm chứng của các công việc.',
+    thresholdTitle: 'Ngưỡng dừng khi kiểm chứng thất bại',
+    thresholdDescription:
+      'Khi một việc có số lượt kiểm chứng thất bại liên tiếp chạm ngưỡng này (N), hệ thống sẽ tự động chuyển trạng thái việc sang Đang vướng (Blocked) và ghi lý do Cần bạn.',
+    maxConsecutiveFailuresLabel: 'Số lượt thất bại liên tiếp tối đa (N)',
+    save: 'Lưu cài đặt',
+    saving: 'Đang lưu...',
+    savedTitle: 'Đã lưu cài đặt',
+    savedDescription: 'Cài đặt kiểm chứng đã được cập nhật thành công.',
+    saveFailedTitle: 'Lưu cài đặt thất bại',
+    recentTitle: 'Lượt kiểm chứng gần đây',
+    recentDescription: '20 lượt kiểm chứng mới nhất của toàn hệ thống.',
+    refresh: 'Làm mới',
+    noRecent: 'Chưa có lượt kiểm chứng nào được ghi nhận.',
+    colIssue: 'Mã việc',
+    colSha: 'Commit',
+    colAttempt: 'Lần thử',
+    colResult: 'Kết quả',
+    colTime: 'Thời gian',
+    passed: 'Đạt',
+    failed: 'Thất bại',
+  },
   projectSetup: {
     title: 'Thiết lập dự án',
     description: 'Tạo dự án cùng repo và công việc đầu tiên trong một bước.',
@@ -666,6 +720,9 @@ const viVN: AppResource = {
     projectDefaultSkills: 'Skill của dự án mới',
     projectDefaultSkillsDescription:
       'Dự án tạo từ nay sẽ có sẵn các skill này.',
+    verifications: 'Kiểm chứng',
+    verificationsDescription:
+      'Cấu hình ngưỡng dừng và xem lịch sử các lượt kiểm chứng.',
     followUps: 'Theo dõi',
     projects: 'Dự án',
     issuePrefix: 'Tiền tố công việc',

@@ -73,6 +73,7 @@ describe('default Foundation integration', () => {
         'settingsAi',
         [
           ['settingsProjectDefaultSkills', '/settings/project-default-skills'],
+          ['settingsVerifications', '/settings/verifications'],
           ['settingsProjectManager', '/settings/project-manager'],
           ['settingsBudgets', '/settings/budgets'],
         ],

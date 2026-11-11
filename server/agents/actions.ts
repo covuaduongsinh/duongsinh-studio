@@ -251,6 +251,27 @@ function criteriaPropose(flags: Flags): StudioAction {
   };
 }
 
+/** The business action submitting a verification run for an issue (H1b). */
+export const VERIFICATIONS_SUBMIT_ACTION = 'studio.verifications/submit';
+
+function verificationsSubmit(flags: Flags): StudioAction {
+  return {
+    option: option(
+      VERIFICATIONS_SUBMIT_ACTION,
+      'studio.verifications',
+      {
+        title: appText('studioVerifications.actions.submit.title'),
+        description: appText('studioVerifications.actions.submit.description'),
+        groupTitle: appText('studioVerifications.actions.groupTitle'),
+      },
+      flags,
+    ),
+    resource: { type: pmAccess.RESOURCE_TYPE, id: 'pm.issues' },
+    names: pmAccess.levelActionsOf('pm.issues/edit').map((level) => level.name),
+    borrowed: true,
+  };
+}
+
 /** The page whose grant opens the dashboard and every report. */
 export const REPORTS_PAGE = 'reports';
 
@@ -296,6 +317,7 @@ export const STUDIO_ACTIONS: readonly StudioAction[] = [
   pm('pm.attachments', 'upload', { defaultOn: true }),
   gitOpenPr({ defaultOn: true }),
   criteriaPropose({ defaultOn: true }),
+  verificationsSubmit({ defaultOn: true }),
   plansUse({ defaultOn: true }),
   reviewsSubmit({ defaultOn: true }),
   reportsRead({}),

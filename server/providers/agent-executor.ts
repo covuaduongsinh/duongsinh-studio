@@ -428,12 +428,45 @@ export function createAgentKind(deps: {
       mayMention: async (conn, id) => (await enabled(conn, id)) !== null,
     },
     moves: AGENT_MOVES,
-    // An agent moves only the issues it executes. Whether `needsYou` is filled cannot be checked here: the plugin passes
-    // the issue as it was before the update (`docs/chenh-lech-upstream.md`, section 8).
-    mayMove: (_conn, actor, move) =>
-      actor.type !== AGENT_KIND ||
-      (move.issue.executor?.type === AGENT_KIND &&
-        move.issue.executor.id === actor.id),
+    // An agent moves only the issues it executes. Moving to in_review requires passing verifications.
+    mayMove: async (conn, actor, move) => {
+      if (actor.type !== AGENT_KIND) return true;
+      if (
+        move.issue.executor?.type !== AGENT_KIND ||
+        move.issue.executor.id !== actor.id
+      ) {
+        return false;
+      }
+      if (move.to === IN_REVIEW_STATUS) {
+        const criteria = await conn.query
+          .selectFrom('dsIssueCriteria')
+          .select('id')
+          .where('issueId', '=', move.issue.id)
+          .execute();
+        if (criteria.length === 0) return false;
+
+        const latestVerification = await conn.query
+          .selectFrom('dsVerifications')
+          .selectAll()
+          .where('issueId', '=', move.issue.id)
+          .orderBy('createdAt', 'desc')
+          .executeTakeFirst();
+        if (!latestVerification || latestVerification.result !== 'passed') {
+          return false;
+        }
+
+        const openPr = await conn.query
+          .selectFrom('dsPullRequests')
+          .select('headSha')
+          .where('issueId', '=', move.issue.id)
+          .where('state', '=', 'open')
+          .executeTakeFirst();
+        if (openPr?.headSha && latestVerification.headSha !== openPr.headSha) {
+          return false;
+        }
+      }
+      return true;
+    },
     defaultExecutor: async (conn) =>
       (await enabled(conn, PROJECT_MANAGER_ID)) ? PROJECT_MANAGER_ID : null,
     work,

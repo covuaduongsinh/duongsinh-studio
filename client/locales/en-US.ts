@@ -576,6 +576,60 @@ const enUS = {
     delete: 'Delete',
     deleteConfirm: 'Are you sure you want to delete this criterion?',
   },
+  studioVerifications: {
+    actions: {
+      groupTitle: 'Verification',
+      submit: {
+        title: 'Submit verification',
+        description:
+          'Run criteria verification and submit results before handoff.',
+      },
+    },
+    title: 'Verification',
+    recent: 'Recent verifications',
+    empty: 'No verifications yet.',
+    status: {
+      passed: 'Passed',
+      failed: 'Failed',
+      pending: 'Pending',
+    },
+    settings: {
+      title: 'Verification Settings',
+      description:
+        'Configure consecutive verification failures before stalling.',
+      maxFailures: 'Max consecutive failures (N)',
+      maxFailuresDescription:
+        'When verification fails N times in a row, the issue is moved to Blocked with needsYou.',
+      save: 'Save settings',
+      saveSuccess: 'Verification settings saved.',
+      saveFailed: 'Failed to save settings.',
+    },
+  },
+  settingsVerifications: {
+    title: 'Verifications',
+    description:
+      'Manage consecutive failure thresholds and track verification history for issues.',
+    thresholdTitle: 'Consecutive Failure Threshold',
+    thresholdDescription:
+      'When an issue reaches this number of consecutive verification failures (N), the system automatically moves it to Blocked and sets needsYou.',
+    maxConsecutiveFailuresLabel: 'Max consecutive failures (N)',
+    save: 'Save settings',
+    saving: 'Saving...',
+    savedTitle: 'Settings saved',
+    savedDescription: 'Verification settings updated successfully.',
+    saveFailedTitle: 'Failed to save settings',
+    recentTitle: 'Recent Verifications',
+    recentDescription: '20 most recent verifications across all issues.',
+    refresh: 'Refresh',
+    noRecent: 'No verification records found.',
+    colIssue: 'Issue',
+    colSha: 'Commit',
+    colAttempt: 'Attempt',
+    colResult: 'Result',
+    colTime: 'Time',
+    passed: 'Passed',
+    failed: 'Failed',
+  },
   projectSetup: {
     title: 'Set up a project',
     description: 'A project with its repository and first issue, in one step.',
@@ -676,6 +730,9 @@ const enUS = {
     projectDefaultSkills: 'Skills of new projects',
     projectDefaultSkillsDescription:
       'What a project created from now on starts with.',
+    verifications: 'Verifications',
+    verificationsDescription:
+      'Configure stop thresholds and inspect verification history.',
     followUps: 'Follow-ups',
     projects: 'Projects',
     issuePrefix: 'Issue prefix',
