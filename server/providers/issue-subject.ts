@@ -251,6 +251,15 @@ async function autopilotOn(
   return Boolean(settings?.enabled) && !settings?.pausedReason;
 }
 
+/**
+ * Said only to a read-only turn. It also keeps a later turn that changes code out of that turn's tool session: a
+ * resumed session keeps the system prompt it started with, the runner's "this step only reads" workspace notes
+ * included, and the agents plugin resumes only a session whose brief has the same system layer (its fingerprint).
+ * Without this line both turns had the same one, and the changing turn refused to write (DS-60, 2026-11-10).
+ */
+export const READ_ONLY_TURN_RULE =
+  'This turn is read-only: change no tracked file, commit nothing and push nothing. A later turn that changes code starts its own session.';
+
 /** A turn that may read but not change anything: a review or an investigation. */
 function isReadOnlyTurn(claim: ClaimContext): boolean {
   return claim.inputs.some((input) => {
@@ -306,6 +315,7 @@ function assemblyOf(
           : 'Never change the issue’s status or assign it; the project manager does.',
         'Write every comment and your final run summary in Vietnamese; keep commands, paths and identifiers as they are.',
         ...(coordinating && extras.autopilotOn ? [AUTOPILOT_ON_RULE] : []),
+        ...(readOnly ? [READ_ONLY_TURN_RULE] : []),
       ],
       whenBlocked: `Say what is missing in one reply with ${comment} and end your turn.`,
     },
