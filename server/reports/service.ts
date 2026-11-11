@@ -166,6 +166,28 @@ export interface AgentFigures {
   readonly queueWaitP50Ms: number | null;
 }
 
+export interface RepeatedMistake {
+  readonly tag: string;
+  readonly count: number;
+}
+
+export interface FailedCriterionStat {
+  readonly criterionId: string;
+  readonly count: number;
+}
+
+export interface LearningFigures {
+  readonly from: string;
+  readonly to: string;
+  readonly days: ReportDays;
+  readonly repeatedMistakes: readonly RepeatedMistake[];
+  readonly newLessonsCount: number;
+  readonly secretFindingsCount: number;
+  readonly activeSecretsCount: number;
+  readonly topFailedCriteria: readonly FailedCriterionStat[];
+  readonly failuresByReason: Readonly<Record<string, number>>;
+}
+
 const STATUS_ENDED = new Set(['completed', 'failed']);
 
 export function createReportFigures(sources: ReportSources) {
@@ -647,6 +669,98 @@ export function createReportFigures(sources: ReportSources) {
             METRIC_TARGETS.decisionResolveP50Ms,
           ),
         },
+      };
+    },
+
+    async learning(
+      scope: ReportScope,
+      days: ReportDays = 7,
+    ): Promise<LearningFigures> {
+      const now = sources.now();
+      const window = periodOf(days, now).current;
+
+      const lessons = await sources
+        .conn()
+        .query.selectFrom('dsLessons')
+        .select(['tag'])
+        .where('createdAt', '>=', window.start)
+        .where('createdAt', '<', window.end)
+        .execute()
+        .catch(() => []);
+
+      const tagCounts: Record<string, number> = {};
+      for (const item of lessons) {
+        const tag = str(item.tag);
+        if (tag) {
+          tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+        }
+      }
+      const repeatedMistakes = Object.entries(tagCounts)
+        .filter(([_, count]) => count >= 2)
+        .map(([tag, count]) => ({ tag, count }))
+        .sort((a, b) => b.count - a.count);
+
+      const newLessonsCount = lessons.length;
+
+      const secretFindings = await sources
+        .conn()
+        .query.selectFrom('dsSecretFindings')
+        .select(['status'])
+        .where('createdAt', '>=', window.start)
+        .where('createdAt', '<', window.end)
+        .execute()
+        .catch(() => []);
+
+      const secretFindingsCount = secretFindings.length;
+      const activeSecretsCount = secretFindings.filter(
+        (sf) => sf.status === 'active',
+      ).length;
+
+      const unmetCriteria = await sources
+        .conn()
+        .query.selectFrom('dsReviewCriteriaChecks')
+        .select(['criterionId'])
+        .where('createdAt', '>=', window.start)
+        .where('createdAt', '<', window.end)
+        .where('passed', '=', false)
+        .execute()
+        .catch(() => []);
+
+      const criteriaCounts: Record<string, number> = {};
+      for (const item of unmetCriteria) {
+        const cid = str(item.criterionId);
+        if (cid) {
+          criteriaCounts[cid] = (criteriaCounts[cid] ?? 0) + 1;
+        }
+      }
+      const topFailedCriteria = Object.entries(criteriaCounts)
+        .map(([criterionId, count]) => ({ criterionId, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      const runs = await reporting.runRecords(scope.caller, {
+        start: window.start,
+        end: window.end,
+        groupId: null,
+      });
+      const failuresByReason: Record<string, number> = {};
+      for (const r of runs) {
+        if (r.status === 'failed') {
+          const reason = r.failureReason || 'unknown';
+          failuresByReason[reason] = (failuresByReason[reason] ?? 0) + 1;
+        }
+      }
+
+      return {
+        from: window.from,
+        to: window.to,
+        days,
+        repeatedMistakes,
+        newLessonsCount,
+        secretFindingsCount,
+        activeSecretsCount,
+        topFailedCriteria,
+        failuresByReason,
       };
     },
   };

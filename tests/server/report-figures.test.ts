@@ -398,6 +398,17 @@ describe('report figures', () => {
         delivery: figures.delivery,
         agents: figures.agents,
         attention: async () => attention,
+        learning: async () => ({
+          from: '2026-11-01',
+          to: '2026-11-07',
+          days: 7,
+          repeatedMistakes: [{ tag: 'security', count: 2 }],
+          newLessonsCount: 3,
+          secretFindingsCount: 1,
+          activeSecretsCount: 1,
+          topFailedCriteria: [{ criterionId: 'c1', count: 2 }],
+          failuresByReason: { timeout: 1 },
+        }),
       }),
       owners: async () => ['o1', 'o2'],
       scopeOf: async () => scope,
@@ -415,6 +426,10 @@ describe('report figures', () => {
     expect(sent[0]?.body).toContain('"share":"50%"');
     expect(sent[0]?.body).toContain('"blocked":2');
     expect(sent[0]?.body).toContain('"failed":3');
+    expect(sent[0]?.body).toContain('"repeatedMistakes":"security (2)"');
+    expect(sent[0]?.body).toContain('"newLessons":3');
+    expect(sent[0]?.body).toContain('"secretFindings":1');
+    expect(sent[0]?.body).toContain('"failedCriteria":1');
   });
 
   it('sends nothing when there is no owner', async () => {
@@ -428,5 +443,58 @@ describe('report figures', () => {
       },
     });
     expect(count).toBe(0);
+  });
+
+  it('aggregates repeated mistakes, new lessons, secret findings, and failed criteria safely', async () => {
+    const fakeDb = {
+      selectFrom: (table: string) => ({
+        select: () => ({
+          where: () => ({
+            where: () => ({
+              where: () => ({
+                execute: async () => {
+                  if (table === 'dsReviewCriteriaChecks') {
+                    return [
+                      { criterionId: 'crit-ci' },
+                      { criterionId: 'crit-ci' },
+                      { criterionId: 'crit-test' },
+                    ];
+                  }
+                  return [];
+                },
+              }),
+              execute: async () => {
+                if (table === 'dsLessons') {
+                  return [
+                    { tag: 'security' },
+                    { tag: 'security' },
+                    { tag: 'lint' },
+                  ];
+                }
+                if (table === 'dsSecretFindings') {
+                  return [{ status: 'active' }, { status: 'resolved' }];
+                }
+                return [];
+              },
+            }),
+            execute: async () => [],
+          }),
+        }),
+      }),
+    };
+
+    const s = sources({
+      conn: () => ({ query: fakeDb }) as any,
+    });
+
+    const report = await createReportFigures(s).learning(scope, 7);
+    expect(report.newLessonsCount).toBe(3);
+    expect(report.repeatedMistakes).toEqual([{ tag: 'security', count: 2 }]);
+    expect(report.secretFindingsCount).toBe(2);
+    expect(report.activeSecretsCount).toBe(1);
+    expect(report.topFailedCriteria).toEqual([
+      { criterionId: 'crit-ci', count: 2 },
+      { criterionId: 'crit-test', count: 1 },
+    ]);
   });
 });

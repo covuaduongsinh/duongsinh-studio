@@ -168,7 +168,7 @@ const enUS = {
       'Usage {{from}} to {{to}} by {{groupBy}}: {{runs}} runs, {{inputTokens}} input and {{outputTokens}} output tokens.',
     weekly: {
       title: 'Weekly report {{from}} to {{to}}',
-      body: '### Weekly report {{from}} to {{to}}\n\n- **Issues completed**: {{completed}} (the week before: {{completedBefore}})\n- **Median cycle time**: {{cycle}}\n- **Completed by agents**: {{share}}\n- **Tokens per issue**: {{tokens}}\n- **Run success rate**: {{success}} of {{runs}} runs\n- **Needs attention**: {{blocked}} blocked, {{overdue}} overdue, {{reviews}} waiting for review, {{failed}} failed runs',
+      body: '### Weekly report {{from}} to {{to}}\n\n- **Issues completed**: {{completed}} (the week before: {{completedBefore}})\n- **Median cycle time**: {{cycle}}\n- **Completed by agents**: {{share}}\n- **Tokens per issue**: {{tokens}}\n- **Run success rate**: {{success}} of {{runs}} runs\n- **Needs attention**: {{blocked}} blocked, {{overdue}} overdue, {{reviews}} waiting for review, {{failed}} failed runs\n- **Learning from mistakes**: {{newLessons}} new lessons, {{repeatedMistakes}} repeated mistakes, {{failedCriteria}} unmet criteria, {{secretFindings}} secret warnings',
     },
   },
   studioReviews: {

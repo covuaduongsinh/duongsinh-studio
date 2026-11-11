@@ -151,7 +151,7 @@ const zhCN: AppServerResource = {
       '{{from}} 至 {{to}} 按 {{groupBy}} 的用量：{{runs}} 次运行，输入 {{inputTokens}} 令牌，输出 {{outputTokens}} 令牌。',
     weekly: {
       title: '周报 {{from}} 至 {{to}}',
-      body: '### 周报 {{from}} 至 {{to}}\n\n- **完成任务**：{{completed}}（上周：{{completedBefore}}）\n- **周期中位数**：{{cycle}}\n- **智能体完成**：{{share}}\n- **每任务令牌**：{{tokens}}\n- **运行成功率**：{{runs}} 次中 {{success}}\n- **需要关注**：{{blocked}} 个受阻，{{overdue}} 个逾期，{{reviews}} 个等待评审，{{failed}} 次运行失败',
+      body: '### 周报 {{from}} 至 {{to}}\n\n- **完成任务**：{{completed}}（上周：{{completedBefore}}）\n- **周期中位数**：{{cycle}}\n- **智能体完成**：{{share}}\n- **每任务令牌**：{{tokens}}\n- **运行成功率**：{{runs}} 次中 {{success}}\n- **需要关注**：{{blocked}} 个受阻，{{overdue}} 个逾期，{{reviews}} 个等待评审，{{failed}} 次运行失败\n- **经验教训**：{{newLessons}} 条新经验，{{repeatedMistakes}} 处重复错误，{{failedCriteria}} 项未达标标准，{{secretFindings}} 处敏感凭据告警',
     },
   },
   studioReviews: {
