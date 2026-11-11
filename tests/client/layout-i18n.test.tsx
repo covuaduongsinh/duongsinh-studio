@@ -20,7 +20,12 @@ import {
 } from '../../client/layouts/use-sidebar-preference.js';
 // The menu's counts read the API; `follow-ups.test.tsx` covers them, and this harness has no API.
 vi.mock('../../client/hooks/use-follow-ups.js', () => ({
-  useNavigationCounts: () => ({ decisions: 0, myIssues: 0, releases: 0 }),
+  useNavigationCounts: () => ({
+    decisions: 0,
+    myIssues: 0,
+    sessions: 0,
+    releases: 0,
+  }),
 }));
 
 vi.mock('@nocobase/app-plugin-i18n/client', () => ({

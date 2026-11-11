@@ -685,3 +685,16 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
   `IssueTable` và `release-labels.ts` không còn trang nào dùng (board và Releases có bản riêng); chưa xoá.
 - Chưa làm: nhãn phát hành (`deploys/marks`) trên dòng; chưa so Craft Anything.
 - Test: `tests/client/issue-grouped-list.test.tsx`, `tests/server/git-contract-routes.test.ts` (marks, gồm 401), `tests/client/issues-pages.test.tsx` đổi theo mặc định mới.
+
+## 37. My sessions (P4)
+
+- `/sessions` là trang riêng của ta trên hội thoại của plugin agents (chat với agent trong Studio). Mục "Agent của tôi" (`/agent-sessions`) là trang của plugin agent-sessions (agent chạy trên **máy tính của chính người dùng**) —
+  hai thứ khác nhau nên **chưa ẩn** mục của plugin như kế hoạch viết; chỉ ghi nhận. Demo dùng chính `agent-sessions/runner/:id` cho "My sessions"; ta giữ trang riêng vì nó đã nối `ConversationView`.
+- Bộ lọc **Tất cả / Cần tôi / Đang thực hiện** lọc tại trình duyệt, không đổi URL (như demo). "Đang thực hiện" theo `execution.status`/`run.status`, bỏ cách dò chữ trong `link.view.status`; tab "Cần tôi" có số đếm.
+- Tiến độ issue gắn với phiên dựa trên `statusKey` thật: một lượt `projects/issues/summaries?refs=` cho cả danh sách (tối đa 100 id), không đoán từ nhãn.
+- Chấm chưa đọc theo `lastSeq > seenSeq`; thẻ "Cần bạn" theo `needsYou` (lý do/văn bản ở `title`).
+- **Khung phải** (từ `xl`): Issues của phiên (trạng thái thật), thông tin phiên (agent, dự án, trạng thái) và Mức dùng từ `agents/conversations/:id/usage` (token vào / đọc đệm / ra, chi phí USD). Chip dự án ở đầu hội thoại.
+- Sửa lỗi dịch: khóa `sessions.*` trước đây tra qua hàm dịch của chat nên hiện khóa thô; `sessions.needsYou` không còn mang `{{count}}`.
+- **Huy hiệu số phiên** trên sidebar (`my-sessions`) = `agents/conversationAttention` (`needsYou`, nếu 0 thì `unread`). Demo dùng `attention.counts.sessions`; `/api/attention` của ta chưa có trường đó.
+- **Chưa làm:** đăng ký topic ws `agents:conversations` và `studio:conversations:attention` (danh sách vẫn làm mới theo cách của plugin, huy hiệu theo chu kỳ 60 giây); khung phải trên điện thoại; nhóm "Ran N commands" và composer là của `ConversationView` (không đổi).
+- Test: `tests/client/sessions-page.test.tsx` (hook hội thoại của plugin agents trả từ fixture vì cần cả client của plugin; phần còn lại của trang là thật), `follow-ups.test.tsx` (số phiên).

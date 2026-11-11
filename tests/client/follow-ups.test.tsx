@@ -116,12 +116,19 @@ describe('menu counts', () => {
             ],
           },
         };
+      if (call.path === 'agents/conversationAttention')
+        return { data: { needsYou: 2, unread: 5 } };
       return new Response(null, { status: 500 });
     };
     render(<Counts />);
     await waitFor(() =>
       expect(screen.getByRole('status').textContent).toBe(
-        JSON.stringify({ decisions: 5, myIssues: 0, releases: 4 }),
+        JSON.stringify({
+          decisions: 5,
+          myIssues: 0,
+          sessions: 2,
+          releases: 4,
+        }),
       ),
     );
   });

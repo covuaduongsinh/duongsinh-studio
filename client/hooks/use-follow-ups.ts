@@ -71,6 +71,8 @@ export function useFollowUpAction(): UseMutationResult<
 export interface NavigationCounts {
   readonly decisions: number;
   readonly myIssues: number;
+  /** Open conversations that need the person or hold messages they have not read. */
+  readonly sessions: number;
   readonly releases: number;
 }
 
@@ -85,7 +87,7 @@ export function useNavigationCounts(enabled: boolean): NavigationCounts {
     refetchInterval: BADGE_REFRESH_MS,
     retry: false,
     queryFn: async ({ signal }) => {
-      const [pending, summary, attention] = await Promise.allSettled([
+      const [pending, summary, attention, sessions] = await Promise.allSettled([
         api.request<{ data: { decision: number; info: number } }>({
           path: 'inbox/pending',
           signal,
@@ -97,6 +99,10 @@ export function useNavigationCounts(enabled: boolean): NavigationCounts {
         api.request<{
           data: { reasons: { reason: string; count: number }[] };
         }>({ path: 'attention', signal }),
+        api.request<{ data: { unread: number; needsYou: number } }>({
+          path: 'agents/conversationAttention',
+          signal,
+        }),
       ]);
       return {
         decisions:
@@ -105,6 +111,11 @@ export function useNavigationCounts(enabled: boolean): NavigationCounts {
             : 0,
         myIssues:
           summary.status === 'fulfilled' ? summary.value.data.waiting : 0,
+        // What needs the person first; unread messages count when nothing is asking for them.
+        sessions:
+          sessions.status === 'fulfilled'
+            ? sessions.value.data.needsYou || sessions.value.data.unread
+            : 0,
         releases:
           attention.status === 'fulfilled'
             ? attention.value.data.reasons
@@ -114,5 +125,5 @@ export function useNavigationCounts(enabled: boolean): NavigationCounts {
       };
     },
   });
-  return result.data ?? { decisions: 0, myIssues: 0, releases: 0 };
+  return result.data ?? { decisions: 0, myIssues: 0, sessions: 0, releases: 0 };
 }
