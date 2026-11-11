@@ -796,4 +796,3 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - Nâng phiên bản `revision: 2` của kỹ năng dựng sẵn `ds-workflow` và `ds-development` (`server/agents/builtin-skills.ts`), hướng dẫn agent nộp kết quả kiểm chứng (`ds-studio verify submit`) trước khi chuyển trạng thái việc sang `in_review`.
 - Giao diện quản trị Cài đặt Kiểm chứng tại `client/pages/settings/verifications.tsx` được gắn vào Cài đặt hệ thống dưới nhóm `settingsAi` (`/settings/verifications`), cho phép quản trị viên xem/sửa ngưỡng $N$ và theo dõi bảng lịch sử kiểm chứng gần đây.
 - Test: `tests/database/ds-verifications-migration.test.ts`, `tests/server/verification-gate.test.ts`, `tests/server/builtin-skills-upgrade.test.ts`, `tests/client/page-permission-titles.test.ts`, `tests/server/authorization-assignment-safety.test.ts`.
-
