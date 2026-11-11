@@ -315,11 +315,11 @@ thay vì trong CI; kind `agent` quan sát mọi việc và mọi bình luận.
 ## 9. Tiến độ
 
 - [x] H0 — Nâng phiên bản skill dựng sẵn (#69)
-- [ ] H1 — Cổng kiểm chứng
+- [x] H1 — Cổng kiểm chứng
   - [x] H1a tiêu chí có cấu trúc (#70)
   - [x] H1b lượt Kiểm chứng và cổng `in_review` (#71)
   - [x] H1c review theo tiêu chí (#72)
-  - [ ] H1d cổng xác định trước review
+  - [x] H1d cổng xác định trước review (#73)
 - [ ] H4 — Bộ đo
 - [ ] H2 — Vòng học từ lỗi
   - [ ] H2a ghi thành bài học

@@ -2,6 +2,12 @@ import { runPriorityOf } from '../agents/run-priority.js';
 import type { BudgetService } from '../budgets/service.js';
 import { budgetServiceToken } from './outbound.js';
 import type { Application } from '@nocobase/app-server/application';
+import type { GitService } from '../git/service.js';
+import type { GitHubCheck } from '../git/github.js';
+import type { CiState } from '../git/pull-state.js';
+import { evaluatePreReviewGate } from '../gates/pre-review.js';
+import { gitServiceToken } from './git.js';
+import { str, num } from '../git/rows.js';
 import {
   agentsToken,
   type Agents,
@@ -83,6 +89,7 @@ export function createAgentKind(deps: {
   readonly agents: Agents;
   readonly projects: Projects;
   readonly budgets: () => BudgetService;
+  readonly git?: () => GitService;
 }): PrincipalKind {
   const { agents, projects } = deps;
 
@@ -194,6 +201,76 @@ export function createAgentKind(deps: {
       })
     )
       return attempt({ started: false, skipped: 'limited' });
+    const isReadOnly = Boolean(
+      work.readOnly || (work.text && /mode:\s*read-only/i.test(work.text)),
+    );
+    if (isReadOnly && deps.git) {
+      const openPr = await tx.conn.query
+        .selectFrom('dsPullRequests')
+        .selectAll()
+        .where('issueId', '=', issue.id)
+        .where('state', '=', 'open')
+        .executeTakeFirst();
+      if (openPr) {
+        const git = deps.git();
+        let checks: Array<Pick<GitHubCheck, 'name' | 'outcome'>> = [];
+        if (Array.isArray(openPr.checks)) {
+          checks = openPr.checks as Array<
+            Pick<GitHubCheck, 'name' | 'outcome'>
+          >;
+        } else if (typeof openPr.checks === 'string') {
+          try {
+            const parsed: unknown = JSON.parse(openPr.checks);
+            if (Array.isArray(parsed)) {
+              checks = parsed as Array<Pick<GitHubCheck, 'name' | 'outcome'>>;
+            }
+          } catch {
+            // ignore malformed stored json
+          }
+        }
+        const prId = str(openPr.id);
+        const prNumber = num(openPr.number);
+        const prCiState =
+          typeof openPr.ciState === 'string'
+            ? (openPr.ciState as CiState)
+            : undefined;
+        let changedFiles: string[] = [];
+        let patch = '';
+        try {
+          changedFiles = await git.pullFiles(prId);
+          patch = await git.pullPatch(prId);
+        } catch {
+          // If git host reading fails, changedFiles and patch stay empty
+        }
+        const gate = evaluatePreReviewGate({
+          pull: {
+            number: prNumber,
+            ciState: prCiState,
+          },
+          checks,
+          changedFiles,
+          patch,
+        });
+        if (!gate.passed) {
+          const commentLines = [
+            `Cổng xác định trước review chưa đạt (PR #${prNumber}):`,
+            ...gate.reasons.map((r) => `- ${r}`),
+            'Lượt review bị hủy để tiết kiệm tài nguyên.',
+          ];
+          try {
+            await projects.comments.post(
+              { type: 'system', id: null },
+              issue.id,
+              { content: commentLines.join('\n') },
+              { outer: tx },
+            );
+          } catch {
+            // Safe fallback if comments.post cannot write in this context
+          }
+          return attempt({ started: false, skipped: 'limited' });
+        }
+      }
+    }
     const causedByRunId =
       work.actor.type === AGENT_KIND ? work.actor.trace?.runId : undefined;
     const result = await agents.runs.enqueue(
@@ -486,6 +563,9 @@ export default class AgentExecutorProvider extends ServiceProvider<Application> 
         agents: container.resolve(agentsToken),
         projects: container.resolve(projectsToken),
         budgets: () => container.resolve(budgetServiceToken),
+        git: container.has(gitServiceToken)
+          ? () => container.resolve(gitServiceToken)
+          : undefined,
       }),
     );
   }

@@ -809,3 +809,21 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - Thêm tuyến đường `GET /api/reviews/recent` phục vụ trang quản trị Cài đặt `client/pages/settings/reviews.tsx` (nhóm `settingsAi`) hiển thị lịch sử phiếu review và xem chi tiết từng tiêu chí kiểm tra qua hộp thoại.
 - Giao diện Chi tiết việc (`client/pages/issues/detail/issue-pull-requests.tsx`) hiển thị khối phiếu review của PR: tóm tắt, verdict, và danh sách trạng thái từng tiêu chí, nổi bật cảnh báo "Tiêu chí chưa đạt" (Unmet criteria) khi có tiêu chí không đạt.
 - Test: `tests/database/ds-review-criteria-checks-migration.test.ts`, `tests/server/reviews.test.ts`, `tests/server/autopilot-evaluator.test.ts`, `tests/client/client-routes.test.ts`, `tests/client/foundation-integration.test.ts`.
+
+## 47. H1d — Cổng xác định trước review (11/11/2026)
+
+- Plugin `agents` và `projects` không có cơ chế chặn các lượt đánh thức (wake) agent review khi Pull Request chưa sẵn sàng, gây lãng phí tài nguyên và lượt chạy mô hình lớn (Opus) khi CI đang đỏ, thiếu CI hoặc PR chứa bí mật / file cấm.
+- Studio tạo module quét bí mật `server/security/secret-patterns.ts`:
+  - Quét các mẫu khoá API, token (GitHub, Anthropic, OpenAI, Slack, Stripe, AWS, Google), private key PEM, JWT và các gán biến chứa thông tin xác thực nhạy cảm.
+  - Hàm `scanAddedLines(patch)` chỉ quét trên các dòng thêm mới (bắt đầu bằng `+`, loại trừ header `+++`) của diff patch và không bao giờ trả về giá trị bí mật thô nhằm tránh rò rỉ thông tin.
+- Studio tạo bộ đánh giá cổng trước review `server/gates/pre-review.ts` (`evaluatePreReviewGate`):
+  - Kiểm tra trạng thái CI: Bắt buộc trạng thái CI của PR phải là `passed` (lấy qua `ciStateOf`), từ chối nếu CI `failed`, `missing` hoặc `pending`.
+  - Quét bí mật: Quét toàn bộ dòng thêm của diff patch, từ chối nếu phát hiện mẫu bí mật.
+  - Kiểm tra file cấm: Dùng lại danh sách file cấm từ quy tắc CI workflow (`server/setups/ci-workflow.ts`) gồm `.env`, `*.sqlite`, `config.yml`, `*.dump` và hàm `isForbiddenFile` (hỗ trợ mở rộng mẫu qua `isSensitive`).
+- Mở rộng `GitHubClient` (`server/git/github.ts`) và `GitService` (`server/git/service.ts`):
+  - Bổ sung phương thức `pullFileDetails(id)` và `pullPatch(id)` để lấy đầy đủ patch diff của các file thay đổi trong PR trực tiếp qua GitHub API.
+- Điểm chặn tại `wake()` trong `createAgentKind` (`server/providers/agent-executor.ts`):
+  - Khi một lượt đánh thức là chỉ đọc (`readOnly = true` hoặc nội dung chứa `mode: read-only`) và công việc có Pull Request đang mở (`state = 'open'`):
+  - Studio tự động chạy kiểm tra cổng xác định trước review (`evaluatePreReviewGate`).
+  - Nếu cổng không đạt: Studio từ chối bắt đầu lượt chạy (`started: false, skipped: 'limited'`), không kích hoạt agent run, và tự động đăng một bình luận hệ thống (`actor: { type: 'system', id: null }`) lên issue nêu rõ danh sách lý do chưa đạt để người hoặc trưởng nhóm nắm bắt.
+- Test: `tests/server/pre-review-gate.test.ts`.
