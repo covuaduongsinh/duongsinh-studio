@@ -689,7 +689,7 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 ## 37. My sessions (P4)
 
 - `/sessions` là trang riêng của ta trên hội thoại của plugin agents (chat với agent trong Studio). Mục "Agent của tôi" (`/agent-sessions`) là trang của plugin agent-sessions (agent chạy trên **máy tính của chính người dùng**) —
-  hai thứ khác nhau nên **chưa ẩn** mục của plugin như kế hoạch viết; chỉ ghi nhận. Demo dùng chính `agent-sessions/runner/:id` cho "My sessions"; ta giữ trang riêng vì nó đã nối `ConversationView`.
+  hai thứ khác nhau nên **không ẩn** mục của plugin (chủ dự án chốt 11/11/2026: giữ cả hai); mục của plugin đổi tên tiếng Việt thành "Agent trên máy tôi" để khỏi lẫn với "Phiên làm việc". Demo dùng chính `agent-sessions/runner/:id` cho "My sessions"; ta giữ trang riêng vì nó đã nối `ConversationView`.
 - Bộ lọc **Tất cả / Cần tôi / Đang thực hiện** lọc tại trình duyệt, không đổi URL (như demo). "Đang thực hiện" theo `execution.status`/`run.status`, bỏ cách dò chữ trong `link.view.status`; tab "Cần tôi" có số đếm.
 - Tiến độ issue gắn với phiên dựa trên `statusKey` thật: một lượt `projects/issues/summaries?refs=` cho cả danh sách (tối đa 100 id), không đoán từ nhãn.
 - Chấm chưa đọc theo `lastSeq > seenSeq`; thẻ "Cần bạn" theo `needsYou` (lý do/văn bản ở `title`).

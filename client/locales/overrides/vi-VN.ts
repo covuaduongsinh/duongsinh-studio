@@ -5,10 +5,10 @@ import type { TranslationOverrides } from '@nocobase/i18n';
 const overrides: TranslationOverrides = {
   '@nocobase/app-plugin-agent-sessions': {
     navigation: {
-      agentSessions: 'Agent của tôi',
+      agentSessions: 'Agent trên máy tôi',
     },
     list: {
-      title: 'Agent của tôi',
+      title: 'Agent trên máy tôi',
       empty:
         'Chưa có phiên nào. Bắt đầu một cuộc nói chuyện với một agent trên máy tính của bạn.',
     },
