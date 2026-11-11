@@ -989,6 +989,30 @@ const zhCN: AppResource = {
     releases: '发布',
     breadcrumb: '项目详情',
     loadFailed: '无法加载该项目。',
+    tabsLabel: '项目分区',
+    sectionsLabel: '设置分区',
+    tabs: {
+      overview: '概览',
+      issues: '任务',
+      knowledge: '知识',
+      memory: '记忆',
+      members: '成员',
+      releases: '发布',
+      settings: '设置',
+    },
+    sections: {
+      general: '常规',
+      directories: '目录',
+      variables: '变量',
+      skills: '技能',
+    },
+    nextSteps: {
+      title: '下一步',
+      pending: '项目正等待设置。',
+      running: '智能体正在设置项目。',
+      failed: '项目设置未完成。',
+      openIssue: '打开设置任务',
+    },
     notFound: '该项目不存在，或你无权查看。',
     viewIssues: '查看任务',
     properties: '属性',
@@ -1319,6 +1343,8 @@ const zhCN: AppResource = {
     description:
       '工作所在：预览、预发布、各仓库的版本，以及已合并但尚未上线的任务。Studio 只做记录；生产环境由负责人通过 Dokploy 部署并在此标记。',
     projects: '项目',
+    searchProjects: '搜索项目',
+    pendingCount: '{{count}} 个等待上线生产',
     allProjects: '全部项目',
     tabs: {
       previews: '预览',
@@ -1436,6 +1462,7 @@ const zhCN: AppResource = {
     },
   },
   environments: {
+    add: '添加环境',
     title: '托管环境',
     description:
       'Dương Sinh 的工作运行在哪里。全部在 Studio 之外运行；Studio 记录各处运行的内容。',

@@ -171,3 +171,27 @@ export function useSetupTemplate(): UseQueryResult<{
     staleTime: Infinity,
   });
 }
+
+/** How far a project's initialization has come (`GET projectSetups/:id`); `null` for a project made without one. */
+export interface ProjectInitState {
+  readonly state: 'pending' | 'running' | 'failed' | 'done';
+  readonly issueId: string | null;
+  readonly error: string | null;
+}
+
+export function useProjectInit(
+  projectId: string,
+): UseQueryResult<ProjectInitState | null> {
+  const api = useApiClient();
+  return useQuery({
+    queryKey: ['project-init', projectId],
+    retry: false,
+    queryFn: async ({ signal }) =>
+      (
+        await api.request<{ data: ProjectInitState | null }>({
+          path: `projectSetups/${encodeURIComponent(projectId)}`,
+          signal,
+        })
+      ).data,
+  });
+}

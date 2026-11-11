@@ -5,7 +5,7 @@
  * (anyone else who may deploy asks the owner, who decides in the inbox).
  */
 import { useTranslation } from '@nocobase/i18n/client';
-import { RefreshCwIcon } from 'lucide-react';
+import { RefreshCwIcon, SearchIcon } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 
@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '#components/ui/dialog';
+import { Input } from '#components/ui/input';
 import { Label } from '#components/ui/label';
 import {
   Table,
@@ -34,6 +35,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '#components/ui/tabs';
 import { Textarea } from '#components/ui/textarea';
 import {
+  useHubCounts,
   useMarkVersion,
   usePendingRelease,
   useReleaseEnvironments,
@@ -44,6 +46,7 @@ import {
   useSyncReleaseLine,
   type IssueDeploymentMark,
   type IssueWhere,
+  type ReleaseProject,
   type ReleaseVersion,
 } from '#hooks/use-releases';
 
@@ -424,7 +427,109 @@ function ReleasesTab({
   );
 }
 
+/** The projects down the left: where each stands (the version on production) and what waits for it; a search narrows them. */
+function ProjectList({
+  projects,
+  selected,
+  onSelect,
+}: {
+  readonly projects: readonly ReleaseProject[];
+  readonly selected: string | null;
+  readonly onSelect: (projectId: string | null) => void;
+}): ReactElement | null {
+  const { t } = useTranslation();
+  const [search, setSearch] = useState('');
+  if (projects.length === 0) return null;
+  const needle = search.trim().toLowerCase();
+  const shown = projects.filter((item) =>
+    item.project.name.toLowerCase().includes(needle),
+  );
+  return (
+    <nav aria-label={t('releases.projects')} className='flex flex-col gap-2'>
+      <div className='relative'>
+        <SearchIcon
+          aria-hidden='true'
+          className='absolute top-2.5 left-2.5 size-4 text-muted-foreground'
+        />
+        <Input
+          type='search'
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          aria-label={t('releases.searchProjects')}
+          placeholder={t('releases.searchProjects')}
+          className='pl-8'
+        />
+      </div>
+      <Button
+        size='sm'
+        variant={selected ? 'ghost' : 'secondary'}
+        className='justify-start'
+        onClick={() => onSelect(null)}
+      >
+        {t('releases.allProjects')}
+      </Button>
+      {shown.map((item) => {
+        const pendingCount = item.repositories.reduce(
+          (sum, repo) => sum + repo.pendingCount,
+          0,
+        );
+        const production = item.repositories.find((repo) => repo.production)
+          ?.production?.tag;
+        return (
+          <Button
+            key={item.project.id}
+            size='sm'
+            variant={selected === item.project.id ? 'secondary' : 'ghost'}
+            className='h-auto justify-between gap-2 py-1.5'
+            onClick={() => onSelect(item.project.id)}
+          >
+            <span className='flex min-w-0 flex-col items-start'>
+              <span className='truncate'>{item.project.name}</span>
+              {production ? (
+                <span className='font-mono text-xs text-muted-foreground'>
+                  {production}
+                </span>
+              ) : null}
+            </span>
+            {pendingCount > 0 ? (
+              <Badge
+                variant='secondary'
+                aria-label={t('releases.pendingCount', {
+                  count: pendingCount,
+                })}
+              >
+                {pendingCount}
+              </Badge>
+            ) : null}
+          </Button>
+        );
+      })}
+    </nav>
+  );
+}
+
 export default function ReleasesPage(): ReactElement {
+  const { t } = useTranslation();
+  return (
+    <PageContainer>
+      <PageHeader
+        title={t('releases.title')}
+        description={t('releases.description')}
+      />
+      <ReleasesHub />
+    </PageContainer>
+  );
+}
+
+/**
+ * The hub's tabs and lists. `fixedProjectId` pins it to one project, as a project's own Releases tab does (no project
+ * list, the tab in `?tab=`); without it the projects are listed down the left and narrow the hub through `?project=`.
+ */
+export function ReleasesHub({
+  fixedProjectId,
+}: {
+  readonly fixedProjectId?: string;
+}): ReactElement {
   const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
   const tab: Tab = (TABS as readonly string[]).includes(params.get('tab') ?? '')
@@ -433,27 +538,31 @@ export default function ReleasesPage(): ReactElement {
   const projects = useReleaseProjects();
   const environments = useReleaseEnvironments();
   const pending = usePendingRelease(null);
-  const projectId = params.get('project');
+  const projectId = fixedProjectId ?? params.get('project');
 
   const pendingMarks = (pending.data ?? []).filter(
     (mark) => !projectId || mark.issue?.projectId === projectId,
   );
   const staging = pendingMarks.filter((mark) => mark.where === 'staging');
   const preview = environments.data?.find((env) => env.key === 'preview');
+  // The numbers on the tabs come from the server's hub counts; until they arrive, what the page has read stands in.
+  const hub = useHubCounts(projectId);
   const counts: Readonly<Record<Tab, number | null>> = {
-    previews: null,
-    staging: staging.length,
-    releases: projects.data
-      ? projects.data
-          .filter((item) => !projectId || item.project.id === projectId)
-          .reduce(
-            (sum, item) =>
-              sum +
-              item.repositories.reduce((n, repo) => n + repo.versionCount, 0),
-            0,
-          )
-      : null,
-    pending: pendingMarks.length,
+    previews: hub.data?.previews ?? null,
+    staging: hub.data?.test ?? staging.length,
+    releases:
+      hub.data?.tagVersions ??
+      (projects.data
+        ? projects.data
+            .filter((item) => !projectId || item.project.id === projectId)
+            .reduce(
+              (sum, item) =>
+                sum +
+                item.repositories.reduce((n, repo) => n + repo.versionCount, 0),
+              0,
+            )
+        : null),
+    pending: hub.data?.unreleased ?? pendingMarks.length,
   };
 
   let body: ReactElement;
@@ -484,65 +593,49 @@ export default function ReleasesPage(): ReactElement {
   else body = <IssueTable marks={pendingMarks} />;
 
   return (
-    <PageContainer>
-      <PageHeader
-        title={t('releases.title')}
-        description={t('releases.description')}
-      />
-      {projects.data && projects.data.length > 1 ? (
-        <nav
-          aria-label={t('releases.projects')}
-          className='flex flex-wrap gap-2'
+    <div
+      className={
+        fixedProjectId ? undefined : 'grid gap-6 lg:grid-cols-[16rem_1fr]'
+      }
+    >
+      {fixedProjectId ? null : (
+        <ProjectList
+          projects={projects.data ?? []}
+          selected={projectId}
+          onSelect={(id) =>
+            setParams((current) => {
+              if (id) current.set('project', id);
+              else current.delete('project');
+              return current;
+            })
+          }
+        />
+      )}
+      <div className='flex min-w-0 flex-col gap-4'>
+        <Tabs
+          value={tab}
+          onValueChange={(value: string) =>
+            setParams((current) => (current.set('tab', value), current))
+          }
         >
-          <Button
-            size='sm'
-            variant={projectId ? 'outline' : 'secondary'}
-            onClick={() =>
-              setParams((current) => (current.delete('project'), current))
-            }
-          >
-            {t('releases.allProjects')}
-          </Button>
-          {projects.data.map((item) => (
-            <Button
-              key={item.project.id}
-              size='sm'
-              variant={projectId === item.project.id ? 'secondary' : 'outline'}
-              onClick={() =>
-                setParams(
-                  (current) => (
-                    current.set('project', item.project.id),
-                    current
-                  ),
-                )
-              }
-            >
-              {item.project.name}
-            </Button>
-          ))}
-        </nav>
-      ) : null}
-      <Tabs
-        value={tab}
-        onValueChange={(value: string) =>
-          setParams((current) => (current.set('tab', value), current))
-        }
-      >
-        <TabsList>
-          {TABS.map((item) => (
-            <TabsTrigger key={item} value={item}>
-              {t(`releases.tabs.${item}`)}
-              {counts[item] !== null ? (
-                <>
-                  {' '}
-                  <span className='text-muted-foreground'>{counts[item]}</span>
-                </>
-              ) : null}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
-      {body}
-    </PageContainer>
+          <TabsList>
+            {TABS.map((item) => (
+              <TabsTrigger key={item} value={item}>
+                {t(`releases.tabs.${item}`)}
+                {counts[item] !== null ? (
+                  <>
+                    {' '}
+                    <span className='text-muted-foreground'>
+                      {counts[item]}
+                    </span>
+                  </>
+                ) : null}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+        {body}
+      </div>
+    </div>
   );
 }

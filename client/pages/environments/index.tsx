@@ -2,13 +2,17 @@
  * `/environments`: Dương Sinh's hosted environments as Studio knows them (preview, staging, production). All run
  * outside Studio, on the VPS or through Dokploy; Studio records what runs where.
  */
+import { useCan } from '@nocobase/app-plugin-authorization/client';
 import { useTranslation } from '@nocobase/i18n/client';
+import { PlusIcon } from 'lucide-react';
 import type { ReactElement } from 'react';
+import { Link } from 'react-router';
 
 import { Loading } from '#components/loading';
 import { PageContainer } from '#components/page-container';
 import { PageHeader } from '#components/page-header';
 import { Badge } from '#components/ui/badge';
+import { buttonVariants } from '#components/ui/button';
 import {
   Table,
   TableBody,
@@ -22,6 +26,12 @@ import { useReleaseEnvironments } from '#hooks/use-releases';
 export default function EnvironmentsPage(): ReactElement {
   const { t } = useTranslation();
   const environments = useReleaseEnvironments();
+  // Creating one is the releases plugin's: its page builds the form from each driver's settings. Only whoever manages
+  // environments there is offered the way in (the plugin's API checks it again).
+  const { can: canManage } = useCan({
+    resource: { type: 'settings', id: 'rel.environments' },
+    action: 'manage',
+  });
   let body: ReactElement;
   if (environments.error)
     body = (
@@ -108,6 +118,17 @@ export default function EnvironmentsPage(): ReactElement {
       <PageHeader
         title={t('environments.title')}
         description={t('environments.description')}
+        actions={
+          canManage ? (
+            <Link
+              to='/release-environments'
+              className={buttonVariants({ size: 'sm' })}
+            >
+              <PlusIcon data-icon='inline-start' />
+              {t('environments.add')}
+            </Link>
+          ) : undefined
+        }
       />
       {body}
     </PageContainer>

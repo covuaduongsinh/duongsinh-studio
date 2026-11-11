@@ -124,6 +124,8 @@ export const releaseKeys = {
   projects: ['ds-releases', 'projects'] as const,
   versions: (projectId: string | null) =>
     ['ds-releases', 'versions', projectId] as const,
+  hubCounts: (projectId: string | null) =>
+    ['ds-releases', 'hub-counts', projectId] as const,
   pending: (projectId: string | null) =>
     ['ds-releases', 'pending', projectId] as const,
   marks: (issueIds: readonly string[]) =>
@@ -179,6 +181,36 @@ export function useReleaseVersions(
       read<ReleaseVersion[]>(
         api,
         'deploys/versions',
+        signal,
+        projectId ? { projectId } : undefined,
+      ),
+  });
+}
+
+/** What the numbers on the hub's tabs say (`GET deploys/hubCounts`), for one project or all. */
+export interface HubCounts {
+  /** Live previews. */
+  readonly previews: number;
+  /** Versions on staging. */
+  readonly test: number;
+  /** Versions of the release lines. */
+  readonly tagVersions: number;
+  /** Merged issues not yet on production, wherever they are. */
+  readonly unreleased: number;
+  readonly pendingVersionTasks: number;
+}
+
+export function useHubCounts(
+  projectId: string | null,
+): UseQueryResult<HubCounts> {
+  const api = useApiClient();
+  return useQuery({
+    queryKey: releaseKeys.hubCounts(projectId),
+    retry: false,
+    queryFn: ({ signal }) =>
+      read<HubCounts>(
+        api,
+        'deploys/hubCounts',
         signal,
         projectId ? { projectId } : undefined,
       ),

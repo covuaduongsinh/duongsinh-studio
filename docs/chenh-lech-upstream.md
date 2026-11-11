@@ -706,3 +706,15 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Biểu đồ lượt chạy là vùng xếp chồng** (SVG, bốn chuỗi theo thứ tự hoàn thành / lỗi / đang chạy / huỷ), thay cho cột; vẫn có chú giải, tooltip theo ngày và chế độ xem dạng bảng.
 - **Bảng dự án** thêm cột tiến độ (thanh `done/total`, `role=progressbar`).
 - Test: `tests/client/dashboard.test.tsx` (cập nhật), `tests/server/report-figures.test.ts` (chưa định giá).
+
+## 39. Dự án, Phát hành, Môi trường (P6)
+
+- **Trang dự án có tab bằng route con** `/projects/:projectId/{overview,issues,knowledge,memory,members,releases,settings}` (`pages/projects/detail/`; đường dẫn trần chuyển tới `overview` ngay trong trang vì hệ route không có chuyển hướng
+  chỉ mục). Mỗi tab kế thừa quyền của trang dự án (`pm-projects`) và có tên breadcrumb đã dịch (`project-overview`, `project-issues`, `project-knowledge`, `project-memory-tab`, `project-members`, `project-releases`, `project-settings`). Tab Cài đặt chỉ hiện với người quản lý dự án.
+  - Tổng quan: số liệu, phân bố, mô tả, thẻ **Bước tiếp theo** (`projectSetups/:id`, hiện khi việc khởi tạo chưa xong, kèm liên kết tới issue thiết lập), thuộc tính. Công việc: bảng nhóm của P3 với `projectId`. Tri thức: `KnowledgeView` của plugin ở không gian dự án.
+    Bộ nhớ: `ProjectMemoryView` (tách từ trang `/project-memory`, ghim một dự án). Thành viên: bộ soạn thành viên cũ. Phát hành: `ReleasesHub` ghim một dự án.
+  - Cài đặt chia phần trong `?section=general|directories|variables|skills`: Chung (autopilot), Thư mục (kho mã và kiểm tra CI), Biến và Skill (phần của plugin agents trên phạm vi `project`).
+  - Số đếm tab Công việc và Thành viên lấy từ `projects/:id`; các tab khác chưa có số. Nút "Edit Checks" (`?edit=checks`) của demo chưa làm riêng (kiểm tra CI vẫn ở phần Thư mục).
+- **Phát hành:** số đếm tab lấy từ `deploys/hubCounts` (đã có ở server, trước đây client không dùng); danh sách dự án thành cột dọc bên trái có tìm kiếm, phiên bản production và số issue chờ. **Không thêm `deploys/versionPipelines`:** `deploys/releases` đã trả từng dự án kèm phiên bản và số chờ, đủ cho danh sách, nên không có endpoint mới.
+- **Môi trường:** nút **Thêm môi trường** (hiện với người có `rel.environments` `manage`) dẫn tới trang `/release-environments` của plugin releases, là nơi có sẵn form sinh từ cấu hình của từng driver; ta không tự dựng lại form. Trang "Môi trường" của ta vẫn chỉ ghi nhận môi trường của Dương Sinh (Preview/Staging/Production), còn môi trường chạy thật do plugin quản lý — hai khái niệm khác nhau.
+- Test: `tests/client/project-tabs.test.tsx`, `tests/client/releases-page.test.tsx` (hub counts, danh sách dự án, nút Thêm môi trường), `tests/client/client-routes.test.ts` (các route con).

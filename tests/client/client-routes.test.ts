@@ -206,6 +206,14 @@ describe('app client routes', () => {
         'pm-projects',
         'pm-project-new',
         'project-detail',
+        // The tabs of a project's page inherit its authorization.
+        'project-overview',
+        'project-issues',
+        'project-knowledge',
+        'project-memory-tab',
+        'project-members',
+        'project-releases',
+        'project-settings',
         'project-memory',
       ].map((name) => ({
         name,
