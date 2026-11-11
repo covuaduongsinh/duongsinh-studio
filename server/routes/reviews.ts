@@ -37,6 +37,20 @@ const PERSON_OR_RUN: Record<string, string[]>[] = [
   { runToken: [] },
 ];
 
+const ReviewCriteriaCheckSchema = z
+  .object({
+    criterionId: z.string().trim().min(1).meta({
+      description: 'The identifier of the criterion being checked.',
+    }),
+    passed: z.boolean().meta({
+      description: 'Whether the criterion passed the review check.',
+    }),
+    notes: z.string().trim().nullable().optional().meta({
+      description: 'Optional reviewer notes or explanation.',
+    }),
+  })
+  .meta({ ref: 'StudioReviewCriteriaCheck' });
+
 const ReviewSchema = z
   .object({
     id: z.string(),
@@ -46,7 +60,7 @@ const ReviewSchema = z
     reviewerAgentId: z.string(),
     reviewerRunId: z.string(),
     authorAgentId: z.string(),
-    verdict: z.enum(['approve', 'changes']),
+    verdict: z.enum(['approve', 'changes', 'reject', 'request_changes']),
     mustFix: z.number().int(),
     shouldFix: z.number().int(),
     kind: z.enum(['code', 'security']),
@@ -54,6 +68,7 @@ const ReviewSchema = z
     checklist: z.record(z.string(), z.unknown()),
     summary: z.string(),
     createdAt: z.string(),
+    criteriaChecks: z.array(ReviewCriteriaCheckSchema).optional(),
   })
   .meta({ ref: 'StudioReview' });
 
@@ -65,7 +80,7 @@ const SubmitReviewBody = z
     headSha: z.string().trim().min(1).meta({
       description: 'The exact commit head SHA the review evaluates.',
     }),
-    verdict: z.enum(['approve', 'changes']).meta({
+    verdict: z.enum(['approve', 'changes', 'reject', 'request_changes']).meta({
       description: 'The review verdict.',
     }),
     mustFix: z.number().int().min(0).default(0).meta({
@@ -84,12 +99,19 @@ const SubmitReviewBody = z
     summary: z.string().trim().min(1).meta({
       description: 'Summary of the review findings.',
     }),
+    criteriaChecks: z.array(ReviewCriteriaCheckSchema).optional().meta({
+      description: 'Check results for each acceptance criterion.',
+    }),
   })
   .strict();
 
 const ListReviewsQuery = z.object({
   headSha: z.string().optional(),
   kind: z.enum(['code', 'security']).optional(),
+});
+
+const RecentReviewsQuery = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
 const PullParams = z.object({ pullRequestId: z.string() });
@@ -105,7 +127,11 @@ export const reviewRoutes: AppApiRouteContribution<Application> =
 
     // Only the paths this router owns: it mounts at the API root, where `*` would also require a session on everything
     // registered after it, public webhooks and run-token routes included.
-    for (const path of ['/reviews', '/git/pullRequests/:pullRequestId/reviews'])
+    for (const path of [
+      '/reviews',
+      '/reviews/recent',
+      '/git/pullRequests/:pullRequestId/reviews',
+    ])
       routes.use(path, auth.required({ scopedKeys: true }));
 
     const handleError = (error: unknown): never => {
@@ -201,6 +227,32 @@ export const reviewRoutes: AppApiRouteContribution<Application> =
         try {
           await git().getPullRequest(pullRequestId);
           const results = await reviews().listForPull(pullRequestId, query);
+          return context.json({ data: results });
+        } catch (error) {
+          return handleError(error);
+        }
+      },
+    );
+
+    routes.get(
+      '/reviews/recent',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'List recent reviews across the studio',
+        description:
+          'Lists recent structured review submissions with criteria checks.',
+        operationId: 'studioListRecentReviews',
+        security: PERSON_OR_RUN,
+        responses: {
+          '200': listResponse(ReviewSchema),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('query', RecentReviewsQuery),
+      async (context) => {
+        const { limit } = context.req.valid('query');
+        try {
+          const results = await reviews().listRecent(limit);
           return context.json({ data: results });
         } catch (error) {
           return handleError(error);

@@ -63,7 +63,7 @@ export const BUILTIN_SKILLS: readonly BuiltinSkill[] = [
   skill(
     'ds-workflow',
     'project',
-    2,
+    3,
     'Cách một công việc đi từ lúc nhận đến lúc bàn giao ở Dương Sinh Studio. Dùng khi điều phối hoặc bắt đầu một công việc.',
     `
 # Quy trình làm việc
@@ -82,7 +82,7 @@ Viết approach trước khi sửa nếu công việc đụng dữ liệu, migra
 
 1. Đọc mô tả, bình luận gần nhất và ghi nhớ dự án.
 2. Mỗi lần chỉ một bước đổi code. Chỉ sang bước sau khi lượt chạy trước đã kết thúc.
-3. Review bởi agent khác, không yếu hơn tác giả.
+3. Review bởi agent khác, không yếu hơn tác giả: đối chiếu từng tiêu chí nghiệm thu và kết quả kiểm chứng. Nếu có tiêu chí chưa đạt thì không được duyệt (approve).
 4. Check đỏ thì đọc log trước khi sửa.
 
 ## Sẵn sàng bàn giao
@@ -91,6 +91,7 @@ Khi review đạt, check xanh, và đã nộp lượt Kiểm chứng đạt (pas
 `,
     [
       `---\nname: ds-workflow\ndescription: "Cách một công việc đi từ lúc nhận đến lúc bàn giao ở Dương Sinh Studio. Dùng khi điều phối hoặc bắt đầu một công việc."\n---\n\n# Quy trình làm việc\n\n## Ai làm gì\n\n- Trưởng nhóm agent điều phối: chọn agent, giao từng bước, không tự sửa code.\n- Agent thực thi làm đúng một bước được giao rồi trả lời một lần trong luồng đó.\n- Chủ công việc quyết định và nghiệm thu.\n\n## Cần approach trước hay không\n\nViết approach trước khi sửa nếu công việc đụng dữ liệu, migration, quyền, xử lý đồng thời, hoặc mô tả không nói rõ cách làm. Các việc còn lại làm luôn.\n\n## Các bước\n\n1. Đọc mô tả, bình luận gần nhất và ghi nhớ dự án.\n2. Mỗi lần chỉ một bước đổi code. Chỉ sang bước sau khi lượt chạy trước đã kết thúc.\n3. Review bởi agent khác, không yếu hơn tác giả.\n4. Check đỏ thì đọc log trước khi sửa.\n\n## Sẵn sàng bàn giao\n\nKhi review đạt và check xanh: chuyển sang chờ nghiệm thu, ghi rõ việc người cần làm và báo cáo bàn giao. Mọi quyết định của người đều đi qua trạng thái bị vướng kèm một câu hỏi.\n`,
+      `---\nname: ds-workflow\ndescription: "Cách một công việc đi từ lúc nhận đến lúc bàn giao ở Dương Sinh Studio. Dùng khi điều phối hoặc bắt đầu một công việc."\n---\n\n# Quy trình làm việc\n\n## Ai làm gì\n\n- Trưởng nhóm agent điều phối: chọn agent, giao từng bước, không tự sửa code.\n- Agent thực thi làm đúng một bước được giao rồi trả lời một lần trong luồng đó.\n- Chủ công việc quyết định và nghiệm thu.\n\n## Cần approach trước hay không\n\nViết approach trước khi sửa nếu công việc đụng dữ liệu, migration, quyền, xử lý đồng thời, hoặc mô tả không nói rõ cách làm. Các việc còn lại làm luôn.\n\n## Các bước\n\n1. Đọc mô tả, bình luận gần nhất và ghi nhớ dự án.\n2. Mỗi lần chỉ một bước đổi code. Chỉ sang bước sau khi lượt chạy trước đã kết thúc.\n3. Review bởi agent khác, không yếu hơn tác giả.\n4. Check đỏ thì đọc log trước khi sửa.\n\n## Sẵn sàng bàn giao\n\nKhi review đạt, check xanh, và đã nộp lượt Kiểm chứng đạt (passed) qua \`ds-studio verify submit\`: chuyển sang chờ nghiệm thu (in_review), ghi rõ việc người cần làm và báo cáo bàn giao. Mọi quyết định của người đều đi qua trạng thái bị vướng kèm một câu hỏi.\n`,
     ],
   ),
   skill(
@@ -153,12 +154,16 @@ Không sửa code ở bước này. Viết ngắn, theo đúng năm mục:
   skill(
     'ds-review',
     'project',
-    1,
+    3,
     'Cách review một pull request và viết kết luận. Dùng khi được giao review ở chế độ chỉ đọc.',
     `
 # Review pull request
 
-Đọc diff, đối chiếu với mô tả công việc và chạy test liên quan nếu được. Không sửa code.
+Đọc diff, đối chiếu với mô tả công việc, danh sách tiêu chí nghiệm thu và kết quả kiểm chứng mới nhất. Chạy test liên quan nếu được. Không sửa code.
+
+## Chấm theo tiêu chí nghiệm thu
+
+Kiểm tra từng tiêu chí trong danh sách \`criteriaChecks\`. Nếu có bất kỳ tiêu chí nào chưa đạt (passed = false), verdict bắt buộc phải là \`changes\` (hoặc \`reject\`), tuyệt đối không được nộp \`approve\`.
 
 ## Bốn mức
 
@@ -169,8 +174,11 @@ Không sửa code ở bước này. Viết ngắn, theo đúng năm mục:
 
 ## Kết luận
 
-Mỗi mục nêu file, dòng và hậu quả cụ thể. Nộp phiếu review có cấu trúc, rồi kết thúc bằng đúng một trong hai câu: "Có thể merge" hoặc "Chưa thể merge".
+Mỗi mục nêu file, dòng và hậu quả cụ thể. Nộp phiếu review có cấu trúc bằng lệnh \`ds-studio review submit\`, rồi kết thúc bằng đúng một trong hai câu: "Có thể merge" hoặc "Chưa thể merge".
 `,
+    [
+      `---\nname: ds-review\ndescription: "Cách review một pull request và viết kết luận. Dùng khi được giao review ở chế độ chỉ đọc."\n---\n\n# Review pull request\n\nĐọc diff, đối chiếu với mô tả công việc và chạy test liên quan nếu được. Không sửa code.\n\n## Bốn mức\n\n- **Must fix:** sai hành vi, lỗi bảo mật, mất dữ liệu, thiếu test cho thay đổi quan trọng.\n- **Should fix:** nên sửa nhưng không chặn merge.\n- **Note:** ghi nhận, không cần hành động.\n- **Pre-existing:** lỗi có từ trước, không do thay đổi này.\n\n## Kết luận\n\nMỗi mục nêu file, dòng và hậu quả cụ thể. Nộp phiếu review có cấu trúc, rồi kết thúc bằng đúng một trong hai câu: "Có thể merge" hoặc "Chưa thể merge".\n`,
+    ],
   ),
   skill(
     'ds-app-rules',

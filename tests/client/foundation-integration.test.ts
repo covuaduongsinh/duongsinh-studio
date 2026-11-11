@@ -74,6 +74,7 @@ describe('default Foundation integration', () => {
         [
           ['settingsProjectDefaultSkills', '/settings/project-default-skills'],
           ['settingsVerifications', '/settings/verifications'],
+          ['settingsReviews', '/settings/reviews'],
           ['settingsProjectManager', '/settings/project-manager'],
           ['settingsBudgets', '/settings/budgets'],
         ],

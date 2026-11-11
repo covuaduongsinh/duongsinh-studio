@@ -620,6 +620,44 @@ const viVN: AppResource = {
     passed: 'Đạt',
     failed: 'Thất bại',
   },
+  settingsReviews: {
+    title: 'Phiếu review',
+    description:
+      'Theo dõi các phiếu review chéo và kết quả đánh giá theo tiêu chí nghiệm thu.',
+    recentTitle: 'Phiếu review gần đây',
+    recentDescription:
+      'Danh sách các phiếu review mới nhất trên toàn hệ thống.',
+    refresh: 'Làm mới',
+    emptyHistory: 'Chưa có phiếu review nào được ghi nhận.',
+    createdAt: 'Thời gian',
+    headSha: 'Commit',
+    reviewer: 'Người review',
+    verdict: 'Kết luận',
+    kind: 'Phân loại',
+    criteriaStatus: 'Tiêu chí nghiệm thu',
+    summary: 'Tóm tắt',
+    actions: 'Thao tác',
+    viewDetails: 'Xem tiêu chí',
+    verdicts: {
+      approve: 'Chấp thuận',
+      changes: 'Yêu cầu sửa',
+      reject: 'Từ chối',
+      request_changes: 'Yêu cầu sửa',
+    },
+    allPassedBadge: 'Đạt {{count}} tiêu chí',
+    unmetBadge: '{{count}} tiêu chí chưa đạt',
+    criteriaModalTitle: 'Chi tiết tiêu chí nghiệm thu {{pr}}',
+    criteriaModalDescription:
+      'Kết quả đánh giá từng tiêu chí nghiệm thu trong phiếu review này.',
+    unmetAlert: 'Có {{count}} tiêu chí chưa đạt yêu cầu.',
+    noCriteriaChecks:
+      'Phiếu review này không có dữ liệu kiểm tra tiêu chí chi tiết.',
+    criterionId: 'Mã tiêu chí',
+    result: 'Kết quả',
+    notes: 'Ghi chú',
+    passed: 'Đạt',
+    failed: 'Chưa đạt',
+  },
   projectSetup: {
     title: 'Thiết lập dự án',
     description: 'Tạo dự án cùng repo và công việc đầu tiên trong một bước.',
@@ -723,6 +761,9 @@ const viVN: AppResource = {
     verifications: 'Kiểm chứng',
     verificationsDescription:
       'Cấu hình ngưỡng dừng và xem lịch sử các lượt kiểm chứng.',
+    reviews: 'Phiếu review',
+    reviewsDescription:
+      'Xem lịch sử đánh giá PR và kiểm tra tiêu chí nghiệm thu.',
     followUps: 'Theo dõi',
     projects: 'Dự án',
     issuePrefix: 'Tiền tố công việc',
@@ -1267,6 +1308,18 @@ const viVN: AppResource = {
       autoCompleteOnMerge: 'Tự động xong việc khi gộp PR này',
       autoCompleted: 'Đã hoàn thành công việc khi gộp PR.',
       keptInProgress: 'Công việc tiếp tục thực hiện (không tự động xong).',
+    },
+    reviews: {
+      title: 'Phiếu review',
+      verdicts: {
+        approve: 'Chấp thuận',
+        changes: 'Cần sửa đổi',
+        reject: 'Từ chối',
+        request_changes: 'Cần sửa đổi',
+      },
+      mustFix: '{{count}} lỗi bắt buộc sửa',
+      unmetCriteriaTitle: 'Tiêu chí chưa đạt ({{count}})',
+      passedCriteriaTitle: 'Tiêu chí đã đạt ({{count}})',
     },
     states: {
       open: 'Đang mở',

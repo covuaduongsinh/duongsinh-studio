@@ -32,7 +32,7 @@ import {
   RUN_FINISHED_MESSAGE,
   appText,
 } from '../agents/ids.js';
-import { str } from '../git/rows.js';
+import { num, str } from '../git/rows.js';
 
 /** Translates a key of the application's namespace, with `{{name}}` parameters. */
 export type Translate = (
@@ -297,10 +297,12 @@ function assemblyOf(
     readonly autopilotOn: boolean;
     readonly handOver: string;
     readonly criteria: readonly {
+      readonly id: string;
       readonly text: string;
       readonly checkKind: string;
       readonly checkValue: string | null;
     }[];
+    readonly latestVerificationSummary?: string | null;
   },
 ): SubjectAssembly {
   const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
@@ -322,11 +324,25 @@ function assemblyOf(
         'Write every comment and your final run summary in Vietnamese; keep commands, paths and identifiers as they are.',
         ...(coordinating && extras.autopilotOn ? [AUTOPILOT_ON_RULE] : []),
         ...(readOnly ? [READ_ONLY_TURN_RULE] : []),
+        ...(readOnly && extras.criteria.length > 0
+          ? [
+              `Checklist tiêu chí nghiệm thu bắt buộc đánh giá khi review: ${extras.criteria
+                .map(
+                  (c, i) =>
+                    `${i + 1}. [id: ${c.id}] [${c.checkKind}] ${c.text}${c.checkValue ? ` (${c.checkValue})` : ''}`,
+                )
+                .join('; ')}`,
+              'Nộp phiếu review: ds-studio review submit <PR_ID> --verdict <approve|changes> --head <sha> --must-fix <N> --should-fix <M> --summary "<tóm tắt>". Chấm từng tiêu chí vào criteriaChecks. Tuyệt đối không nộp verdict = approve nếu có bất kỳ tiêu chí nào chưa đạt (passed = false).',
+            ]
+          : []),
+        ...(readOnly && extras.latestVerificationSummary
+          ? [extras.latestVerificationSummary]
+          : []),
         ...(coordinating && extras.criteria.length === 0
           ? [
               'Việc chưa có tiêu chí nghiệm thu: đề xuất bằng ds-studio criteria propose trước khi giao code',
             ]
-          : extras.criteria.length > 0
+          : extras.criteria.length > 0 && !readOnly
             ? [
                 `Tiêu chí nghiệm thu công việc: ${extras.criteria
                   .map(
@@ -410,19 +426,43 @@ export function createIssueSubject(deps: {
             `Issue ${claim.run.subject.id} does not exist any more.`,
           );
         const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
+        const readOnly = isReadOnlyTurn(claim);
         const criteriaRows = await conn.query
           .selectFrom('dsIssueCriteria')
-          .select(['text', 'checkKind', 'checkValue'])
+          .select(['id', 'text', 'checkKind', 'checkValue'])
           .where('issueId', '=', claim.run.subject.id)
           .orderBy('position', 'asc')
           .execute();
         const criteria = criteriaRows.map((r) => ({
+          id: str(r.id),
           text: str(r.text),
           checkKind: str(r.checkKind),
           checkValue: r.checkValue != null ? str(r.checkValue) : null,
         }));
+        let latestVerificationSummary: string | null = null;
+        if (readOnly) {
+          const verifRow = await conn.query
+            .selectFrom('dsVerifications')
+            .selectAll()
+            .where('issueId', '=', claim.run.subject.id)
+            .orderBy('createdAt', 'desc')
+            .executeTakeFirst();
+          if (verifRow) {
+            const verifId = str(verifRow.id);
+            const items = await conn.query
+              .selectFrom('dsVerificationItems')
+              .selectAll()
+              .where('verificationId', '=', verifId)
+              .execute();
+            const passedCount = items.filter(
+              (it) => it.result === 'pass',
+            ).length;
+            latestVerificationSummary = `Kết quả kiểm chứng mới nhất (lượt ${num(verifRow.attempt)}): ${str(verifRow.result)} (head: ${str(verifRow.headSha).slice(0, 7)}, đạt ${passedCount}/${items.length} tiêu chí)`;
+          }
+        }
         return assemblyOf(issue, claim, {
           criteria,
+          latestVerificationSummary,
           autopilotOn:
             coordinating && issue.project
               ? await autopilotOn(conn, issue.project.id)

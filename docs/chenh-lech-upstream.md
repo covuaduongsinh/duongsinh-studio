@@ -796,3 +796,16 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - Nâng phiên bản `revision: 2` của kỹ năng dựng sẵn `ds-workflow` và `ds-development` (`server/agents/builtin-skills.ts`), hướng dẫn agent nộp kết quả kiểm chứng (`ds-studio verify submit`) trước khi chuyển trạng thái việc sang `in_review`.
 - Giao diện quản trị Cài đặt Kiểm chứng tại `client/pages/settings/verifications.tsx` được gắn vào Cài đặt hệ thống dưới nhóm `settingsAi` (`/settings/verifications`), cho phép quản trị viên xem/sửa ngưỡng $N$ và theo dõi bảng lịch sử kiểm chứng gần đây.
 - Test: `tests/database/ds-verifications-migration.test.ts`, `tests/server/verification-gate.test.ts`, `tests/server/builtin-skills-upgrade.test.ts`, `tests/client/page-permission-titles.test.ts`, `tests/server/authorization-assignment-safety.test.ts`.
+
+## 46. H1c — Review chéo theo tiêu chí nghiệm thu (11/11/2026)
+
+- Phiếu review ban đầu (`dsReviews`) chỉ đánh giá diff, mustFix/shouldFix và checklist chung, không liên kết trực tiếp với từng tiêu chí nghiệm thu của việc.
+- Studio tạo bảng `dsReviewCriteriaChecks` qua migration `202611110005_ds_review_criteria_checks.ts` (lưu `id`, `reviewId`, `criterionId`, `passed`, `notes`, `createdAt`).
+- Nâng cấp action `studio.reviews/submit` và tuyến đường `POST /api/reviews` nhận mảng `criteriaChecks` kiểm tra từng tiêu chí của issue.
+- Bắt buộc kiểm tra: nếu có bất kỳ tiêu chí nào `passed = false`, cấm `verdict = 'approve'` (ReviewError với status `FAILED_PRECONDITION` / reason `CRITERIA_CHECK_FAILED`), bắt buộc trả về `changes` (hoặc `reject`).
+- Bộ đánh giá Tự lái (`server/autopilot/evaluator.ts`) bổ sung điều kiện: từ chối merge nếu phiếu review có tiêu chí nghiệm thu chưa đạt.
+- Cập nhật đề bài agent reviewer (`server/providers/issue-subject.ts`): với lượt review (read-only), tự động đưa danh sách tiêu chí nghiệm thu kèm mã `id` vào checklist bắt buộc đánh giá, kèm tóm tắt kết quả kiểm chứng mới nhất (`dsVerifications`).
+- Cập nhật hướng dẫn `server/agents/agent-instructions.ts` và nâng phiên bản `revision: 3` cho các kỹ năng dựng sẵn `ds-workflow` và `ds-review` (`server/agents/builtin-skills.ts`), lưu bản cũ vào `history`.
+- Thêm tuyến đường `GET /api/reviews/recent` phục vụ trang quản trị Cài đặt `client/pages/settings/reviews.tsx` (nhóm `settingsAi`) hiển thị lịch sử phiếu review và xem chi tiết từng tiêu chí kiểm tra qua hộp thoại.
+- Giao diện Chi tiết việc (`client/pages/issues/detail/issue-pull-requests.tsx`) hiển thị khối phiếu review của PR: tóm tắt, verdict, và danh sách trạng thái từng tiêu chí, nổi bật cảnh báo "Tiêu chí chưa đạt" (Unmet criteria) khi có tiêu chí không đạt.
+- Test: `tests/database/ds-review-criteria-checks-migration.test.ts`, `tests/server/reviews.test.ts`, `tests/server/autopilot-evaluator.test.ts`, `tests/client/client-routes.test.ts`, `tests/client/foundation-integration.test.ts`.

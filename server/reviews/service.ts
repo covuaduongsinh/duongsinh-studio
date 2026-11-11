@@ -4,6 +4,7 @@ import type { GitService, GitPullRequestView } from '../git/service.js';
 import { str, strOrNull, num, bool, iso, type Row } from '../git/rows.js';
 
 export const REVIEWS = 'dsReviews';
+export const REVIEW_CRITERIA_CHECKS = 'dsReviewCriteriaChecks';
 
 export class ReviewError extends Error {
   override name = 'ReviewError';
@@ -21,16 +22,23 @@ export class ReviewError extends Error {
   }
 }
 
+export interface ReviewCriteriaCheck {
+  readonly criterionId: string;
+  readonly passed: boolean;
+  readonly notes?: string | null;
+}
+
 export interface ReviewSubmitInput {
   readonly runId: string;
   readonly pullRequestId: string;
   readonly headSha: string;
-  readonly verdict: 'approve' | 'changes';
+  readonly verdict: 'approve' | 'changes' | 'reject' | 'request_changes';
   readonly mustFix?: number;
   readonly shouldFix?: number;
   readonly kind?: 'code' | 'security';
   readonly checklist: Record<string, unknown>;
   readonly summary: string;
+  readonly criteriaChecks?: readonly ReviewCriteriaCheck[];
 }
 
 export interface ReviewView {
@@ -41,7 +49,7 @@ export interface ReviewView {
   readonly reviewerAgentId: string;
   readonly reviewerRunId: string;
   readonly authorAgentId: string;
-  readonly verdict: 'approve' | 'changes';
+  readonly verdict: 'approve' | 'changes' | 'reject' | 'request_changes';
   readonly mustFix: number;
   readonly shouldFix: number;
   readonly kind: 'code' | 'security';
@@ -49,6 +57,7 @@ export interface ReviewView {
   readonly checklist: Record<string, unknown>;
   readonly summary: string;
   readonly createdAt: string;
+  readonly criteriaChecks?: readonly ReviewCriteriaCheck[];
 }
 
 /** The required keys in `checklist.security` when kind is 'security'. */
@@ -75,7 +84,10 @@ export function createReviewsService(deps: {
 }) {
   const conn = (): DatabaseConnection => deps.database.connection();
 
-  function reviewView(row: Row): ReviewView {
+  function reviewView(
+    row: Row,
+    criteriaChecks?: readonly ReviewCriteriaCheck[],
+  ): ReviewView {
     return {
       id: str(row.id),
       pullRequestId: str(row.pullRequestId),
@@ -84,7 +96,8 @@ export function createReviewsService(deps: {
       reviewerAgentId: str(row.reviewerAgentId),
       reviewerRunId: str(row.reviewerRunId),
       authorAgentId: str(row.authorAgentId),
-      verdict: str(row.verdict) as 'approve' | 'changes',
+      verdict: str(row.verdict) as
+        'approve' | 'changes' | 'reject' | 'request_changes',
       mustFix: num(row.mustFix),
       shouldFix: num(row.shouldFix),
       kind: str(row.kind) as 'code' | 'security',
@@ -94,7 +107,32 @@ export function createReviewsService(deps: {
         : row.checklist) as Record<string, unknown>,
       summary: str(row.summary),
       createdAt: iso(row.createdAt) ?? new Date().toISOString(),
+      ...(criteriaChecks ? { criteriaChecks } : {}),
     };
+  }
+
+  async function loadChecksForReviewIds(
+    reviewIds: readonly string[],
+  ): Promise<Map<string, ReviewCriteriaCheck[]>> {
+    const map = new Map<string, ReviewCriteriaCheck[]>();
+    if (reviewIds.length === 0) return map;
+    const rows: Row[] = await conn()
+      .query.selectFrom(REVIEW_CRITERIA_CHECKS)
+      .selectAll()
+      .where('reviewId', 'in', reviewIds as string[])
+      .orderBy('createdAt', 'asc')
+      .execute();
+    for (const row of rows) {
+      const reviewId = str(row.reviewId);
+      const list = map.get(reviewId) ?? [];
+      list.push({
+        criterionId: str(row.criterionId),
+        passed: bool(row.passed),
+        notes: strOrNull(row.notes),
+      });
+      map.set(reviewId, list);
+    }
+    return map;
   }
 
   async function isRunReadOnly(runId: string): Promise<boolean> {
@@ -271,7 +309,25 @@ export function createReviewsService(deps: {
       }
     }
 
-    // 5. Insert review record
+    // 5. Check acceptance criteria if provided
+    const failedCriteria = input.criteriaChecks?.filter((c) => !c.passed);
+    if (
+      failedCriteria &&
+      failedCriteria.length > 0 &&
+      input.verdict === 'approve'
+    ) {
+      throw new ReviewError(
+        'FAILED_PRECONDITION',
+        'CRITERIA_CHECK_FAILED',
+        'Cannot approve review when one or more criteria checks failed.',
+        {
+          criterionId: failedCriteria[0].criterionId,
+          failedCount: String(failedCriteria.length),
+        },
+      );
+    }
+
+    // 6. Insert review record
     const id = randomUUID();
     const row = {
       id,
@@ -292,7 +348,30 @@ export function createReviewsService(deps: {
     };
 
     await conn().query.insertInto(REVIEWS).values(row).execute();
-    return reviewView(row);
+
+    const insertedChecks: ReviewCriteriaCheck[] = [];
+    if (input.criteriaChecks && input.criteriaChecks.length > 0) {
+      for (const check of input.criteriaChecks) {
+        await conn()
+          .query.insertInto(REVIEW_CRITERIA_CHECKS)
+          .values({
+            id: randomUUID(),
+            reviewId: id,
+            criterionId: check.criterionId,
+            passed: check.passed,
+            notes: check.notes ?? null,
+            createdAt: new Date(),
+          })
+          .execute();
+        insertedChecks.push({
+          criterionId: check.criterionId,
+          passed: check.passed,
+          notes: check.notes ?? null,
+        });
+      }
+    }
+
+    return reviewView(row, insertedChecks);
   }
 
   async function latestFor(
@@ -313,7 +392,9 @@ export function createReviewsService(deps: {
     const row: Row | undefined = await query
       .orderBy('createdAt', 'desc')
       .executeTakeFirst();
-    return row ? reviewView(row) : null;
+    if (!row) return null;
+    const checksMap = await loadChecksForReviewIds([str(row.id)]);
+    return reviewView(row, checksMap.get(str(row.id)) ?? []);
   }
 
   async function listForPull(
@@ -336,13 +417,28 @@ export function createReviewsService(deps: {
     }
 
     const rows: Row[] = await query.orderBy('createdAt', 'desc').execute();
-    return rows.map(reviewView);
+    const reviewIds = rows.map((r) => str(r.id));
+    const checksMap = await loadChecksForReviewIds(reviewIds);
+    return rows.map((r) => reviewView(r, checksMap.get(str(r.id)) ?? []));
+  }
+
+  async function listRecent(limit = 20): Promise<ReviewView[]> {
+    const rows: Row[] = await conn()
+      .query.selectFrom(REVIEWS)
+      .selectAll()
+      .orderBy('createdAt', 'desc')
+      .limit(limit)
+      .execute();
+    const reviewIds = rows.map((r) => str(r.id));
+    const checksMap = await loadChecksForReviewIds(reviewIds);
+    return rows.map((r) => reviewView(r, checksMap.get(str(r.id)) ?? []));
   }
 
   return {
     submit,
     latestFor,
     listForPull,
+    listRecent,
     isRunReadOnly,
   };
 }
