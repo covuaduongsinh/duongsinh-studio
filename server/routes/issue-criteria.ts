@@ -66,6 +66,7 @@ export const CriterionOutputSchema = z.object({
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });
+export type CriterionOutput = z.infer<typeof CriterionOutputSchema>;
 
 const IssueParam = z.object({ issueId: z.string() });
 const ProjectParam = z.object({ projectId: z.string() });
@@ -202,10 +203,10 @@ export const issueCriteriaRoutes: AppApiRouteContribution<Application> =
           source: (row.source ?? 'human') as
             'human' | 'agent' | 'projectDefault',
           createdAt: row.createdAt
-            ? new Date(row.createdAt).toISOString()
+            ? new Date(row.createdAt as string | number | Date).toISOString()
             : undefined,
           updatedAt: row.updatedAt
-            ? new Date(row.updatedAt).toISOString()
+            ? new Date(row.updatedAt as string | number | Date).toISOString()
             : undefined,
         }));
 
@@ -245,7 +246,7 @@ export const issueCriteriaRoutes: AppApiRouteContribution<Application> =
           .where('issueId', '=', issueId)
           .execute();
 
-        const insertedRows: (typeof CriterionOutputSchema._type)[] = [];
+        const insertedRows: CriterionOutput[] = [];
 
         for (let i = 0; i < criteria.length; i++) {
           const item = criteria[i];
@@ -352,7 +353,7 @@ export const issueCriteriaRoutes: AppApiRouteContribution<Application> =
             ? Number(existing[0].position) + 1
             : 0;
 
-        const insertedRows: (typeof CriterionOutputSchema._type)[] = [];
+        const insertedRows: CriterionOutput[] = [];
 
         for (let i = 0; i < criteria.length; i++) {
           const item = criteria[i];
@@ -438,10 +439,10 @@ export const issueCriteriaRoutes: AppApiRouteContribution<Application> =
           position: Number(row.position),
           source: 'projectDefault' as const,
           createdAt: row.createdAt
-            ? new Date(row.createdAt).toISOString()
+            ? new Date(row.createdAt as string | number | Date).toISOString()
             : undefined,
           updatedAt: row.updatedAt
-            ? new Date(row.updatedAt).toISOString()
+            ? new Date(row.updatedAt as string | number | Date).toISOString()
             : undefined,
         }));
 
@@ -481,7 +482,7 @@ export const issueCriteriaRoutes: AppApiRouteContribution<Application> =
           .where('projectId', '=', projectId)
           .execute();
 
-        const insertedRows: (typeof CriterionOutputSchema._type)[] = [];
+        const insertedRows: CriterionOutput[] = [];
 
         for (let i = 0; i < criteria.length; i++) {
           const item = criteria[i];
