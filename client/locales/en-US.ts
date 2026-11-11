@@ -630,6 +630,43 @@ const enUS = {
     passed: 'Passed',
     failed: 'Failed',
   },
+  settingsReviews: {
+    title: 'Reviews',
+    description:
+      'Track structured peer reviews and acceptance criteria evaluation checks.',
+    recentTitle: 'Recent Reviews',
+    recentDescription:
+      'Latest structured review submissions across all issues.',
+    refresh: 'Refresh',
+    emptyHistory: 'No review records found.',
+    createdAt: 'Time',
+    headSha: 'Commit',
+    reviewer: 'Reviewer',
+    verdict: 'Verdict',
+    kind: 'Kind',
+    criteriaStatus: 'Acceptance Criteria',
+    summary: 'Summary',
+    actions: 'Actions',
+    viewDetails: 'View Criteria',
+    verdicts: {
+      approve: 'Approve',
+      changes: 'Request Changes',
+      reject: 'Reject',
+      request_changes: 'Request Changes',
+    },
+    allPassedBadge: '{{count}} criteria passed',
+    unmetBadge: '{{count}} unmet criteria',
+    criteriaModalTitle: 'Acceptance Criteria Checks {{pr}}',
+    criteriaModalDescription:
+      'Detailed evaluation results for each acceptance criterion in this review.',
+    unmetAlert: '{{count}} criteria failed check.',
+    noCriteriaChecks: 'No detailed criteria checks recorded for this review.',
+    criterionId: 'Criterion ID',
+    result: 'Result',
+    notes: 'Notes',
+    passed: 'Passed',
+    failed: 'Failed',
+  },
   projectSetup: {
     title: 'Set up a project',
     description: 'A project with its repository and first issue, in one step.',
@@ -733,6 +770,9 @@ const enUS = {
     verifications: 'Verifications',
     verificationsDescription:
       'Configure stop thresholds and inspect verification history.',
+    reviews: 'Reviews',
+    reviewsDescription:
+      'Inspect pull request reviews and acceptance criteria checks.',
     followUps: 'Follow-ups',
     projects: 'Projects',
     issuePrefix: 'Issue prefix',
@@ -1278,6 +1318,18 @@ const enUS = {
       autoCompleteOnMerge: 'Complete issue when this PR is merged',
       autoCompleted: 'Completed issue on PR merge.',
       keptInProgress: 'Issue kept in progress (not completed automatically).',
+    },
+    reviews: {
+      title: 'Review',
+      verdicts: {
+        approve: 'Approve',
+        changes: 'Changes Requested',
+        reject: 'Reject',
+        request_changes: 'Changes Requested',
+      },
+      mustFix: '{{count}} must-fix items',
+      unmetCriteriaTitle: 'Unmet Criteria ({{count}})',
+      passedCriteriaTitle: 'Passed Criteria ({{count}})',
     },
     states: {
       open: 'Open',

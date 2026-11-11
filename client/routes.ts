@@ -25,6 +25,7 @@ import {
   ListTodo,
   Server,
   ShieldCheck,
+  FileCheck,
   Tags,
 } from 'lucide-react';
 import { chatLinkRoutes } from '@nocobase/app-plugin-agents/client/chat';
@@ -396,6 +397,22 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
       icon: ShieldCheck,
     },
     componentLoader: () => import('./pages/settings/verifications.js'),
+  },
+  {
+    name: 'settingsReviews',
+    parent: 'settingsAi',
+    path: '/reviews',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'agents.agents' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.reviews',
+      description: 'navigation.reviewsDescription',
+      icon: FileCheck,
+    },
+    componentLoader: () => import('./pages/settings/reviews.js'),
   },
   {
     // GitHub connections and linked repositories. Every endpoint of `server/routes/git.ts` the page calls requires an

@@ -7,11 +7,14 @@ import { useToaster } from '@nocobase/app-client';
 import { useTranslation } from '@nocobase/i18n/client';
 import {
   CircleAlertIcon,
+  CheckCircle2Icon,
   ExternalLinkIcon,
+  FileCheckIcon,
   GitMergeIcon,
   GitPullRequestIcon,
   LoaderCircle,
   RefreshCwIcon,
+  XCircleIcon,
 } from 'lucide-react';
 import { useState, type FormEvent, type ReactElement } from 'react';
 
@@ -49,6 +52,7 @@ import {
   useIssueAutopilot,
   type AutopilotEvaluation,
 } from '#hooks/use-autopilot';
+import { usePullRequestReviews } from '#hooks/use-reviews';
 
 type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline';
 
@@ -173,6 +177,14 @@ function PullRequestItem({
   const merge = useMergePullRequest(issueId);
   const refresh = useRefreshPullRequest(issueId);
   const setAutoComplete = useSetPullAutoComplete(issueId);
+  const reviewsQuery = usePullRequestReviews(pull.id);
+  const latestReview =
+    reviewsQuery.data && reviewsQuery.data.length > 0
+      ? reviewsQuery.data[0]
+      : null;
+  const criteriaChecks = latestReview?.criteriaChecks ?? [];
+  const unmetCriteria = criteriaChecks.filter((c) => !c.passed);
+  const passedCriteria = criteriaChecks.filter((c) => c.passed);
   // What the server said when merging was last tried; the stored snapshot otherwise.
   const [refused, setRefused] = useState<MergeBlocker | null>(null);
   const [denied, setDenied] = useState(false);
@@ -323,6 +335,94 @@ function PullRequestItem({
           </ul>
         )}
       </div>
+      {latestReview ? (
+        <div className='flex flex-col gap-2 rounded-md border p-2.5 bg-muted/20'>
+          <div className='flex items-center justify-between gap-2 flex-wrap'>
+            <div className='flex items-center gap-1.5 text-xs font-medium'>
+              <FileCheckIcon className='size-3.5 text-primary' />
+              <span>{t('git.reviews.title')}</span>
+              <span className='font-mono text-muted-foreground'>
+                ({latestReview.reviewerAgentId})
+              </span>
+            </div>
+            <div className='flex items-center gap-1.5'>
+              <Badge
+                variant={
+                  latestReview.verdict === 'approve'
+                    ? 'secondary'
+                    : 'destructive'
+                }
+                className={
+                  latestReview.verdict === 'approve'
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                    : ''
+                }
+              >
+                {t(`git.reviews.verdicts.${latestReview.verdict}`)}
+              </Badge>
+              {latestReview.mustFix > 0 ? (
+                <Badge variant='outline' className='text-xs'>
+                  {t('git.reviews.mustFix', { count: latestReview.mustFix })}
+                </Badge>
+              ) : null}
+            </div>
+          </div>
+
+          <p className='text-xs text-muted-foreground italic'>
+            {latestReview.summary}
+          </p>
+
+          {unmetCriteria.length > 0 ? (
+            <div className='rounded border border-destructive/40 bg-destructive/10 p-2 text-xs flex flex-col gap-1'>
+              <div className='flex items-center gap-1 font-semibold text-destructive'>
+                <XCircleIcon className='size-3.5 shrink-0' />
+                <span>
+                  {t('git.reviews.unmetCriteriaTitle', {
+                    count: unmetCriteria.length,
+                  })}
+                </span>
+              </div>
+              <ul className='flex flex-col gap-1 pl-4'>
+                {unmetCriteria.map((c) => (
+                  <li
+                    key={c.criterionId}
+                    className='text-destructive list-disc'
+                  >
+                    <span className='font-mono font-medium'>
+                      {c.criterionId}
+                    </span>
+                    {c.notes ? `: ${c.notes}` : ''}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+
+          {passedCriteria.length > 0 ? (
+            <div className='flex flex-col gap-1 text-xs'>
+              <span className='text-muted-foreground font-medium'>
+                {t('git.reviews.passedCriteriaTitle', {
+                  count: passedCriteria.length,
+                })}
+              </span>
+              <ul className='flex flex-col gap-0.5'>
+                {passedCriteria.map((c) => (
+                  <li
+                    key={c.criterionId}
+                    className='flex items-center gap-1 text-muted-foreground'
+                  >
+                    <CheckCircle2Icon className='size-3 text-emerald-600 shrink-0' />
+                    <span className='font-mono'>{c.criterionId}</span>
+                    {c.notes ? (
+                      <span className='truncate'>({c.notes})</span>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       {blocker ? (
         <p
           role='status'

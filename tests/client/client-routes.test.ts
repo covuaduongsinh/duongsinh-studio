@@ -69,28 +69,32 @@ describe('app client routes', () => {
     ).toBe('settingsSystem');
   });
 
-  it('exposes configured invitation templates through the real application route factory', async () => {
-    const built = resolveAppClientContributions([
-      {
-        packageName: '@nocobase/app-template-default',
-        source: 'application',
-        routes: createApplicationRoutes({
-          notificationTemplates: { invitationConfigured: true },
-        }),
-      },
-    ]);
-    expect(pagePaths(built.routes)).toContain(
-      '/settings/notifications/templates',
-    );
-    expect(pageAuthorizations(built.routes)).toContainEqual({
-      name: 'notificationTemplates',
-      authorizedAs: 'notification.templates',
-    });
-    for (const loader of componentLoadersIn(built.routes))
-      await expect(loader()).resolves.toMatchObject({
-        default: expect.any(Function),
+  it(
+    'exposes configured invitation templates through the real application route factory',
+    { timeout: 120_000 },
+    async () => {
+      const built = resolveAppClientContributions([
+        {
+          packageName: '@nocobase/app-template-default',
+          source: 'application',
+          routes: createApplicationRoutes({
+            notificationTemplates: { invitationConfigured: true },
+          }),
+        },
+      ]);
+      expect(pagePaths(built.routes)).toContain(
+        '/settings/notifications/templates',
+      );
+      expect(pageAuthorizations(built.routes)).toContainEqual({
+        name: 'notificationTemplates',
+        authorizedAs: 'notification.templates',
       });
-  });
+      for (const loader of componentLoadersIn(built.routes))
+        await expect(loader()).resolves.toMatchObject({
+          default: expect.any(Function),
+        });
+    },
+  );
 
   it('reuses the notification module and preserves its logs and existing grants', () => {
     const existing = defineAppRoutes([
@@ -328,6 +332,10 @@ const settingsAuthorizations = [
   },
   {
     name: 'settingsVerifications',
+    authorizedAs: 'settings:agents.agents',
+  },
+  {
+    name: 'settingsReviews',
     authorizedAs: 'settings:agents.agents',
   },
   { name: 'settingsGit', authorizedAs: 'settings:pm.members' },

@@ -414,6 +414,12 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
           'Code review was submitted by the author agent (self-review).',
         );
       }
+      const unmet = codeReview.criteriaChecks?.filter((c) => !c.passed);
+      if (unmet && unmet.length > 0) {
+        reasons.push(
+          `Code review has unmet criteria: ${unmet.map((c) => c.criterionId).join(', ')}.`,
+        );
+      }
     }
 
     // Condition 6: Sensitive paths & extra review

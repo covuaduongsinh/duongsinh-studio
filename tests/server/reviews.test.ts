@@ -584,4 +584,101 @@ test('structured review submission, validation gates, security reviews, and list
   expect(
     listCodeJson.data.every((r: { kind: string }) => r.kind === 'code'),
   ).toBe(true);
+
+  // 11. H1c: Criteria checks rejection when verdict is approve but a criterion failed
+  const rejectApproveRes = await request('/reviews', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-nocobase-run-token': secToken,
+    },
+    body: JSON.stringify({
+      pullRequestId: pullRequest.id,
+      headSha: HEAD_SHA,
+      verdict: 'approve',
+      kind: 'code',
+      mustFix: 0,
+      shouldFix: 0,
+      summary: 'Trying to approve despite failed criterion.',
+      checklist: { basic: true },
+      criteriaChecks: [
+        { criterionId: 'crit-1', passed: true, notes: 'Criterion 1 passed' },
+        { criterionId: 'crit-2', passed: false, notes: 'Criterion 2 failed' },
+      ],
+    }),
+  });
+  expect(rejectApproveRes.status).toBe(400);
+  const rejectApproveJson = await rejectApproveRes.json();
+  expect(rejectApproveJson.error.reason).toBe('CRITERIA_CHECK_FAILED');
+
+  // 12. H1c: Criteria checks with failed criterion allowed when verdict is changes
+  const validChangesRes = await request('/reviews', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-nocobase-run-token': secToken,
+    },
+    body: JSON.stringify({
+      pullRequestId: pullRequest.id,
+      headSha: HEAD_SHA,
+      verdict: 'changes',
+      kind: 'code',
+      mustFix: 1,
+      shouldFix: 0,
+      summary: 'Changes requested due to unmet criteria.',
+      checklist: { basic: true },
+      criteriaChecks: [
+        { criterionId: 'crit-1', passed: true, notes: 'Criterion 1 passed' },
+        { criterionId: 'crit-2', passed: false, notes: 'Criterion 2 failed' },
+      ],
+    }),
+  });
+  expect(validChangesRes.status).toBe(201);
+  const validChangesJson = await validChangesRes.json();
+  expect(validChangesJson.data.criteriaChecks).toHaveLength(2);
+  expect(validChangesJson.data.criteriaChecks[1]).toMatchObject({
+    criterionId: 'crit-2',
+    passed: false,
+    notes: 'Criterion 2 failed',
+  });
+
+  // 13. H1c: Criteria checks with all passed allowed when verdict is approve
+  const validApprovedChecksRes = await request('/reviews', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-nocobase-run-token': secToken,
+    },
+    body: JSON.stringify({
+      pullRequestId: pullRequest.id,
+      headSha: HEAD_SHA,
+      verdict: 'approve',
+      kind: 'code',
+      mustFix: 0,
+      shouldFix: 0,
+      summary: 'All criteria passed and code approved.',
+      checklist: { basic: true },
+      criteriaChecks: [
+        { criterionId: 'crit-1', passed: true, notes: 'All green 1' },
+        { criterionId: 'crit-2', passed: true, notes: 'All green 2' },
+      ],
+    }),
+  });
+  expect(validApprovedChecksRes.status).toBe(201);
+  const validApprovedChecksJson = await validApprovedChecksRes.json();
+  expect(validApprovedChecksJson.data.criteriaChecks).toHaveLength(2);
+  expect(
+    validApprovedChecksJson.data.criteriaChecks.every(
+      (c: { passed: boolean }) => c.passed,
+    ),
+  ).toBe(true);
+
+  // 14. H1c: GET /reviews/recent returns reviews with criteriaChecks
+  const recentRes = await admin.fetch('/reviews/recent?limit=10');
+  expect(recentRes.status).toBe(200);
+  const recentJson = await recentRes.json();
+  expect(recentJson.data.length).toBeGreaterThanOrEqual(4);
+  const latestWithChecks = recentJson.data[0];
+  expect(latestWithChecks.criteriaChecks).toBeDefined();
+  expect(latestWithChecks.criteriaChecks.length).toBe(2);
 });

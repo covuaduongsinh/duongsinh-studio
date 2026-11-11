@@ -318,7 +318,7 @@ thay vì trong CI; kind `agent` quan sát mọi việc và mọi bình luận.
 - [ ] H1 — Cổng kiểm chứng
   - [x] H1a tiêu chí có cấu trúc (#70)
   - [x] H1b lượt Kiểm chứng và cổng `in_review` (#71)
-  - [ ] H1c review theo tiêu chí
+  - [x] H1c review theo tiêu chí (#72)
   - [ ] H1d cổng xác định trước review
 - [ ] H4 — Bộ đo
 - [ ] H2 — Vòng học từ lỗi
