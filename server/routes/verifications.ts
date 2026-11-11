@@ -118,8 +118,7 @@ const notFound = (what: string): ApiError =>
 
 const denied = (message: string): ApiError =>
   new ApiError({
-    status: 'FORBIDDEN',
-    code: 'PERMISSION_DENIED',
+    status: 'PERMISSION_DENIED',
     message,
   });
 
@@ -140,8 +139,8 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
       if (!session) throw denied('Sign in first.');
       const identity = context.get('authz').identity;
       const scoped = identity.keyScope?.objects('pm.projects') ?? 'all';
-      const run = runIdentityOf(session);
-      const runId = run?.run ? str(run.run.id) : null;
+      const caller = runIdentityOf(session);
+      const runId = caller?.run?.run ? str(caller.run.run.id) : null;
       const userId = session.user?.id
         ? str(session.user.id)
         : (runId ?? 'anonymous');
@@ -340,8 +339,8 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
         const attempt =
           previousVerifs.length > 0 ? num(previousVerifs[0].attempt) + 1 : 1;
 
-        const runInfo = runIdentityOf(c.get('auth'));
-        const runId = runInfo?.run ? str(runInfo.run.id) : null;
+        const runCaller = runIdentityOf(c.get('auth'));
+        const runId = runCaller?.run?.run ? str(runCaller.run.run.id) : null;
         const agentId =
           (issue.executor?.type === 'agent' ? str(issue.executor.id) : null) ??
           null;
