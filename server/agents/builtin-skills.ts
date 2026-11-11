@@ -1,29 +1,69 @@
+import { createHash } from 'node:crypto';
+
 /**
  * The skills Studio's agents start with, written for this team in the structure of the demo's five. They are created
- * once, when missing; from then on they are the team's to edit in the skill library.
+ * when missing and automatically upgraded to newer revisions when unmodified. When customized by hand, Studio keeps
+ * the team's version and alerts administrators in the inbox.
  */
 export interface BuiltinSkill {
   readonly slug: string;
   /** `global` reaches every run; `project` is attached to projects created from now on. */
   readonly reach: 'global' | 'project';
+  /** The published revision of this builtin skill, starting from 1. Must be bumped on every content change. */
+  readonly revision: number;
   readonly content: string;
+  /**
+   * Earlier published contents (or their hashes) for this skill, so Studio knows whether the current version in
+   * the library came from an older builtin revision rather than being edited by hand.
+   */
+  readonly history?: readonly string[];
+}
+
+export function normalizeSkillContent(content: string): string {
+  return content.replace(/\r\n/gu, '\n').trim();
+}
+
+export function skillContentHash(content: string): string {
+  return createHash('sha256')
+    .update(normalizeSkillContent(content))
+    .digest('hex');
+}
+
+/**
+ * Checks whether `content` matches either the current builtin content or one of its previously published revisions.
+ */
+export function isBuiltinPublishedContent(
+  builtin: BuiltinSkill,
+  content: string,
+): boolean {
+  const hash = skillContentHash(content);
+  if (hash === skillContentHash(builtin.content)) return true;
+  if (!builtin.history || builtin.history.length === 0) return false;
+  return builtin.history.some(
+    (past) => hash === skillContentHash(past) || hash === past,
+  );
 }
 
 const skill = (
   slug: string,
   reach: BuiltinSkill['reach'],
+  revision: number,
   description: string,
   body: string,
+  history?: readonly string[],
 ): BuiltinSkill => ({
   slug,
   reach,
+  revision,
   content: `---\nname: ${slug}\ndescription: ${JSON.stringify(description)}\n---\n\n${body.trim()}\n`,
+  ...(history && history.length > 0 ? { history } : {}),
 });
 
 export const BUILTIN_SKILLS: readonly BuiltinSkill[] = [
   skill(
     'ds-workflow',
     'project',
+    1,
     'Cách một công việc đi từ lúc nhận đến lúc bàn giao ở Dương Sinh Studio. Dùng khi điều phối hoặc bắt đầu một công việc.',
     `
 # Quy trình làm việc
@@ -53,6 +93,7 @@ Khi review đạt và check xanh: chuyển sang chờ nghiệm thu, ghi rõ vi�
   skill(
     'ds-development',
     'project',
+    1,
     'Cách làm một bước đổi code: thiết kế, kiểm chứng, xử lý CI, nhận review và bàn giao. Dùng khi được giao sửa code.',
     `
 # Làm một bước phát triển
@@ -89,6 +130,7 @@ Trên runner dùng chung, theo giới hạn trong skill \`ds-app-rules\`. Commit
   skill(
     'ds-approach',
     'project',
+    1,
     'Khuôn viết approach trước khi sửa code. Dùng khi được yêu cầu đề xuất cách làm, không sửa code ở bước này.',
     `
 # Viết approach
@@ -105,6 +147,7 @@ Không sửa code ở bước này. Viết ngắn, theo đúng năm mục:
   skill(
     'ds-review',
     'project',
+    1,
     'Cách review một pull request và viết kết luận. Dùng khi được giao review ở chế độ chỉ đọc.',
     `
 # Review pull request
@@ -126,6 +169,7 @@ Mỗi mục nêu file, dòng và hậu quả cụ thể. Nộp phiếu review c�
   skill(
     'ds-app-rules',
     'project',
+    1,
     'Luật cho ứng dụng NocoBase 3 của Dương Sinh: nguồn gốc, quyền, dữ liệu, giấy phép, giới hạn runner. Dùng mỗi khi sửa một repo NocoBase 3.',
     `
 # Luật ứng dụng NocoBase 3
@@ -168,6 +212,7 @@ Runner dùng chung chỉ có 2,5 GiB RAM. Cấm \`pnpm check\`, \`pnpm lint\`, \
   skill(
     'ds-comment-style',
     'global',
+    1,
     'Cách viết bình luận trên công việc. Dùng mỗi khi viết bình luận hoặc tóm tắt lượt chạy.',
     `
 # Cách viết bình luận

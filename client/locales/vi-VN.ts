@@ -502,6 +502,12 @@ const viVN: AppResource = {
       declined: 'Đã từ chối',
     },
   },
+  studioBuiltinSkills: {
+    retainedTitle:
+      'Kỹ năng {{slug}} có bản dựng sẵn mới (phiên bản {{revision}})',
+    retainedBody:
+      'Kỹ năng "{{slug}}" đã được chỉnh sửa thủ công nên Studio giữ nguyên nội dung hiện tại, không tự động ghi đè. Bạn có thể kiểm tra và cập nhật thủ công trong thư viện kỹ năng.',
+  },
   studioOrgKeys: {
     checksTitle: 'Báo kết quả check',
     checksDescription: 'Cho CI báo kết quả check của repo lấy check từ CI.',

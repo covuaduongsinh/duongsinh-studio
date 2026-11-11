@@ -754,3 +754,12 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Thời điểm:** chạy mỗi lần Studio đọc lại PR (đồng bộ định kỳ, báo cáo kiểm tra, nút đọc lại), nên merge xảy ra trong lần đồng bộ kế tiếp sau khi đủ điều kiện, chưa phải ngay khi agent bàn giao.
 - Thẻ **Dừng khẩn cấp** ở Cài đặt → Tiền tố công việc chỉ hiện với quản trị viên không giới hạn (đúng người server cho phép).
 - Test: `tests/server/stage-auto-merge.test.ts`, `tests/database/ds-autopilot-stage-merge-migration.test.ts`, `tests/client/stage-auto-merge-ui.test.tsx`.
+
+## 43. H0 — Nâng phiên bản skill dựng sẵn (11/11/2026)
+
+- Plugin `agents` chỉ tạo hoặc lưu phiên bản mới của skill khi có lời gọi `skills.create` hoặc `skills.save`, không có cơ chế tự động nhận biết mã nguồn ứng dụng cập nhật skill dựng sẵn.
+- Studio thêm trường `revision: number` và `history?: readonly string[]` vào `BuiltinSkill` (`server/agents/builtin-skills.ts`).
+- `ensureBuiltinSkills` (`server/providers/project-defaults.ts`) kiểm tra `skillContentHash` của phiên bản hiện tại trong thư viện kỹ năng:
+  - Nếu trùng với một bản dựng sẵn đã phát hành trong quá khứ (`isBuiltinPublishedContent`, tức người chưa chỉnh sửa tay): tự động lưu phiên bản mới (`skills.save`) với ghi chú nâng cấp phiên bản.
+  - Nếu người dùng đã chỉnh sửa thủ công: giữ nguyên bản sửa tay của người dùng, không ghi đè, và gửi một thông báo Hộp thư kèm `idempotencyKey` cho các quản trị viên (`ADMINISTRATOR_SET_KEYS`).
+- Test: `tests/server/builtin-skills-upgrade.test.ts`.

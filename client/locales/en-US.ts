@@ -510,6 +510,12 @@ const enUS = {
       declined: 'Declined',
     },
   },
+  studioBuiltinSkills: {
+    retainedTitle:
+      'Skill {{slug}} has a new builtin revision (revision {{revision}})',
+    retainedBody:
+      'Skill "{{slug}}" was edited by hand, so Studio kept the current version and did not overwrite it. You can review and update it manually in the skill library.',
+  },
   studioOrgKeys: {
     checksTitle: 'Report checks',
     checksDescription:
