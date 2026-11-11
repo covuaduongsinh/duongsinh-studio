@@ -57,6 +57,30 @@ Trên VPS giữ 3 thư mục mới nhất trong `releases/` (bản đang chạy 
 sau khi đã giải nén. Trước khi xoá, xem bản đang mount: `docker inspect -f '{{range .Mounts}}{{.Source}} {{end}}'
 duongsinh-studio-tluxoy-app-1`. Việc này làm tay sau mỗi lần cập nhật, chưa có lịch tự động.
 
+Lệnh dọn (chạy trên VPS sau khi bản mới đã `healthy`). Mặc định chỉ **liệt kê** việc sẽ xoá; thêm `--xoa` để xoá thật. Nó giữ
+3 thư mục mới nhất, **không bao giờ xoá thư mục đang được container mount**, và chỉ xoá `studio-*.tar.gz` trong `incoming/`
+(các tệp khác như `runners-dist.tgz` giữ nguyên):
+
+```bash
+ssh -i ~/.ssh/vps_key root@217.15.160.118 'bash -s -- --xoa' <<'SH'
+set -eu
+R=/srv/duongsinh-studio/releases; I=/srv/duongsinh-studio/incoming; KEEP=3
+MOUNTED=$(docker inspect -f '{{range .Mounts}}{{.Source}} {{end}}' duongsinh-studio-tluxoy-app-1 | tr ' ' '\n' | sed -n 's#^'"$R"'/\([^/]*\)/dist$#\1#p')
+[ -n "$MOUNTED" ] || { echo "Không đọc được bản đang mount: dừng." >&2; exit 1; }
+echo "đang chạy: $MOUNTED"
+for d in $(ls -1t "$R" | tail -n +$((KEEP + 1))); do
+  [ "$d" = "$MOUNTED" ] && { echo "giữ $d (đang chạy)"; continue; }
+  if [ "${1:-}" = "--xoa" ]; then rm -rf -- "$R/$d" && echo "đã xoá releases/$d"; else echo "sẽ xoá releases/$d"; fi
+done
+for f in "$I"/studio-*.tar.gz; do
+  [ -e "$f" ] || continue
+  if [ "${1:-}" = "--xoa" ]; then rm -f -- "$f" && echo "đã xoá $f"; else echo "sẽ xoá $f"; fi
+done
+SH
+```
+
+Bỏ `--xoa` (viết `bash -s --`) để xem trước. Sau khi xoá, kiểm `https://studio.dsc.edu.vn/main/api/healthz`.
+
 Dữ liệu sự kiện và brief của run hết hạn sau 14 ngày theo mặc định của `agents.runs.retentionDays` (giữ nguyên, không khai trong
 `config.yml`); bản ghi run, usage và số liệu Dashboard không bị xoá.
 
