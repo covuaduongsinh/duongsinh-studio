@@ -332,6 +332,20 @@ const enUS = {
       rejected: 'Rejected',
     },
   },
+  secretFindings: {
+    bannerTitle: 'Secret / API Key Leak Alert',
+    bannerDescription:
+      'Suspected secrets (tokens, API keys, private keys) were detected in the issue description or comments. The secrets have been masked in agent context. Please revoke or rotate the keys immediately on the corresponding provider!',
+    detectedPattern: 'Detected type:',
+    resolve: 'Rotated / Resolved',
+    ignore: 'False Positive / Ignore',
+    statusActive: 'Active',
+    statusResolved: 'Resolved',
+    statusIgnored: 'Ignored',
+    inboxNotificationTitle: 'Secret leak detected in issue #{{identifier}}',
+    inboxNotificationBody:
+      'Detected {{count}} suspected secret(s) ({{patterns}}) in issue "{{title}}". Please review and rotate keys immediately.',
+  },
   budgets: {
     title: 'Budgets',
     description:

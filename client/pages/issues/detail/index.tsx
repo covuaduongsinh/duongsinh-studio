@@ -79,6 +79,7 @@ import { IssueActivity } from './issue-activity.js';
 import { IssueAside, IssuePropertyChips } from './issue-aside.js';
 import { IssueDeliveryReport } from './issue-delivery-report.js';
 import { IssueCriteriaSection } from '#components/criteria/criteria-editor';
+import { SecretFindingsBanner } from '#components/secret-findings-banner';
 import { IssueKbOffers } from './issue-kb-offers.js';
 import { IssueMergeButton, IssueNeedsYouActions } from './issue-needs-you.js';
 import { IssueProgressPanel } from './issue-progress.js';
@@ -316,6 +317,7 @@ export function IssueDetailView({
             link={RouterAnchor}
             labels={labels}
           />
+          <SecretFindingsBanner issueId={detail.id} />
           <IssueProgressPanel
             issueId={detail.id}
             revision={detail.revision}

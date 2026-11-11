@@ -322,6 +322,20 @@ const zhCN: AppResource = {
       rejected: '已拒绝',
     },
   },
+  secretFindings: {
+    bannerTitle: '密钥 / 敏感凭据泄露告警',
+    bannerDescription:
+      '在事项描述或评论中检测到疑似敏感凭据（Token、API密钥、私钥）。已在智能体上下文中进行脱敏遮蔽。请立即在相应服务商处吊销或轮换该密钥！',
+    detectedPattern: '检测到的类型：',
+    resolve: '已轮换 / 已处理',
+    ignore: '误报 / 忽略',
+    statusActive: '未处理',
+    statusResolved: '已处理',
+    statusIgnored: '已忽略',
+    inboxNotificationTitle: '事项 #{{identifier}} 中检测到密钥泄露',
+    inboxNotificationBody:
+      '在事项 "{{title}}" 中检测到 {{count}} 处疑似敏感凭据（{{patterns}}）。请立即检查并轮换密钥。',
+  },
   budgets: {
     title: '预算',
     description:
