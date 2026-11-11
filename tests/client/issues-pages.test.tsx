@@ -168,6 +168,40 @@ const api = vi.fn((call: ApiCall): unknown => {
     return { data: FIXED_STATUSES };
   if (method === 'GET' && path === 'projects/issues')
     return { data: [issue], meta: {} };
+  if (method === 'GET' && path === 'git/pullRequests/marks')
+    return { data: {} };
+  if (method === 'GET' && path === 'taskGroups')
+    return {
+      data: {
+        generation: issue.createdAt,
+        membership: ADA.id,
+        mode: 'table',
+        groups: [
+          {
+            group: 'doing',
+            count: 1,
+            data: [
+              {
+                issue,
+                dependencyWait: false,
+                blockers: [],
+                waits: [],
+                followed: false,
+                waitingSince: null,
+                unread: 0,
+                parent: null,
+                progress: { finished: 0, total: 0 },
+                hasChildren: false,
+                context: false,
+                expand: [],
+              },
+            ],
+          },
+        ],
+        following: [],
+        waiting: 0,
+      },
+    };
   if (method === 'GET' && path === 'projects/issues/board')
     return {
       data: {
@@ -249,23 +283,22 @@ describe('issues page', () => {
     window.localStorage.clear();
   });
 
-  it('lists the issues with the list request, linking each to its page', async () => {
+  it('lists the issues grouped by what they wait for, linking each to its page', async () => {
     await renderAt('/issues?view=list');
 
     expect(
       await screen.findByRole('heading', { level: 1, name: enUS.issues.title }),
     ).toBeInTheDocument();
-    const link = await screen.findByRole('link', { name: issue.identifier });
+    const link = (await screen.findByText(issue.title)).closest('a');
     expect(link).toHaveAttribute('href', '/issues/PM-1');
-    expect(screen.getByText(issue.title)).toBeInTheDocument();
-    expect(screen.getByText(enUS.issues.priority.high)).toBeInTheDocument();
-    expect(calls('GET', 'projects/issues')[0]?.query).toMatchObject({
-      orderBy: 'updatedAt desc',
+    expect(calls('GET', 'taskGroups')[0]?.query).toMatchObject({
+      mode: 'table',
+      follow: 'scope',
     });
   });
 
-  it('shows the board by default, a column per status with the issue in its own', async () => {
-    await renderAt('/issues');
+  it('shows the board when asked, a column per status with the issue in its own', async () => {
+    await renderAt('/issues?view=board');
 
     const region = await screen.findByRole('region', {
       name: enUS.issues.board.label,
@@ -278,7 +311,7 @@ describe('issues page', () => {
   });
 
   it('switches the view in the URL', async () => {
-    await renderAt('/issues');
+    await renderAt('/issues?view=board');
     await screen.findByRole('region', { name: enUS.issues.board.label });
 
     await userEvent.click(
@@ -290,14 +323,12 @@ describe('issues page', () => {
         '/issues?view=list',
       ),
     );
-    expect(
-      await screen.findByRole('link', { name: issue.identifier }),
-    ).toBeInTheDocument();
+    expect(await screen.findByText(issue.title)).toBeInTheDocument();
   });
 
   it('sends the search term to the list request', async () => {
     await renderAt('/issues?view=list');
-    await screen.findByRole('link', { name: issue.identifier });
+    await screen.findByText(issue.title);
 
     await userEvent.type(
       screen.getByRole('textbox', { name: enUS.issues.search }),
@@ -306,9 +337,7 @@ describe('issues page', () => {
 
     await waitFor(() =>
       expect(
-        calls('GET', 'projects/issues').some(
-          (call) => call.query?.q === 'email',
-        ),
+        calls('GET', 'taskGroups').some((call) => call.query?.q === 'email'),
       ).toBe(true),
     );
     expect(screen.getByTestId('location')).toHaveTextContent('q=email');
@@ -365,7 +394,12 @@ describe('issue page', () => {
     await renderAt('/issues/PM-1');
     await screen.findByRole('heading', { level: 1, name: issue.title });
 
-    await userEvent.click(screen.getByLabelText(enUS.issueDetail.status));
+    // The list under the page has a Status filter of its own: this is the one among the issue's properties.
+    await userEvent.click(
+      within(
+        screen.getByRole('group', { name: enUS.issueDetail.properties }),
+      ).getByLabelText(enUS.issueDetail.status),
+    );
     await userEvent.click(
       await screen.findByRole('option', { name: 'Blocked' }),
     );

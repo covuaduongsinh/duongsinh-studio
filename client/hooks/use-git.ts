@@ -228,6 +228,36 @@ export function useIssuePullRequests(
   });
 }
 
+/** What an issue's pull requests come to, for a list row. */
+export interface PullMark {
+  readonly count: number;
+  readonly merged: boolean;
+  readonly state: 'open' | 'merged' | 'closed';
+  readonly ciState: 'pending' | 'success' | 'failure' | null;
+  readonly url: string;
+}
+
+/** The pull request marks of several issues in one read (`GET git/pullRequests/marks`). */
+export function usePullRequestMarks(
+  issueIds: readonly string[],
+): UseQueryResult<Readonly<Record<string, PullMark>>> {
+  const api = useApiClient();
+  const ids = issueIds.slice(0, 100);
+  return useQuery({
+    queryKey: ['git', 'pull-marks', ids],
+    enabled: ids.length > 0,
+    retry: false,
+    queryFn: async ({ signal }) =>
+      (
+        await api.request<{ data: Record<string, PullMark> }>({
+          path: 'git/pullRequests/marks',
+          query: { issueIds: ids.join(',') },
+          signal,
+        })
+      ).data,
+  });
+}
+
 export function useCreateGitConnection(): UseMutationResult<
   GitConnection,
   unknown,

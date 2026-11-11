@@ -6,6 +6,18 @@ import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 export const SPLIT_GROUPS = ['wait', 'doing', 'backlog', 'done'] as const;
 export type SplitGroupKey = (typeof SPLIT_GROUPS)[number];
 
+/** The seven groups of the Issues table: the split view's four, with In review, Blocked and Cancelled of their own. */
+export const TABLE_GROUPS = [
+  'wait',
+  'doing',
+  'review',
+  'blocked',
+  'backlog',
+  'done',
+  'cancelled',
+] as const;
+export type TableGroupKey = (typeof TABLE_GROUPS)[number];
+
 /** What an issue waits for from the person: the server's decision kinds. */
 export type TaskWait =
   | 'takeOver'
@@ -40,6 +52,8 @@ export interface TaskRowIssue {
 
 export interface TaskRow {
   readonly issue: TaskRowIssue;
+  /** Finished and total sub-issues. */
+  readonly progress?: { readonly finished: number; readonly total: number };
   readonly dependencyWait: boolean;
   readonly blockers: readonly TaskBlocker[];
   readonly waits: readonly TaskWait[];
@@ -47,7 +61,7 @@ export interface TaskRow {
 }
 
 export interface TaskGroup {
-  readonly group: SplitGroupKey;
+  readonly group: SplitGroupKey | TableGroupKey;
   readonly count: number;
   readonly data: readonly TaskRow[];
 }
@@ -76,8 +90,13 @@ const KEY = ['task-groups'] as const;
 /** Refreshed while the page is open: a run finishing or a decision appearing moves the row without a reload. */
 const REFRESH_MS = 30_000;
 
+/**
+ * `split` is My issues' list (what the person follows stays in it: `follow=all`); `table` is the Issues page's grouped
+ * table, which keeps to the filters (`follow=scope`).
+ */
 export function useTaskGroups(
   filters: TaskGroupFilters,
+  view: 'split' | 'table' = 'split',
 ): UseQueryResult<TaskGroups> {
   const api = useApiClient();
   const query = Object.fromEntries(
@@ -92,7 +111,7 @@ export function useTaskGroups(
     }).filter(([, value]) => value !== undefined && value !== ''),
   ) as Record<string, string>;
   return useQuery({
-    queryKey: [...KEY, query],
+    queryKey: [...KEY, view, query],
     refetchInterval: REFRESH_MS,
     retry: false,
     queryFn: async ({ signal }) =>
@@ -100,7 +119,11 @@ export function useTaskGroups(
         await api.request<{ data: TaskGroups }>({
           path: 'taskGroups',
           // `follow=all`: what the person follows stays in the list even when the filters would leave it out.
-          query: { ...query, mode: 'split', follow: 'all' },
+          query: {
+            ...query,
+            mode: view,
+            follow: view === 'split' ? 'all' : 'scope',
+          },
           signal,
         })
       ).data,
