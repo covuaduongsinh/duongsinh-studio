@@ -130,6 +130,33 @@ const zhCN: AppResource = {
       },
     },
   },
+  settingsStudio: {
+    holders: '持有人数',
+    back: '返回',
+    categories: {
+      workspace: '工作区',
+      members: '成员与权限',
+      integrations: '集成',
+      agents: '智能体与运维',
+      personal: '我的账户',
+    },
+  },
+  agentCli: {
+    accountSettings: '账户设置',
+    menu: '在你的智能体中使用 Studio',
+    title: '在你的智能体中使用 Studio',
+    description:
+      '在运行编码智能体的电脑上安装 Studio CLI 并登录：智能体将以你的身份工作。',
+    create: '生成安装命令',
+    install: '安装 CLI',
+    login: '登录',
+    keyHint: '无人登录的机器请使用个人 API 密钥，见',
+    myAccount: '我的账户',
+    copy: '复制：{{what}}',
+    copied: '已复制。',
+    copyFailed: '复制失败，请选中文本后手动复制。',
+    failed: '无法生成安装命令。',
+  },
   dashboard: {
     title: '仪表盘',
     description: '交付进展如何、智能体表现如何，以及哪里卡住了。',

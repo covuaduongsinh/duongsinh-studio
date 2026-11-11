@@ -132,6 +132,33 @@ const viVN: AppResource = {
       },
     },
   },
+  settingsStudio: {
+    holders: 'Số người giữ',
+    back: 'Quay lại',
+    categories: {
+      workspace: 'Không gian làm việc',
+      members: 'Thành viên & quyền',
+      integrations: 'Tích hợp',
+      agents: 'Agent & vận hành',
+      personal: 'Tài khoản của tôi',
+    },
+  },
+  agentCli: {
+    accountSettings: 'Cài đặt tài khoản',
+    menu: 'Dùng Studio trong agent của bạn',
+    title: 'Dùng Studio trong agent của bạn',
+    description:
+      'Cài CLI của Studio trên máy chạy agent lập trình của bạn rồi đăng nhập: agent sẽ làm việc với tư cách bạn.',
+    create: 'Tạo lệnh cài đặt',
+    install: 'Cài CLI',
+    login: 'Đăng nhập',
+    keyHint: 'Với máy không ai đăng nhập, dùng API key cá nhân ở',
+    myAccount: 'Tài khoản của tôi',
+    copy: 'Sao chép: {{what}}',
+    copied: 'Đã sao chép.',
+    copyFailed: 'Không sao chép được. Hãy chọn văn bản rồi sao chép.',
+    failed: 'Không tạo được lệnh cài đặt.',
+  },
   dashboard: {
     title: 'Tổng quan',
     description: 'Việc giao đi thế nào, agent làm ra sao, và cái gì đang tắc.',

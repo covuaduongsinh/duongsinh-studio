@@ -136,6 +136,33 @@ const enUS = {
       },
     },
   },
+  settingsStudio: {
+    holders: 'Holders',
+    back: 'Back',
+    categories: {
+      workspace: 'Workspace',
+      members: 'Members & access',
+      integrations: 'Integrations',
+      agents: 'Agents & operations',
+      personal: 'My account',
+    },
+  },
+  agentCli: {
+    accountSettings: 'Account settings',
+    menu: 'Use Studio in your agent',
+    title: 'Use Studio in your agent',
+    description:
+      'Install the Studio CLI on the computer your coding agent runs on, then sign in: the agent acts as you.',
+    create: 'Create the install command',
+    install: 'Install the CLI',
+    login: 'Sign in',
+    keyHint: 'For a machine where nobody signs in, use a personal API key from',
+    myAccount: 'My account',
+    copy: 'Copy: {{what}}',
+    copied: 'Copied.',
+    copyFailed: 'Could not copy. Select the text and copy it.',
+    failed: 'The install command could not be created.',
+  },
   dashboard: {
     title: 'Dashboard',
     description:

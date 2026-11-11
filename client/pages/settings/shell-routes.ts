@@ -28,22 +28,30 @@ const settingsShellRoutes: AppClientRouteContribution = defineAppRoutes([
       },
       {
         name: 'settingsAccount',
-        navigation: { title: 'settings.categories.account', order: 10 },
+        navigation: { title: 'settingsStudio.categories.members', order: 20 },
         children: [],
       },
       {
         name: 'settingsBusiness',
-        navigation: { title: 'settings.categories.business', order: 20 },
+        navigation: { title: 'settingsStudio.categories.workspace', order: 10 },
         children: [],
       },
       {
         name: 'settingsAi',
-        navigation: { title: 'settings.categories.ai', order: 30 },
+        navigation: { title: 'settingsStudio.categories.agents', order: 40 },
         children: [],
       },
       {
         name: 'settingsSystem',
-        navigation: { title: 'settings.categories.system', order: 40 },
+        navigation: {
+          title: 'settingsStudio.categories.integrations',
+          order: 30,
+        },
+        children: [],
+      },
+      {
+        name: 'settingsPersonal',
+        navigation: { title: 'settingsStudio.categories.personal', order: 50 },
         children: [],
       },
     ],

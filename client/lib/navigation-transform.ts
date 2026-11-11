@@ -1,6 +1,9 @@
 import { groupFoundationNavigation } from '@nocobase/app-plugin-foundation/client';
 import type { AppClientRegisteredRoute } from '@nocobase/app-client/plugins';
-import type { RouteNavigationItem } from '../routing/route-navigation.js';
+import {
+  routeKey,
+  type RouteNavigationItem,
+} from '../routing/route-navigation.js';
 
 /**
  * The settings route group: one sidebar entry opening its home page. Its direct child groups are categories on that
@@ -225,6 +228,49 @@ function descendantPages(
     ...(child.componentLoader ? [child] : []),
     ...descendantPages(child),
   ]);
+}
+
+/** Whether a location is in System settings, where the sidebar shows the settings modules instead of the main menu. */
+export function isSettingsPath(pathname: string): boolean {
+  return pathname === '/settings' || pathname.startsWith('/settings/');
+}
+
+/**
+ * Dương Sinh changes the frame here on purpose: inside Settings the sidebar lists the settings modules by category
+ * (with a Back link above them) instead of the main menu, as the NocoBase Studio demo does. The template keeps Settings
+ * as one entry opening a home of cards (`collapseSettingsNavigation`) and has no sidebar of its own for it; the built-in
+ * path (a module is a card, its pages are tabs) cannot give a sidebar that stays on the module's pages. Each module is
+ * one link to its target page, selected on every page below it; routes, ids and grants are untouched.
+ */
+export function settingsSidebarItems(
+  categories: readonly SettingsCategory[],
+): RouteNavigationItem[] {
+  return categories.map((category) => ({
+    route: category.route,
+    children: category.modules.map((module) => ({
+      route: { ...module.target, navigation: module.route.navigation },
+      children: [],
+    })),
+  }));
+}
+
+/** The settings module the matched route keys (the open page and its ancestors) belong to, as its sidebar item's key. */
+export function selectedSettingsKey(
+  categories: readonly SettingsCategory[],
+  matched: readonly string[],
+): string | undefined {
+  const open = new Set(matched);
+  for (const category of categories)
+    for (const module of category.modules) {
+      const own = [
+        module.route,
+        module.target,
+        ...descendantPages(module.route),
+      ];
+      if (own.some((route) => open.has(routeKey(route))))
+        return routeKey(module.target);
+    }
+  return undefined;
 }
 
 export interface SettingsModule {

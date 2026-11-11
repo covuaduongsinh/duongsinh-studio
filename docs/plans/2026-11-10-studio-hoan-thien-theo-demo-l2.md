@@ -190,4 +190,4 @@ Mỗi bước: một nhánh `feat/p<N>-<slug>` → một PR → CI xanh → gộ
 
 ## 6. Tiến độ
 
-- [x] Đặc tả REA lượt 1 (mục 3b) · [x] P0 đồng bộ + PR phần dở (#51, ef93538) · [x] P0b đặc tả bù + đường cơ sở Craft Anything (rea-luot-2, craft/) · [x] P1 (khung chia đôi theo taskGroups, §34) · [x] P2 (chi tiết issue theo demo, §35) · [x] P3 (Issues dạng bảng nhóm, §36) · [x] P4 (My sessions, §37) · [x] P5 (Dashboard, §38) · [x] P6 (Dự án / Phát hành / Môi trường, §39) · [ ] P7 · [ ] P8 · [ ] P9
+- [x] Đặc tả REA lượt 1 (mục 3b) · [x] P0 đồng bộ + PR phần dở (#51, ef93538) · [x] P0b đặc tả bù + đường cơ sở Craft Anything (rea-luot-2, craft/) · [x] P1 (khung chia đôi theo taskGroups, §34) · [x] P2 (chi tiết issue theo demo, §35) · [x] P3 (Issues dạng bảng nhóm, §36) · [x] P4 (My sessions, §37) · [x] P5 (Dashboard, §38) · [x] P6 (Dự án / Phát hành / Môi trường, §39) · [x] P7 (khung: sidebar Cài đặt, đầu trang, menu avatar, §40) · [ ] P8 · [ ] P9

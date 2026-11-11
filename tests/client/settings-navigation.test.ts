@@ -223,9 +223,6 @@ describe('System settings navigation', () => {
       [
         ['notificationManagement', '/settings/notifications/templates'],
         ['settingsGit', '/settings/git'],
-        ['settingsOrganizationKeys', '/settings/organization-keys'],
-        ['settingsProjectManager', '/settings/project-manager'],
-        ['settingsBudgets', '/settings/budgets'],
       ],
     ]);
     expect(

@@ -10,6 +10,11 @@ import { ChatPanel } from '#extensions/nocobase-agent-chat/chat-panel';
 import { ChatFloatingButton } from '#extensions/nocobase-agent-chat/launchers';
 
 import { useNavigationCounts } from '#hooks/use-follow-ups';
+import {
+  isSettingsPath,
+  selectedSettingsKey,
+  settingsSidebarItems,
+} from '#lib/navigation-transform';
 
 import { RouteTreeProvider } from '../routing/route-context.js';
 import { RouteLeaveBoundary } from '../routing/route-leave-boundary.js';
@@ -24,9 +29,14 @@ import {
 } from './components/app-sidebar.js';
 import { NavigationMenu } from './components/navigation-menu.js';
 import { HeaderActions } from './components/header-actions.js';
+import { SettingsBack } from './components/settings-back.js';
+import { useRememberOutsideSettings } from './components/settings-return.js';
 import { AppSidebarFooter } from './components/sidebar-footer.js';
 import {
   useRouteNavigation,
+  buildSettingsCatalog,
+  matchRouteTree,
+  routeKey,
   selectedNavigationId,
 } from '../routing/route-navigation.js';
 
@@ -41,10 +51,25 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
   const { t } = useTranslation();
   const { items: menuItems, denied, loading } = useRouteNavigation(routes);
   const access = useMemo(() => ({ denied, loading }), [denied, loading]);
-  const selectedKey = selectedNavigationId(
-    routes,
-    useLocation().pathname,
-    denied,
+  const { pathname } = useLocation();
+  const selectedKey = selectedNavigationId(routes, pathname, denied);
+  // Dương Sinh: inside Settings the sidebar lists the settings modules instead of the main menu (see
+  // `settingsSidebarItems` in `lib/navigation-transform.ts` and `.agents/rules/shell.md`).
+  const inSettings = isSettingsPath(pathname);
+  useRememberOutsideSettings();
+  const settingsCategories = useMemo(
+    () => buildSettingsCatalog(routes, denied),
+    [routes, denied],
+  );
+  const settingsItems = useMemo(
+    () => settingsSidebarItems(settingsCategories),
+    [settingsCategories],
+  );
+  const settingsKey = selectedSettingsKey(
+    settingsCategories,
+    (matchRouteTree(routes, pathname) ?? []).map(({ route }) =>
+      routeKey(route),
+    ),
   );
   // Dương Sinh: what waits on the viewer, beside the entries it belongs to; the shell owns the menu, so it passes them.
   const counts = useNavigationCounts(!loading);
@@ -68,12 +93,24 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
         <PageBreadcrumbProvider>
           <AppSidebarProvider>
             <AppSidebar label={navigationLabel} footer={<AppSidebarFooter />}>
-              <NavigationMenu
-                items={menuItems}
-                badges={badges}
-                label={navigationLabel}
-                selectedKey={selectedKey}
-              />
+              {inSettings ? (
+                <>
+                  <SettingsBack />
+                  <NavigationMenu
+                    items={settingsItems}
+                    badges={{}}
+                    label={navigationLabel}
+                    selectedKey={settingsKey}
+                  />
+                </>
+              ) : (
+                <NavigationMenu
+                  items={menuItems}
+                  badges={badges}
+                  label={navigationLabel}
+                  selectedKey={selectedKey}
+                />
+              )}
             </AppSidebar>
             <div className='flex min-w-0 flex-1 flex-col'>
               <LayoutHeader className='sticky top-0 z-40 justify-between'>

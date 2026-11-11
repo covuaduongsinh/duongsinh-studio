@@ -12,6 +12,7 @@ import { PlusIcon } from 'lucide-react';
 import { PermissionManagementPage } from './permission-management-page.js';
 import { Input } from '#components/ui/input';
 import { Button } from '#components/ui/button';
+import { useAccessMembers } from '#hooks/use-access';
 import { useTableUrlState } from '#hooks/use-table-url-state';
 import { RoleList } from '#components/role-list';
 import { ListFeedback, ListFeedbackActions } from '#components/list-feedback';
@@ -26,6 +27,17 @@ export default function RolesPage(): ReactElement {
     { active },
   );
   const canCreate = useRolePermission('create');
+  // How many people hold each role, counted from the people the server lists. Studio's built-in roles are the
+  // permission sets named `ds-<role>` (`ds-contributor` is the role `contributor`), so both spellings count.
+  const people = useAccessMembers(active);
+  const holdersOf = (key: string): number | undefined =>
+    people.data
+      ? people.data.members.filter((member) =>
+          (member.roles ?? []).some(
+            (role) => role === key || `ds-${role}` === key,
+          ),
+        ).length
+      : undefined;
   const text = (value: LocalizedText): string =>
     typeof value === 'string'
       ? value
@@ -140,6 +152,9 @@ export default function RolesPage(): ReactElement {
                   search: location.search,
                 },
                 protected: Boolean(role.protection),
+                ...(holdersOf(role.key) === undefined
+                  ? {}
+                  : { holders: holdersOf(role.key) }),
               }))}
               labels={{
                 name: t('settings.roleName'),
@@ -147,6 +162,7 @@ export default function RolesPage(): ReactElement {
                 type: t('settings.roleType'),
                 protected: t('settings.protected'),
                 custom: t('settings.custom'),
+                holders: t('settingsStudio.holders'),
               }}
             />
           </ListFeedback>

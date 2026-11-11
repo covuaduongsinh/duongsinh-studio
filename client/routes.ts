@@ -366,7 +366,7 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
   },
   {
     name: 'settingsProjectDefaultSkills',
-    parent: 'settingsBusiness',
+    parent: 'settingsAi',
     path: '/project-default-skills',
     auth: 'required',
     authz: {
@@ -401,7 +401,7 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
   {
     // API keys of the organization, for CI and other machines. The server also refuses every key here.
     name: 'settingsOrganizationKeys',
-    parent: 'settingsSystem',
+    parent: 'settingsAccount',
     path: '/organization-keys',
     auth: 'required',
     authz: {
@@ -419,7 +419,7 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
     // The project manager (lead agent): its models, waits and principles. Reading needs the agents settings item's `read`
     // (the server checks it too), changing it `manage`.
     name: 'settingsProjectManager',
-    parent: 'settingsSystem',
+    parent: 'settingsAi',
     path: '/project-manager',
     auth: 'required',
     authz: {
@@ -436,7 +436,7 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
   {
     // Limits of runs and tokens. The server also checks this on every request.
     name: 'settingsBudgets',
-    parent: 'settingsSystem',
+    parent: 'settingsAi',
     path: '/budgets',
     auth: 'required',
     authz: {
@@ -472,7 +472,7 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
     // The signed-in person's own profile, password and API keys. It only ever acts on their own account, through the
     // Better Auth client, so everyone signed in may open it; the server decides again on every call.
     name: 'settingsMyAccount',
-    parent: 'settingsAccount',
+    parent: 'settingsPersonal',
     path: '/my-account',
     auth: 'required',
     authz: 'skip',
@@ -486,7 +486,7 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
   {
     // Each person's own choices, so everyone signed in may open it.
     name: 'settingsMyNotifications',
-    parent: 'settingsAccount',
+    parent: 'settingsPersonal',
     path: '/my-notifications',
     auth: 'required',
     authz: 'skip',
