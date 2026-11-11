@@ -41,7 +41,8 @@ export const RECOMMENDED_PROXY_ALLOWLIST: readonly ProxyAllowlistDomain[] = [
   },
   {
     domain: 'api.anthropic.com',
-    description: 'Giao tiếp mô hình ngôn ngữ Opus/Sonnet phục vụ đánh giá và review',
+    description:
+      'Giao tiếp mô hình ngôn ngữ Opus/Sonnet phục vụ đánh giá và review',
     protocol: 'https',
     required: true,
   },
