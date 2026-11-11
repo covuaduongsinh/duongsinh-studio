@@ -276,7 +276,8 @@ export function IssueDetailView({
             }
             actions={
               <>
-                {viewer ? (
+                {/* Embedded in the split view, its own header already carries Follow. */}
+                {viewer && !embedded ? (
                   <Button
                     type='button'
                     variant='outline'

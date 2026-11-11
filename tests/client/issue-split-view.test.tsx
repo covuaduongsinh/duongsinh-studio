@@ -375,4 +375,19 @@ describe('issue split view', () => {
     await user.keyboard('{Enter}');
     await waitFor(() => expect(where()).toBe('/issues/PM-21'));
   });
+
+  it('shows Follow once: the pane header has it, the embedded detail does not repeat it', async () => {
+    await renderAt('/my-issues?issue=22');
+    await screen.findByText(
+      enUS.issues.split.position
+        .replace('{{index}}', '2')
+        .replace('{{total}}', '4'),
+    );
+    await waitFor(() =>
+      expect(calls('GET', 'projects/issues/22').length).toBeGreaterThan(0),
+    );
+    expect(
+      screen.getAllByRole('button', { name: enUS.issues.split.follow }),
+    ).toHaveLength(1);
+  });
 });
