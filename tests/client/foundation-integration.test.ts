@@ -76,6 +76,7 @@ describe('default Foundation integration', () => {
           ['settingsVerifications', '/settings/verifications'],
           ['settingsReviews', '/settings/reviews'],
           ['settingsLessons', '/settings/lessons'],
+          ['settingsPlaybooks', '/settings/playbooks'],
           ['settingsProjectManager', '/settings/project-manager'],
           ['settingsBudgets', '/settings/budgets'],
         ],

@@ -11,6 +11,8 @@ import { str, num } from '../git/rows.js';
 import { scanSecrets } from '../security/secret-patterns.js';
 import type { SecretFindingsService } from '../security/service.js';
 import { secretFindingsServiceToken } from './security.js';
+import { parsePlaybookInvocations } from '../playbooks/parser.js';
+import { applyPlaybookToIssue } from '../playbooks/service.js';
 import {
   agentsToken,
   type Agents,
@@ -425,6 +427,31 @@ export function createAgentKind(deps: {
               'Failed to record secret findings for comment:',
               error,
             );
+          }
+        }
+      }
+
+      if (comment.content) {
+        const invocations = parsePlaybookInvocations(comment.content);
+        for (const inv of invocations) {
+          try {
+            const result = await applyPlaybookToIssue(tx.conn, {
+              issueId: issue.id,
+              slug: inv.slug,
+              params: inv.params,
+              commentId: comment.id,
+              userId,
+            });
+            if (!result.success && result.reason === 'NOT_FOUND') {
+              await projects.comments.post(
+                { type: 'system', id: null },
+                issue.id,
+                { content: result.message },
+                { outer: tx },
+              );
+            }
+          } catch (error) {
+            console.warn('Failed to apply playbook invocation:', error);
           }
         }
       }
