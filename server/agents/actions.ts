@@ -230,6 +230,27 @@ function reviewsSubmit(flags: Flags): StudioAction {
 /** The business action reading `reports/metrics` and `reports/usage` from a run. */
 export const REPORTS_READ_ACTION = 'studio.reports/read';
 
+/** The business action proposing structured acceptance criteria for an issue (H1a). */
+export const CRITERIA_PROPOSE_ACTION = 'studio.criteria/propose';
+
+function criteriaPropose(flags: Flags): StudioAction {
+  return {
+    option: option(
+      CRITERIA_PROPOSE_ACTION,
+      'studio.criteria',
+      {
+        title: appText('studioCriteria.actions.propose.title'),
+        description: appText('studioCriteria.actions.propose.description'),
+        groupTitle: appText('studioCriteria.actions.groupTitle'),
+      },
+      flags,
+    ),
+    resource: { type: pmAccess.RESOURCE_TYPE, id: 'pm.issues' },
+    names: pmAccess.levelActionsOf('pm.issues/edit').map((level) => level.name),
+    borrowed: true,
+  };
+}
+
 /** The page whose grant opens the dashboard and every report. */
 export const REPORTS_PAGE = 'reports';
 
@@ -274,6 +295,7 @@ export const STUDIO_ACTIONS: readonly StudioAction[] = [
   pm('pm.issues', 'moderate-comments', { peopleOnly: true }),
   pm('pm.attachments', 'upload', { defaultOn: true }),
   gitOpenPr({ defaultOn: true }),
+  criteriaPropose({ defaultOn: true }),
   plansUse({ defaultOn: true }),
   reviewsSubmit({ defaultOn: true }),
   reportsRead({}),

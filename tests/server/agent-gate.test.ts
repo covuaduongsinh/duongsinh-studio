@@ -95,6 +95,8 @@ test('the gate gives people their own actions and runs their agent’s within th
       'rel.apps/read-logs',
       // AP1: reviewing agents submit structured reviews through Studio.
       'studio.reviews/submit',
+      // H1a: executing agents propose acceptance criteria for their issues.
+      'studio.criteria/propose',
     ].sort(),
   );
   expect((await agents.agents.get(PROJECT_MANAGER_ID)).actions).toEqual(

@@ -78,6 +78,7 @@ import { RouterAnchor } from '../router-anchor.js';
 import { IssueActivity } from './issue-activity.js';
 import { IssueAside, IssuePropertyChips } from './issue-aside.js';
 import { IssueDeliveryReport } from './issue-delivery-report.js';
+import { IssueCriteriaSection } from '#components/criteria/criteria-editor';
 import { IssueKbOffers } from './issue-kb-offers.js';
 import { IssueMergeButton, IssueNeedsYouActions } from './issue-needs-you.js';
 import { IssueProgressPanel } from './issue-progress.js';
@@ -333,6 +334,7 @@ export function IssueDetailView({
             issueId={detail.id}
             acceptance={detail.acceptance}
           />
+          <IssueCriteriaSection issueId={detail.id} canEdit={canEdit} />
           <IssuePropertyChips
             detail={detail}
             update={update}

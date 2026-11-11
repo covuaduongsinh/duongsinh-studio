@@ -763,3 +763,16 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
   - Nếu trùng với một bản dựng sẵn đã phát hành trong quá khứ (`isBuiltinPublishedContent`, tức người chưa chỉnh sửa tay): tự động lưu phiên bản mới (`skills.save`) với ghi chú nâng cấp phiên bản.
   - Nếu người dùng đã chỉnh sửa thủ công: giữ nguyên bản sửa tay của người dùng, không ghi đè, và gửi một thông báo Hộp thư kèm `idempotencyKey` cho các quản trị viên (`ADMINISTRATOR_SET_KEYS`).
 - Test: `tests/server/builtin-skills-upgrade.test.ts`.
+
+## 44. H1a — Cấu trúc hoá tiêu chí nghiệm thu công việc (11/11/2026)
+
+- Plugin `projects` không hỗ trợ lưu danh sách tiêu chí nghiệm thu có phân loại kiểm tra (`test`, `command`, `ci`, `human`) và vị trí thứ tự.
+- Studio tạo bảng `ds_issue_criteria` (cho từng issue) và `ds_project_default_criteria` (mặc định của dự án) qua migration `202611110003_ds_issue_criteria.ts`.
+- API tại `server/routes/issue-criteria.ts`:
+  - `GET /api/issues/:issueId/criteria` và `PUT /api/issues/:issueId/criteria`.
+  - `POST /api/issues/:issueId/criteria/propose`: cho phép agent run hoặc người dùng đề xuất tiêu chí mới. Action `CRITERIA_PROPOSE_ACTION` (`studio.criteria/propose`) được bật mặc định cho run. Tiêu chí đề xuất có hiệu lực ngay (theo quyết định Q2).
+  - `GET /api/projects/:projectId/defaultCriteria` và `PUT /api/projects/:projectId/defaultCriteria`.
+- Khi issue mới được tạo (`projects.events.on('issue.created')`), `server/providers/project-defaults.ts` tự động sao chép tiêu chí mặc định từ dự án vào issue với `source: 'projectDefault'`.
+- `server/providers/issue-subject.ts` tự động chèn danh sách tiêu chí nghiệm thu vào `guidance.rules` khi tạo đề bài cho agent (hoặc nhắc đề xuất tiêu chí nếu issue chưa có).
+- Giao diện: `client/components/criteria/criteria-editor.tsx` (`CriteriaEditor`, `IssueCriteriaSection`, `ProjectDefaultCriteriaCard`), gắn vào trang chi tiết issue cạnh `IssueDeliveryReport` và vào tab Cài đặt dự án.
+- Test: `tests/database/ds-issue-criteria-migration.test.ts`, `tests/server/issue-criteria-routes.test.ts`, `tests/client/criteria-editor.test.tsx`.

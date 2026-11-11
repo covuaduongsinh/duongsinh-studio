@@ -536,6 +536,46 @@ const enUS = {
       },
     },
   },
+  studioCriteria: {
+    actions: {
+      groupTitle: 'Acceptance criteria',
+      propose: {
+        title: 'Propose criteria',
+        description: 'Propose structured acceptance criteria for an issue.',
+      },
+    },
+    title: 'Acceptance Criteria',
+    description:
+      'Conditions that must be met for work to be considered complete.',
+    defaultTitle: 'Default Criteria',
+    defaultDescription:
+      'Acceptance criteria automatically attached to new issues.',
+    addCriteria: 'Add criterion',
+    empty: 'No acceptance criteria defined yet.',
+    emptyDefault: 'No default criteria configured.',
+    text: 'Description',
+    textPlaceholder: 'e.g., Tests pass, CI green...',
+    kind: 'Check kind',
+    value: 'Check value',
+    valuePlaceholder: 'Test file, command, or CI check name',
+    kinds: {
+      test: 'Test',
+      command: 'Command',
+      ci: 'CI check',
+      human: 'Human sign-off',
+    },
+    source: {
+      human: 'Specified by person',
+      agent: 'Proposed by agent',
+      projectDefault: 'Project default',
+    },
+    saveSuccess: 'Acceptance criteria saved.',
+    saveFailed: 'Failed to save criteria.',
+    save: 'Save changes',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    deleteConfirm: 'Are you sure you want to delete this criterion?',
+  },
   projectSetup: {
     title: 'Set up a project',
     description: 'A project with its repository and first issue, in one step.',
