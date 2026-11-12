@@ -13,12 +13,17 @@ umask 077
 nice -n 19 docker exec "$DB" pg_dump -U studio -d studio -Fc > "$DEST/studio-$DAY.dump.tmp"
 mv "$DEST/studio-$DAY.dump.tmp" "$DEST/studio-$DAY.dump"
 nice -n 19 ionice -c3 tar -czf "$DEST/storage-$DAY.tar.gz" -C "$ROOT" storage
+# Các app NocoBase 3 do Studio quản (V5.2): lỗi của chúng không chặn bản sao Studio, nhưng làm script thoát khác 0 ở cuối.
+NB3=0
+if [ -x "$ROOT/backup-nb3.sh" ]; then BACKUP_DAY="$DAY" "$ROOT/backup-nb3.sh" || NB3=1; fi
 REMOTE=
 [ -f "$ROOT/backup.env" ] && . "$ROOT/backup.env"
 if [ -n "$REMOTE" ]; then
   rclone copy "$DEST" "$REMOTE" --include "studio-$DAY.dump" --include "storage-$DAY.tar.gz" --log-level ERROR
   rclone check "$DEST" "$REMOTE" --include "studio-$DAY.dump" --include "storage-$DAY.tar.gz" --one-way --log-level ERROR
+  [ -d "$DEST/nb3" ] && rclone copy "$DEST/nb3" "$REMOTE/nb3" --include "*-$DAY.*" --log-level ERROR
   rclone delete "$REMOTE" --min-age 30d --log-level ERROR || echo "duongsinh-studio backup: could not prune $REMOTE" >&2
 fi
 ls -1t "$DEST"/studio-2*.dump 2>/dev/null | tail -n +15 | xargs -r rm -f
 ls -1t "$DEST"/storage-2*.tar.gz 2>/dev/null | tail -n +15 | xargs -r rm -f
+[ "$NB3" = 0 ] || { echo "duongsinh-studio backup: an NB3 app backup failed" >&2; exit 1; }

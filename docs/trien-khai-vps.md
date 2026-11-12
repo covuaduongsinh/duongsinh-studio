@@ -126,6 +126,22 @@ docker start <container app>
 Tên container: `duongsinh-studio-tluxoy-app-1` và `duongsinh-studio-tluxoy-db-1` (appName của compose trên Dokploy là
 `duongsinh-studio-tluxoy`).
 
+### App NocoBase 3 do Studio quản (V5.2)
+
+`backup.sh` gọi thêm `deploy/dokploy/backup-nb3.sh` (cài cạnh nó ở `/srv/duongsinh-studio/backup-nb3.sh`, `chmod +x`). Với mỗi
+container có service compose tên `nb3-<slug>-app` nó tạo trong `backups/nb3/`: bản DB (`<slug>-<ngày>.dump` bằng `pg_dump -Fc` nếu có
+service `nb3-<slug>-db`, kiểm lại bằng `pg_restore -l`; nếu không thì `<slug>-<ngày>.sqlite` bằng `better-sqlite3` `backup()` trong
+container, không dừng app) và `<slug>-<ngày>.storage.tar.gz` (tệp tải lên; bỏ SQLite, log, jobs). Quyền 600, giữ 14 bản mỗi loại mỗi app,
+lỗi một app không chặn app khác nhưng `backup.sh` thoát khác 0. Có `REMOTE` thì thư mục `nb3/` cũng được đẩy lên. Chạy tay:
+`/srv/duongsinh-studio/backup-nb3.sh` (đặt `BACKUP_ROOT` để thử ở chỗ khác).
+
+Không thuộc phạm vi này: app **không** do driver Studio tạo, như NocoEdu (compose Dokploy `compose-synthesize-online-firewall-897jlk`), có
+cron riêng `/usr/local/bin/nocoedu-dsc-backup.sh` (đã chuyển sang `pg_dump` ngày 12/11/2026). Bản sao lưu **không** gồm `.env` (có
+`SECRETS_KEYS`): giữ riêng một bản ngoài VPS.
+
+Khôi phục một app PostgreSQL: dừng app, `docker exec -i <container db> pg_restore -U <user> -d <db> --clean --if-exists < <slug>-<ngày>.dump`,
+bật lại. App SQLite: dừng app, chép `<slug>-<ngày>.sqlite` lên `/app/storage/database.sqlite` của volume `<project>_storage`, bật lại.
+
 ## CLI `ds-studio` nối vào production
 
 Đăng nhập bằng trình duyệt (RFC 8628, `/device`): `ds-studio login --server https://studio.dsc.edu.vn/main` mở trình duyệt, bạn
