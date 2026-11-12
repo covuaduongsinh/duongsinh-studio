@@ -82,6 +82,25 @@ export const SECRET_PATTERNS: readonly SecretPatternDef[] = [
       /(?:api[_-]?key|secret[_-]?key|access[_-]?token|auth[_-]?token|private[_-]?key)\s*[:=]\s*['"]?([A-Za-z0-9\-_.~+/=]{20,})['"]?/gi,
     valueGroupIndex: 1,
   },
+  {
+    key: 'named_secret_assignment',
+    description:
+      'Environment-style assignment of a secret, password or token (LARK_APP_SECRET=…, DB_PASSWORD=…, SECRETS_KEYS=…)',
+    // Two shapes only, so code is left alone: `NAME=value` with no space around `=` (dotenv, shell, compose, docs), and
+    // YAML `NAME: value` where the value also contains a digit (a JS property such as `CALLBACK_TOKEN: callbackToken` or
+    // `const X_SECRET = 'SOME_NAME'` is not a literal secret). The name ends in SECRET, PASSWORD, PASSWD or TOKEN, or is
+    // SECRETS_KEY(S); the value is 12+ characters of a secret-ish alphabet. Not matched: `${VAR}`, `<…>` (first character
+    // outside the alphabet), `process.env.X` or `config.token` (identifier chains), `***`/`...`/`xxxx` and placeholder words.
+    regex:
+      /\b(?:[A-Z][A-Z0-9]*_)*(?:SECRETS_KEYS?|SECRET|PASSWORD|PASSWD|TOKEN)(?:=['"]?|:[ \t]+['"]?(?=[A-Za-z0-9\-_.~+/=@#%!^*]*[0-9]))(?![A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_])(?!\*{3}|\.{3}|x{6}|X{6}|[Cc]hange|[Yy]our|[Ee]xample|[Pp]laceholder|[Rr]eplace|[Dd]ummy|[Rr]edacted|REDACTED)([A-Za-z0-9\-_.~+/=@#%!^*]{12,})/g,
+    valueGroupIndex: 1,
+  },
+  {
+    key: 'bearer_token',
+    description: 'Bearer token in an Authorization header',
+    regex: /\bBearer[ \t]+([A-Za-z0-9\-_.~+/=]{24,})/g,
+    valueGroupIndex: 1,
+  },
 ];
 
 export const MASKED_SECRET_PLACEHOLDER = '[NGHI LÀ BÍ MẬT]';
