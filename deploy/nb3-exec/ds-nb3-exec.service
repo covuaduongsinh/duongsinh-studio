@@ -1,0 +1,23 @@
+[Unit]
+Description=Duong Sinh Studio: run allowed commands inside NocoBase 3 apps (ds-nb3-exec)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /usr/local/lib/ds-nb3-exec/ds-nb3-exec.mjs
+Environment=DS_NB3_EXEC_CONFIG=/etc/ds-nb3-exec/config.json
+Restart=on-failure
+RestartSec=3
+# It has to be root to talk to Docker; everything else is taken away.
+User=root
+NoNewPrivileges=true
+ProtectHome=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/run/ds-nb3 /srv/duongsinh-studio/jobs
+RuntimeDirectory=ds-nb3
+RuntimeDirectoryMode=0750
+
+[Install]
+WantedBy=multi-user.target
