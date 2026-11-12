@@ -248,7 +248,7 @@ Q1 đã chọn: daemon host + unix socket. **Việc của chủ dự án trên V
 
 - File: `server/providers/nb3-jobs.ts` (client của daemon qua unix socket, ký HMAC, dịch lỗi), `server/routes/nb3-jobs.ts`, migration `2026111200NN_ds_nb3_jobs` (`dsNb3Jobs`: `id`, `appId`, `command` (cụm lệnh đã chuẩn hoá), `args` (đã che), `dryRun`, `actorType/Id`, `issueId?`, `runId?`, `status` (`queued|running|succeeded|failed|timeout|denied`), `exitCode`, `startedAt`, `finishedAt`, `logTail` (20 KB đã che), `logSha256`), `server/agents/actions.ts` (action cho run).
 - API: `POST /api/releases/apps/{appId}/jobs` `{command, args, dryRun}` → 202 `{data:{id}}`; `GET /api/releases/apps/{appId}/jobs/{id}` → trạng thái, mã thoát, `logTail`; `GET /api/releases/apps/{appId}/jobs` (danh sách có phân trang). camelCase, `{data}` thành công, `ApiError`, `apiValidator()`, `describeRoute()` kèm `cliRoute` (`ds-studio nb3 job run|get`). Middleware chỉ trên đường dẫn của route, không `use('*')`.
-- Quyền: **`rel.apps/operate`** (theo bản thảo). Phân biệt thêm trong mã: lệnh **đọc** (`--dry-run`, `logs`) cần `operate`; lệnh **ghi** (`--commit`, `migrate`, `seed`) cần `operate` **và** là root/owner; agent chạy (run token) chỉ được `dryRun=true` khi việc có playbook `!nhap-lark` (khớp ý B §2.3). Cấp `operate.all` cho `ds-admin` bằng **seed mới** `2026111200NN_ds_roles_operate` (seed đã merge là lịch sử, không sửa seed cũ) — xử lý **B#20** — nhưng lệnh ghi vẫn cần root; xác nhận lại khi duyệt.
+- Quyền: **`rel.apps/operate`** (theo bản thảo). Phân biệt thêm trong mã: lệnh **đọc** (`--dry-run`, `logs`) cần `operate`; lệnh **ghi** (`--commit`, `migrate`, `seed`) cần `operate` **và** là root/owner; agent chạy (run token) chỉ được `dryRun=true` khi việc có playbook `!nhap-lark` (khớp ý B §2.3). Cấp `operate.all` cho `ds-admin` bằng **seed mới** `2026111200NN_ds_roles_operate` (seed đã merge là lịch sử, không sửa seed cũ) — xử lý **B#20** — nhưng lệnh ghi chỉ root (Q8 đã chốt).
 - Dữ liệu học viên: log job không được in bản ghi (chỉ đếm/diff cột) — đưa vào tiêu chí `!nhap-lark`. Log giữ 14 ngày (job dọn bằng tác vụ theo lịch).
 - Test: route 401/403 (người thiếu `operate`, khoá API thiếu phạm vi, run token không có playbook)/202/200/409 (đã có job chạy)/429; migration up/down; client daemon giả: chữ ký, timeout, daemon sập → `503` có thông điệp rõ, không treo; lệnh ngoài allowlist → `denied` ghi nhật ký.
 
@@ -383,11 +383,11 @@ nâng trần `maxApps` mà chưa có cổng RAM; `IssueCreationModeContext='manu
 | Q6  | (mới) V0.1: không dùng được `'manual'` nếu muốn giữ tab AI — chọn cách? | Mặc định Thủ công, vẫn chọn được AI         | **Mặc định Thủ công, vẫn chọn được AI** (chuyển hướng `?tab=manual`, không dùng context) |
 | Q7  | NocoEdu production ở compose/project Dokploy nào, DB gì, miền nào?      | —                                           | **Chưa trả lời.** V5.4 không bắt đầu cho tới khi có câu trả lời; không suy đoán.         |
 
-Câu hỏi còn mở khi duyệt kế hoạch này:
+Đã chốt khi duyệt kế hoạch (12/11/2026):
 
-- **Q8** — Lệnh ghi qua kênh job (`--commit`, `migrate`, `seed`): chỉ root, hay cho cả `ds-admin` có `operate`? Khuyến nghị: chỉ root; `ds-admin` chỉ dry-run/đọc log.
-- **Q9** — V3.4(d): có đồng ý đổi cổng merge để review chạy song song với CI? Khuyến nghị: có, kèm cờ tắt; đo chi phí sau 2 tuần.
-- **Q10** — Khi nào làm xong M4.3 (để V5.3 không trùng mẫu workflow)? Khuyến nghị: M4.3 trước V5.3.
+- **Q8** — Lệnh ghi qua kênh job (`--commit`, `migrate`, `seed`): **chỉ root**. `ds-admin` (có `operate`) chỉ chạy dry-run và đọc log.
+- **Q9** — V3.4(d): **có** đổi cổng merge để review chạy song song với CI, kèm cờ tắt; đo chi phí sau 2 tuần.
+- **Q10** — **Làm M4.3 trước V5.3**; V5.3 không bắt đầu khi M4.3 chưa đóng.
 
 ## 10. Ghi vào `docs/chenh-lech-upstream.md` khi làm
 
