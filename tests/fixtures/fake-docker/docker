@@ -1,0 +1,30 @@
+#!/bin/sh
+# A stand-in for `docker` that answers what deploy/dokploy/backup-nb3.sh asks, from FAKE_* variables, and logs each call.
+echo "$*" >> "$FAKE_DOCKER_LOG"
+case "$1" in
+  ps)
+    case "$*" in
+      *"--format"*) printf '%s\n' "$FAKE_APPS" ;;
+      *"-q"*)
+        case "$*" in
+          *"service=nb3-pgapp-db"*) echo "dbcontainer" ;;
+          *) : ;;
+        esac ;;
+    esac ;;
+  exec)
+    shift
+    [ "$1" = "-i" ] && shift
+    target=$1; shift
+    case "$*" in
+      "printenv POSTGRES_USER") echo "app_user" ;;
+      "printenv POSTGRES_DB") echo "app_db" ;;
+      pg_dump*) [ "${FAKE_PGDUMP_FAIL:-0}" = 1 ] && exit 1; echo "pgdump-bytes" ;;
+      pg_restore*) cat >/dev/null; if [ "${FAKE_EMPTY_DUMP:-0}" = 1 ]; then :; else echo "; 1; 0 TABLE DATA public users"; fi ;;
+      node*) [ "${FAKE_SQLITE_FAIL:-0}" = 1 ] && exit 1; exit 0 ;;
+      tar*) echo "tar-bytes" ;;
+      rm*) exit 0 ;;
+    esac ;;
+  cp)
+    # docker cp <container>:<path> <dest>
+    echo "sqlite-bytes" > "$3" ;;
+esac
