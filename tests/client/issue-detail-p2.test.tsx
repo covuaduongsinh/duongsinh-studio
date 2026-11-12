@@ -293,28 +293,81 @@ describe('issue page as the demo draws it', () => {
     api.mockClear();
   });
 
-  it('has four tabs, with Activity open and the others a click away', async () => {
+  it('has three tabs, with the Timeline open and the others a click away', async () => {
     const user = userEvent.setup();
     await renderPage();
 
-    expect(await tab(/^Activity/)).toHaveAttribute('aria-selected', 'true');
+    expect(await tab(/^Timeline/)).toHaveAttribute('aria-selected', 'true');
     expect(await tab(/^Description/)).toBeInTheDocument();
     expect(await tab(/^Code & previews/)).toBeInTheDocument();
-    expect(await tab(/^Runs/)).toBeInTheDocument();
+    // The runs are part of the Timeline now: no tab of their own.
+    expect(screen.queryByRole('tab', { name: /^Runs/ })).toBeNull();
     // The conversation is on the first tab; the description is not until its tab is opened.
     expect(screen.getByText('Here is what I changed.')).toBeInTheDocument();
-    expect(screen.queryByText(issue.description)).toBeNull();
 
     await user.click(await tab(/^Description/));
-    expect(await screen.findByText(issue.description)).toBeInTheDocument();
+    expect(
+      (await screen.findAllByText(issue.description)).length,
+    ).toBeGreaterThan(0);
 
     await user.click(await tab(/^Code & previews/));
     expect(
       await screen.findByText('Notify the owner', { selector: 'p, span, a' }),
     ).toBeInTheDocument();
+  });
 
-    await user.click(await tab(/^Runs/));
-    await waitFor(() => expect(calls('GET', 'issueRuns')).not.toHaveLength(0));
+  it('puts the agent runs and the pull request in the same stream as the comments', async () => {
+    await renderPage();
+    const panel = await screen.findByRole('tabpanel');
+    // All three kinds are on the open Timeline tab: a comment, a run of the Lead Agent, and the pull request.
+    expect(
+      await within(panel).findByText('Here is what I changed.'),
+    ).toBeInTheDocument();
+    expect(
+      await within(panel).findByText(enUS.issueWork.runs.status.completed),
+    ).toBeInTheDocument();
+    expect(
+      await within(panel).findByRole('link', {
+        name: 'Pull request #9 is open',
+      }),
+    ).toHaveAttribute('href', pull.url);
+    // The run row keeps its transcript and prompt controls, so the Runs tab is not needed.
+    expect(
+      within(panel).getByRole('button', { name: enUS.issueWork.runs.show }),
+    ).toBeInTheDocument();
+  });
+
+  it('offers a Latest button on a phone, and not on a wide screen', async () => {
+    const wide = await renderPage();
+    await screen.findByRole('tabpanel');
+    expect(
+      screen.queryByRole('button', { name: enUS.issueDetail.timeline.latest }),
+    ).toBeNull();
+    wide.unmount();
+
+    vi.stubGlobal('innerWidth', 390);
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('max-width'),
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    try {
+      await renderPage();
+      expect(
+        await screen.findByRole('button', {
+          name: enUS.issueDetail.timeline.latest,
+        }),
+      ).toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('shows the first lines of the description under the title', async () => {
+    await renderPage();
+    const glance = await screen.findByTestId('issue-description-glance');
+    expect(within(glance).getByText(issue.description)).toBeInTheDocument();
   });
 
   it('follows the issue from the top of the page', async () => {

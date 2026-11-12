@@ -34,6 +34,8 @@ import {
 
 /** A run that a runner may still be working on. */
 const ACTIVE = new Set(['queued', 'dispatched', 'running']);
+/** A wait shorter than this is the normal pick-up time and not worth a word. */
+const WAIT_SHOWN_MS = 30_000;
 /** A run that ended without finishing the work, which Retry queues again. */
 const RETRYABLE = new Set(['failed', 'cancelled']);
 
@@ -131,7 +133,7 @@ function errorText(t: Translate, error: unknown): string {
     : t('issueWork.runs.actionFailed');
 }
 
-function RunRow({
+export function RunRow({
   run,
   issueId,
 }: {
@@ -146,6 +148,14 @@ function RunRow({
   const [view, setView] = useState<'transcript' | 'prompt' | null>(null);
   const [confirming, setConfirming] = useState(false);
   const duration = runDuration(t, run);
+  // How long it waited for a runner before it started: where an issue was slow shows here, not only while it is queued.
+  const waitMs = run.startedAt
+    ? Date.parse(run.startedAt) - Date.parse(run.createdAt)
+    : 0;
+  const waitedBefore =
+    waitMs >= WAIT_SHOWN_MS
+      ? t('issueWork.runs.waitedBefore', { duration: durationText(t, waitMs) })
+      : null;
   const failed = stop.isError ? stop.error : retry.isError ? retry.error : null;
   const toggle = (next: 'transcript' | 'prompt'): void =>
     setView(view === next ? null : next);
@@ -162,6 +172,9 @@ function RunRow({
         </span>
         {duration ? (
           <span className='text-muted-foreground'>{duration}</span>
+        ) : null}
+        {waitedBefore ? (
+          <span className='text-muted-foreground'>{waitedBefore}</span>
         ) : null}
         <div className='ml-auto flex flex-wrap gap-1'>
           {ACTIVE.has(run.status) ? (

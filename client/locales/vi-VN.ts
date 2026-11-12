@@ -66,6 +66,7 @@ const viVN: AppResource = {
       reason: 'Cần sửa gì',
     },
     runs: {
+      waitedBefore: 'chờ máy chạy {{duration}}',
       title: 'Lượt chạy',
       show: 'Xem diễn biến',
       hide: 'Ẩn diễn biến',
@@ -1145,6 +1146,24 @@ const viVN: AppResource = {
     openInIssues: 'Mở trong Công việc',
   },
   issueDetail: {
+    glance: {
+      more: 'Xem thêm',
+      less: 'Thu gọn',
+    },
+    timeline: {
+      latest: 'Mới nhất',
+      pullRequest: 'Pull request',
+      pull: {
+        open: 'PR #{{number}} đang mở',
+        merged: 'PR #{{number}} đã gộp',
+        closed: 'PR #{{number}} đã đóng',
+      },
+      checks: {
+        success: 'CI xanh',
+        failure: 'CI đỏ',
+        pending: 'CI đang chạy',
+      },
+    },
     breadcrumb: 'Chi tiết công việc',
     loadFailed: 'Không tải được công việc.',
     notFound: 'Công việc này không tồn tại, hoặc bạn không có quyền xem.',
@@ -1157,7 +1176,7 @@ const viVN: AppResource = {
     screenshots: 'Ảnh chụp',
     backToTop: 'Về đầu trang',
     tabs: {
-      activity: 'Hoạt động',
+      activity: 'Diễn biến',
       description: 'Mô tả',
       code: 'Mã & xem thử',
       runs: 'Lượt chạy',

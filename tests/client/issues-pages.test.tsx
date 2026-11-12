@@ -383,11 +383,16 @@ describe('issue page', () => {
     expect(
       screen.getByText(enUS.issueDetail.activity.actions.created),
     ).toBeInTheDocument();
-    // The description has its own tab.
+    // The description shows under the title and has its own tab, where it is edited.
+    expect(
+      within(screen.getByTestId('issue-description-glance')).getByText(
+        issue.description,
+      ),
+    ).toBeInTheDocument();
     await userEvent.click(
       screen.getByRole('tab', { name: enUS.issueDetail.tabs.description }),
     );
-    expect(await screen.findByText(issue.description)).toBeInTheDocument();
+    expect(await screen.findAllByText(issue.description)).toHaveLength(2);
   });
 
   it('changes the status with the revision it read', async () => {
