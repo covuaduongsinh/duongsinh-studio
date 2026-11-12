@@ -13,7 +13,7 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
 1. Kiểm tra AGENTS.md và tài liệu nâng cấp upstream trước khi bắt đầu.
 2. Kiểm tra package.json và pnpm-lock.yaml, giải quyết conflict phụ thuộc.
 3. Chạy \`pnpm check:packages\` và đảm bảo không có cảnh báo nghiêm trọng.
-4. Chạy kiểm tra TypeScript trên cả 3 target (\`pnpm typecheck\`).
+4. Không chạy kiểm tra TypeScript toàn repo trên runner dùng chung (hết RAM, mất lượt chạy): chỉ chạy \`tsc\` hoặc test theo file đã đổi, và xác nhận toàn bộ bằng job CI \`static\` xanh.
 5. Giữ nguyên các module và quy tắc tùy biến của Dương Sinh Studio.
 6. Xác nhận migration và database schema tương thích ngược.
 `.trim(),
@@ -32,9 +32,9 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
         checkValue: 'pnpm check:packages',
       },
       {
-        text: 'Không có lỗi TypeScript ở mọi target (pnpm typecheck)',
-        checkKind: 'command',
-        checkValue: 'pnpm typecheck',
+        text: 'Không có lỗi TypeScript ở mọi target: job CI static của PR xanh (không chạy typecheck toàn repo trên runner)',
+        checkKind: 'manual',
+        checkValue: null,
       },
       {
         text: 'Đọc kỹ AGENTS.md và tài liệu nâng cấp của template, giải quyết xung đột giữ lại tính năng Dương Sinh Studio',
@@ -55,7 +55,7 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
 1. Đặt tên package và thư mục dự án theo cấu trúc chuẩn.
 2. Thiết lập kết nối cơ sở dữ liệu và các biến môi trường cần thiết (.env).
 3. Đăng ký các plugin cốt lõi tối thiểu và đồng bộ quyền hệ thống.
-4. Chạy thử nghiệm khởi động để đảm bảo ứng dụng lắng nghe đúng port.
+4. Chạy thử khởi động ứng dụng (theo AGENTS.md của app) để đảm bảo lắng nghe đúng port và /api/healthz trả 200; không chạy test hay build toàn repo trên runner dùng chung.
 5. Kiểm tra tài nguyên và bộ nhớ runner không vượt quá ngưỡng cho phép.
 `.trim(),
     params: [
@@ -73,9 +73,9 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
     ],
     defaultCriteria: [
       {
-        text: 'App mới khởi tạo thành công và vượt qua kiểm tra cơ bản',
-        checkKind: 'command',
-        checkValue: 'pnpm nocobase app:test',
+        text: 'App mới khởi động thành công, /api/healthz trả 200 và job CI của PR xanh',
+        checkKind: 'manual',
+        checkValue: null,
       },
       {
         text: 'Cấu hình database và biến môi trường kết nối thành công',
@@ -93,8 +93,8 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
     instructions: `
 # Playbook: Nhập dữ liệu từ Lark Base
 
-1. Lấy schema và mẫu bản ghi từ Lark Base nguồn.
-2. Luôn chạy chế độ dry-run trước: in ra số dòng sẽ thêm/sửa/xóa và mapping các cột.
+1. Lấy schema từ Lark Base nguồn. Lệnh nhập (\`import-lark\`) nằm trong app đích và chỉ chạy được qua kênh job của Studio; khi kênh này chưa có thì dừng và báo người, không tự cài lark-cli hay giữ token Lark trên runner.
+2. Luôn chạy chế độ dry-run trước: in ra số dòng sẽ thêm/sửa/xóa và mapping các cột. Chỉ in số đếm và khác biệt theo cột, không in bản ghi (có dữ liệu học viên).
 3. Yêu cầu người phê duyệt kết quả dry-run nếu có xóa hoặc sửa đổi cấu trúc lớn.
 4. Thực hiện ghi dữ liệu trong transaction có cơ chế rollback an toàn.
 5. Kiểm tra tính toàn vẹn dữ liệu và các khóa ngoại sau khi nhập xong.
@@ -119,9 +119,9 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
         checkValue: null,
       },
       {
-        text: 'Dữ liệu đồng bộ chính xác không làm mất dữ liệu hiện có (tests/server/lark-sync.test.ts)',
-        checkKind: 'command',
-        checkValue: 'pnpm exec vitest run tests/server/lark-sync.test.ts',
+        text: 'Lệnh nhập của app đích có test riêng trong repo của app (ghi đường dẫn test vào PR) và không làm mất dữ liệu hiện có',
+        checkKind: 'review',
+        checkValue: null,
       },
     ],
   },
@@ -134,11 +134,11 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
     instructions: `
 # Playbook: Triển khai qua Dokploy
 
-1. Tạo bản sao lưu (backup) cơ sở dữ liệu và thư mục uploads trước khi deploy.
-2. Build production artifact (\`pnpm build\`) và kiểm tra không có lỗi bundle.
+1. Tạo bản sao lưu (backup) cơ sở dữ liệu và thư mục uploads trước khi deploy, theo mục "Sao lưu và khôi phục" của docs/trien-khai-vps.md; chỉ người có quyền trên VPS làm bước này.
+2. Bản build production do CI hoặc môi trường WSL làm, không build trên runner dùng chung; kiểm tra job CI build xanh và không có lỗi bundle.
 3. Kiểm tra biến môi trường và port routing trên Dokploy tránh xung đột container.
-4. Theo dõi log khởi động container và xác nhận endpoint health check trả về 200 OK.
-5. Nếu container restart liên tục hoặc fail, rollback về phiên bản backup ngay lập tức.
+4. Xác nhận endpoint health check trả về 200 OK; log container hiện chỉ xem được trong Dokploy (do người làm), Studio chưa đọc được.
+5. Nếu container restart liên tục hoặc fail, dừng và báo người để rollback; rollback của Studio chỉ đổi bản phát hành (dist), không khôi phục dữ liệu.
 `.trim(),
     params: [
       {
@@ -155,9 +155,9 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
         checkValue: null,
       },
       {
-        text: 'Build production thành công (pnpm build)',
-        checkKind: 'command',
-        checkValue: 'pnpm build',
+        text: 'Build production thành công: job CI build của PR xanh (không build trên runner dùng chung)',
+        checkKind: 'manual',
+        checkValue: null,
       },
       {
         text: 'Kiểm tra health check và log sau khi container khởi động',
