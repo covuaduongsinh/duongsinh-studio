@@ -1,12 +1,10 @@
 /**
- * Home: "my work" for the signed-in person. It answers the two questions they open Studio with, in one screen and without
- * a tap more than needed on a phone: what waits for a decision of mine (each one straight to its issue) and how much of
- * mine is under way. Both read what `/api/inbox/waiting` and `/api/taskGroups/summary` already compute for the inbox and
- * "My issues". Changed from the template's introduction to building with a coding agent, which Studio does not use.
+ * Today: the signed-in person's one screen (V1.1). In a single column on a phone, without a tap: what needs them (decisions
+ * on their issues, conversations asking for them, releases waiting), what the agents are doing now, and what just failed
+ * or finished. It replaces the template's introduction to building with a coding agent, and the first version of "my work",
+ * which was silent about chat and releases. One read for all of it: `client/hooks/use-today.ts`.
  */
-import { useAuthentication } from '@nocobase/app-plugin-authentication/client';
 import { useTranslation } from '@nocobase/i18n/client';
-import { InboxIcon, ListTodoIcon, FolderKanbanIcon } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { Link } from 'react-router';
 
@@ -14,90 +12,111 @@ import { PageContainer } from '#components/page-container';
 import { PageHeader } from '#components/page-header';
 import { Alert, AlertDescription } from '#components/ui/alert';
 import { Badge } from '#components/ui/badge';
-import { Button, buttonVariants } from '#components/ui/button';
+import { Button } from '#components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '#components/ui/card';
 import { Skeleton } from '#components/ui/skeleton';
-import { entryLink } from '#extensions/nocobase-inbox/model';
-import { useMyWorkSummary, useWaitingDecisions } from '#hooks/use-my-work';
+import { entryLink, relativeTime } from '#extensions/nocobase-inbox/model';
+import {
+  needMeTotal,
+  releasesWaiting,
+  useToday,
+  type Today,
+} from '#hooks/use-today';
 
-/** How many waiting decisions are listed on the page; the rest are in the inbox. */
+/** Rows shown in each list; the rest are one tap away on the page the list links to. */
 const SHOWN = 5;
+const RECENT_SHOWN = 3;
+const ACTIVITY_CHARS = 80;
 
-function Waiting(): ReactElement {
+const cut = (text: string, length: number): string =>
+  text.length > length ? `${text.slice(0, length - 1)}…` : text;
+
+function Row({
+  badge,
+  title,
+  note,
+  to,
+}: {
+  readonly badge: string;
+  readonly title: string;
+  readonly note?: string | null;
+  readonly to: string;
+}): ReactElement {
+  return (
+    <li>
+      <Link
+        to={to}
+        className='flex flex-col gap-1 py-3 hover:bg-muted/50 sm:flex-row sm:items-center sm:gap-3'
+      >
+        <Badge variant='secondary' className='w-fit shrink-0'>
+          {badge}
+        </Badge>
+        <span className='min-w-0 flex-1'>
+          <span className='block truncate font-medium'>{title}</span>
+          {note ? (
+            <span className='block truncate text-sm text-muted-foreground'>
+              {note}
+            </span>
+          ) : null}
+        </span>
+      </Link>
+    </li>
+  );
+}
+
+function NeedMe({ today }: { readonly today: Today }): ReactElement {
   const { t } = useTranslation();
-  const summary = useMyWorkSummary();
-  const waiting = useWaitingDecisions();
-  const entries = waiting.data ?? [];
-  // The summary counts every issue that waits; the list can be shorter if some entries cannot be shown.
-  const count = summary.data?.waiting ?? entries.length;
-
+  const entries = today.waiting ?? [];
+  const chat = today.chat?.needsYou ?? 0;
+  const releases = releasesWaiting(today.release);
+  const total = needMeTotal(today);
   return (
     <Card>
-      <section aria-labelledby='home-waiting'>
+      <section aria-labelledby='today-need-me'>
         <CardHeader className='flex flex-row items-baseline justify-between gap-2'>
-          <CardTitle id='home-waiting'>{t('myHome.waiting.title')}</CardTitle>
-          {waiting.data ? (
-            <span className='text-3xl font-semibold'>{count}</span>
-          ) : null}
+          <CardTitle id='today-need-me'>{t('today.needMe.title')}</CardTitle>
+          <span className='text-3xl font-semibold'>{total}</span>
         </CardHeader>
         <CardContent className='flex flex-col gap-3'>
-          {waiting.isPending ? <Skeleton className='h-20 w-full' /> : null}
-          {waiting.isError ? (
-            <Alert variant='destructive'>
-              <AlertDescription className='flex flex-wrap items-center gap-2'>
-                {t('myHome.waiting.failed')}
-                <Button
-                  size='sm'
-                  variant='outline'
-                  onClick={() => void waiting.refetch()}
-                >
-                  {t('myHome.retry')}
-                </Button>
-              </AlertDescription>
-            </Alert>
-          ) : null}
-          {waiting.data && entries.length === 0 ? (
+          {total === 0 ? (
             <p className='text-sm text-muted-foreground'>
-              {t('myHome.waiting.none')}
+              {t('today.needMe.none')}
             </p>
-          ) : null}
-          {entries.length > 0 ? (
+          ) : (
             <ul className='flex flex-col divide-y'>
-              {entries.slice(0, SHOWN).map((entry) => {
-                const href = entryLink(entry) ?? '/inbox';
-                return (
-                  <li key={entry.item.id}>
-                    <Link
-                      to={href}
-                      className='flex flex-col gap-1 py-3 hover:bg-muted/50 sm:flex-row sm:items-center sm:gap-3'
-                    >
-                      <Badge variant='secondary' className='w-fit shrink-0'>
-                        {t(
-                          `inboxStudio.type.${entry.notice?.type ?? 'answer'}`,
-                        )}
-                      </Badge>
-                      <span className='min-w-0 flex-1'>
-                        <span className='block truncate font-medium'>
-                          {entry.item.title}
-                        </span>
-                        {entry.item.body ? (
-                          <span className='block truncate text-sm text-muted-foreground'>
-                            {entry.item.body}
-                          </span>
-                        ) : null}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
+              {entries.slice(0, SHOWN).map((entry) => (
+                <Row
+                  key={entry.item.id}
+                  badge={t(
+                    `inboxStudio.type.${entry.notice?.type ?? 'answer'}`,
+                  )}
+                  note={entry.item.body}
+                  title={entry.item.title}
+                  to={entryLink(entry) ?? '/inbox'}
+                />
+              ))}
+              {chat > 0 ? (
+                <Row
+                  badge={t('today.needMe.chatBadge')}
+                  title={t('today.needMe.chat', { count: chat })}
+                  to='/sessions'
+                />
+              ) : null}
+              {releases > 0 ? (
+                <Row
+                  badge={t('today.needMe.releaseBadge')}
+                  title={t('today.needMe.release', { count: releases })}
+                  to='/releases?tab=pending'
+                />
+              ) : null}
             </ul>
-          ) : null}
+          )}
           {entries.length > SHOWN ? (
             <Link
-              to='/inbox'
+              to='/inbox?view=todo'
               className='text-sm font-medium underline-offset-4 hover:underline'
             >
-              {t('myHome.waiting.seeAll', { count })}
+              {t('today.needMe.seeAll', { count: entries.length })}
             </Link>
           ) : null}
         </CardContent>
@@ -106,44 +125,148 @@ function Waiting(): ReactElement {
   );
 }
 
-function UnderWay(): ReactElement {
-  const { t } = useTranslation();
-  const summary = useMyWorkSummary();
-  // Open issues of mine that do not need a decision of mine: the agents are working on them.
-  const working = summary.data
-    ? Math.max(0, summary.data.mine.open - summary.data.mine.waiting)
-    : null;
+function AgentsNow({ today }: { readonly today: Today }): ReactElement | null {
+  const { i18n, t } = useTranslation();
+  const board = today.agents;
+  if (board === null) return null;
+  const rows = board.rows
+    .filter((row) => row.state === 'working' || row.state === 'queued')
+    .slice(0, SHOWN);
   return (
     <Card>
-      <section aria-labelledby='home-working'>
-        <CardHeader className='flex flex-row items-baseline justify-between gap-2'>
-          <CardTitle id='home-working'>{t('myHome.working.title')}</CardTitle>
-          {working !== null ? (
-            <span className='text-3xl font-semibold'>{working}</span>
-          ) : null}
+      <section aria-labelledby='today-agents'>
+        <CardHeader>
+          <CardTitle id='today-agents'>{t('today.agents.title')}</CardTitle>
+          <p className='text-sm text-muted-foreground'>
+            {t('today.agents.summary', {
+              working: board.summary.working,
+              queued: board.summary.queued,
+              waiting: board.summary.waiting,
+            })}
+          </p>
         </CardHeader>
-        <CardContent className='flex flex-col gap-3'>
-          {summary.isPending ? <Skeleton className='h-10 w-full' /> : null}
-          {summary.isError ? (
-            <p className='text-sm text-destructive'>
-              {t('myHome.working.failed')}
-            </p>
-          ) : null}
-          {working !== null ? (
+        <CardContent>
+          {rows.length === 0 ? (
             <p className='text-sm text-muted-foreground'>
-              {working === 0
-                ? t('myHome.working.none')
-                : t('myHome.working.text')}
+              {t('today.agents.none')}
             </p>
+          ) : (
+            <ul className='flex flex-col divide-y'>
+              {rows.map((row) => {
+                const agent = board.agents[row.agentId]?.name ?? '';
+                const activity = row.run?.lastActivity?.text;
+                const since = row.run?.since
+                  ? t('today.agents.since', {
+                      time: relativeTime(row.run.since, i18n.language),
+                    })
+                  : null;
+                return (
+                  <Row
+                    key={`${row.agentId}:${row.issue.id}`}
+                    badge={t(
+                      row.state === 'working'
+                        ? 'today.agents.working'
+                        : 'today.agents.queued',
+                    )}
+                    note={[
+                      agent,
+                      since,
+                      activity ? cut(activity, ACTIVITY_CHARS) : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                    title={`${row.issue.identifier} ${row.issue.title}`}
+                    to={`/issues/${row.issue.id}`}
+                  />
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </section>
+    </Card>
+  );
+}
+
+function Recent({ today }: { readonly today: Today }): ReactElement | null {
+  const { t } = useTranslation();
+  const attention = today.attention;
+  if (attention === null && today.done === null) return null;
+  const trouble = [
+    ...(attention?.failedRuns.items ?? []).map((run) => ({
+      key: `run:${run.id}`,
+      badge: t('today.recent.failedRun'),
+      title: `${run.issue.identifier} ${run.issue.title}`,
+      note: run.agentName,
+      to: `/issues/${run.issue.id}`,
+    })),
+    ...(attention?.blocked.items ?? []).map((issue) => ({
+      key: `blocked:${issue.id}`,
+      badge: t('today.recent.blocked'),
+      title: `${issue.identifier} ${issue.title}`,
+      note: null,
+      to: `/issues/${issue.id}`,
+    })),
+  ].slice(0, SHOWN);
+  const done = (today.done ?? []).slice(0, RECENT_SHOWN);
+  return (
+    <Card>
+      <section aria-labelledby='today-recent'>
+        <CardHeader>
+          <CardTitle id='today-recent'>{t('today.recent.title')}</CardTitle>
+        </CardHeader>
+        <CardContent className='flex flex-col gap-4'>
+          {attention !== null ? (
+            <div className='flex flex-col gap-1'>
+              <h3 className='text-sm font-medium'>
+                {t('today.recent.trouble')}
+              </h3>
+              {trouble.length === 0 ? (
+                <p className='text-sm text-muted-foreground'>
+                  {t('today.recent.troubleNone')}
+                </p>
+              ) : (
+                <ul className='flex flex-col divide-y'>
+                  {trouble.map((item) => (
+                    <Row
+                      key={item.key}
+                      badge={item.badge}
+                      note={item.note}
+                      title={item.title}
+                      to={item.to}
+                    />
+                  ))}
+                </ul>
+              )}
+            </div>
           ) : null}
-          <div>
-            <Link
-              to='/my-issues'
-              className={buttonVariants({ variant: 'outline' })}
-            >
-              {t('myHome.working.open')}
-            </Link>
-          </div>
+          {today.done !== null ? (
+            <div className='flex flex-col gap-1'>
+              <h3 className='text-sm font-medium'>{t('today.recent.done')}</h3>
+              {done.length === 0 ? (
+                <p className='text-sm text-muted-foreground'>
+                  {t('today.recent.doneNone')}
+                </p>
+              ) : (
+                <ul className='flex flex-col divide-y'>
+                  {done.map((row) => (
+                    <Row
+                      key={row.issue.id}
+                      badge={t('today.recent.doneBadge')}
+                      title={`${row.issue.identifier} ${row.issue.title}`}
+                      to={`/issues/${row.issue.id}`}
+                    />
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
+          <Link
+            to='/dashboard'
+            className='text-sm font-medium underline-offset-4 hover:underline'
+          >
+            {t('today.recent.fullReport')}
+          </Link>
         </CardContent>
       </section>
     </Card>
@@ -152,35 +275,39 @@ function UnderWay(): ReactElement {
 
 export default function HomePage(): ReactElement {
   const { t } = useTranslation();
-  const { session } = useAuthentication();
-  const name = (session?.user as { name?: string } | undefined)?.name ?? '';
+  const today = useToday();
+  // Every source failed: nothing can be shown, so say so once and offer a retry.
+  const nothing = today.data !== undefined && today.data.failed.length >= 6;
   return (
-    <PageContainer className='mx-auto max-w-4xl'>
+    <PageContainer className='mx-auto max-w-2xl'>
       <PageHeader
-        title={name ? t('myHome.title', { name }) : t('myHome.titleAnonymous')}
-        description={t('myHome.description')}
+        title={t('today.title')}
+        description={t('today.description')}
       />
-      <nav aria-label={t('myHome.shortcuts')} className='flex flex-wrap gap-2'>
-        <Link
-          to='/my-issues'
-          className={buttonVariants({ variant: 'outline' })}
-        >
-          <ListTodoIcon data-icon='inline-start' />
-          {t('myHome.links.myIssues')}
-        </Link>
-        <Link to='/inbox' className={buttonVariants({ variant: 'outline' })}>
-          <InboxIcon data-icon='inline-start' />
-          {t('myHome.links.inbox')}
-        </Link>
-        <Link to='/projects' className={buttonVariants({ variant: 'outline' })}>
-          <FolderKanbanIcon data-icon='inline-start' />
-          {t('myHome.links.projects')}
-        </Link>
-      </nav>
-      <div className='grid gap-4 md:grid-cols-[3fr_2fr]'>
-        <Waiting />
-        <UnderWay />
-      </div>
+      {today.isPending ? (
+        <Skeleton aria-label={t('today.loading')} className='h-48 w-full' />
+      ) : null}
+      {today.isError || nothing ? (
+        <Alert variant='destructive'>
+          <AlertDescription className='flex flex-wrap items-center gap-2'>
+            {t('today.failed')}
+            <Button
+              size='sm'
+              variant='outline'
+              onClick={() => void today.refetch()}
+            >
+              {t('today.retry')}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      ) : null}
+      {today.data && !nothing ? (
+        <div className='flex flex-col gap-4'>
+          <NeedMe today={today.data} />
+          <AgentsNow today={today.data} />
+          <Recent today={today.data} />
+        </div>
+      ) : null}
     </PageContainer>
   );
 }
