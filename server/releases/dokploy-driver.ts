@@ -540,7 +540,8 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
             result.set(row.appId, status('unknown', row, row.lastError));
             continue;
           }
-          const state = String(seen['state'] ?? 'missing');
+          const state =
+            typeof seen['state'] === 'string' ? seen['state'] : 'missing';
           if (state === 'running') {
             result.set(row.appId, recorded);
             continue;
@@ -550,7 +551,7 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
               ? 'The container was killed for lack of memory.'
               : state === 'missing'
                 ? 'The container is gone.'
-                : `The container is ${state} (exit code ${String(seen['exitCode'] ?? '?')}).`;
+                : `The container is ${state} (exit code ${typeof seen['exitCode'] === 'number' ? seen['exitCode'] : '?'}).`;
           // A dead container no longer holds one of the server's places: free it so another App may start.
           const freed = {
             ...row,
