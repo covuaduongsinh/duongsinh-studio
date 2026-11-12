@@ -8,6 +8,7 @@ import {
   useRunBrief,
   useStopRun,
 } from '@nocobase/app-plugin-agents/client/runs';
+import { useRealtimeTopic } from '@nocobase/app-client';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
 import { HistoryIcon } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
@@ -25,6 +26,7 @@ import {
 import { Badge } from '#components/ui/badge';
 import { Button } from '#components/ui/button';
 import { IssueSection } from '#extensions/nocobase-issue-detail/issue-detail';
+import { useRealtimeAvailable } from '#hooks/use-realtime';
 import { durationText, type Translate } from './duration.js';
 import {
   useIssueRuns,
@@ -119,6 +121,21 @@ function errorText(t: Translate, error: unknown): string {
     : t('issueWork.runs.actionFailed');
 }
 
+/**
+ * Listens to one run that a runner may still be working on (`agents:runs:<runId>`, the agents plugin's topic) and reads
+ * the issue's panels and runs again when it changes, so Running becomes Completed without waiting for the next poll.
+ */
+function RunLive({
+  runId,
+  onChange,
+}: {
+  readonly runId: string;
+  readonly onChange: () => void;
+}): null {
+  useRealtimeTopic(`agents:runs:${runId}`, () => onChange());
+  return null;
+}
+
 export function RunRow({
   run,
   issueId,
@@ -146,8 +163,12 @@ export function RunRow({
   const toggle = (next: 'transcript' | 'prompt'): void =>
     setView(view === next ? null : next);
 
+  const realtime = useRealtimeAvailable();
   return (
     <li className='flex flex-col gap-2 text-sm'>
+      {realtime && ACTIVE.has(run.status) ? (
+        <RunLive runId={run.id} onChange={refresh} />
+      ) : null}
       <div className='flex flex-wrap items-center gap-2'>
         <Badge variant={run.status === 'failed' ? 'destructive' : 'secondary'}>
           {t(`issueWork.runs.status.${run.status}`)}

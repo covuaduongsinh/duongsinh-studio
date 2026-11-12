@@ -6,6 +6,7 @@ import { Outlet, useLocation } from 'react-router';
 import { BrandWatermark } from '#components/brand-watermark';
 import { Breadcrumbs } from '#components/breadcrumbs';
 import { StudioChatProvider } from '#components/studio-chat';
+import { StudioRealtime } from '#components/studio-realtime';
 import { ChatPanel } from '#extensions/nocobase-agent-chat/chat-panel';
 import { ChatFloatingButton } from '#extensions/nocobase-agent-chat/launchers';
 
@@ -83,6 +84,7 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
     // The shell owns the business route tree used by its pages and navigation.
     <RouteTreeProvider routes={routes} access={access}>
       <StudioChatProvider>
+        <StudioRealtime />
         <PageBreadcrumbProvider>
           <AppSidebarProvider>
             <AppSidebar label={navigationLabel} footer={<AppSidebarFooter />}>
