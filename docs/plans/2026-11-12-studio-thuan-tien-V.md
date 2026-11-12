@@ -61,7 +61,7 @@ Các điểm A còn lại (mức vừa/thấp) giữ nguyên theo báo cáo; kh�
 
 Phần còn **chưa kiểm được từ đây** (cần VPS/Dokploy thật, ghi lại để không suy đoán): bản Dokploy đang cài có WebSocket terminal/log và API key
 giới hạn project không; quyền file `/etc/dokploy/compose/nb3-*/code/.env`; `storage/` có vòng dọn artifact không; NocoEdu production ở đâu
-(Q7 — mới biết project `nocoedu`); QPS Lark Bitable; **WebSocket `/main/ws` qua Traefik trên production có chạy không** (`config.yml` hiện để khối `realtime:`
+(Q7 — đã biết project/compose `nocoedu`, miền `nocoedu.dsc.edu.vn`; thiếu DB và volume); QPS Lark Bitable; **WebSocket `/main/ws` qua Traefik trên production có chạy không** (`config.yml` hiện để khối `realtime:`
 dạng chú thích; nhưng `client/components/studio-chat.tsx` đã dùng `realtimeClientToken`, nên phải xác nhận trạng thái thật trước V3.1).
 
 ### 1.3 Chỗ lệch quan trọng: V0.1 không thể làm nguyên văn
@@ -285,7 +285,7 @@ Q1 đã chọn: daemon host + unix socket. **Việc của chủ dự án trên V
 
 **V5.4 — Nhận nuôi NocoEdu: `!don-app-nb3` (0,5 kế hoạch + chạy thật chờ người)** — xử lý **B#3**, DS-60 (đã đóng).
 
-- **Dừng chờ trước khi viết**: Q7 mới được trả lời một phần — NocoEdu production nằm ở project Dokploy `nocoedu` (khác project `duongsinh-studio`, nên driver hiện không chạm được, đúng như B#3). Còn thiếu tên compose, loại DB, tên miền, volume. Bước đầu của V5.4 là một phiên **chỉ đọc** do chủ dự án cho phép, ghi các thông tin này vào `docs/` (không suy đoán, không đụng `nocobase.dsc.edu.vn`). V5.4 chưa bắt đầu.
+- **Dừng chờ trước khi viết**: Q7 đã trả lời gần đủ — NocoEdu production ở project Dokploy `nocoedu`, compose `nocoedu`, tên miền `nocoedu.dsc.edu.vn` (project khác `duongsinh-studio` nên driver hiện không chạm được, đúng như B#3). Còn thiếu loại DB (postgres hay sqlite) và volume. Bước đầu của V5.4 là một phiên **chỉ đọc** do chủ dự án cho phép, ghi hai thông tin này vào `docs/` (không suy đoán, không đụng `nocobase.dsc.edu.vn`). V5.4 chưa bắt đầu.
 - Thiết kế (không đổi sau khi có Q7): playbook `!don-app-nb3` có các bước **dừng chờ người** — (1) sao lưu compose cũ (pg_dump/tar) và xác nhận kích thước; (2) tạo App `nocoedu` mới trong env `dokploy` → compose `nb3-nocoedu` do Studio quản (volume trống); (3) `pg_dump` compose cũ → restore vào mới qua kênh job (`db restore` nằm trong allowlist riêng, root); (4) kiểm: đếm bảng, `healthz`, đăng nhập thử, so số bản ghi; (5) **chủ dự án đổi DNS**; (6) giữ compose cũ ở trạng thái dừng 14 ngày rồi mới xoá (chủ dự án xoá). Mỗi bước ghi tiêu chí `manual`/`command` rõ; không bước nào chạm `nocobase.dsc.edu.vn`.
 - Phụ thuộc: V4 (kênh job), V5.2 (sao lưu). Thứ tự khớp Q2: sau V4, trước nhập Lark thật.
 
@@ -373,15 +373,15 @@ nâng trần `maxApps` mà chưa có cổng RAM; `IssueCreationModeContext='manu
 
 ## 9. Câu hỏi đã hỏi chủ dự án và câu trả lời (12/11/2026)
 
-| #   | Câu hỏi                                                                 | Khuyến nghị                                 | **Trả lời**                                                                                                                                             |
-| --- | ----------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Q1  | Kênh job (V4): daemon host hay job qua GitHub Actions?                  | Daemon host + unix socket                   | **Daemon host + unix socket**                                                                                                                           |
-| Q2  | Nhận nuôi NocoEdu (V5.4) ngay sau V4 hay sau nhập Lark?                 | Sau V4, trước nhập Lark thật                | **Sau V4, trước nhập Lark thật**                                                                                                                        |
-| Q3  | Giữ dump app NB3 trên VPS bao lâu trước khi đẩy ra ngoài?               | 14 ngày, đẩy Drive hằng đêm                 | **14 ngày, đẩy Drive hằng đêm** (rclone chờ chủ dự án cấp quyền)                                                                                        |
-| Q4  | Menu: 8 mục hay giữ Agent/Runner ở cấp 1?                               | 8 mục                                       | **8 mục**                                                                                                                                               |
-| Q5  | Cho phép khoá deploy trong secret của Actions?                          | Có, khoá riêng chỉ cho deploy, xoay 90 ngày | **Có**, khoá riêng chỉ cho deploy, xoay 90 ngày (thiết kế V6.3 mặc định chưa cần tới)                                                                   |
-| Q6  | (mới) V0.1: không dùng được `'manual'` nếu muốn giữ tab AI — chọn cách? | Mặc định Thủ công, vẫn chọn được AI         | **Mặc định Thủ công, vẫn chọn được AI** (chuyển hướng `?tab=manual`, không dùng context)                                                                |
-| Q7  | NocoEdu production ở compose/project Dokploy nào, DB gì, miền nào?      | —                                           | **Một phần:** project Dokploy `nocoedu` trên VPS. **Chưa biết:** tên compose, DB (postgres hay sqlite), tên miền, volume. Không suy đoán; V5.4 vẫn chờ. |
+| #   | Câu hỏi                                                                 | Khuyến nghị                                 | **Trả lời**                                                                                                                                                 |
+| --- | ----------------------------------------------------------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Q1  | Kênh job (V4): daemon host hay job qua GitHub Actions?                  | Daemon host + unix socket                   | **Daemon host + unix socket**                                                                                                                               |
+| Q2  | Nhận nuôi NocoEdu (V5.4) ngay sau V4 hay sau nhập Lark?                 | Sau V4, trước nhập Lark thật                | **Sau V4, trước nhập Lark thật**                                                                                                                            |
+| Q3  | Giữ dump app NB3 trên VPS bao lâu trước khi đẩy ra ngoài?               | 14 ngày, đẩy Drive hằng đêm                 | **14 ngày, đẩy Drive hằng đêm** (rclone chờ chủ dự án cấp quyền)                                                                                            |
+| Q4  | Menu: 8 mục hay giữ Agent/Runner ở cấp 1?                               | 8 mục                                       | **8 mục**                                                                                                                                                   |
+| Q5  | Cho phép khoá deploy trong secret của Actions?                          | Có, khoá riêng chỉ cho deploy, xoay 90 ngày | **Có**, khoá riêng chỉ cho deploy, xoay 90 ngày (thiết kế V6.3 mặc định chưa cần tới)                                                                       |
+| Q6  | (mới) V0.1: không dùng được `'manual'` nếu muốn giữ tab AI — chọn cách? | Mặc định Thủ công, vẫn chọn được AI         | **Mặc định Thủ công, vẫn chọn được AI** (chuyển hướng `?tab=manual`, không dùng context)                                                                    |
+| Q7  | NocoEdu production ở compose/project Dokploy nào, DB gì, miền nào?      | —                                           | **Gần đủ:** project `nocoedu`, compose `nocoedu`, miền `nocoedu.dsc.edu.vn`. **Chưa biết:** DB (postgres hay sqlite), volume. Không suy đoán; V5.4 vẫn chờ. |
 
 Đã chốt khi duyệt kế hoạch (12/11/2026):
 
