@@ -132,8 +132,8 @@ const keys = {
   board: (filters: unknown) => ['agent-board', filters] as const,
 };
 
-/** Polled while the page is open: nothing else tells the page a run moved on. */
-const REFRESH_MS = 15_000;
+/** The fallback poll: a run's own topic and `pm:changes` (`StudioRealtime`, `RunRow`) usually tell the page first. */
+const REFRESH_MS = 60_000;
 
 export function useIssuePanels(issueId: string): UseQueryResult<IssuePanels> {
   const api = useApiClient();

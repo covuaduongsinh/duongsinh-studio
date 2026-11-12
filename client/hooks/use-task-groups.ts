@@ -89,7 +89,7 @@ export interface TaskGroupFilters {
 const KEY = ['task-groups'] as const;
 
 /** Refreshed while the page is open: a run finishing or a decision appearing moves the row without a reload. */
-const REFRESH_MS = 30_000;
+const REFRESH_MS = 60_000;
 
 /**
  * `split` is My issues' list (what the person follows stays in it: `follow=all`); `table` is the Issues page's grouped

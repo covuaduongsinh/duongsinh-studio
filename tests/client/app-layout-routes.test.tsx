@@ -31,6 +31,10 @@ vi.mock('../../client/components/studio-chat.js', () => ({
   StudioChatProvider: ({ children }: { readonly children: ReactElement }) =>
     children,
 }));
+// Likewise for the realtime subscription, which also asks who is signed in (covered by `studio-realtime.test.tsx`).
+vi.mock('../../client/components/studio-realtime.js', () => ({
+  StudioRealtime: () => null,
+}));
 beforeEach(() =>
   vi.stubGlobal('matchMedia', () => ({
     matches: false,

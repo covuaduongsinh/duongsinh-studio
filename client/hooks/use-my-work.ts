@@ -13,8 +13,11 @@ export interface MyWorkSummary {
 
 const WORK = ['my-work'] as const;
 
-/** Polled while the page is open, and asked again when the window regains focus (`LIVE_QUERY`): a decision appears without a reload. */
-const REFRESH_MS = 30_000;
+/**
+ * Asked again on a change the server announces (`StudioRealtime`), when the window regains focus (`LIVE_QUERY`), and by
+ * this slower poll, which covers announcements that never arrive.
+ */
+const REFRESH_MS = 60_000;
 
 export function useMyWorkSummary(): UseQueryResult<MyWorkSummary> {
   const api = useApiClient();
