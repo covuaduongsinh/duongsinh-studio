@@ -24,7 +24,7 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
 ## Plugin assembly
 
 - `@nocobase/app-plugin-releases` ships no configuration factory; the application declares the `releases` section in
-  `server/config/releases.ts`. Its App Hosts stay disabled until release environments are built.
+  `server/config/releases.ts`. Its in-process and Docker App Hosts stay disabled; Apps are hosted by Studio's own `dokploy` driver (`server/releases/dokploy-driver.ts`, one compose `nb3-<slug>` per App) or recorded under the `external` environment (`server/providers/build-storage.ts`), which runs nothing.
 - `@nocobase/app-plugin-projects` gets its roles from `server/providers/projects-access.ts`, which reads the
   authorization plugin's permission sets: `owner` is the protected `root` set, `ds-admin` and `ds-contributor` are
   editable sets seeded by `database/main/seeds/202611010001_ds_roles.ts` (keys in `server/access/roles.ts`). Roles

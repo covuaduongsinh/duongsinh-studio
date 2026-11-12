@@ -24,19 +24,19 @@ const overrides: TranslationOverrides = {
         'Agent này không có cài đặt có thể định cấu hình. Mặc định của nó sẽ được sử dụng.',
       noAgent: 'Không có agent',
       accessHint:
-        'Các agent chạy với toàn quyền truy cập vào thư mục bạn chọn, như trong thiết bị đầu cuối của riêng bạn.',
+        'Các agent chạy với toàn quyền truy cập vào thư mục bạn chọn, như trong terminal của bạn.',
       noComputerHint:
         'Phiên chạy trên máy tính của riêng bạn: nhân viên làm việc ở đó đã đăng nhập bằng tài khoản của chính bạn, trong các thư mục bạn cho phép và các cuộc hội thoại được lưu giữ ở đây. Kết nối nó một lần và nó trực tuyến bất cứ khi nào máy tính bật. Đại diện của tôi giúp thảo luận và làm rõ các yêu cầu, ghi lại các nhiệm vụ và theo dõi tiến độ; sau khi bạn khởi động chúng, người quản lý dự án của Studio sẽ điều phối các agent để phát triển chúng.',
       noAgentTitle: 'Không có agent nào sẵn sàng trên máy tính này',
       agents: 'Agent trên máy tính này',
       availableAgents: 'Agent có sẵn',
       agentsHint:
-        'Chỉ các agent được cài đặt mới được liệt kê. Cây cầu kiểm tra từng phút; quá trình thiết lập và khởi động phải hoàn tất trước khi agent sẵn sàng.',
+        'Chỉ các agent được cài đặt mới được liệt kê. Cầu nối kiểm tra mỗi phút; quá trình thiết lập và khởi động phải hoàn tất trước khi agent sẵn sàng.',
     },
     session: {
       startup: {
         starting: 'Khởi động agent trên máy tính của bạn…',
-        opening: 'Khai mạc phiên agent…',
+        opening: 'Đang mở phiên agent…',
       },
       agent: 'Agent',
     },
@@ -143,7 +143,7 @@ const overrides: TranslationOverrides = {
     },
     scopeVariables: {
       description:
-        'Trao cho mọi đặc vụ làm việc ở đây. Các biến cụ thể hơn (của thư mục làm việc, sau đó của agent) sẽ vượt qua được những biến này.',
+        'Trao cho mọi agent làm việc ở đây. Các biến cụ thể hơn (của thư mục làm việc, sau đó của agent) sẽ vượt qua được những biến này.',
     },
     usage: {
       otherUse: {
@@ -163,7 +163,7 @@ const overrides: TranslationOverrides = {
     },
     defaultSkills: {
       title: 'Skill mặc định',
-      description: 'Mọi đặc vụ làm việc ở đây đều có những skill này.',
+      description: 'Mọi agent làm việc ở đây đều có những skill này.',
       save: 'Lưu skill',
       saved: 'Đã lưu các skill mặc định.',
     },
@@ -372,7 +372,7 @@ const overrides: TranslationOverrides = {
       backToList: 'Trở lại skill',
       emptyTitle: 'Chưa có skill',
       emptyDescription:
-        'Sau khi bạn thêm một skill, các đặc vụ sẽ đọc SKILL.md của nó bất cứ khi nào có nhiệm vụ yêu cầu.',
+        'Sau khi bạn thêm một skill, các agent sẽ đọc SKILL.md của nó bất cứ khi nào có nhiệm vụ yêu cầu.',
       emptyReadOnly: 'Yêu cầu quản trị viên thêm một skill.',
       contentHint:
         'Tên của vấn đề phía trước là tên thư mục của skill: thay đổi nó sẽ đổi tên skill. Mô tả cho các agent biết khi nào nên đọc nó.',
@@ -382,7 +382,7 @@ const overrides: TranslationOverrides = {
       delete: 'Xóa skill',
       deleteTitle: 'Xóa skill "{{name}}"?',
       deleteDescription:
-        'Mọi đặc vụ và mọi nơi sử dụng skill này làm mặc định đều sẽ mất nó.',
+        'Mọi agent và mọi nơi sử dụng skill này làm mặc định đều sẽ mất nó.',
       readOnly:
         'Chỉ người tạo skill và quản trị viên không gian làm việc mới có thể thay đổi skill này.',
       conflict:
@@ -416,7 +416,7 @@ const overrides: TranslationOverrides = {
       },
       template: {
         description:
-          'Skill này có tác dụng gì và khi nào đặc vụ nên sử dụng nó.',
+          'Skill này có tác dụng gì và khi nào agent nên sử dụng nó.',
         title: 'Skill mới',
         whenToUseHint: 'Mô tả các nhiệm vụ đòi hỏi skill này.',
       },
@@ -449,7 +449,7 @@ const overrides: TranslationOverrides = {
       businesses: {
         agents: {
           title: 'Agent và skill',
-          description: 'Các đặc vụ của đội và skill họ sử dụng.',
+          description: 'Các agent của đội và skill họ sử dụng.',
           actions: {
             edit: {
               title: 'Thay đổi agent và skill',
@@ -894,7 +894,7 @@ const overrides: TranslationOverrides = {
         'Tối đa các tệp {{count}}, mỗi tệp {{size}} MB. Văn bản, Markdown, CSV, Word, Excel, PowerPoint và PDF được đọc; Cho phép một agent tổ chức có thể đọc hình ảnh PNG/JPEG bằng các công cụ hình ảnh của mình; nếu đọc không thành công, hãy quay lại chỉnh sửa và thử lại. Phân chia quy tắc chỉ sử dụng tên tệp hình ảnh.',
       projectHint:
         'Mọi công việc đều đi đến đó; bạn có thể thay đổi từng cái bên dưới.',
-      splitAction: 'Công việc dự thảo',
+      splitAction: 'Soạn nháp công việc',
       draftCreated: 'Những công việc này đã được tạo ra.',
       draftClosed:
         'Bản nháp này đã được thay thế hoặc hết hạn; soạn thảo lại các công việc.',
@@ -1091,11 +1091,20 @@ const agentsAdditions: Record<string, unknown> = {
 /** The same for the other plugins: "nhiệm vụ"/"tác vụ" for issue, "tổng đài viên" and "đặc vụ" for agent, "mã thông báo" for token. */
 const otherAdditions: Record<string, Record<string, unknown>> = {
   '@nocobase/app-plugin-projects': {
+    // V6.2: strings the plugin's machine translation turned into something else (general -> "Đại tướng", executor -> "thi hành").
+    newIssue: {
+      tabs: { ai: 'Tách thành nhiều công việc', manual: 'Một công việc' },
+    },
+    nav: { general: 'Chung' },
+    myIssues: { tabs: { executing: 'Tôi thực hiện' } },
+    intake: { resplit: 'Tách lại', splitting: 'Đang tách…' },
     resources: {
       initPromptHint:
         'Tuỳ chọn. Hướng dẫn ngắn mà agent làm theo lần đầu tiên làm việc ở đây cho một công việc, trước khi bắt đầu. Không phải một tập lệnh: nó không tự chạy.',
     },
     plans: {
+      status: { pending: 'Đang chờ', executing: 'Đang thực hiện' },
+      flags: { agentExecutor: 'Giao cho một agent thực hiện' },
       // The plugin's keys carry the dot themselves (`'issue.retract'`).
       undoPreview: { ops: { 'issue.retract': 'Xoá công việc {{target}}' } },
       ops: {

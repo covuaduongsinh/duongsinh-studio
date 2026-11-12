@@ -326,6 +326,7 @@ const enUS = {
     saving: 'Saving...',
     empty: 'No lessons recorded yet.',
     tag: 'Tag',
+    tagPlaceholder: 'e.g. migration, security, testing',
     mistake: 'Mistake / Phenomenon',
     mistakePlaceholder: 'Describe the mistake or unexpected behavior...',
     rule: 'Rule / Lesson Learned',
