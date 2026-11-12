@@ -45,7 +45,11 @@ Trước khi đổi bản chạy:
 2. Tạm dừng tự lái của các dự án đang bật (Dương Sinh App, Sandbox) với lý do `Cập nhật Studio (<sha>)`; bật lại sau khi
    kiểm xong. Các lần cập nhật U7, U8 đều làm vậy (`ds_autopilot_events`).
 
-Sao lưu DB (mục dưới), rồi trên Dokploy: compose `studio` → Environment → đổi `STUDIO_RELEASE=<sha>` → Deploy. Migration
+Sao lưu DB (mục dưới) rồi đổi bản chạy. Cách nhanh, không cần khoá Dokploy: `bash deploy/dokploy/switch-release.sh <sha>` trên VPS
+(chép script lên; nó kiểm run đang chạy, tạm dừng tự lái, sửa `STUDIO_RELEASE` trong `.env`, tạo lại container `app`, chờ `healthy` và
+`healthz` công khai, bật lại tự lái). Sau đó đặt `STUDIO_RELEASE=<sha>` trong Dokploy (Environment, chưa cần Deploy), nếu không lần Deploy
+sau sẽ kéo bản cũ về (env của Dokploy lưu mã hoá trong DB của nó, `.env` chỉ là bản sinh ra). Hoặc làm trên giao diện: compose `studio` →
+Environment → đổi `STUDIO_RELEASE=<sha>` → Deploy. Migration
 chạy tự động khi app khởi động (`migrations.autoRun`). Kiểm: `https://studio.dsc.edu.vn/main/api/healthz` trả `ok: true`,
 đăng nhập được, xem log container.
 
@@ -86,8 +90,11 @@ Dữ liệu sự kiện và brief của run hết hạn sau 14 ngày theo mặc 
 
 ## Quay lui
 
-Đặt lại `STUDIO_RELEASE` về sha cũ (thư mục cũ còn trong `releases/`) và Deploy. Nếu bản mới đã chạy migration làm
-đổi schema, khôi phục bản sao lưu DB chụp trước khi cập nhật (mục dưới) rồi mới chạy bản cũ. Giữ ít nhất 2 bản phát hành
+**Sau khi bản mới đã chạy migration thì không khởi động lại bản cũ được**, dù migration chỉ thêm bảng: bản cũ dừng với
+`Executed migration "…" is missing from migration sources` và container khởi động lại mãi (12/11/2026, `7d1625f` sau `2a528a7`, Studio sập
+vài phút). Lỗi bản mới thì sửa tiến (bản mới hơn). Chỉ khi buộc phải chạy bản cũ: khôi phục bản sao lưu DB chụp trước khi cập nhật (mục
+dưới), rồi đặt lại `STUDIO_RELEASE` về sha cũ (thư mục cũ còn trong `releases/`) và tạo lại container.
+Trước migration kiểu này, `healthz` công khai có thể trả 404 vài giây khi Traefik chưa nhận container mới: thử lại, đừng quay lui. Giữ ít nhất 2 bản phát hành
 gần nhất trong `releases/`.
 
 ## Sao lưu và khôi phục
