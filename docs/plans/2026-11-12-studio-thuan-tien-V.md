@@ -398,13 +398,13 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
 
 ## 11. Tiến độ
 
-- [ ] V0 — Sửa nhanh
-  - [ ] V0.1 tạo việc mặc định Thủ công
-  - [ ] V0.2 làm tươi khi quay lại
-  - [ ] V0.3 quét bí mật
-  - [ ] V0.4 sửa playbook
-  - [ ] V0.5 `.gitattributes` và quy tắc một working tree
-  - [ ] V0.6 đo trước
+- [x] V0 — Sửa nhanh (mã đã merge 12/11/2026; chưa deploy production, năm con số §3 chưa đo)
+  - [x] V0.1 tạo việc mặc định Thủ công (#81)
+  - [x] V0.2 làm tươi khi quay lại (#82)
+  - [x] V0.3 quét bí mật (#83; còn thiếu mẫu khoá `ds_…`/Dokploy, chờ định dạng khoá)
+  - [x] V0.4 sửa playbook (#84)
+  - [x] V0.5 `.gitattributes` và quy tắc một working tree (#85)
+  - [x] V0.6 đo trước (#86; số liệu chưa đo)
 - [ ] V1 — Hôm nay và menu
   - [ ] V1.1 trang Hôm nay
   - [ ] V1.2 menu 8 mục
