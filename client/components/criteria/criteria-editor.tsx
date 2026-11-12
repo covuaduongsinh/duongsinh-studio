@@ -255,27 +255,45 @@ export function IssueCriteriaSection({
 }: {
   readonly issueId: string;
   readonly canEdit?: boolean;
-}): ReactElement {
+}): ReactElement | null {
   const { t } = useTranslation();
   const { criteria, saveCriteria, isLoading } = useIssueCriteria(issueId);
+  // An issue without criteria has nothing to read here: for someone who cannot edit the section is left out, and for
+  // someone who can it is one line until they ask to add the first (it took a full block on every issue).
+  const [adding, setAdding] = useState(false);
+  if (isLoading) return null;
+  if (criteria.length === 0 && !adding) {
+    if (!canEdit) return null;
+    return (
+      <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+        <CheckSquareIcon className='size-4' />
+        <span>{t('studioCriteria.empty')}</span>
+        <Button
+          type='button'
+          size='sm'
+          variant='outline'
+          onClick={() => setAdding(true)}
+          data-testid='criteria-open-btn'
+        >
+          {t('studioCriteria.openEditor')}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <IssueSection
       icon={<CheckSquareIcon className='size-4' />}
       title={t('studioCriteria.title')}
     >
-      {isLoading ? (
-        <p className='text-sm text-muted-foreground'>...</p>
-      ) : (
-        <CriteriaEditor
-          criteria={criteria}
-          canEdit={canEdit}
-          onSave={async (updated) => {
-            await saveCriteria.mutateAsync(updated);
-          }}
-          isSaving={saveCriteria.isPending}
-        />
-      )}
+      <CriteriaEditor
+        criteria={criteria}
+        canEdit={canEdit}
+        onSave={async (updated) => {
+          await saveCriteria.mutateAsync(updated);
+        }}
+        isSaving={saveCriteria.isPending}
+      />
     </IssueSection>
   );
 }

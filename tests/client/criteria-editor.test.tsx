@@ -37,10 +37,22 @@ describe('CriteriaEditor and IssueCriteriaSection', () => {
     initialCriteria = [];
   });
 
-  it('renders empty message when no criteria exist', async () => {
-    renderCriteriaSection(false);
+  it('leaves the section out when there are no criteria and the viewer cannot edit', async () => {
+    const { container } = await renderCriteriaSection(false);
     await waitFor(() => expect(calls.length).toBeGreaterThan(0));
+    expect(screen.queryByText('Chưa có tiêu chí nghiệm thu.')).toBeNull();
+    expect(screen.queryByTestId('criteria-editor')).toBeNull();
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('shows one line instead of a block when there are none and the viewer can edit, until they add', async () => {
+    await renderCriteriaSection(true);
+    const open = await screen.findByTestId('criteria-open-btn');
     expect(screen.getByText('Chưa có tiêu chí nghiệm thu.')).toBeTruthy();
+    // The editor is not drawn yet.
+    expect(screen.queryByTestId('criteria-text-input')).toBeNull();
+    await userEvent.click(open);
+    expect(await screen.findByTestId('criteria-text-input')).toBeTruthy();
   });
 
   it('renders existing criteria with correct badges and values', async () => {
@@ -75,7 +87,7 @@ describe('CriteriaEditor and IssueCriteriaSection', () => {
   it('allows adding and saving new criteria when canEdit is true', async () => {
     initialCriteria = [];
     renderCriteriaSection(true);
-    await waitFor(() => expect(calls.length).toBeGreaterThan(0));
+    await userEvent.click(await screen.findByTestId('criteria-open-btn'));
 
     const input = screen.getByTestId('criteria-text-input');
     await userEvent.type(input, 'Test chạy không lỗi');

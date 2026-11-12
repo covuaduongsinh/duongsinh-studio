@@ -445,9 +445,42 @@ describe('issue page as the demo draws it', () => {
         name: enUS.issueWork.needsYouActions.merge,
       }),
     ).toBeInTheDocument();
+    // What the issue waits for from the person stays in view with it.
+    expect(
+      within(sticky).getByTestId('issue-sticky-needs-you'),
+    ).toHaveTextContent(issue.needsYou);
     await user.click(
       within(sticky).getByRole('button', { name: enUS.issueDetail.backToTop }),
     );
     expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 0 }));
+  });
+
+  it('puts the activity before the secondary blocks on a phone, and keeps the old order from md up', async () => {
+    await renderPage();
+    const root = await screen.findByTestId('issue-detail-root');
+    await within(root).findByTestId('issue-progress');
+    const [primary, secondary] = Array.from(
+      root.querySelectorAll(':scope > div > div'),
+    ).filter((node) => node.className.includes('order-'));
+    const tabs = root.querySelector('[data-slot="tabs"]') as HTMLElement;
+    // The header and progress come first, the tabs second and the details third below md; md restores details before tabs.
+    expect(primary.className).toContain('order-1');
+    expect(tabs.className).toContain('order-2');
+    expect(tabs.className).toContain('md:order-3');
+    expect(secondary.className).toContain('order-3');
+    expect(secondary.className).toContain('md:order-2');
+    // The progress panel (with "Needs you") sits in the first block; the secondary block holds no progress panel.
+    expect(
+      primary.querySelector('[data-testid="issue-progress"]'),
+    ).not.toBeNull();
+    expect(
+      secondary.querySelector('[data-testid="issue-progress"]'),
+    ).toBeNull();
+  });
+
+  it('draws no criteria block for an issue without criteria', async () => {
+    await renderPage();
+    await screen.findByTestId('issue-detail-root');
+    expect(screen.queryByTestId('criteria-editor')).toBeNull();
   });
 });

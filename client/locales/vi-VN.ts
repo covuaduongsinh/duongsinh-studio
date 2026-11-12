@@ -699,6 +699,7 @@ const viVN: AppResource = {
     },
   },
   studioCriteria: {
+    openEditor: 'Thêm tiêu chí',
     actions: {
       groupTitle: 'Tiêu chí nghiệm thu',
       propose: {

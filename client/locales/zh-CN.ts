@@ -686,6 +686,7 @@ const zhCN: AppResource = {
     },
   },
   studioCriteria: {
+    openEditor: '添加标准',
     actions: {
       groupTitle: '验收标准',
       propose: {
