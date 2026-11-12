@@ -190,6 +190,27 @@ test(
     expect((await contributor.fetch('/releases/apps/nb3-x/jobs')).status).toBe(
       403,
     );
+
+    // Job secrets: owner only, value never echoed, names listed.
+    const secretUrl = '/releases/apps/nb3-x/jobSecrets/LARK_APP_SECRET';
+    expect(
+      (await admin.fetch(secretUrl, json({ value: 'hunter2hunter2' }, 'PUT')))
+        .status,
+    ).toBe(403);
+    const stored = await owner.fetch(
+      secretUrl,
+      json({ value: 'hunter2hunter2' }, 'PUT'),
+    );
+    expect(stored.status).toBe(200);
+    expect(await stored.text()).not.toContain('hunter2');
+    expect(
+      (
+        await owner.fetch(
+          '/releases/apps/nb3-x/jobSecrets/not-a-name',
+          json({ value: 'x' }, 'PUT'),
+        )
+      ).status,
+    ).toBe(400);
     void app;
   },
 );

@@ -58,6 +58,11 @@ export interface Nb3ComposeInput {
   readonly hasConfig: boolean;
 }
 
+/** Where the daemon keeps an App's job secrets on the host (`envFile` in the daemon's config). */
+export const JOB_ENV_DIR = '/srv/duongsinh-studio/jobs';
+export const jobEnvFile = (name: string): string =>
+  `${JOB_ENV_DIR}/${name}.env`;
+
 const yamlString = (value: string): string => JSON.stringify(value);
 
 /** Names of variables the driver itself sets; an App's variable with one of these names is refused. */
@@ -93,6 +98,7 @@ export function nb3ComposeFile(input: Nb3ComposeInput): string {
   const postgres = input.database === 'postgres';
   const dbHost = `${name}-db`;
   const appService = `${name}-app`;
+  const jobService = `${name}-job`;
   // Docker creates a named volume owned by root; the App runs as uid 1000, so this one-shot service hands it over first.
   const initService = `${name}-init`;
   const router = `ds-${name}`;
@@ -208,6 +214,31 @@ ${mounts}
       - traefik.http.routers.${router}-ws.middlewares=${router}-https@docker
       - traefik.http.routers.${router}-ws.service=${router}
 
+  # One-off jobs (V4): "docker compose run ${jobService}" through the ds-nb3-exec daemon; never started with the App.
+  # The job reads the secrets of its own file besides .env; the web service never sees them.
+  ${jobService}:
+    image: ${NODE_IMAGE}
+    profiles: ["job"]
+    restart: "no"
+    user: "1000:1000"
+    working_dir: /app
+    env_file:
+      - .env
+      - path: ${yamlString(jobEnvFile(input.name))}
+        required: false
+    environment:
+      NODE_ENV: production
+      TZ: Asia/Ho_Chi_Minh
+      APP_BASE_PATH: ${yamlString(input.basePath)}
+${input.hasConfig ? '      APP_CONFIG_FILE: /app/config.yml\n' : ''}      APP_PUBLIC_ORIGIN: ${yamlString(`https://${host}`)}
+${dbEnv}
+    volumes:
+${mounts}
+    networks:
+      - default
+    mem_limit: 768m
+    cpus: 1
+
 networks:
   dokploy-network:
     external: true
@@ -242,6 +273,11 @@ export function nb3ComposeEnv(
         `The variable ${name} is set by Studio and cannot be replaced.`,
       );
     }
+    // Job secrets (the Lark import's keys) go to the job's own file through the job channel, never to the web service.
+    if (/^(?:LARK_|JOB_ONLY_)/u.test(name))
+      throw new Error(
+        `The variable ${name} is a job secret: set it through the job channel, not in the variables.`,
+      );
     if (/[\r\n]/u.test(value))
       throw new Error(`The variable ${name} has a line break.`);
     lines.push(`${name}=${value}`);

@@ -90,6 +90,35 @@ describe('NocoBase 3 compose', () => {
     expect(composeNameOf('NocoLMS_App 1')).toBe('nb3-nocolms-app-1');
   });
 
+  it('adds a job service that is not started with the App and reads its own secrets file', () => {
+    const file = nb3ComposeFile({ ...base, database: 'postgres' });
+    const web = file.slice(
+      file.indexOf('  nb3-nocolms-app:'),
+      file.indexOf('  nb3-nocolms-job:'),
+    );
+    const job = file.slice(file.indexOf('  nb3-nocolms-job:'));
+    expect(job).toContain('profiles: ["job"]');
+    expect(job).toContain('restart: "no"');
+    expect(job).toContain('path: "/srv/duongsinh-studio/jobs/nb3-nocolms.env"');
+    expect(job).toContain('required: false');
+    // The job has no router and is not exposed; the web service never lists the job file.
+    expect(job).not.toContain('traefik.enable');
+    expect(web).not.toContain('jobs/nb3-nocolms.env');
+    expect(file).toContain('DB_DIALECT: postgres');
+  });
+
+  it('refuses job secrets among the App variables, without printing their value', () => {
+    for (const name of ['LARK_APP_SECRET', 'LARK_APP_ID', 'JOB_ONLY_X'])
+      expect(() => nb3ComposeEnv({ [name]: 'topsecret' }, null)).toThrow(
+        /job secret/u,
+      );
+    try {
+      nb3ComposeEnv({ LARK_APP_SECRET: 'topsecret' }, null);
+    } catch (error) {
+      expect(String(error)).not.toContain('topsecret');
+    }
+  });
+
   it('refuses variables the driver sets, bad names and line breaks', () => {
     expect(nb3ComposeEnv({ APP_KEY: 'k' }, 'abcdefabcdefabcdef12')).toBe(
       'APP_KEY=k\nDB_PASSWORD=abcdefabcdefabcdef12',
