@@ -51,6 +51,7 @@ import { useIssuePullRequests, type GitPullRequest } from '#hooks/use-git';
 import { useIssueRuns } from '#hooks/use-issue-work';
 import { useIsMobile } from '#hooks/use-mobile';
 
+import { durationText } from './duration.js';
 import { RunRow } from './issue-runs.js';
 import {
   toAttachmentFile,
@@ -161,6 +162,17 @@ function PullLine({ pull }: { readonly pull: GitPullRequest }): ReactElement {
   const checks = pull.ciState
     ? t(`issueDetail.timeline.checks.${pull.ciState}`)
     : null;
+  // How long CI took: the longest of the checks that reported a duration, so "slow" is visible beside the result.
+  const longest = Math.max(
+    0,
+    ...pull.checks.map((check) => check.durationMs ?? 0),
+  );
+  const ciTime =
+    longest > 0
+      ? t('issueDetail.timeline.checksTook', {
+          duration: durationText(t, longest),
+        })
+      : null;
   return (
     <TimelineActivity
       actorName={t('issueDetail.timeline.pullRequest')}
@@ -178,6 +190,7 @@ function PullLine({ pull }: { readonly pull: GitPullRequest }): ReactElement {
         {t(`issueDetail.timeline.pull.${pull.state}`, { number: pull.number })}
       </a>
       {pull.state === 'open' && checks ? <span>{checks}</span> : null}
+      {ciTime ? <span>{ciTime}</span> : null}
     </TimelineActivity>
   );
 }

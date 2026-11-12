@@ -25,6 +25,7 @@ import {
 import { Badge } from '#components/ui/badge';
 import { Button } from '#components/ui/button';
 import { IssueSection } from '#extensions/nocobase-issue-detail/issue-detail';
+import { durationText, type Translate } from './duration.js';
 import {
   useIssueRuns,
   useRefreshIssueRuns,
@@ -38,21 +39,6 @@ const ACTIVE = new Set(['queued', 'dispatched', 'running']);
 const WAIT_SHOWN_MS = 30_000;
 /** A run that ended without finishing the work, which Retry queues again. */
 const RETRYABLE = new Set(['failed', 'cancelled']);
-
-type Translate = ReturnType<typeof useTranslation>['t'];
-
-/** "4 min 12 s": seconds under a minute, minutes and seconds under an hour, else hours and minutes. */
-function durationText(t: Translate, milliseconds: number): string {
-  const total = Math.max(0, Math.round(milliseconds / 1000));
-  const hours = Math.floor(total / 3600);
-  const minutes = Math.floor((total % 3600) / 60);
-  const seconds = total % 60;
-  if (hours > 0)
-    return t('issueWork.runs.duration.hours', { h: hours, m: minutes });
-  if (minutes > 0)
-    return t('issueWork.runs.duration.minutes', { m: minutes, s: seconds });
-  return t('issueWork.runs.duration.seconds', { s: seconds });
-}
 
 /** How long the run took or has gone; a queued run shows how long it has waited. Null when there is nothing to say. */
 function runDuration(t: Translate, run: IssueRun): string | null {

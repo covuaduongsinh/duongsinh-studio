@@ -1163,6 +1163,7 @@ const enUS = {
       less: 'Show less',
     },
     timeline: {
+      checksTook: 'CI took {{duration}}',
       latest: 'Latest',
       pullRequest: 'Pull request',
       pull: {

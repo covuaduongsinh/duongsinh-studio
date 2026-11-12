@@ -1115,6 +1115,7 @@ const zhCN: AppResource = {
       less: '收起',
     },
     timeline: {
+      checksTook: 'CI 耗时 {{duration}}',
       latest: '最新',
       pullRequest: '拉取请求',
       pull: {

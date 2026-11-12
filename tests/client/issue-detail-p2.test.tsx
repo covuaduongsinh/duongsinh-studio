@@ -160,7 +160,17 @@ const pull = {
   baseRef: 'main',
   mergeability: 'clean',
   ciState: 'success',
-  checks: [],
+  checks: [
+    {
+      kind: 'checkRun',
+      name: 'ci',
+      status: 'completed',
+      conclusion: 'success',
+      outcome: 'success',
+      url: null,
+      durationMs: 252_000,
+    },
+  ],
   issueId: '21',
   autoCompleteDisabled: false,
   mergedAt: null,
@@ -331,6 +341,10 @@ describe('issue page as the demo draws it', () => {
         name: 'Pull request #9 is open',
       }),
     ).toHaveAttribute('href', pull.url);
+    // And how long CI took, beside the result.
+    expect(
+      await within(panel).findByText(/CI took 4 min/u),
+    ).toBeInTheDocument();
     // The run row keeps its transcript and prompt controls, so the Runs tab is not needed.
     expect(
       within(panel).getByRole('button', { name: enUS.issueWork.runs.show }),
