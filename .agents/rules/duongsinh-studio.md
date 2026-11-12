@@ -65,6 +65,13 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
   which broke `pnpm install` on every clone. `tests/project/tracked-files.test.ts` fails on any tracked symlink or `node_modules` path.
 - A worktree gets its own `node_modules` (`pnpm install --frozen-lockfile`, about 1.5 minutes), never a link to the main checkout's.
 - Stage by path (`git add <file>`), not `git add -A`, in a worktree.
+- One working tree, in WSL: `~/code/duongsinh-studio`. Orca (or any Windows tool) opens it through
+  `\\wsl.localhost\Ubuntu\home\duongsinh\code\duongsinh-studio`; a second clone on `D:\` or `C:\` is read-only and never
+  committed from. Two trees drifted apart in commit, `node_modules` and untracked `config.yml`, and a Windows clone
+  (`gh.exe`) produced CRLF. Production builds run only in WSL (see Toolchain constraints). On Windows set
+  `git config --global core.autocrlf false`.
+- Line endings are LF: `.gitattributes` has `* text=auto eol=lf`; `docs/plans/archive/**` is `-text` (verbatim history).
+  `tests/project/gitattributes.test.ts` fails on any other CRLF in the index.
 - When a pull request replaces others, close the replaced ones with "Superseded by #N" and delete their branches as soon as it merges.
 
 ## Home page

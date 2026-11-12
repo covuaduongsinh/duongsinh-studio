@@ -80,3 +80,14 @@ Ineffective mark-compacts near heap limit`), nặng thêm vì Rollup chạy bả
    thì dừng tiến trình `pnpm dev` cha, hoặc lọc PID cụ thể.
 3. Gọi heredoc qua PowerShell → `wsl bash -lc` hỏng trích dẫn. Sửa file bằng công cụ chạy trong WSL hoặc qua đường dẫn
    `\\wsl.localhost\Ubuntu\home\duongsinh\code\duongsinh-studio\…`.
+
+## Một working tree, xuống dòng LF (12/11/2026)
+
+- Chỉ giữ **một** working tree: `~/code/duongsinh-studio` trong WSL. Orca hoặc công cụ Windows mở nó qua
+  `\\wsl.localhost\Ubuntu\home\duongsinh\code\duongsinh-studio`. Bản clone trên `D:\`/`C:\` (nếu còn) chỉ để đọc, không commit từ đó.
+- Lý do: hai bản lệch commit, `node_modules` khác hệ điều hành (build thiếu native Linux), `config.yml` untracked mỗi bên một bản, và clone
+  bằng `gh.exe` ra CRLF làm CI `format:check` đỏ.
+- Trên Windows chạy một lần: `git config --global core.autocrlf false`. Repo có `.gitattributes` (`* text=auto eol=lf`) nên
+  checkout nào cũng ra LF; riêng `docs/plans/archive/**` giữ nguyên byte gốc.
+- Sửa file từ Windows: dùng đường dẫn `\\wsl.localhost\…` ở trên, không chép file qua lại giữa hai cây.
+- Chưa làm (thuộc V6.3): script build tự từ chối khi `uname -s` khác Linux, cây làm việc bẩn hoặc `HEAD` khác `origin/main`.

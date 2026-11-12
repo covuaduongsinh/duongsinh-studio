@@ -1,0 +1,6 @@
+# One line ending for everyone: LF in the repository and in every checkout, whatever tool cloned it. A clone made by a
+# Windows git (`gh.exe`) once produced CRLF, which turned CI `format:check` red and made diffs noisy.
+* text=auto eol=lf
+
+# Earlier plans are copied verbatim as history (see .prettierignore); keep their bytes exactly as recorded.
+docs/plans/archive/** -text
