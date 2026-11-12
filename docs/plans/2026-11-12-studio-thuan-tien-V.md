@@ -413,23 +413,23 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
   - [x] V2.1 "Cần bạn" ghim, thứ tự khối (#92)
   - [x] V2.2 dòng thời gian (#93)
   - [x] V2.3 lưu thời lượng (#94 migration `202611120002`, #95 hiển thị)
-- [ ] V3 — Nhanh thật
-  - [ ] V3.1 realtime (#96, chưa merge; **chưa kiểm WebSocket đăng nhập trên production**)
+- [x] V3 — Nhanh thật (mã đã merge; chưa deploy; V3.4 không cần cache, xem dưới)
+  - [x] V3.1 realtime (#96; **chưa kiểm WebSocket đăng nhập trên production**; `/main/ws` trả 426 khi chưa xác thực qua Traefik)
   - [x] V3.2 chia sẻ `decisionsOn` khi chạy chồng nhau (#97; không giữ kết quả sau khi xong, xem PR)
-  - [ ] V3.3 bundle đầu (#98, chưa merge; 1738 → 1617 KB)
-  - [ ] V3.4 runner (đo trước)
-- [ ] V4 — Kênh job và bí mật (chờ duyệt thiết kế §5)
+  - [x] V3.3 bundle đầu (#98; 1738 → 1617 KB, gzip 529 → 495 KB)
+  - [x] V3.4 runner (#100): **không làm cache `node_modules`** vì đo thực tế 12/11 cho thấy 0/40 lượt gần nhất có `pnpm install`, thư mục tác vụ giữ `node_modules` và kho pnpm 1,1 GB đã dùng chung; chỉ làm review chạy song song với CI (Q9, công tắc `REVIEW_PARALLEL_WITH_CI`)
+- [ ] V4 — Kênh job và bí mật (**chưa bắt đầu phần daemon: chờ chủ dự án duyệt thiết kế §5**, vì là tiến trình root trên VPS)
   - [ ] V4.1 daemon
   - [ ] V4.2 bí mật theo job
   - [ ] V4.3 route job và nhật ký
-  - [ ] V4.4 trạng thái/log thật, khoá CI hẹp
+  - [ ] V4.4 trạng thái/log thật, khoá CI hẹp — **phần khoá CI hẹp theo App, 90 ngày đã xong (#101)**; còn `status()`/`logs()` qua daemon
   - [ ] V4.5 tài liệu
 - [ ] V5 — Dung lượng, sao lưu, đăng ký app
   - [ ] V5.1 suất, RAM, tự dừng
-  - [ ] V5.2 sao lưu mọi app
+  - [x] V5.2 sao lưu mọi app (#102: `backup-nb3.sh`; **chưa cài lên VPS**; còn dump trước `remove(purgeData)`, cần V4)
   - [ ] V5.3 `!noi-app-nb3`
   - [ ] V5.4 `!don-app-nb3` (chờ Q7)
 - [ ] V6 — Lark, tài liệu, phát hành
   - [ ] V6.1 Lark qua tenant token
-  - [ ] V6.2 dọn tài liệu và ngôn từ
+  - [x] V6.2 dọn tài liệu và ngôn từ (#103)
   - [ ] V6.3 phát hành bằng Actions
