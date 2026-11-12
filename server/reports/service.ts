@@ -12,6 +12,7 @@ import type {
   Viewer,
 } from '@nocobase/app-plugin-projects/server/tokens';
 import type { DatabaseConnection } from '@nocobase/db';
+import { randomUUID } from 'node:crypto';
 import { str } from '../git/rows.js';
 
 /**
@@ -106,6 +107,76 @@ export function median(values: readonly number[]): number | null {
   if (values.length === 0) return null;
   const sorted = [...values].sort((a, b) => a - b);
   return sorted[Math.ceil(sorted.length / 2) - 1] ?? null;
+}
+
+/** The nearest-rank percentile (`p` in 0..1), or null without values. */
+export function percentile(
+  values: readonly number[],
+  p: number,
+): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  return sorted[Math.max(0, Math.ceil(sorted.length * p) - 1)] ?? null;
+}
+
+export interface FlowFigures {
+  /** Issues whose first pull request opened in the period and that an agent ran on. */
+  readonly sample: number;
+  /** From the first agent run queued on the issue to its first pull request opening. */
+  readonly firstPullRequestP50Ms: number | null;
+  readonly firstPullRequestP90Ms: number | null;
+  /** Runs queued on the issue up to that moment. */
+  readonly runsToPullRequestP50: number | null;
+  readonly runsToPullRequestP90: number | null;
+}
+
+/**
+ * "Assigned to pull request open" and "runs per issue" (plan V, "Đo trước"): for each issue the first run's queue time
+ * is when work was handed to an agent, the first pull request's creation is when it opened. Issues whose pull request
+ * predates every run (a person's own) are left out.
+ */
+export function flowFigures(
+  firstPulls: ReadonlyMap<string, number>,
+  runs: readonly { subjectId: string; createdAt: string }[],
+): FlowFigures {
+  const byIssue = new Map<string, number[]>();
+  for (const run of runs) {
+    const at = Date.parse(run.createdAt);
+    byIssue.set(run.subjectId, [...(byIssue.get(run.subjectId) ?? []), at]);
+  }
+  const waits: number[] = [];
+  const counts: number[] = [];
+  for (const [issueId, openedAt] of firstPulls) {
+    const queued = byIssue.get(issueId);
+    if (!queued) continue;
+    const first = Math.min(...queued);
+    if (openedAt < first) continue;
+    waits.push(openedAt - first);
+    counts.push(queued.filter((at) => at <= openedAt).length);
+  }
+  return {
+    sample: waits.length,
+    firstPullRequestP50Ms: percentile(waits, 0.5),
+    firstPullRequestP90Ms: percentile(waits, 0.9),
+    runsToPullRequestP50: percentile(counts, 0.5),
+    runsToPullRequestP90: percentile(counts, 0.9),
+  };
+}
+
+/** Readings a person takes by hand: no table holds them. */
+export const SNAPSHOT_METRICS = [
+  'tapsToNeedMe',
+  'firstBundleBytes',
+  'issueLoad4gMs',
+] as const;
+export type SnapshotMetric = (typeof SNAPSHOT_METRICS)[number];
+
+export interface MetricSnapshot {
+  readonly id: string;
+  readonly metric: SnapshotMetric;
+  readonly value: number;
+  readonly note: string | null;
+  readonly takenAt: string;
 }
 
 const rate = (part: number, whole: number): number | null =>
@@ -669,6 +740,116 @@ export function createReportFigures(sources: ReportSources) {
             METRIC_TARGETS.decisionResolveP50Ms,
           ),
         },
+      };
+    },
+
+    async flow(scope: ReportScope, days: ReportDays) {
+      const window = periodOf(days, sources.now()).current;
+      const empty = flowFigures(new Map(), []);
+      if (!scope.subjects)
+        return {
+          days,
+          from: window.from,
+          to: window.to,
+          subjects: false,
+          ...empty,
+        };
+      const rows = await sources
+        .conn()
+        .query.selectFrom('dsPullRequests')
+        .select(['issueId', 'createdAt'])
+        .where('issueId', 'is not', null)
+        .where('createdAt', '<', window.end)
+        .execute();
+      // The first pull request of each issue; it counts when it opened inside the period.
+      const first = new Map<string, number>();
+      for (const row of rows) {
+        const id = str(row.issueId);
+        const at = new Date(row.createdAt as string | Date).getTime();
+        if (id && at < (first.get(id) ?? Infinity)) first.set(id, at);
+      }
+      const inPeriod = [...first].filter(
+        ([, at]) => at >= window.start.getTime(),
+      );
+      const facts = await issues.describe(
+        scope.viewer,
+        inPeriod.map(([id]) => id),
+      );
+      const visible = inPeriod.filter(([id]) => facts.get(id)?.visible);
+      const runs =
+        visible.length > 0
+          ? await reporting.runRecords(scope.caller, {
+              subjects: { kind: ISSUE_SUBJECT, ids: visible.map(([id]) => id) },
+              groupId: null,
+            })
+          : [];
+      return {
+        days,
+        from: window.from,
+        to: window.to,
+        subjects: true,
+        ...flowFigures(new Map(visible), runs),
+      };
+    },
+
+    /** The latest readings of each hand-taken figure, newest first. */
+    async snapshots(): Promise<readonly MetricSnapshot[]> {
+      const rows = await sources
+        .conn()
+        .query.selectFrom('dsMetricSnapshots')
+        .select(['id', 'metric', 'value', 'note', 'takenAt'])
+        .orderBy('takenAt', 'desc')
+        .limit(60)
+        .execute();
+      const seen = new Map<string, number>();
+      return rows.flatMap((row) => {
+        const metric = str(row.metric);
+        const count = seen.get(metric) ?? 0;
+        seen.set(metric, count + 1);
+        return count < 10 &&
+          (SNAPSHOT_METRICS as readonly string[]).includes(metric)
+          ? [
+              {
+                id: str(row.id),
+                metric: metric as SnapshotMetric,
+                value: Number(row.value),
+                note: row.note === null ? null : str(row.note),
+                takenAt: new Date(row.takenAt as string | Date).toISOString(),
+              },
+            ]
+          : [];
+      });
+    },
+
+    async recordSnapshot(input: {
+      readonly metric: SnapshotMetric;
+      readonly value: number;
+      readonly note: string | null;
+      readonly takenAt: Date | null;
+      readonly userId: string;
+    }): Promise<MetricSnapshot> {
+      const now = sources.now();
+      const takenAt = input.takenAt ?? now;
+      const id = randomUUID();
+      await sources
+        .conn()
+        .query.insertInto('dsMetricSnapshots')
+        .values({
+          id,
+          metric: input.metric,
+          value: input.value,
+          note: input.note,
+          takenAt,
+          takenByUserId: input.userId,
+          createdAt: now,
+        })
+        .execute();
+      return {
+        id,
+        metric: input.metric,
+        value: input.value,
+        note: input.note,
+        takenAt: takenAt.toISOString(),
       };
     },
 

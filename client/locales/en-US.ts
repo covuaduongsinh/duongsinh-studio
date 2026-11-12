@@ -193,6 +193,33 @@ const enUS = {
       hours: '{{count}} hours',
       days: '{{count}} days',
     },
+    flow: {
+      title: 'Delivery pace',
+      description:
+        'From handing work to an agent to its pull request opening, plus hand-taken readings to compare before and after improvements.',
+      firstPullRequest: 'Assigned → PR opened',
+      runsToPullRequest: 'Runs per issue until the PR opens',
+      medianAndTail: '{{median}} · P90 {{tail}}',
+      sample:
+        'From {{count}} issues an agent ran on and opened a PR for in the period.',
+      readings: 'Hand-taken readings',
+      readingsHint:
+        'Record each measurement to compare later. Only administrators can record.',
+      latest: 'Latest: {{value}} ({{date}})',
+      record: 'Record',
+      recordFailed: 'Could not record the reading.',
+      valueLabel: 'Value: {{metric}}',
+      metrics: {
+        tapsToNeedMe: 'Taps from opening the app to seeing "needs me"',
+        firstBundleBytes: 'First bundle size',
+        issueLoad4gMs: 'Work page load on 4G',
+      },
+      units: {
+        tapsToNeedMe: '{{value}} taps',
+        firstBundleBytes: '{{value}} bytes',
+        issueLoad4gMs: '{{value}} ms',
+      },
+    },
     agents: {
       title: 'Agent performance',
       description:
