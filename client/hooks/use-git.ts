@@ -81,6 +81,8 @@ export interface GitCheck {
   readonly conclusion: string | null;
   readonly outcome: 'pending' | 'success' | 'failure';
   readonly url: string | null;
+  /** How long a reported check ran (the longest of them is the CI time); absent for checks read from the host. */
+  readonly durationMs?: number | null;
 }
 
 export const MERGE_BLOCKERS = [

@@ -482,6 +482,37 @@ test(
     expect(listed).toMatchObject({ source: 'ci', sha: HEAD });
     expect(listed.checks.map((check) => check.status)).toEqual(['failure']);
 
+    // How long a check ran: the first `pending` report starts the clock, the final one stops it (V2.3).
+    expect((await asKey(ciKey, { sha: HEAD, name: 'build' })).status).toBe(201);
+    const finishedBuild = await asKey(ciKey, {
+      sha: HEAD,
+      name: 'build',
+      exitCode: 0,
+    });
+    expect(finishedBuild.status).toBe(201);
+    const build = (await finishedBuild.json()) as {
+      data: {
+        startedAt: string | null;
+        completedAt: string | null;
+        durationMs: number | null;
+      };
+    };
+    expect(build.data.startedAt).not.toBeNull();
+    expect(build.data.completedAt).not.toBeNull();
+    expect(build.data.durationMs).toBeGreaterThanOrEqual(0);
+    const timed = (
+      await (
+        await admin.fetch(`/git/resources/${repository.id}/reportedChecks`)
+      ).json()
+    ).data as { checks: { name: string; durationMs: number | null }[] };
+    expect(
+      timed.checks.find((check) => check.name === 'build')?.durationMs,
+    ).toBe(build.data.durationMs);
+    // A report with no `pending` before it has nothing to measure from.
+    expect(
+      timed.checks.find((check) => check.name === 'ci')?.durationMs,
+    ).toBeNull();
+
     // An agent's run reports for its own issue's pull request only.
     expect(
       (

@@ -191,6 +191,8 @@ export interface StoredCheck {
   readonly conclusion: string | null;
   readonly outcome: GitHubCheck['outcome'];
   readonly url: string | null;
+  /** How long a reported check ran, when its first and last report are both known (V2.3); host checks leave it out. */
+  readonly durationMs?: number | null;
 }
 
 export interface GitPullRequestView {
@@ -311,8 +313,23 @@ function checksOf(value: unknown): StoredCheck[] {
       outcome:
         outcome === 'success' || outcome === 'failure' ? outcome : 'pending',
       url: strOrNull(check.url),
+      ...(typeof check.durationMs === 'number'
+        ? { durationMs: check.durationMs }
+        : {}),
     };
   });
+}
+
+/** The time between a check's first report and its final one, or null while it runs or when either is unknown. */
+export function checkDurationMs(
+  startedAt: unknown,
+  completedAt: unknown,
+): number | null {
+  if (!startedAt || !completedAt) return null;
+  const span =
+    new Date(completedAt as string | Date).getTime() -
+    new Date(startedAt as string | Date).getTime();
+  return Number.isFinite(span) && span >= 0 ? span : null;
 }
 
 interface AppRecord {
@@ -2001,6 +2018,7 @@ export function createGitService(deps: GitServiceDeps) {
               ? ('failure' as const)
               : ('pending' as const),
         url: strOrNull(row.url),
+        durationMs: checkDurationMs(row.startedAt, row.completedAt),
       };
     });
   }
@@ -2021,7 +2039,29 @@ export function createGitService(deps: GitServiceDeps) {
   }) {
     const repository = await repositoryRecord(input.repositoryId);
     const now = new Date();
+    let startedAt: Date | null = null;
+    let completedAt: Date | null = null;
     await deps.database.transaction(async (tx) => {
+      const previous: Row | undefined = await tx.query
+        .selectFrom(REPORTED_CHECKS)
+        .select(['startedAt', 'completedAt'])
+        .where('repositoryId', '=', input.repositoryId)
+        .where('sha', '=', input.sha)
+        .where('name', '=', input.name)
+        .executeTakeFirst();
+      // The first `pending` report starts the clock and the final one stops it. A `pending` after a final report is a
+      // re-run and starts over; a final report with no `pending` before it has no start to measure from.
+      const started = previous?.startedAt
+        ? new Date(previous.startedAt as string | Date)
+        : null;
+      const finished = Boolean(previous?.completedAt);
+      startedAt =
+        started && (!finished || input.status !== 'pending')
+          ? started
+          : input.status === 'pending'
+            ? now
+            : null;
+      completedAt = input.status === 'pending' ? null : now;
       await tx.query
         .deleteFrom(REPORTED_CHECKS)
         .where('repositoryId', '=', input.repositoryId)
@@ -2030,7 +2070,13 @@ export function createGitService(deps: GitServiceDeps) {
         .execute();
       await tx.query
         .insertInto(REPORTED_CHECKS)
-        .values({ id: randomUUID(), ...input, reportedAt: now })
+        .values({
+          id: randomUUID(),
+          ...input,
+          reportedAt: now,
+          startedAt,
+          completedAt,
+        })
         .execute();
     });
     const checks = await reportedAsChecks(input.repositoryId, input.sha);
@@ -2069,6 +2115,9 @@ export function createGitService(deps: GitServiceDeps) {
       summary: input.summary,
       runId: input.runId,
       reportedAt: now.toISOString(),
+      startedAt: startedAt ? (startedAt as Date).toISOString() : null,
+      completedAt: completedAt ? (completedAt as Date).toISOString() : null,
+      durationMs: checkDurationMs(startedAt, completedAt),
       pullRequests: rows.map((row) => ({
         repo: repository.fullName,
         number: num(row.number),
@@ -2117,6 +2166,7 @@ export function createGitService(deps: GitServiceDeps) {
         status: str(row.status) as 'pending' | 'success' | 'failure',
         url: strOrNull(row.url),
         reportedAt: iso(row.reportedAt) ?? '',
+        durationMs: checkDurationMs(row.startedAt, row.completedAt),
       })),
     };
   }
