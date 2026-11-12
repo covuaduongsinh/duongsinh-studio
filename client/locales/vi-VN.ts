@@ -188,6 +188,31 @@ const viVN: AppResource = {
       hours: '{{count}} giờ',
       days: '{{count}} ngày',
     },
+    flow: {
+      title: 'Nhịp giao việc',
+      description:
+        'Việc từ lúc giao cho agent đến khi mở PR, và các số đo tay để so sánh trước/sau khi cải tiến.',
+      firstPullRequest: 'Giao việc → PR mở',
+      runsToPullRequest: 'Lượt chạy mỗi việc đến khi mở PR',
+      medianAndTail: '{{median}} · P90 {{tail}}',
+      sample: 'Từ {{count}} công việc có agent chạy và mở PR trong kỳ.',
+      readings: 'Số đo tay',
+      readingsHint: 'Ghi mỗi lần đo để so sánh. Chỉ quản trị viên ghi được.',
+      latest: 'Lần gần nhất: {{value}} ({{date}})',
+      record: 'Ghi',
+      recordFailed: 'Không ghi được số đo.',
+      valueLabel: 'Giá trị: {{metric}}',
+      metrics: {
+        tapsToNeedMe: 'Số chạm từ lúc mở app đến thấy "cần tôi"',
+        firstBundleBytes: 'Dung lượng gói đầu',
+        issueLoad4gMs: 'Tải trang việc trên 4G',
+      },
+      units: {
+        tapsToNeedMe: '{{value}} chạm',
+        firstBundleBytes: '{{value}} byte',
+        issueLoad4gMs: '{{value}} ms',
+      },
+    },
     agents: {
       title: 'Hiệu quả agent',
       description: 'Agent làm việc thế nào trong kỳ này, so với kỳ trước.',

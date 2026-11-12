@@ -37,6 +37,7 @@ const PEOPLE = [
   '/reports/projects',
   '/reports/attention',
   '/reports/learning',
+  '/reports/flow',
 ];
 const ALL = [...PEOPLE, '/reports/metrics', '/reports/usage'];
 
@@ -200,6 +201,60 @@ test(
     expect(learningData.data.repeatedMistakes).toBeDefined();
     expect(typeof learningData.data.newLessonsCount).toBe('number');
 
+    // Pull request flow: the owner sees the figures and records and reads back a hand-taken reading.
+    const flow = (await (
+      await admin.fetch('/reports/flow?days=30')
+    ).json()) as {
+      data: {
+        sample: number;
+        snapshots: unknown[];
+        firstPullRequestP50Ms: number | null;
+      };
+    };
+    expect(flow.data.sample).toBe(0);
+    expect(flow.data.firstPullRequestP50Ms).toBeNull();
+    expect(flow.data.snapshots).toEqual([]);
+    expect((await admin.fetch('/reports/flow?days=5')).status).toBe(400);
+    const noKey = await request(
+      '/reports/flowSnapshots',
+      json({ metric: 'tapsToNeedMe', value: 3 }),
+    );
+    expect(noKey.status).toBe(401);
+    const recorded = await admin.fetch(
+      '/reports/flowSnapshots',
+      json({ metric: 'tapsToNeedMe', value: 3, note: 'Android, 3 lần' }),
+    );
+    expect(recorded.status).toBe(201);
+    expect(
+      (
+        await admin.fetch(
+          '/reports/flowSnapshots',
+          json({ metric: 'nope', value: 1 }),
+        )
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await admin.fetch(
+          '/reports/flowSnapshots',
+          json({ metric: 'tapsToNeedMe', value: -1 }),
+        )
+      ).status,
+    ).toBe(400);
+    const afterRecord = (await (
+      await admin.fetch('/reports/flow?days=30')
+    ).json()) as {
+      data: {
+        snapshots: { metric: string; value: number; note: string | null }[];
+      };
+    };
+    expect(afterRecord.data.snapshots).toHaveLength(1);
+    expect(afterRecord.data.snapshots[0]).toMatchObject({
+      metric: 'tapsToNeedMe',
+      value: 3,
+      note: 'Android, 3 lần',
+    });
+
     const usage = (await (
       await admin.fetch('/reports/usage?groupBy=project')
     ).json()) as { data: { groupBy: string; rows: unknown[] } };
@@ -248,6 +303,22 @@ test(
         .status,
     ).toBe(404);
 
+    // A contributor sees flow figures of what they see (none here) but may not record a reading.
+    const theirFlow = (await (
+      await contributor.fetch('/reports/flow?days=30')
+    ).json()) as {
+      data: { sample: number };
+    };
+    expect(theirFlow.data.sample).toBe(0);
+    expect(
+      (
+        await contributor.fetch(
+          '/reports/flowSnapshots',
+          json({ metric: 'tapsToNeedMe', value: 1 }),
+        )
+      ).status,
+    ).toBe(403);
+
     // Someone without the page's grant gets no figures at all.
     const madeMember = await admin.fetch(
       '/users',
@@ -265,6 +336,14 @@ test(
       password: PASSWORD,
     });
     for (const path of ALL) expect((await member.fetch(path)).status).toBe(403);
+    expect(
+      (
+        await member.fetch(
+          '/reports/flowSnapshots',
+          json({ metric: 'tapsToNeedMe', value: 1 }),
+        )
+      ).status,
+    ).toBe(403);
 
     // A run reads only what its agent may, and never the people's routes.
     const registration = await agents.runners.createRegistrationToken(ownerId, {

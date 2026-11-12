@@ -31,6 +31,7 @@ import { z } from 'zod';
 import { REPORTS_PAGE, REPORTS_READ_ACTION } from '../agents/actions.js';
 import {
   REPORT_DAYS,
+  SNAPSHOT_METRICS,
   type ReportDays,
   type ReportScope,
 } from '../reports/service.js';
@@ -235,6 +236,46 @@ const LearningReport = z.object({
     }),
   ),
   failuresByReason: z.record(z.string(), Int),
+});
+
+const MetricSnapshotSchema = z.object({
+  id: z.string(),
+  metric: z.enum(SNAPSHOT_METRICS),
+  value: Int,
+  note: z.string().nullable(),
+  takenAt: z.string(),
+});
+
+const FlowReport = z.object({
+  ...PeriodHead,
+  sample: Int.describe(
+    'Issues whose first pull request opened in the period and that an agent ran on.',
+  ),
+  firstPullRequestP50Ms: Int.nullable().describe(
+    'From the first agent run queued on an issue to its first pull request opening: median.',
+  ),
+  firstPullRequestP90Ms: Int.nullable(),
+  runsToPullRequestP50: Int.nullable().describe(
+    'Runs queued on the issue up to that moment: median.',
+  ),
+  runsToPullRequestP90: Int.nullable(),
+  snapshots: z
+    .array(MetricSnapshotSchema)
+    .describe(
+      'Readings taken by hand, newest first, at most ten per figure: taps to "needs me", first bundle bytes, work page load on 4G (ms).',
+    ),
+});
+
+const RecordSnapshotBody = z.object({
+  metric: z.enum(SNAPSHOT_METRICS),
+  value: z.number().int().min(0).max(2_000_000_000),
+  note: z.string().trim().max(500).nullable().optional(),
+  takenAt: z
+    .string()
+    .refine((value) => !Number.isNaN(Date.parse(value)), {
+      message: 'takenAt must be a date.',
+    })
+    .optional(),
 });
 
 const MetricsReport = z.object({
@@ -482,6 +523,8 @@ export const reportRoutes: AppApiRouteContribution<Application> =
       '/reports/projects',
       '/reports/attention',
       '/reports/learning',
+      '/reports/flow',
+      '/reports/flowSnapshots',
     ])
       routes.use(path, auth.required(), authz.middleware());
     for (const path of ['/reports/metrics', '/reports/usage'])
@@ -601,6 +644,68 @@ export const reportRoutes: AppApiRouteContribution<Application> =
             context.req.valid('query').days as ReportDays,
           ),
         }),
+    );
+
+    routes.get(
+      '/reports/flow',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Get how fast work reaches a pull request',
+        operationId: 'reportsGetFlow',
+        description: `For issues whose first pull request opened in the last \`days\` days and that an agent ran on: the time from the first run queued to that pull request and the runs queued up to it (median and 90th percentile), with the readings taken by hand. ${GRANT_NOTE}`,
+        security: PERSON,
+        ...cliRoute({
+          command: 'report flow',
+          examples: ['report flow --days 30'],
+        }),
+        responses: { 200: dataResponse(FlowReport), ...apiErrorResponses },
+      }),
+      apiValidator('query', DaysQuery),
+      async (context) => {
+        const days = context.req.valid('query').days as ReportDays;
+        const [flow, snapshots] = await Promise.all([
+          figures().flow(await scopeOf(context), days),
+          figures().snapshots(),
+        ]);
+        return context.json({ data: { ...flow, snapshots } });
+      },
+    );
+
+    routes.post(
+      '/reports/flowSnapshots',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Record a hand-taken reading',
+        operationId: 'reportsRecordFlowSnapshot',
+        description:
+          'Records taps from opening the app to "needs me", the first bundle size in bytes, or the work page load time on 4G in milliseconds, so later changes can be compared. Only an unrestricted administrator may record one.',
+        security: PERSON,
+        ...cliRoute({
+          command: 'report flow-record',
+          examples: ['report flow-record --metric tapsToNeedMe --value 3'],
+        }),
+        responses: {
+          201: dataResponse(MetricSnapshotSchema),
+          ...apiErrorResponses,
+        },
+      }),
+      apiValidator('json', RecordSnapshotBody),
+      async (context) => {
+        await scopeOf(context);
+        if (!(await context.get('authz').snapshot()).unrestricted)
+          throw denied('Only an administrator may record a reading.');
+        const body = context.req.valid('json');
+        const session = context.get('auth');
+        if (!session) throw denied('Sign in first.');
+        const saved = await figures().recordSnapshot({
+          metric: body.metric,
+          value: body.value,
+          note: body.note ?? null,
+          takenAt: body.takenAt ? new Date(body.takenAt) : null,
+          userId: session.user.id,
+        });
+        return context.json({ data: saved }, 201);
+      },
     );
 
     routes.get(

@@ -2,7 +2,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   createReportFigures,
+  flowFigures,
   median,
+  percentile,
   periodOf,
   type ReportScope,
   type ReportSources,
@@ -496,5 +498,61 @@ describe('report figures', () => {
       { criterionId: 'crit-ci', count: 2 },
       { criterionId: 'crit-test', count: 1 },
     ]);
+  });
+});
+
+describe('flow figures (assigned to pull request open)', () => {
+  const at = (iso: string) => Date.parse(iso);
+  const queued = (subjectId: string, createdAt: string) => ({
+    subjectId,
+    createdAt,
+  });
+
+  it('takes nearest-rank percentiles', () => {
+    expect(percentile([], 0.5)).toBeNull();
+    expect(percentile([5], 0.9)).toBe(5);
+    const ten = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    expect(percentile(ten, 0.5)).toBe(5);
+    expect(percentile(ten, 0.9)).toBe(9);
+    expect(percentile([30, 10, 20], 0.5)).toBe(20);
+  });
+
+  it('measures from the first run queued to the first pull request, and counts the runs up to it', () => {
+    const figures = flowFigures(
+      new Map([
+        ['i1', at('2026-11-07T03:00:00Z')],
+        ['i2', at('2026-11-07T05:00:00Z')],
+      ]),
+      [
+        queued('i1', '2026-11-07T01:00:00Z'),
+        queued('i1', '2026-11-07T02:00:00Z'),
+        // After the pull request: not part of the way to it.
+        queued('i1', '2026-11-07T04:00:00Z'),
+        queued('i2', '2026-11-07T04:30:00Z'),
+      ],
+    );
+    expect(figures.sample).toBe(2);
+    // i1: 2 h and 2 runs; i2: 30 min and 1 run.
+    expect(figures.firstPullRequestP50Ms).toBe(30 * 60_000);
+    expect(figures.firstPullRequestP90Ms).toBe(2 * 3_600_000);
+    expect(figures.runsToPullRequestP50).toBe(1);
+    expect(figures.runsToPullRequestP90).toBe(2);
+  });
+
+  it('leaves out issues with no run, or whose pull request came before any run', () => {
+    const figures = flowFigures(
+      new Map([
+        ['nobody', at('2026-11-07T03:00:00Z')],
+        ['human', at('2026-11-07T00:30:00Z')],
+      ]),
+      [queued('human', '2026-11-07T01:00:00Z')],
+    );
+    expect(figures).toEqual({
+      sample: 0,
+      firstPullRequestP50Ms: null,
+      firstPullRequestP90Ms: null,
+      runsToPullRequestP50: null,
+      runsToPullRequestP90: null,
+    });
   });
 });

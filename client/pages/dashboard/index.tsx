@@ -37,6 +37,7 @@ import {
 
 import { BudgetUsage } from './budget-usage.js';
 import { BenchSection } from './bench-section.js';
+import { FlowSection } from './flow-section.js';
 
 import { RunsChart } from './runs-chart.js';
 import { Sparkline } from './sparkline.js';
@@ -429,6 +430,7 @@ export default function DashboardPage(): ReactElement {
 
         <BudgetUsage />
         <BenchSection />
+        <FlowSection days={days} duration={(ms) => formatDuration(t, ms)} />
 
         {agents.data ? (
           <Card>

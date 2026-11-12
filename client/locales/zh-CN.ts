@@ -185,6 +185,31 @@ const zhCN: AppResource = {
       hours: '{{count}} 小时',
       days: '{{count}} 天',
     },
+    flow: {
+      title: '交付节奏',
+      description:
+        '从交给智能体到打开 PR 的时间，以及用于对比改进前后的手动读数。',
+      firstPullRequest: '分配 → PR 打开',
+      runsToPullRequest: '每个任务到 PR 打开前的运行次数',
+      medianAndTail: '{{median}} · P90 {{tail}}',
+      sample: '本期内有智能体运行并打开 PR 的 {{count}} 个任务。',
+      readings: '手动读数',
+      readingsHint: '每次测量后记录，便于日后对比。仅管理员可记录。',
+      latest: '最近一次：{{value}}（{{date}}）',
+      record: '记录',
+      recordFailed: '无法记录读数。',
+      valueLabel: '数值：{{metric}}',
+      metrics: {
+        tapsToNeedMe: '打开应用到看到“需要我”的点击次数',
+        firstBundleBytes: '首屏包大小',
+        issueLoad4gMs: '4G 下任务页加载',
+      },
+      units: {
+        tapsToNeedMe: '{{value}} 次点击',
+        firstBundleBytes: '{{value}} 字节',
+        issueLoad4gMs: '{{value}} 毫秒',
+      },
+    },
     agents: {
       title: '智能体表现',
       description: '本期智能体的工作情况，与上期对比。',
