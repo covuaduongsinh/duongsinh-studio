@@ -31,6 +31,7 @@ import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { str } from '../git/rows.js';
+import { createShortMemo } from './short-memo.js';
 import {
   decisionToken,
   isFinishedStatus,
@@ -51,6 +52,11 @@ const ISSUE_LIMIT = 200;
 /** The followed issues `follow=all` adds to a list, at most; a person follows a handful, not thousands. */
 const FOLLOWED_EXTRA_MAX = 100;
 const DECISION_SCAN = 50;
+/**
+ * `decisionsOn` is shared only while it runs (a page's parallel requests) and kept for no time after: some changes (a
+ * run finishing) leave the issue's own timestamps as they were, so a kept answer could be stale.
+ */
+const DECISIONS_MEMO_MS = 0;
 const MAX_UNREAD = 99;
 
 type Wait =
@@ -260,8 +266,34 @@ export const inboxRoutes: AppApiRouteContribution<Application> =
       };
     };
 
-    /** What this person owes each of their open issues, read from the issues' own state. */
-    const decisionsOn = async (
+    /**
+     * What this person owes each of their open issues, read from the issues' own state. The Today page and the menu badge
+     * ask for it together (about two reads per open issue each time); asked again with the same issues while the first
+     * read is still running (`DECISIONS_MEMO_MS`), the answer is shared. The key holds the person, their project scope
+     * and each issue's last change; nothing is kept once the read is done.
+     */
+    const decisionsMemo = createShortMemo<Decision[]>(DECISIONS_MEMO_MS);
+    const decisionsOn = (
+      viewer: Viewer,
+      issues: readonly ListedIssue[],
+    ): Promise<Decision[]> =>
+      decisionsMemo.get(
+        JSON.stringify([
+          viewer.userId,
+          viewer.projectIds ?? null,
+          issues
+            .slice(0, DECISION_SCAN)
+            .map((issue) => [
+              issue.id,
+              issue.statusKey,
+              issue.updatedAt,
+              issue.lastActivityAt,
+            ]),
+        ]),
+        () => readDecisions(viewer, issues),
+      );
+
+    const readDecisions = async (
       viewer: Viewer,
       issues: readonly ListedIssue[],
     ): Promise<Decision[]> => {
