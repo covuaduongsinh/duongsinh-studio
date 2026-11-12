@@ -288,10 +288,31 @@ describe('app client routes', () => {
     );
   });
 
-  it('puts the inbox in the menu, where every decision waits', () => {
-    expect(
-      applicationRoutes[0].routes.find((route) => route.name === 'inbox'),
-    ).toHaveProperty('navigation');
+  it('keeps seven entries here (Settings is the eighth), in order, and the others routed without a menu entry', () => {
+    const routes = applicationRoutes[0].routes;
+    const inMenu = routes
+      .filter((route) => route.navigation)
+      .sort((a, b) => (a.navigation?.order ?? 0) - (b.navigation?.order ?? 0))
+      .map((route) => route.name);
+    expect(inMenu).toEqual([
+      'home',
+      'issues',
+      'my-sessions',
+      'pm-projects',
+      'releases-hub',
+      'knowledge',
+      'dashboard',
+    ]);
+    const outOfMenu = [
+      'inbox',
+      'my-issues',
+      'follow-ups',
+      'project-memory',
+      'project-setup',
+      'hosted-environments',
+    ].map((name) => routes.find((item) => item.name === name));
+    expect(outOfMenu.every((route) => route !== undefined)).toBe(true);
+    expect(outOfMenu.filter((route) => route?.navigation)).toEqual([]);
   });
 });
 
@@ -347,6 +368,15 @@ const settingsAuthorizations = [
     authorizedAs: 'settings:agents.agents',
   },
   { name: 'settingsGit', authorizedAs: 'settings:pm.members' },
+  // Settings entries that forward to pages outside the sidebar (V1.2); each is guarded exactly as its target.
+  { name: 'settingsGoAgents', authorizedAs: 'agents' },
+  { name: 'settingsGoRuntimes', authorizedAs: 'runtimes' },
+  { name: 'settingsGoSkills', authorizedAs: 'skills' },
+  { name: 'settingsGoUsage', authorizedAs: 'usage' },
+  { name: 'settingsGoModels', authorizedAs: 'settings:agents.services' },
+  { name: 'settingsGoProjectMemory', authorizedAs: 'pm-projects' },
+  { name: 'settingsGoProjectSetup', authorizedAs: 'pm-projects' },
+  { name: 'settingsGoEnvironments', authorizedAs: 'rel-apps' },
   { name: 'settingsOrganizationKeys', authorizedAs: 'settings:studio.apiKeys' },
   {
     name: 'settingsProjectManager',

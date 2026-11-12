@@ -76,6 +76,11 @@ export interface NavigationCounts {
   /** Open conversations that need the person or hold messages they have not read. */
   readonly sessions: number;
   readonly releases: number;
+  /**
+   * What the "Today" entry shows (V1.2), one number instead of the same count on three entries: decisions on the person's
+   * issues, conversations asking for them, and releases waiting. Unread conversation messages do not add to it.
+   */
+  readonly needsYou: number;
 }
 
 const RELEASE_REASONS = new Set(['pendingRelease', 'deployment_requested']);
@@ -107,7 +112,18 @@ export function useNavigationCounts(enabled: boolean): NavigationCounts {
           signal,
         }),
       ]);
+      const waiting =
+        summary.status === 'fulfilled' ? summary.value.data.waiting : 0;
+      const asking =
+        sessions.status === 'fulfilled' ? sessions.value.data.needsYou : 0;
+      const releases =
+        attention.status === 'fulfilled'
+          ? attention.value.data.reasons
+              .filter((item) => RELEASE_REASONS.has(item.reason))
+              .reduce((sum, item) => sum + item.count, 0)
+          : 0;
       return {
+        needsYou: waiting + asking + releases,
         decisions:
           pending.status === 'fulfilled'
             ? pending.value.data.decision + pending.value.data.info
@@ -128,5 +144,13 @@ export function useNavigationCounts(enabled: boolean): NavigationCounts {
       };
     },
   });
-  return result.data ?? { decisions: 0, myIssues: 0, sessions: 0, releases: 0 };
+  return (
+    result.data ?? {
+      decisions: 0,
+      myIssues: 0,
+      sessions: 0,
+      releases: 0,
+      needsYou: 0,
+    }
+  );
 }

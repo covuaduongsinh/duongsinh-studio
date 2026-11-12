@@ -60,6 +60,9 @@ describe('the settings sidebar', () => {
     expect(placed.settingsBusiness).toEqual([
       'settingsIssuePrefix',
       'settingsIssueLabels',
+      // Pages that left the sidebar in V1.2, forwarded from Settings.
+      'settingsGoProjectMemory',
+      'settingsGoProjectSetup',
     ]);
     expect(placed.settingsAccount).toEqual(
       expect.arrayContaining([

@@ -73,15 +73,8 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
   );
   // Dương Sinh: what waits on the viewer, beside the entries it belongs to; the shell owns the menu, so it passes them.
   const counts = useNavigationCounts(!loading);
-  const badges = useMemo(
-    () => ({
-      inbox: counts.decisions,
-      'my-issues': counts.myIssues,
-      'my-sessions': counts.sessions,
-      'releases-hub': counts.releases,
-    }),
-    [counts.decisions, counts.myIssues, counts.sessions, counts.releases],
-  );
+  // One badge, on Today: the same number it shows, instead of the same count on the inbox, issues, sessions and releases.
+  const badges = useMemo(() => ({ home: counts.needsYou }), [counts.needsYou]);
   const navigationLabel = t('navigation.label', {
     defaultValue: 'Application navigation',
   });

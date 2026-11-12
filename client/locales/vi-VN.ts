@@ -574,6 +574,12 @@ const viVN: AppResource = {
     loading: 'Đang tải',
     failed: 'Không đọc được dữ liệu của trang này.',
     retry: 'Thử lại',
+    links: {
+      label: 'Đi tới',
+      inbox: 'Hộp thư',
+      myIssues: 'Việc của tôi',
+      following: 'Đang theo dõi',
+    },
     needMe: {
       title: 'Cần tôi',
       none: 'Không có gì cần bạn.',
@@ -894,11 +900,12 @@ const viVN: AppResource = {
   common: { cancel: 'Huỷ' },
   navigation: {
     ...systemViVN.navigation,
+    today: 'Hôm nay',
     issues: 'Công việc',
     myIssues: 'Công việc của tôi',
     inbox: 'Hộp thư',
-    dashboard: 'Tổng quan',
-    mySessions: 'Phiên làm việc',
+    dashboard: 'Báo cáo',
+    mySessions: 'Phiên chat',
     sections: {
       development: 'Phát triển',
       releases: 'Phát hành',

@@ -124,6 +124,8 @@ describe('menu counts', () => {
     await waitFor(() =>
       expect(screen.getByRole('status').textContent).toBe(
         JSON.stringify({
+          // The one number on Today: waiting issues (the failing source counts 0) + conversations asking + releases.
+          needsYou: 6,
           decisions: 5,
           myIssues: 0,
           sessions: 2,

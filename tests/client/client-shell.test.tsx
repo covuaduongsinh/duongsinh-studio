@@ -40,6 +40,7 @@ vi.mock('../../client/hooks/use-follow-ups.js', () => ({
     myIssues: 0,
     sessions: 0,
     releases: 0,
+    needsYou: 0,
   }),
 }));
 
@@ -119,20 +120,20 @@ describe('application shell', () => {
     ).toBeVisible();
   });
 
-  it('renders no Settings entry in the header, and Dương Sinh’s Inbox and My sessions shortcuts', async () => {
+  it('renders no Settings entry in the header, and Dương Sinh’s Inbox shortcut', async () => {
     renderApplication('/', true);
     await screen.findByRole('heading', { name: 'App client is ready' });
     expect(
       screen.queryByRole('link', { name: 'Settings' }),
     ).not.toBeInTheDocument();
-    // Studio adds these two on purpose (`.agents/rules/shell.md`).
+    // Studio adds this one on purpose (`.agents/rules/shell.md`); the sessions shortcut left the header in V1.2.
     expect(screen.getByRole('link', { name: /inbox/i })).toHaveAttribute(
       'href',
       '/inbox',
     );
     expect(
-      screen.getByRole('link', { name: /my\s?sessions/i }),
-    ).toHaveAttribute('href', '/sessions');
+      screen.queryByRole('link', { name: /my\s?sessions/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('renders nested pages through manual outlets and selects the nearest menu ancestor', async () => {

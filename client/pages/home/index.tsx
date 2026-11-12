@@ -5,6 +5,7 @@
  * which was silent about chat and releases. One read for all of it: `client/hooks/use-today.ts`.
  */
 import { useTranslation } from '@nocobase/i18n/client';
+import { EyeIcon, InboxIcon, ListTodoIcon } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { Link } from 'react-router';
 
@@ -12,7 +13,7 @@ import { PageContainer } from '#components/page-container';
 import { PageHeader } from '#components/page-header';
 import { Alert, AlertDescription } from '#components/ui/alert';
 import { Badge } from '#components/ui/badge';
-import { Button } from '#components/ui/button';
+import { Button, buttonVariants } from '#components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '#components/ui/card';
 import { Skeleton } from '#components/ui/skeleton';
 import { entryLink, relativeTime } from '#extensions/nocobase-inbox/model';
@@ -306,6 +307,33 @@ export default function HomePage(): ReactElement {
           <NeedMe today={today.data} />
           <AgentsNow today={today.data} />
           <Recent today={today.data} />
+          {/* Pages that left the sidebar (V1.2) stay one tap from here. */}
+          <nav
+            aria-label={t('today.links.label')}
+            className='flex flex-wrap gap-2'
+          >
+            <Link
+              to='/inbox'
+              className={buttonVariants({ variant: 'outline' })}
+            >
+              <InboxIcon data-icon='inline-start' />
+              {t('today.links.inbox')}
+            </Link>
+            <Link
+              to='/my-issues'
+              className={buttonVariants({ variant: 'outline' })}
+            >
+              <ListTodoIcon data-icon='inline-start' />
+              {t('today.links.myIssues')}
+            </Link>
+            <Link
+              to='/follow-ups'
+              className={buttonVariants({ variant: 'outline' })}
+            >
+              <EyeIcon data-icon='inline-start' />
+              {t('today.links.following')}
+            </Link>
+          </nav>
         </div>
       ) : null}
     </PageContainer>
