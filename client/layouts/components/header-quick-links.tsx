@@ -1,9 +1,9 @@
 /**
- * Dương Sinh's two shortcuts in the header, as the demo has them: My sessions and the Inbox, each with the number of
- * things waiting for the person (the same counts as the sidebar's badges).
+ * Dương Sinh's shortcut in the header: the Inbox, with the number of notices that wait for the person. Since V1.2 the
+ * sidebar has one badge, on Today; the sessions shortcut left the header with it (Chat has its own button).
  */
 import { useTranslation } from '@nocobase/i18n/client';
-import { Inbox, Sparkles } from 'lucide-react';
+import { Inbox } from 'lucide-react';
 import type { ReactElement } from 'react';
 import { Link } from 'react-router';
 
@@ -46,13 +46,6 @@ export function HeaderQuickLinks(): ReactElement {
   const counts = useNavigationCounts(true);
   return (
     <>
-      <QuickLink
-        to='/sessions'
-        label={t('navigation.mySessions')}
-        count={counts.sessions}
-      >
-        <Sparkles />
-      </QuickLink>
       <QuickLink
         to='/inbox'
         label={t('navigation.inbox')}

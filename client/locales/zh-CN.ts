@@ -564,6 +564,12 @@ const zhCN: AppResource = {
     loading: '加载中',
     failed: '无法加载此页面。',
     retry: '重试',
+    links: {
+      label: '前往',
+      inbox: '收件箱',
+      myIssues: '我的任务',
+      following: '关注中',
+    },
     needMe: {
       title: '需要我',
       none: '没有需要你处理的事。',
@@ -871,11 +877,12 @@ const zhCN: AppResource = {
   common: { cancel: '取消' },
   navigation: {
     ...systemZhCN.navigation,
+    today: '今天',
     issues: '任务',
     myIssues: '我的任务',
     inbox: '收件箱',
-    dashboard: '仪表盘',
-    mySessions: '我的会话',
+    dashboard: '报告',
+    mySessions: '聊天会话',
     sections: {
       development: '开发',
       releases: '发布',

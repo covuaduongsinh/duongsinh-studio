@@ -311,6 +311,21 @@ describe('Today', () => {
     ).toBeInTheDocument();
   });
 
+  it('keeps the pages that left the sidebar one tap away', async () => {
+    await render();
+    const nav = await screen.findByRole('navigation', { name: 'Go to' });
+    expect(within(nav).getByRole('link', { name: 'Inbox' })).toHaveAttribute(
+      'href',
+      '/inbox',
+    );
+    expect(
+      within(nav).getByRole('link', { name: 'My issues' }),
+    ).toHaveAttribute('href', '/my-issues');
+    expect(
+      within(nav).getByRole('link', { name: 'Following' }),
+    ).toHaveAttribute('href', '/follow-ups');
+  });
+
   it('reads everything in one go and asks nothing else', async () => {
     await render();
     await screen.findByRole('region', { name: 'Needs me' });

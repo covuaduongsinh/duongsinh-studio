@@ -5,13 +5,11 @@ import {
   ChartColumn,
   CircleUserRound,
   Cpu,
-  EyeIcon,
   FolderKanban,
   GitBranch,
   Hash,
   LayoutDashboard,
   Home,
-  InboxIcon,
   BellRing,
   KeyRound,
   UserCog,
@@ -28,6 +26,7 @@ import {
   FileCheck,
   GraduationCap,
   Tags,
+  type LucideIcon,
 } from 'lucide-react';
 import { chatLinkRoutes } from '@nocobase/app-plugin-agents/client/chat';
 import {
@@ -39,6 +38,7 @@ import {
 } from '@nocobase/app-plugin-agents/client/routes';
 import {
   defineAppRoutes,
+  type AppClientRouteAuthz,
   type AppClientRouteContribution,
   type AppClientRouteDefinition,
 } from '@nocobase/app-client/plugins';
@@ -89,7 +89,7 @@ const withManualNewIssue = (
  */
 const projectsPage: AppClientRouteDefinition = {
   ...projectsRoute,
-  navigation: { title: 'navigation.projects', icon: FolderKanban },
+  navigation: { title: 'navigation.projects', icon: FolderKanban, order: 40 },
   breadcrumb: { title: 'navigation.projects' },
   children: [
     ...(projectsRoute.children ?? []),
@@ -178,7 +178,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     auth: 'required',
     componentLoader: () => import('./pages/home/index.js'),
     name: 'home',
-    navigation: { title: 'navigation.home', icon: Home },
+    navigation: { title: 'navigation.today', icon: Home, order: 10 },
     path: '/',
   },
   {
@@ -190,8 +190,9 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     componentLoader: () => import('./pages/inbox.js'),
     name: 'inbox',
     path: '/inbox',
-    // Dương Sinh: the template keeps it out of the menu, but here it is where every decision waits.
-    navigation: { title: 'navigation.inbox', icon: InboxIcon },
+    // Dương Sinh: out of the sidebar since V1.2 (the header bell and the Today page lead here); the title stays for the
+    // breadcrumb and the page-permission list.
+    breadcrumb: { title: 'navigation.inbox' },
   },
   {
     auth: 'guest',
@@ -236,7 +237,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/my-issues',
     auth: 'required',
     authz: pmPage('pm-my-issues'),
-    navigation: { title: 'navigation.myIssues', icon: CircleUserRound },
+    breadcrumb: { title: 'navigation.myIssues' },
     componentLoader: () => import('./pages/my-issues/index.js'),
   },
   {
@@ -245,7 +246,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/sessions',
     auth: 'required',
     authz: 'skip',
-    navigation: { title: 'navigation.mySessions', icon: Sparkles },
+    navigation: { title: 'navigation.mySessions', icon: Sparkles, order: 30 },
     componentLoader: () => import('./pages/sessions/index.js'),
     children: [
       {
@@ -261,7 +262,11 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/dashboard',
     auth: 'required',
     authz: pmPage('reports'),
-    navigation: { title: 'navigation.dashboard', icon: LayoutDashboard },
+    navigation: {
+      title: 'navigation.dashboard',
+      icon: LayoutDashboard,
+      order: 70,
+    },
     componentLoader: () => import('./pages/dashboard/index.js'),
   },
   {
@@ -270,7 +275,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/follow-ups',
     auth: 'required',
     authz: pmPage('pm-issues'),
-    navigation: { title: 'navigation.followUps', icon: EyeIcon },
+    breadcrumb: { title: 'navigation.followUps' },
     componentLoader: () => import('./pages/follow-ups/index.js'),
   },
   {
@@ -281,7 +286,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/issues',
     auth: 'required',
     authz: pmPage('pm-issues'),
-    navigation: { title: 'navigation.issues', icon: ListTodo },
+    navigation: { title: 'navigation.issues', icon: ListTodo, order: 20 },
     componentLoader: () => import('./pages/issues/index.js'),
     children: [
       ...issueChildRoutes.map(withManualNewIssue),
@@ -302,7 +307,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/project-memory',
     auth: 'required',
     authz: pmPage('pm-projects'),
-    navigation: { title: 'navigation.projectMemory', icon: BrainIcon },
+    breadcrumb: { title: 'navigation.projectMemory' },
     componentLoader: () => import('./pages/project-memory/index.js'),
   },
   {
@@ -312,7 +317,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/knowledge',
     auth: 'required',
     authz: pmPage('knowledge'),
-    navigation: { title: 'navigation.knowledge', icon: Library },
+    navigation: { title: 'navigation.knowledge', icon: Library, order: 60 },
     componentLoader: () => import('./pages/knowledge/index.js'),
   },
   {
@@ -321,7 +326,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/project-setup',
     auth: 'required',
     authz: pmPage('pm-projects'),
-    navigation: { title: 'navigation.projectSetup', icon: PackagePlus },
+    breadcrumb: { title: 'navigation.projectSetup' },
     componentLoader: () => import('./pages/projects/setup.js'),
   },
   {
@@ -331,7 +336,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/releases',
     auth: 'required',
     authz: pmPage('rel-apps'),
-    navigation: { title: 'navigation.releases', icon: PackageIcon },
+    navigation: { title: 'navigation.releases', icon: PackageIcon, order: 50 },
     componentLoader: () => import('./pages/releases/index.js'),
   },
   {
@@ -340,7 +345,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     path: '/environments',
     auth: 'required',
     authz: pmPage('rel-apps'),
-    navigation: { title: 'navigation.environments', icon: ServerCog },
+    breadcrumb: { title: 'navigation.environments' },
     componentLoader: () => import('./pages/environments/index.js'),
   },
   {
@@ -597,24 +602,115 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
 const agentRoutes: AppClientRouteContribution = defineAppRoutes([
   {
     ...agentsRoute,
-    navigation: { title: 'navigation.agents', icon: Bot },
+    breadcrumb: { title: 'navigation.agents' },
   },
   {
     ...runtimesRoute,
-    navigation: { title: 'navigation.runtimes', icon: Server },
+    breadcrumb: { title: 'navigation.runtimes' },
   },
   {
     ...skillsRoute,
-    navigation: { title: 'navigation.skills', icon: BookOpen },
+    breadcrumb: { title: 'navigation.skills' },
   },
   {
     ...usageRoute,
-    navigation: { title: 'navigation.usage', icon: ChartColumn },
+    breadcrumb: { title: 'navigation.usage' },
   },
   {
     ...modelsRoute,
-    navigation: { title: 'navigation.models', icon: Cpu },
+    breadcrumb: { title: 'navigation.models' },
   },
+]);
+
+/**
+ * Pages that left the sidebar in V1.2 (the menu is eight entries) and are still one tap away inside Settings: each is a
+ * settings entry that opens the page where it has always been (`/agents`, `/runtimes`, ...), with the same grant. Their
+ * paths, names and authorization are untouched, so stored page grants, the plugin's own links and notices still work;
+ * `pages/settings/shortcut.tsx` only forwards. Moving the pages under `/settings` would change their URLs and the
+ * plugin's overlays under them.
+ */
+const settingsShortcut = (
+  name: string,
+  parent: string,
+  target: string,
+  title: string,
+  icon: LucideIcon,
+  authz: AppClientRouteAuthz | undefined,
+): AppClientRouteDefinition => ({
+  name,
+  parent,
+  path: `/go${target}`,
+  auth: 'required',
+  authz,
+  navigation: { title, icon },
+  componentLoader: () => import('./pages/settings/shortcut.js'),
+});
+
+const settingsShortcutRoutes: AppClientRouteContribution = defineAppRoutes([
+  settingsShortcut(
+    'settingsGoAgents',
+    'settingsAi',
+    '/agents',
+    'navigation.agents',
+    Bot,
+    agentsRoute.authz,
+  ),
+  settingsShortcut(
+    'settingsGoRuntimes',
+    'settingsAi',
+    '/runtimes',
+    'navigation.runtimes',
+    Server,
+    runtimesRoute.authz,
+  ),
+  settingsShortcut(
+    'settingsGoSkills',
+    'settingsAi',
+    '/skills',
+    'navigation.skills',
+    BookOpen,
+    skillsRoute.authz,
+  ),
+  settingsShortcut(
+    'settingsGoModels',
+    'settingsAi',
+    '/models',
+    'navigation.models',
+    Cpu,
+    modelsRoute.authz,
+  ),
+  settingsShortcut(
+    'settingsGoUsage',
+    'settingsAi',
+    '/usage',
+    'navigation.usage',
+    ChartColumn,
+    usageRoute.authz,
+  ),
+  settingsShortcut(
+    'settingsGoProjectMemory',
+    'settingsBusiness',
+    '/project-memory',
+    'navigation.projectMemory',
+    BrainIcon,
+    pmPage('pm-projects'),
+  ),
+  settingsShortcut(
+    'settingsGoProjectSetup',
+    'settingsBusiness',
+    '/project-setup',
+    'navigation.projectSetup',
+    PackagePlus,
+    pmPage('pm-projects'),
+  ),
+  settingsShortcut(
+    'settingsGoEnvironments',
+    'settingsSystem',
+    '/environments',
+    'navigation.environments',
+    ServerCog,
+    pmPage('rel-apps'),
+  ),
 ]);
 
 // The application has business capabilities (projects and issues), so the prepared Users and Roles settings are
@@ -631,6 +727,7 @@ export function createApplicationRoutes(
       settingsShellRoutes,
       systemSettingsRoutes,
       projectSettingsRoutes,
+      settingsShortcutRoutes,
     ],
     config.get<boolean>('notificationTemplates.invitationConfigured') === true,
   );

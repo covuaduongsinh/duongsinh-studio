@@ -585,6 +585,12 @@ const enUS = {
     loading: 'Loading',
     failed: 'This page could not be loaded.',
     retry: 'Try again',
+    links: {
+      label: 'Go to',
+      inbox: 'Inbox',
+      myIssues: 'My issues',
+      following: 'Following',
+    },
     needMe: {
       title: 'Needs me',
       none: 'Nothing needs you.',
@@ -906,11 +912,12 @@ const enUS = {
   common: { cancel: 'Cancel' },
   navigation: {
     ...systemEnUS.navigation,
+    today: 'Today',
     issues: 'Issues',
     myIssues: 'My issues',
     inbox: 'Inbox',
-    dashboard: 'Dashboard',
-    mySessions: 'My sessions',
+    dashboard: 'Reports',
+    mySessions: 'Chat sessions',
     sections: {
       development: 'Development',
       releases: 'Releases',

@@ -223,6 +223,7 @@ describe('System settings navigation', () => {
       [
         ['notificationManagement', '/settings/notifications/templates'],
         ['settingsGit', '/settings/git'],
+        ['settingsGoEnvironments', '/settings/go/environments'],
       ],
     ]);
     expect(

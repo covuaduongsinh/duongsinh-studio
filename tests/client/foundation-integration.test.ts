@@ -51,6 +51,8 @@ describe('default Foundation integration', () => {
         [
           ['settingsIssuePrefix', '/settings/issue-prefix'],
           ['settingsIssueLabels', '/settings/issue-labels'],
+          ['settingsGoProjectMemory', '/settings/go/project-memory'],
+          ['settingsGoProjectSetup', '/settings/go/project-setup'],
         ],
       ],
       [
@@ -66,6 +68,7 @@ describe('default Foundation integration', () => {
         'settingsSystem',
         [
           ['settingsGit', '/settings/git'],
+          ['settingsGoEnvironments', '/settings/go/environments'],
           ['foundation', '/foundation'],
         ],
       ],
@@ -79,6 +82,11 @@ describe('default Foundation integration', () => {
           ['settingsPlaybooks', '/settings/playbooks'],
           ['settingsProjectManager', '/settings/project-manager'],
           ['settingsBudgets', '/settings/budgets'],
+          ['settingsGoAgents', '/settings/go/agents'],
+          ['settingsGoRuntimes', '/settings/go/runtimes'],
+          ['settingsGoSkills', '/settings/go/skills'],
+          ['settingsGoModels', '/settings/go/models'],
+          ['settingsGoUsage', '/settings/go/usage'],
         ],
       ],
       [

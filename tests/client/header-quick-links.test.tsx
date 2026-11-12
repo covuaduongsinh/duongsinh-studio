@@ -1,4 +1,4 @@
-// The header's My sessions and Inbox shortcuts, each with what waits for the person.
+// The header's Inbox shortcut, with what waits for the person.
 import {
   answerApi,
   renderWithApp,
@@ -18,18 +18,20 @@ const answer = (call: ApiCall): unknown => {
   return new Response(null, { status: 404 });
 };
 
-it('links to My sessions and the Inbox with the numbers that wait', async () => {
+it('links to the Inbox with the number of notices that wait, and no longer to sessions', async () => {
   await renderWithApp(<HeaderQuickLinks />, {
     namespace: packageMetadata.name,
     namespaces: { [packageMetadata.name]: enUS },
     fetch: answerApi(answer),
   });
-  const sessions = await screen.findByRole('link', {
-    name: `${enUS.navigation.mySessions} (1)`,
-  });
-  expect(sessions).toHaveAttribute('href', '/sessions');
   const inbox = await screen.findByRole('link', {
     name: `${enUS.navigation.inbox} (3)`,
   });
   expect(inbox).toHaveAttribute('href', '/inbox');
+  // The sidebar has one badge, on Today; chat has its own header button.
+  expect(
+    screen.queryByRole('link', {
+      name: new RegExp(enUS.navigation.mySessions, 'u'),
+    }),
+  ).toBeNull();
 });
