@@ -219,6 +219,25 @@ Driver chỉ chạm compose có tên `nb3-…` mà Studio ghi lại; không đ�
 
 Chi tiết và chỗ khác hợp đồng driver: `docs/chenh-lech-upstream.md` §33.
 
+## Kênh job vào app NocoBase 3 (V4)
+
+Studio không có Docker socket và không có shell. Muốn chạy một lệnh một lần trong app NocoBase 3 (`db apply`, nhập Lark) thì nó ký một yêu cầu gửi cho daemon `ds-nb3-exec` chạy trên máy chủ (root, unix socket); daemon chỉ chạy lệnh nằm trong danh sách cho phép của nó. Mã và mô hình đe doạ: `deploy/nb3-exec/README.md`.
+
+Cài đặt (việc của chủ dự án, cần quyền root; chưa làm thì kênh tắt và route job trả `503 NB3_JOB_CHANNEL_DOWN`):
+
+1. Cài daemon theo `deploy/nb3-exec/README.md` (file `ds-nb3-exec.mjs`, `ds-nb3-exec.service`, `config.json` từ `config.example.json`). Mỗi app một mục: `project`, `service` (`<tên>-app`), `jobService` (`<tên>-job`), `envFile` (`/srv/duongsinh-studio/jobs/<tên>.env`), `secretNames`, `allow` (từng lệnh đúng từng từ).
+2. Tạo khoá HMAC dài 32 ký tự trở lên, quyền `0600`, chủ root; cùng khoá cho daemon (`hmacKeyFile`) và Studio.
+3. Gắn thư mục socket (đọc-ghi) và file khoá (chỉ đọc) vào container Studio, rồi đặt `NB3_EXEC_SOCKET` và `NB3_EXEC_KEY_FILE` trong Dokploy. Chỉ lưu, đổi biến không tự triển khai lại.
+4. Kiểm: `GET /api/releases/apps/<app>/jobs` trả 200; chạy thử `larkImportDry` (chỉ đọc) và xem `logTail`.
+
+Quyền: cần `rel.apps/operate` trên app (vai trò quản trị có sẵn). Lệnh ghi (`dbApply`, `larkImportCommit`) và việc đặt bí mật job chỉ chủ sở hữu làm. Mỗi lần chạy ghi một dòng `dsNb3Jobs` (ai chạy, lệnh nào, mã thoát, 20 KB cuối của log đã che, giữ 14 ngày).
+
+Bí mật của job (ví dụ `LARK_APP_ID`, `LARK_APP_SECRET`) **không** đặt ở tab Biến của app (Studio từ chối tên `LARK_*` và `JOB_ONLY_*`): dùng `PUT /api/releases/apps/<app>/jobSecrets/<TÊN>` với `{"value": "…"}`. Giá trị đi qua daemon vào file `jobs/<tên>.env` (quyền `0600`); chỉ service `-job` đọc, service web không. Studio không lưu và không trả lại giá trị; `GET …/jobSecrets` chỉ liệt kê tên.
+
+Xoay khoá HMAC: tạo khoá mới, ghi vào file khoá của daemon và của Studio, khởi động lại daemon (`systemctl restart ds-nb3-exec`), rồi kiểm lại bước 4. Compose cũ (NocoLMS, NocoEdu) chưa có service `-job`: chỉ lần triển khai mới viết ra nó; với app đã chạy thì thêm tay hoặc triển khai lại khi chủ dự án đồng ý, kèm sao lưu.
+
+Trạng thái và log thật: khi kênh bật, Studio hỏi daemon (`docker inspect`, `docker logs`) về container của app; container chết hoặc hết bộ nhớ thì app báo lỗi kèm lý do và nhả suất chạy; không hỏi được thì báo `unknown` thay vì `running`.
+
 ## Runner
 
 **Runner dùng chung trên VPS (S5.3, 03/11/2026):** `vps-studio-runner` (trust `team`, 1 lượt mỗi lần) chạy dưới user hệ

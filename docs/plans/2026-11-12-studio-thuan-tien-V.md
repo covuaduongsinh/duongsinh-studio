@@ -418,12 +418,12 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
   - [x] V3.2 chia sẻ `decisionsOn` khi chạy chồng nhau (#97; không giữ kết quả sau khi xong, xem PR)
   - [x] V3.3 bundle đầu (#98; 1738 → 1617 KB, gzip 529 → 495 KB)
   - [x] V3.4 runner (#100): **không làm cache `node_modules`** vì đo thực tế 12/11 cho thấy 0/40 lượt gần nhất có `pnpm install`, thư mục tác vụ giữ `node_modules` và kho pnpm 1,1 GB đã dùng chung; chỉ làm review chạy song song với CI (Q9, công tắc `REVIEW_PARALLEL_WITH_CI`)
-- [ ] V4 — Kênh job và bí mật (**chưa bắt đầu phần daemon: chờ chủ dự án duyệt thiết kế §5**, vì là tiến trình root trên VPS)
-  - [ ] V4.1 daemon
-  - [ ] V4.2 bí mật theo job
-  - [ ] V4.3 route job và nhật ký
-  - [ ] V4.4 trạng thái/log thật, khoá CI hẹp — **phần khoá CI hẹp theo App, 90 ngày đã xong (#101)**; còn `status()`/`logs()` qua daemon
-  - [ ] V4.5 tài liệu
+- [x] V4 — Kênh job và bí mật (mã xong; **daemon chưa cài lên VPS**: chủ dự án làm theo `docs/trien-khai-vps.md` "Kênh job", đến lúc đó route job trả 503)
+  - [x] V4.1 daemon (#105)
+  - [x] V4.2 bí mật theo job, compose hai service (#109)
+  - [x] V4.3 route job và nhật ký (#106)
+  - [x] V4.4 trạng thái/log thật (#107), nhắc khoá CI (#108), khoá CI hẹp theo App 90 ngày (#101)
+  - [x] V4.5 tài liệu (PR này)
 - [ ] V5 — Dung lượng, sao lưu, đăng ký app
   - [ ] V5.1 suất, RAM, tự dừng
   - [x] V5.2 sao lưu mọi app (#102: `backup-nb3.sh`; **chưa cài lên VPS**; còn dump trước `remove(purgeData)`, cần V4)

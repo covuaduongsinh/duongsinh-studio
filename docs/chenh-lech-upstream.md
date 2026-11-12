@@ -984,3 +984,10 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Cách làm ở Studio**: `client/routes.ts` (`withManualNewIssue`) bọc `componentLoader` của route `pm-issue-new` mà ứng dụng tự lắp (`issueChildRoutes`) bằng `withManualDefault` (`client/pages/issues/new-issue-entry.tsx`): URL không có `tab`, `draft`, `job` thì chuyển `replace` sang `?tab=manual` (giữ tham số khác). Tab AI vẫn chọn được; tab nhớ trong trình duyệt (`pm:new-issue-tab`) bị bỏ qua có chủ ý. Không khai báo lại route của plugin.
 - **Khi nâng plugin**: nếu `pm-issue-new` đổi tên hoặc plugin thêm chỗ cắm mặc định tab thì bỏ lớp bọc này.
 - **Test**: `tests/client/new-issue-entry.test.tsx` (kèm ca 390 px), helper `tests/client/helpers/mobile-viewport.ts` dùng cho mọi trang V sau này. E2E `tests/playwright/issue-flow.test.ts` vẫn đi `?tab=manual`; chưa chạy được trên máy này.
+
+## 55. V4 — Kênh job, trạng thái và log thật cho app NocoBase 3 (12/11/2026)
+
+- **Driver `dokploy` vượt hợp đồng driver**: hợp đồng của plugin `releases` không có `exec`. Studio thêm daemon `ds-nb3-exec` (`deploy/nb3-exec/`) ngoài plugin; hai việc đi qua nó: chạy lệnh job (`server/nb3-jobs/`, `server/routes/nb3-jobs.ts`) và đọc trạng thái/log container (`server/releases/dokploy-driver.ts`: `capabilities.logs=true`, `status()` hỏi `inspect`). Kênh tắt khi thiếu `NB3_EXEC_SOCKET`/`NB3_EXEC_KEY_FILE`; khi đó driver chạy như cũ.
+- **Quy ước `LARK_*` / `JOB_ONLY_*`**: không phải khái niệm của plugin. `nb3ComposeEnv` từ chối các tên này ở tab Biến; bí mật đi qua `PUT …/jobSecrets/{TÊN}` vào file `jobs/<tên>.env` mà chỉ service `-job` đọc.
+- **Quyền**: dùng đúng hành động có sẵn `rel.apps/operate`; seed `202611120004_ds_roles_operate` cấp `operate.all` cho `ds-admin`. Lệnh ghi và bí mật job chỉ chủ sở hữu (Q8), kiểm trong route.
+- **Khi nâng plugin**: nếu hợp đồng driver thêm `exec` hay `inspect` thì chuyển phần này sang hợp đồng và bỏ daemon cho phần đó.
