@@ -68,6 +68,14 @@ export interface PreReviewGateResult {
   };
 }
 
+/**
+ * Whether a review may start while CI is still running (plan V, V3.4, owner decision Q9). Merging still needs both: the
+ * autopilot's `evaluate` and `stageMergeAllowed` require CI `success` and an approving review of the same head commit, so
+ * running them side by side only removes the wait. Failed or missing CI still stops the review. Set to `false` to make a
+ * review wait for CI again (the gate then cancels a review requested while CI is pending, as before V3.4).
+ */
+export const REVIEW_PARALLEL_WITH_CI = true;
+
 export interface EvaluatePreReviewGateInput {
   readonly pull: {
     readonly number: number;
@@ -78,6 +86,8 @@ export interface EvaluatePreReviewGateInput {
   readonly changedFiles: readonly string[];
   readonly patch: string;
   readonly extraForbiddenPatterns?: readonly (string | RegExp)[];
+  /** A pending CI no longer stops the review; failed or missing CI still does. */
+  readonly allowPendingCi?: boolean;
 }
 
 /**
@@ -105,6 +115,10 @@ export function evaluatePreReviewGate(
   } else if (ci === 'missing') {
     ciReason = `CI checks are missing on pull request #${input.pull.number}.`;
     reasons.push(ciReason);
+  } else if (input.allowPendingCi === true) {
+    // 'pending', and the review runs beside CI: the merge still waits for CI to pass.
+    ciPassed = true;
+    ciReason = `CI checks are still running on pull request #${input.pull.number}; the merge waits for them.`;
   } else {
     // 'pending'
     ciReason = `CI checks are still pending on pull request #${input.pull.number}.`;
