@@ -21,6 +21,7 @@ import {
   type Nb3Store,
 } from '../releases/dokploy-driver.js';
 import { extractArchive } from '../releases/extract.js';
+import { hostAvailableMb } from '../previews/service.js';
 import { channelFromEnv } from '../nb3-jobs/channel.js';
 import { createNb3PreviewHooks } from '../releases/nb3-preview.js';
 import { gitServiceToken } from './git.js';
@@ -44,6 +45,7 @@ const rowOf = (row: Row): Nb3Row => {
       row.idleStopMinutes == null ? null : num(row.idleStopMinutes),
     lastError: strOrNull(row.lastError),
     startedAt: started ? new Date(started) : null,
+    environmentId: strOrNull(row.environmentId),
   };
 };
 
@@ -77,6 +79,7 @@ export function createNb3Store(conn: () => DatabaseConnection): Nb3Store {
         idleStopMinutes: row.idleStopMinutes,
         lastError: row.lastError,
         startedAt: row.startedAt,
+        environmentId: row.environmentId ?? null,
         updatedAt: at,
       };
       const present: Row | undefined = await conn()
@@ -123,6 +126,8 @@ export default class Nb3AppsProvider extends ServiceProvider<Application> {
     let client: DokployClient | null | undefined;
     return {
       channel: () => channelFromEnv(),
+      availableMb: hostAvailableMb,
+      minAvailableMb: Number(env.NB3_MIN_AVAILABLE_MB) || 1200,
       dokploy: () => {
         if (client !== undefined) return client;
         const {

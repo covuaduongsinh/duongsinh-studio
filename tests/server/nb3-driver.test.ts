@@ -328,11 +328,19 @@ describe('dokploy driver', () => {
       probe: () => Promise.resolve(true),
       ...extra,
     });
-    const opened = await driver.open(
-      { id: 'e', name: 'e', config: config(), secret: null, publicUrl: null },
-      { desired: () => Promise.resolve([]) },
-    );
-    return { opened, store, extract };
+    const openIn = (id: string, over: Record<string, unknown> = {}) =>
+      driver.open(
+        {
+          id,
+          name: id,
+          config: { ...config(), ...over },
+          secret: null,
+          publicUrl: null,
+        },
+        { desired: () => Promise.resolve([]) },
+      );
+    const opened = await openIn('e');
+    return { opened, store, extract, openIn };
   }
 
   it('validates the environment settings', () => {
@@ -347,7 +355,7 @@ describe('dokploy driver', () => {
         hosts: { a: 'x.dsc.edu.vn', b: 'x.dsc.edu.vn' },
       }),
     ).toThrow(/two Apps/u);
-    expect(() => settingsOf({ ...config(), maxApps: 3 })).toThrow();
+    expect(() => settingsOf({ ...config(), maxApps: 11 })).toThrow();
   });
 
   it('deploys: extracts, writes config, creates the compose and records it', async () => {
@@ -449,6 +457,96 @@ describe('dokploy driver', () => {
     expect(refused.error).toMatch(/Only 1 App/u);
     expect((await opened.stop('nocolms')).state).toBe('stopped');
     expect((await opened.apply(specOf('other'))).state).toBe('running');
+  });
+
+  it('counts the places per environment, so a production App does not take a preview place', async () => {
+    const { client } = fakeDokploy();
+    const { opened, openIn } = await session(client, undefined, {
+      availableMb: () => Promise.resolve(4000),
+    });
+    expect((await opened.apply(specOf('nocolms'))).state).toBe('running');
+    // Same environment, one place: refused. Another environment has its own.
+    expect((await opened.apply(specOf('other'))).state).toBe('failed');
+    const production = await openIn('f');
+    expect((await production.apply(specOf('other'))).state).toBe('running');
+  });
+
+  it('refuses to start while the server has too little memory, and says how much', async () => {
+    const { client } = fakeDokploy();
+    let free = 500;
+    const { opened } = await session(client, undefined, {
+      availableMb: () => Promise.resolve(free),
+      minAvailableMb: 1200,
+    });
+    const refused = await opened.apply(specOf('nocolms'));
+    expect(refused.state).toBe('failed');
+    expect(refused.error).toMatch(/500 MiB.*1200 MiB/u);
+    free = 3000;
+    expect((await opened.apply(specOf('nocolms'))).state).toBe('running');
+  });
+
+  it('allows more than two Apps only while the memory gauge can be read', async () => {
+    const { client } = fakeDokploy();
+    const more = { maxApps: 5 };
+    const blind = await session(client, undefined, {
+      availableMb: () => Promise.resolve(null),
+    });
+    const o1 = await blind.openIn('e', more);
+    await blind.store.save({
+      appId: 'a1',
+      composeId: 'c1',
+      composeName: 'nb3-a1',
+      desiredState: 'running',
+      version: null,
+      deploymentId: null,
+      dbPasswordSealed: null,
+      idleStopMinutes: null,
+      lastError: null,
+      startedAt: null,
+      environmentId: 'e',
+    });
+    await blind.store.save({
+      appId: 'a2',
+      composeId: 'c2',
+      composeName: 'nb3-a2',
+      desiredState: 'running',
+      version: null,
+      deploymentId: null,
+      dbPasswordSealed: null,
+      idleStopMinutes: null,
+      lastError: null,
+      startedAt: null,
+      environmentId: 'e',
+    });
+    const third = await o1.apply(specOf('nocolms'));
+    expect(third.state).toBe('failed');
+    expect(third.error).toMatch(/cannot be read/u);
+  });
+
+  it('checks that the data directory is writable and reports where each host points', async () => {
+    const { client } = fakeDokploy();
+    const { opened } = await session(client, undefined, {
+      resolve: (host: string) =>
+        host === 'nocolms.dsc.edu.vn'
+          ? Promise.resolve(['217.15.160.118'])
+          : Promise.reject(new Error('ENOTFOUND')),
+    });
+    const ok = await opened.check();
+    expect(ok.ok).toBe(true);
+    expect(ok.details).toMatchObject({
+      dataDir: 'writable',
+      dns: {
+        'nocolms.dsc.edu.vn': '217.15.160.118',
+        'other.dsc.edu.vn': 'unresolved',
+      },
+    });
+    // A file where the directory should be: Studio cannot write there.
+    const { writeFile, rm: remove } = await import('node:fs/promises');
+    await remove(join(root, 'data'), { recursive: true });
+    await writeFile(join(root, 'data'), 'not a directory');
+    const bad = await opened.check();
+    expect(bad.ok).toBe(false);
+    expect(bad.message).toMatch(/cannot write/u);
   });
 
   it('a stopped deployment prepares the compose without deploying', async () => {

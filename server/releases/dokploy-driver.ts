@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
+import { resolve4 } from 'node:dns/promises';
 import { join } from 'node:path';
 import type {
   AppDeploymentSpec,
@@ -47,6 +48,8 @@ export interface Nb3Row {
   readonly idleStopMinutes: number | null;
   readonly lastError: string | null;
   readonly startedAt: Date | null;
+  /** The release environment the compose belongs to; null for a row made before V5.1 (it counts for every environment). */
+  readonly environmentId?: string | null;
 }
 
 export interface Nb3Store {
@@ -71,6 +74,12 @@ export interface Nb3Deps {
    * `logs()` reads their log; without it both answer from Studio's own table as before.
    */
   readonly channel?: () => Nb3Channel | null;
+  /** Host memory still available, in MiB; null when it cannot be read. The memory gate below needs it. */
+  readonly availableMb?: () => Promise<number | null>;
+  /** An App is not started while less than this is available (`NB3_MIN_AVAILABLE_MB`, 1200 by default). */
+  readonly minAvailableMb?: number;
+  /** IPv4 addresses of a host name, for `check()`. */
+  readonly resolve?: (host: string) => Promise<readonly string[]>;
   readonly now?: () => Date;
   readonly sleep?: (ms: number) => Promise<void>;
   /** How long a deployment may take before it is reported failed. */
@@ -127,7 +136,7 @@ export const CONFIG_SCHEMA = {
     },
     database: { enum: ['sqlite', 'postgres'], default: 'sqlite' },
     basePath: { type: 'string', default: '/' },
-    maxApps: { type: 'integer', minimum: 1, maximum: 2, default: 1 },
+    maxApps: { type: 'integer', minimum: 1, maximum: 10, default: 1 },
   },
 } as const;
 
@@ -163,9 +172,9 @@ export function settingsOf(
     typeof maxApps !== 'number' ||
     !Number.isInteger(maxApps) ||
     maxApps < 1 ||
-    maxApps > 2
+    maxApps > 10
   )
-    throw new Error('maxApps must be 1 or 2.');
+    throw new Error('maxApps must be between 1 and 10.');
   const basePath = config.basePath ?? '/';
   if (typeof basePath !== 'string') throw new Error('basePath must be text.');
   return {
@@ -194,6 +203,10 @@ const status = (
 const POLL_MS = 3000;
 const DEPLOY_TIMEOUT_MS = 5 * 60 * 1000;
 
+const MIN_AVAILABLE_MB = 1200;
+/** Without a readable memory gauge only this many Apps may run, whatever the environment says. */
+const UNGAUGED_MAX_APPS = 2;
+
 export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
   const now = deps.now ?? (() => new Date());
   const sleep =
@@ -210,13 +223,16 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
     },
     open(environment) {
       const settings = settingsOf(environment.config);
-      return Promise.resolve(createSession(settings, environment.secret));
+      return Promise.resolve(
+        createSession(settings, environment.secret, environment.id),
+      );
     },
   };
 
   function createSession(
     settings: Nb3Settings,
     _secret: Readonly<Record<string, unknown>> | null,
+    environmentId: string,
   ): DriverSession {
     const client = (): DokployClient => {
       const value = deps.dokploy();
@@ -247,18 +263,33 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
       }
     }
 
+    /** The Apps running in this environment besides `appId`; a row from before V5.1 has no environment and counts for all. */
     async function otherRunning(appId: string): Promise<readonly Nb3Row[]> {
       return (await deps.store.list()).filter(
-        (row) => row.appId !== appId && row.desiredState === 'running',
+        (row) =>
+          row.appId !== appId &&
+          row.desiredState === 'running' &&
+          (row.environmentId == null || row.environmentId === environmentId),
       );
     }
 
+    /** Why `appId` may not start now: this environment's places are taken, or the server lacks memory. */
     async function capacityProblem(appId: string): Promise<string | null> {
       const running = await otherRunning(appId);
-      return running.length >= settings.maxApps
-        ? `Only ${settings.maxApps} App(s) may run at once on this server and ${running
-            .map((row) => row.appId)
-            .join(', ')} is running: stop it first.`
+      if (running.length >= settings.maxApps)
+        return `Only ${settings.maxApps} App(s) may run at once in this environment and ${running
+          .map((row) => row.appId)
+          .join(', ')} is running: stop it first.`;
+      const available = deps.availableMb ? await deps.availableMb() : null;
+      if (available === null) {
+        // No gauge, no more than the old hard limit.
+        return running.length >= UNGAUGED_MAX_APPS
+          ? `The server's free memory cannot be read, so only ${UNGAUGED_MAX_APPS} Apps may run at once.`
+          : null;
+      }
+      const minimum = deps.minAvailableMb ?? MIN_AVAILABLE_MB;
+      return available < minimum
+        ? `The server has ${available} MiB of memory available and a start needs at least ${minimum} MiB: stop an App or free memory first.`
         : null;
     }
 
@@ -314,6 +345,7 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
         idleStopMinutes: null,
         lastError: null,
         startedAt: null,
+        environmentId,
       };
       await deps.store.save(row);
       return row;
@@ -440,16 +472,44 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
       check: async () => {
         try {
           await client().environmentId();
-          return {
-            ok: true,
-            details: { database: settings.database, maxApps: settings.maxApps },
-          };
         } catch (error) {
           return {
             ok: false,
             message: error instanceof Error ? error.message : String(error),
           };
         }
+        // The data directory must be writable by Studio, or no release can be written (B#21).
+        try {
+          await mkdir(settings.dataDir, { recursive: true });
+          const probe = join(
+            settings.dataDir,
+            `.check-${randomBytes(4).toString('hex')}`,
+          );
+          await writeFile(probe, 'ok');
+          await rm(probe);
+        } catch (error) {
+          const code = (error as NodeJS.ErrnoException).code ?? 'ERROR';
+          return {
+            ok: false,
+            message: `Studio cannot write to ${settings.dataDir} (${code}).`,
+          };
+        }
+        const resolve = deps.resolve ?? ((host) => resolve4(host));
+        const dns: Record<string, string> = {};
+        for (const host of Object.values(settings.hosts))
+          dns[host] = await resolve(host).then(
+            (addresses) => addresses.join(', ') || 'unresolved',
+            () => 'unresolved',
+          );
+        return {
+          ok: true,
+          details: {
+            database: settings.database,
+            maxApps: settings.maxApps,
+            dataDir: 'writable',
+            dns,
+          },
+        };
       },
       apply: (spec, onEvent) => guard(spec.appId, () => apply(spec, onEvent)),
       start: (spec) =>
