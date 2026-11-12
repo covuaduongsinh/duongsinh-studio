@@ -51,7 +51,8 @@ import { useIssuePullRequests, type GitPullRequest } from '#hooks/use-git';
 import { useIssueRuns } from '#hooks/use-issue-work';
 import { useIsMobile } from '#hooks/use-mobile';
 
-import { durationText, RunRow } from './issue-runs.js';
+import { durationText } from './duration.js';
+import { RunRow } from './issue-runs.js';
 import {
   toAttachmentFile,
   useAttachmentLabels,
