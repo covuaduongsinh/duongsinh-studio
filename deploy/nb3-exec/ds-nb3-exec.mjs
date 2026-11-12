@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global Buffer, process, console, setTimeout, clearTimeout */
 /**
  * ds-nb3-exec: the small root daemon that lets Studio run a fixed set of commands inside the NocoBase 3 apps it manages
  * (plan V, V4). It listens on a unix socket, answers only requests signed with a shared key, and runs only commands that
@@ -441,7 +442,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   if (existsSync(config.socket)) {
     try {
       renameSync(config.socket, `${config.socket}.old`);
-    } catch {}
+    } catch {
+      // The old socket could not be moved; listen() below reports the real problem.
+    }
   }
   server.listen(config.socket, () => {
     chmodSync(config.socket, 0o660);
