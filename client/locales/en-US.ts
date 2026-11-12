@@ -578,29 +578,41 @@ const enUS = {
       neverUsed: 'never used',
     },
   },
-  myHome: {
-    title: 'Hello, {{name}}',
-    titleAnonymous: 'Hello',
-    description: 'What needs you, and what is under way.',
-    shortcuts: 'Where to next',
+  today: {
+    title: 'Today',
+    description:
+      'What needs you, what the agents are doing, and what just happened.',
+    loading: 'Loading',
+    failed: 'This page could not be loaded.',
     retry: 'Try again',
-    links: {
-      myIssues: 'My issues',
-      inbox: 'Inbox',
-      projects: 'Projects',
+    needMe: {
+      title: 'Needs me',
+      none: 'Nothing needs you.',
+      seeAll: 'See all {{count}} that need you',
+      chatBadge: 'Chat',
+      chat: '{{count}} conversations are waiting for your answer',
+      releaseBadge: 'Release',
+      release: '{{count}} releases are waiting for you',
     },
-    waiting: {
-      title: 'Waiting for my decision',
-      none: 'Nothing is waiting for you.',
-      failed: 'The decisions waiting for you could not be loaded.',
-      seeAll: 'See all {{count}} in the inbox',
+    agents: {
+      title: 'Agents at work',
+      summary:
+        'Working {{working}} · Queued for a runner {{queued}} · Waiting for people {{waiting}}',
+      none: 'No agent is working right now.',
+      working: 'Working',
+      queued: 'Queued for a runner',
+      since: 'since {{time}}',
     },
-    working: {
-      title: 'Under way',
-      text: 'of my issues are in progress and do not need me right now.',
-      none: 'None of my issues is in progress without needing me.',
-      failed: 'Your issues could not be counted.',
-      open: 'Open my issues',
+    recent: {
+      title: 'Just done, just failed',
+      trouble: 'Failed or stuck',
+      troubleNone: 'No failed runs or stuck issues.',
+      failedRun: 'Run failed',
+      blocked: 'Blocked',
+      done: 'Done in the last 24 hours',
+      doneNone: 'Nothing finished in the last 24 hours.',
+      doneBadge: 'Done',
+      fullReport: 'Full report',
     },
   },
   inviteMembers: {

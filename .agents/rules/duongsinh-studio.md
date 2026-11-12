@@ -76,11 +76,14 @@ function`) and put client-only libraries in `dependencies`. Restore the core ran
 
 ## Home page
 
-- `client/pages/home/index.tsx` is Studio's "my work" (what waits for my decision, and what is under way), read from `/api/inbox/waiting` and
-  `/api/taskGroups/summary` through `client/hooks/use-my-work.ts`. It replaced the template's introduction to building with a coding agent
-  (`capabilities.ts`, `prompt-dialog.tsx`, `use-copy.ts` and `tests/client/home.test.tsx` were removed with it). On a template upgrade keep
-  this page; the template's `home.*` strings in `client/locales/system/` are unused here and may be taken as they come. Our strings are the
-  `myHome` group of the application's own locale files.
+- `client/pages/home/index.tsx` is Studio's **Today** (plan V1.1): what needs the person (decisions on their issues, conversations
+  asking for them, releases waiting), what the agents are doing now, what just failed or finished. One read, `client/hooks/use-today.ts`
+  (`Promise.allSettled` over `inbox/waiting`, `agents/conversationAttention`, `attention`, `agentBoard`, `reports/attention`,
+  `taskGroups`); a refused or failed source leaves only its part empty. It replaced the template's introduction to building with a coding
+  agent and the first "my work" page. The route keeps its name `home`, path `/` and `authz: 'skip'`. On a template upgrade keep this page; the
+  template's `home.*` strings in `client/locales/system/` are unused here. Our strings are the `today` group of the application's own locale files.
+- Every page added for plan V needs a test at 390 px width (`tests/client/helpers/mobile-viewport.ts`, or the inline `innerWidth` +
+  `matchMedia` stub the existing tests use).
 
 ## Language
 
