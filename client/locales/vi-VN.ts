@@ -127,7 +127,7 @@ const viVN: AppResource = {
         next: 'Kế tiếp khi runner rảnh',
       },
       idle: {
-        backlog: 'Đang ở Backlog',
+        backlog: 'Đang ở trạng thái Chờ làm',
         lastRun: 'Lượt chạy trước đã kết thúc',
         neverRan: 'Chưa bắt đầu',
       },
@@ -258,7 +258,7 @@ const viVN: AppResource = {
     },
   },
   bench: {
-    title: 'Bộ đo harness',
+    title: 'Bộ kiểm tra chuẩn',
     description:
       'Bộ đo chất lượng 10 việc ds-core đo lường năng lực agent, tỷ lệ đạt, token và so sánh các lần chạy.',
     runAction: 'Chạy bộ đo',
@@ -296,14 +296,14 @@ const viVN: AppResource = {
       pending: 'Đang chờ',
       running: 'Đang chạy',
       completed: 'Hoàn thành',
-      failed: 'Thất bại',
+      failed: 'Không đạt',
       pass: 'Đạt',
       fail: 'Chưa đạt',
     },
     noRunsYet: 'Chưa có lượt chạy bộ đo nào.',
     forceRunPrompt:
-      'Hạn mức tháng đã hết ({{used}}/{{max}}). Bạn có muốn dùng quyền quản trị chạy cưỡng chế?',
-    forceRunConfirm: 'Chạy cưỡng chế',
+      'Hạn mức tháng đã hết ({{used}}/{{max}}). Bạn có muốn dùng quyền quản trị để chạy vượt hạn mức?',
+    forceRunConfirm: 'Chạy vượt hạn mức',
     cancel: 'Huỷ',
   },
   lessons: {
@@ -318,11 +318,12 @@ const viVN: AppResource = {
     saving: 'Đang lưu...',
     empty: 'Chưa có bài học nào được ghi nhận.',
     tag: 'Thẻ phân loại',
+    tagPlaceholder: 'ví dụ: migration, bảo mật, kiểm thử',
     mistake: 'Sai lầm / Hiện tượng',
     mistakePlaceholder: 'Mô tả sai lầm hoặc hành vi sai gặp phải...',
     rule: 'Quy tắc / Bài học rút ra',
     rulePlaceholder: 'Quy tắc hoặc hướng dẫn để không lặp lại sai lầm...',
-    target: 'Đích chuyển hoá',
+    target: 'Áp dụng vào',
     targetRef: 'Tham chiếu đích (slug skill / đường dẫn / lệnh test)',
     mistakePrefix: 'Sai lầm',
     rulePrefix: 'Bài học',
@@ -735,9 +736,9 @@ const viVN: AppResource = {
     saveSuccess: 'Đã lưu tiêu chí nghiệm thu.',
     saveFailed: 'Lưu tiêu chí thất bại.',
     save: 'Lưu thay đổi',
-    cancel: 'Hủy',
-    delete: 'Xóa',
-    deleteConfirm: 'Bạn có chắc chắn muốn xóa tiêu chí này?',
+    cancel: 'Huỷ',
+    delete: 'Xoá',
+    deleteConfirm: 'Bạn có chắc chắn muốn xoá tiêu chí này?',
   },
   studioVerifications: {
     actions: {
@@ -791,7 +792,7 @@ const viVN: AppResource = {
     colResult: 'Kết quả',
     colTime: 'Thời gian',
     passed: 'Đạt',
-    failed: 'Thất bại',
+    failed: 'Không đạt',
   },
   settingsReviews: {
     title: 'Phiếu review',
@@ -886,7 +887,7 @@ const viVN: AppResource = {
       in_review: 'Chờ nghiệm thu',
       blocked: 'Đang vướng',
       in_progress: 'Đang làm',
-      backlog: 'Backlog',
+      backlog: 'Chờ làm',
     },
   },
   inboxStudio: {
@@ -944,7 +945,7 @@ const viVN: AppResource = {
     playbooks: 'Playbooks',
     playbooksDescription:
       'Danh sách kịch bản mẫu (!slug), tham số và lịch sử sử dụng.',
-    followUps: 'Theo dõi',
+    followUps: 'Đang theo dõi',
     projects: 'Dự án',
     issuePrefix: 'Tiền tố công việc',
     issuePrefixDescription: 'Đặt tiền tố cho số hiệu công việc mới.',
@@ -1004,12 +1005,12 @@ const viVN: AppResource = {
       anyExecutor: 'Mọi người thực hiện',
     },
     groups: {
-      waitingForYou: 'Cần bạn xử lý',
-      inProgress: 'Đang thực hiện',
-      backlog: 'Tồn đọng',
-      done: 'Đã hoàn thành',
-      inReview: 'Đang duyệt',
-      blocked: 'Bị chặn',
+      waitingForYou: 'Cần tôi',
+      inProgress: 'Đang làm',
+      backlog: 'Chờ làm',
+      done: 'Xong',
+      inReview: 'Chờ nghiệm thu',
+      blocked: 'Đang vướng',
       cancelled: 'Đã huỷ',
     },
     list: {
@@ -1272,7 +1273,7 @@ const viVN: AppResource = {
         limited:
           'chưa bắt đầu: công việc này đã đạt giới hạn 20 lượt chạy agent từ bình luận trong 24 giờ',
         blocked: 'chưa bắt đầu: công việc này đang chờ công việc khác',
-        dormant: 'chưa bắt đầu: công việc này đang ở Backlog',
+        dormant: 'chưa bắt đầu: công việc này đang ở trạng thái Chờ làm',
         waitingOwner: 'đang chờ người phụ trách xác nhận',
       },
       title: 'Hoạt động',

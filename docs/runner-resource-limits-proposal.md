@@ -27,7 +27,7 @@ Runner của Dương Sinh Studio trên VPS production (`217.15.160.118`) đang �
 2. **Các đích mạng thiết yếu của runner**:
    Qua phân tích các tác vụ của Studio, runner chỉ cần giao tiếp với đúng 5 dịch vụ/domain:
    - `registry.npmjs.org` (HTTPS, cổng 443): Cài đặt/cập nhật thư viện qua npm/pnpm.
-   - `github.com` & `api.github.com` (HTTPS, cổng 443 / SSH cổng 22): Thao tác git clone, fetch, push và kiểm tra PR.
+   - `github.com` & `api.github.com` (HTTPS, cổng 443; run dùng token GitHub App qua HTTPS, 1 giờ, nên **không** cần SSH cổng 22): Thao tác git clone, fetch, push và kiểm tra PR.
    - `api.anthropic.com` (HTTPS, cổng 443): Giao tiếp mô hình Claude LLM cho các lượt chạy và review.
    - `open.larksuite.com` (HTTPS, cổng 443): Đồng bộ dữ liệu bảng cơ sở Lark Base.
    - `studio.dsc.edu.vn` (HTTPS, cổng 443): Kết nối lại API nội bộ của Dương Sinh Studio.

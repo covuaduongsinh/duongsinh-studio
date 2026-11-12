@@ -1,6 +1,6 @@
 # Môi trường phát triển Dương Sinh Studio
 
-Cập nhật: 01/11/2026 (giai đoạn S0).
+Cập nhật: 01/11/2026 (giai đoạn S0). Phần "Runner cá nhân trong WSL" mô tả cách dựng; từ S5.3 việc chạy ở runner dùng chung trên VPS (`docs/trien-khai-vps.md`, mục Runner) và runner cá nhân này **đang dừng**.
 
 ## Máy dev
 

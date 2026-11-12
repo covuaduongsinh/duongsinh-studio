@@ -46,3 +46,60 @@ describe('Vietnamese plugin overrides', () => {
     ).toBe('Xoá công việc');
   });
 });
+
+/** Every string value of a nested locale object. */
+function strings(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  if (typeof value === 'object' && value !== null)
+    return Object.values(value).flatMap(strings);
+  return [];
+}
+
+describe('Vietnamese wording (V6.2)', () => {
+  const banned = [
+    'đặc vụ',
+    'Đại tướng',
+    'Chia tay',
+    'Chờ em',
+    'thi hành',
+    'Khai mạc',
+    'thiết bị đầu cuối',
+    'Cây cầu',
+  ];
+
+  it('keeps the machine-translated words out of the plugin overrides', () => {
+    const text = strings(overrides).join('\n');
+    expect(banned.filter((word) => text.includes(word))).toEqual([]);
+  });
+
+  it('words the issue-creation tabs for what they do', () => {
+    const tabs = at(
+      overrides['@nocobase/app-plugin-projects'],
+      'newIssue.tabs',
+    ) as Record<string, string>;
+    expect(tabs.manual).toBe('Một công việc');
+    expect(tabs.ai).toBe('Tách thành nhiều công việc');
+  });
+
+  it('uses one set of words for the states of an issue, and one spelling of Huỷ and Xoá', async () => {
+    const { default: studio } = await import('../../client/locales/vi-VN.js');
+    const groups = at(studio, 'issues.groups') as Record<string, string>;
+    expect(groups).toMatchObject({
+      inProgress: 'Đang làm',
+      backlog: 'Chờ làm',
+      done: 'Xong',
+      inReview: 'Chờ nghiệm thu',
+      blocked: 'Đang vướng',
+    });
+    expect(at(studio, 'followUps.group')).toMatchObject({
+      in_review: 'Chờ nghiệm thu',
+      blocked: 'Đang vướng',
+      in_progress: 'Đang làm',
+      backlog: 'Chờ làm',
+    });
+    expect(at(studio, 'studioCriteria.cancel')).toBe('Huỷ');
+    expect(at(studio, 'studioCriteria.delete')).toBe('Xoá');
+    expect(at(studio, 'bench.forceRunConfirm')).toBe('Chạy vượt hạn mức');
+    expect(at(studio, 'lessons.target')).toBe('Áp dụng vào');
+  });
+});

@@ -315,6 +315,7 @@ const zhCN: AppResource = {
     saving: '正在保存...',
     empty: '暂无记录的经验教训。',
     tag: '分类标签',
+    tagPlaceholder: '例如：迁移、安全、测试',
     mistake: '错误 / 现象',
     mistakePlaceholder: '描述遇到的错误或非预期行为...',
     rule: '规则 / 总结教训',

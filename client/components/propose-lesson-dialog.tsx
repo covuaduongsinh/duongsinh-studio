@@ -102,7 +102,7 @@ export function ProposeLessonDialog({
               <Label htmlFor='lesson-tag'>{t('lessons.tag')}</Label>
               <Input
                 id='lesson-tag'
-                placeholder='e.g. migration, security, testing'
+                placeholder={t('lessons.tagPlaceholder')}
                 value={tag}
                 onChange={(e) => setTag(e.target.value)}
                 required

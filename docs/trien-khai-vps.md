@@ -102,8 +102,7 @@ gần nhất trong `releases/`.
 Dokploy chưa có đích sao lưu (S3) nào (`destination.all` rỗng), nên dùng script riêng `deploy/dokploy/backup.sh`, cài ở
 `/srv/duongsinh-studio/backup.sh`, chạy qua `/etc/cron.d/duongsinh-studio-backup` lúc 03:15 giờ Việt Nam (VPS đang `+01:00`,
 nên dòng cron ghi `15 21`). Mỗi lần: `pg_dump -Fc` từ container `db` → `backups/studio-<ngày>.dump`, cùng
-`storage-<ngày>.tar.gz`, log ở `backups/backup.log`. Tính đến 07/11/2026, cron **chưa chạy lần nào** (lần đầu 03:15 ngày
-08/11 giờ Việt Nam; bản hằng ngày duy nhất là bản chạy tay); kiểm `backup.log` sau lần đó trước khi tin vào nó. Giữ 14 bản hằng ngày; các dump `studio-before-*` chụp trước mỗi lần cập
+`storage-<ngày>.tar.gz`, log ở `backups/backup.log`. Cron **đã chạy hằng ngày** từ 08/11/2026 (kiểm 12/11: `studio-20261110-2115.dump`, `studio-20261111-2115.dump`, …); vẫn nên nhìn `backup.log` sau mỗi lần cập nhật. Giữ 14 bản hằng ngày; các dump `studio-before-*` chụp trước mỗi lần cập
 nhật và `studio-initial.dump` không bị vòng dọn này xoá, dọn tay khi cần.
 
 **Chưa đẩy ra ngoài VPS** (chủ dự án hoãn ngày 07/11/2026). Bật bằng cách cấu hình một remote rclone chỉ cho Studio (`rclone
@@ -147,7 +146,7 @@ bật lại. App SQLite: dừng app, chép `<slug>-<ngày>.sqlite` lên `/app/st
 Đăng nhập bằng trình duyệt (RFC 8628, `/device`): `ds-studio login --server https://studio.dsc.edu.vn/main` mở trình duyệt, bạn
 duyệt mã CLI hiện ra; thêm `--no-browser` để chỉ in địa chỉ (dùng trên WSL hoặc máy không có trình duyệt). CLI giữ một phiên
 riêng, tự gia hạn khi dùng. Với script không có người, dùng API key: `ds-studio login --server … --api-key-stdin` (khoá cá nhân
-tạo qua `POST /api/auth/api-key/create`; trang tài khoản chưa có giao diện tạo khoá, xem M2.3 trong kế hoạch 08/11/2026).
+tạo qua `POST /api/auth/api-key/create`; tạo ở Cài đặt → Tài khoản của tôi → Khoá API, `client/pages/settings/my-account/api-keys-card.tsx`; xong M2.3).
 Trên WSL không có keychain nên khoá nằm ở `~/.ds-studio/config.json` (0600). Cài CLI:
 `curl -fsSL https://studio.dsc.edu.vn/main/api/agents/dist/installScript | sh -s -- --token <download token>` (token lấy
 khi bấm cài CLI trong ứng dụng).
@@ -163,8 +162,7 @@ của nó, hết hạn trong 1 giờ). Kết nối PAT cũ vẫn chạy song son
 2. Trang GitHub "Create GitHub App for covuaduongsinh" mở ra, tên và quyền đã điền sẵn → **Create GitHub App**. GitHub đưa
    về Studio; thẻ hiện App mới với "Not installed". (Tên phải chưa ai dùng trên GitHub; nếu bị trùng, sửa tên ngay trên
    trang GitHub.)
-3. Bấm **Install on repositories** → chọn **Only select repositories** → `duongsinh-studio-sandbox` và `duongsinh-nocobase`
-   → **Install**. GitHub đưa về Studio; thẻ hiện "Installed on covuaduongsinh", không có dòng "Missing permissions".
+3. Bấm **Install on repositories** → chọn repo cần dùng → **Install**. (Thực tế GitHub App đang cài **All repositories** cho tài khoản `covuaduongsinh`, theo nhật ký 09/11/2026; nếu muốn hạn chế thì đổi trên trang GitHub.) GitHub đưa về Studio; thẻ hiện "Installed on covuaduongsinh", không có dòng "Missing permissions".
 4. Ở thẻ **Repositories**, liên kết các repo qua kết nối App (chọn kết nối App, gõ `owner/name`), rồi ở trang từng
    project gắn repo đó (mục Code). Production chưa có kết nối PAT nào, nên **không cần** tạo PAT ở đây. (Studio chưa có
    thao tác chuyển một repo đã liên kết qua PAT sang App; trên máy dev, repo cũ qua PAT cứ để nguyên.)
@@ -206,7 +204,7 @@ Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng n�
 ## App NocoBase 3 trên Dokploy (M4.2)
 
 Driver `dokploy` của plugin `releases` chạy mỗi App NocoBase 3 thành một compose `nb3-<slug>` trong project `duongsinh-studio` (cùng khoá Dokploy và biến `DOKPLOY_*` như preview).
-Quyết định đã chốt (09/11/2026): tên miền cố định từng app (không wildcard), `maxApps` = 1, tự dừng sau 30 phút, staging chỉ bật khi cần, app đầu tiên là NocoLMS.
+Quyết định đã chốt (09/11/2026): tên miền cố định từng app (không wildcard), `maxApps` = 1, tự dừng 30 phút **sau khi bật** (không phải sau 30 phút không có request; đo theo request là việc V5.1), staging chỉ bật khi cần, app đầu tiên là NocoLMS.
 Driver chỉ chạm compose có tên `nb3-…` mà Studio ghi lại; không đụng `nocobase.dsc.edu.vn` hay stack khác.
 
 Để chạy app đầu tiên (việc của chủ dự án trước, rồi agent):
