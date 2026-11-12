@@ -4,6 +4,8 @@ import * as agentsAccess from '@nocobase/app-plugin-agents/shared/access';
 import * as kbAccess from '@nocobase/app-plugin-knowledge/shared/access';
 import * as pmAccess from '@nocobase/app-plugin-projects/shared/access';
 import * as relAccess from '@nocobase/app-plugin-releases/shared/access';
+import { releasesKeyScopeObjects } from '@nocobase/app-plugin-releases/server';
+import { releasesToken } from '@nocobase/app-plugin-releases/server/tokens';
 import type { Application } from '@nocobase/app-server/application';
 import { databaseManagerToken } from '@nocobase/db';
 import { ServiceProvider } from '@nocobase/service-provider';
@@ -52,7 +54,9 @@ export default class OrganizationKeysProvider extends ServiceProvider<Applicatio
 
   /**
    * What a key's scope may be made of: the groups the plugins declare, checked as their grants are. Limiting a group to
-   * some records needs each plugin's record source, which Studio does not wire yet, so every group reaches all records.
+   * some records needs the plugin's record source. The releases plugin ships one for its Apps (`releasesKeyScopeObjects`)
+   * and Studio wires it, so a key (a repository's CI key above all) can reach only the Apps it names. The other plugins'
+   * sources are not wired yet, so their groups reach all records.
    */
   private offerScopes(): void {
     const { container } = this.app;
@@ -94,12 +98,22 @@ export default class OrganizationKeysProvider extends ServiceProvider<Applicatio
     for (const group of [
       ...pmAccess.KEY_SCOPE_GROUPS,
       ...agentsAccess.KEY_SCOPE_GROUPS,
-      ...relAccess.KEY_SCOPE_GROUPS,
     ]) {
       const { objects: _objects, ...whole } = group as typeof group & {
         objects?: unknown;
       };
       this.releases.push(scopes.groups.add(whole));
+    }
+    for (const group of relAccess.KEY_SCOPE_GROUPS) {
+      // `releases.apps` may be limited to some Apps: the plugin lists them and its guards enforce the limit.
+      if (group.objects)
+        this.releases.push(
+          scopes.groups.add(
+            group,
+            releasesKeyScopeObjects(() => container.resolve(releasesToken)),
+          ),
+        );
+      else this.releases.push(scopes.groups.add(group));
     }
   }
 

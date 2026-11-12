@@ -349,11 +349,70 @@ test(
         .digest('hex'),
     ).toBe(createHash('sha256').update(archive).digest('hex'));
 
+    // The CI key reaches this repository's Apps and no other, and lives 90 days (V4.4).
+    const keyInfo = (await (await admin.fetch(ciUrl)).json()).data.key as {
+      expiresAt: string;
+    };
+    const days = (Date.parse(keyInfo.expiresAt) - Date.now()) / 86_400_000;
+    expect(days).toBeGreaterThan(89);
+    expect(days).toBeLessThan(91);
+    const link2 = async (apps: { appId: string; role: string }[]) =>
+      admin.fetch(
+        `/repositoryDeployments/${repository.id}`,
+        json({ apps }, 'PUT'),
+      );
+    expect(
+      (
+        await link2([
+          { appId: 'sandbox-app', role: 'staging' },
+          { appId: 'other-app', role: 'production' },
+        ])
+      ).status,
+    ).toBe(200);
+    // Linked after the key was made: the key does not reach it.
+    const refused = await asCi('/builds/uploadTickets', {
+      appId: 'other-app',
+      sha: SHA,
+      repository: 'acme/sandbox',
+    });
+    expect([403, 404]).toContain(refused.status);
+    // Rotating after the change replaces the key with one that names both Apps; the old secret stops.
+    const replaced = (
+      await (
+        await admin.fetch(`${ciUrl}/rotate`, json({ reveal: true }))
+      ).json()
+    ).data as { secret: string; setup: { key: { id: string } } };
+    expect(replaced.setup.key.id).not.toBe(rotated.setup.key.id);
+    expect(
+      (
+        await asCi(
+          '/builds/uploadTickets',
+          { appId: 'other-app', sha: SHA, repository: 'acme/sandbox' },
+          replaced.secret,
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      (
+        await asCi('/builds/report', {
+          appId: 'sandbox-app',
+          sha: SHA,
+          repository: 'acme/sandbox',
+          state: 'building',
+        })
+      ).status,
+    ).toBe(401);
+    expect(
+      (await link2([{ appId: 'sandbox-app', role: 'staging' }])).status,
+    ).toBe(200);
+
     // Reported Apps, and taking one off the list leaves the App.
     const connectionView = (
       await (await admin.fetch(`${ciUrl}/connection`)).json()
     ).data as { apps: { appId: string }[] };
-    expect(connectionView.apps.map((item) => item.appId)).toEqual([
+    // `other-app` is there too: the replaced key uploaded a ticket for it above.
+    expect(connectionView.apps.map((item) => item.appId).sort()).toEqual([
+      'other-app',
       'sandbox-app',
     ]);
     expect(
