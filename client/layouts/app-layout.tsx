@@ -7,7 +7,6 @@ import { BrandWatermark } from '#components/brand-watermark';
 import { Breadcrumbs } from '#components/breadcrumbs';
 import { StudioChatProvider } from '#components/studio-chat';
 import { StudioRealtime } from '#components/studio-realtime';
-import { ChatPanel } from '#extensions/nocobase-agent-chat/chat-panel';
 import { ChatFloatingButton } from '#extensions/nocobase-agent-chat/launchers';
 
 import { useNavigationCounts } from '#hooks/use-follow-ups';
@@ -23,6 +22,7 @@ import { RouteLeaveBoundary } from '../routing/route-leave-boundary.js';
 import { PageBreadcrumbProvider } from '@nocobase/app-client';
 import { useTranslation } from '@nocobase/i18n/client';
 import { LayoutHeader } from './components/layout-header.js';
+import { LazyChatPanel } from './components/lazy-chat-panel.js';
 import {
   AppSidebar,
   AppSidebarProvider,
@@ -130,7 +130,7 @@ export function AppLayout({ routes }: AppLayoutProps): ReactElement {
                     </RouteLeaveBoundary>
                   </div>
                 </main>
-                <ChatPanel />
+                <LazyChatPanel />
               </div>
               <ChatFloatingButton />
             </div>
