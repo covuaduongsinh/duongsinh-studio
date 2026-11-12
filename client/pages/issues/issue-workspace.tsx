@@ -36,6 +36,7 @@ import {
   ListIcon,
   LoaderCircle,
   SearchIcon,
+  SlidersHorizontalIcon,
 } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 
@@ -63,7 +64,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '#components/ui/select';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '#components/ui/sheet';
 import { ToggleGroup, ToggleGroupItem } from '#components/ui/toggle-group';
+import { useIsMobile } from '#hooks/use-mobile';
 
 import {
   issueHref,
@@ -168,12 +177,17 @@ export function IssueWorkspace({
   const [storedView] = useState(() => readStoredIssueView(page));
   // My issues opens as the split view and the Issues page as the grouped table, as the demo does (the plugin's own
   // default is the board, which stays one click away).
-  const view = resolveIssueView(
+  // On a phone the split view (a 320 px list beside a detail) and the agent queue do not fit: they fall back to the list,
+  // whatever the URL or the remembered view says, and their toggles are not offered.
+  const mobile = useIsMobile();
+  const chosen = resolveIssueView(
     params,
     storedView,
     VIEWS,
     page === 'my-issues' ? 'split' : 'list',
   );
+  const view =
+    mobile && (chosen === 'split' || chosen === 'queue') ? 'list' : chosen;
   const ownFilters = readIssueFilters(params, view);
   const filters: IssueFilters = { ...ownFilters, ...fixedFilters };
   const filtered = hasIssueFilters(ownFilters);
@@ -188,6 +202,80 @@ export function IssueWorkspace({
     resetText();
     updateParams((current) => withoutIssueFilters(current));
   };
+
+  const activeFilters = (
+    ['statusKey', 'projectId', 'labelId', 'ownerUserId', 'executorId'] as const
+  ).filter((key) => shown(key) && filters[key]).length;
+  const filterControls = (
+    <>
+      {view === 'list' && shown('statusKey') ? (
+        <FilterSelect
+          label={t('issues.filters.status')}
+          allLabel={t('issues.filters.allStatuses')}
+          value={filters.statusKey}
+          options={FIXED_STATUSES.map((status) => ({
+            value: status.key,
+            label: statusName(FIXED_STATUSES, status.key),
+          }))}
+          onChange={(value) => setFilter('statusKey', value)}
+        />
+      ) : null}
+      {shown('projectId') ? (
+        <FilterSelect
+          label={t('issues.filters.project')}
+          allLabel={t('issues.filters.allProjects')}
+          value={filters.projectId}
+          options={lookup.projects.map((project) => ({
+            value: project.id,
+            label: project.name,
+          }))}
+          onChange={(value) => setFilter('projectId', value)}
+        />
+      ) : null}
+      {shown('labelId') ? (
+        <FilterSelect
+          label={t('issues.filters.issueLabel')}
+          allLabel={t('issues.filters.allLabels')}
+          value={filters.labelId}
+          options={lookup.labels.map((label) => ({
+            value: label.id,
+            label: label.name,
+          }))}
+          onChange={(value) => setFilter('labelId', value)}
+        />
+      ) : null}
+      {shown('ownerUserId') ? (
+        <FilterSelect
+          label={t('issues.filters.owner')}
+          allLabel={t('issues.filters.anyOwner')}
+          value={filters.ownerUserId}
+          options={lookup.members.map((member) => ({
+            value: member.userId,
+            label: member.name,
+          }))}
+          onChange={(value) => setFilter('ownerUserId', value)}
+        />
+      ) : null}
+      {shown('executorId') ? (
+        <FilterSelect
+          label={t('issues.filters.executor')}
+          allLabel={t('issues.filters.anyExecutor')}
+          value={filters.executorId}
+          options={[
+            ...executors.map((executor) => ({
+              value: executor.id,
+              label: executor.name,
+            })),
+            ...lookup.members.map((member) => ({
+              value: member.userId,
+              label: member.name,
+            })),
+          ]}
+          onChange={(value) => setFilter('executorId', value)}
+        />
+      ) : null}
+    </>
+  );
 
   return (
     <div className='flex flex-col gap-4'>
@@ -211,72 +299,32 @@ export function IssueWorkspace({
             }}
           />
         </InputGroup>
-        {view === 'list' && shown('statusKey') ? (
-          <FilterSelect
-            label={t('issues.filters.status')}
-            allLabel={t('issues.filters.allStatuses')}
-            value={filters.statusKey}
-            options={FIXED_STATUSES.map((status) => ({
-              value: status.key,
-              label: statusName(FIXED_STATUSES, status.key),
-            }))}
-            onChange={(value) => setFilter('statusKey', value)}
-          />
-        ) : null}
-        {shown('projectId') ? (
-          <FilterSelect
-            label={t('issues.filters.project')}
-            allLabel={t('issues.filters.allProjects')}
-            value={filters.projectId}
-            options={lookup.projects.map((project) => ({
-              value: project.id,
-              label: project.name,
-            }))}
-            onChange={(value) => setFilter('projectId', value)}
-          />
-        ) : null}
-        {shown('labelId') ? (
-          <FilterSelect
-            label={t('issues.filters.issueLabel')}
-            allLabel={t('issues.filters.allLabels')}
-            value={filters.labelId}
-            options={lookup.labels.map((label) => ({
-              value: label.id,
-              label: label.name,
-            }))}
-            onChange={(value) => setFilter('labelId', value)}
-          />
-        ) : null}
-        {shown('ownerUserId') ? (
-          <FilterSelect
-            label={t('issues.filters.owner')}
-            allLabel={t('issues.filters.anyOwner')}
-            value={filters.ownerUserId}
-            options={lookup.members.map((member) => ({
-              value: member.userId,
-              label: member.name,
-            }))}
-            onChange={(value) => setFilter('ownerUserId', value)}
-          />
-        ) : null}
-        {shown('executorId') ? (
-          <FilterSelect
-            label={t('issues.filters.executor')}
-            allLabel={t('issues.filters.anyExecutor')}
-            value={filters.executorId}
-            options={[
-              ...executors.map((executor) => ({
-                value: executor.id,
-                label: executor.name,
-              })),
-              ...lookup.members.map((member) => ({
-                value: member.userId,
-                label: member.name,
-              })),
-            ]}
-            onChange={(value) => setFilter('executorId', value)}
-          />
-        ) : null}
+        {mobile ? (
+          <Sheet>
+            <SheetTrigger
+              render={
+                <Button variant='outline' className='shrink-0'>
+                  <SlidersHorizontalIcon data-icon='inline-start' />
+                  {t('issues.filters.open')}
+                  {activeFilters > 0 ? ` (${activeFilters})` : ''}
+                </Button>
+              }
+            />
+            <SheetContent
+              side='bottom'
+              className='max-h-[85vh] overflow-y-auto p-4'
+            >
+              <SheetHeader className='p-0'>
+                <SheetTitle>{t('issues.filters.label')}</SheetTitle>
+              </SheetHeader>
+              <div className='flex flex-col gap-3 *:w-full [&_[data-slot=select-trigger]]:w-full'>
+                {filterControls}
+              </div>
+            </SheetContent>
+          </Sheet>
+        ) : (
+          filterControls
+        )}
         <ToggleGroup
           variant='outline'
           spacing={0}
@@ -290,10 +338,12 @@ export function IssueWorkspace({
             updateParams((current) => withIssueView(current, next));
           }}
         >
-          <ToggleGroupItem value='split' aria-label={t('issues.view.split')}>
-            <Columns2Icon data-icon='inline-start' />
-            {t('issues.view.split')}
-          </ToggleGroupItem>
+          {mobile ? null : (
+            <ToggleGroupItem value='split' aria-label={t('issues.view.split')}>
+              <Columns2Icon data-icon='inline-start' />
+              {t('issues.view.split')}
+            </ToggleGroupItem>
+          )}
           <ToggleGroupItem value='list' aria-label={t('issues.view.list')}>
             <ListIcon data-icon='inline-start' />
             {t('issues.view.list')}
@@ -302,10 +352,12 @@ export function IssueWorkspace({
             <KanbanIcon data-icon='inline-start' />
             {t('issues.view.board')}
           </ToggleGroupItem>
-          <ToggleGroupItem value='queue' aria-label={t('issues.view.queue')}>
-            <BotIcon data-icon='inline-start' />
-            {t('issues.view.queue')}
-          </ToggleGroupItem>
+          {mobile ? null : (
+            <ToggleGroupItem value='queue' aria-label={t('issues.view.queue')}>
+              <BotIcon data-icon='inline-start' />
+              {t('issues.view.queue')}
+            </ToggleGroupItem>
+          )}
         </ToggleGroup>
       </div>
       {view === 'split' ? (

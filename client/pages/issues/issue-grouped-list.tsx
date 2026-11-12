@@ -215,16 +215,16 @@ export function IssueGroupedList({
                     <TableHeader>
                       <TableRow>
                         <TableHead>{t('issues.table.title')}</TableHead>
-                        <TableHead className='w-40'>
+                        <TableHead className='w-40 max-md:hidden'>
                           {t('issues.list.project')}
                         </TableHead>
-                        <TableHead className='w-36'>
+                        <TableHead className='w-36 max-md:hidden'>
                           {t('issues.list.status')}
                         </TableHead>
-                        <TableHead className='w-44'>
+                        <TableHead className='w-44 max-md:hidden'>
                           {t('issues.list.executor')}
                         </TableHead>
-                        <TableHead className='w-28 text-right'>
+                        <TableHead className='w-28 text-right max-md:hidden'>
                           {t('issues.list.updated')}
                         </TableHead>
                       </TableRow>
@@ -237,7 +237,7 @@ export function IssueGroupedList({
                         const total = row.progress?.total ?? 0;
                         return (
                           <TableRow key={issue.id}>
-                            <TableCell className='max-w-0 min-w-64'>
+                            <TableCell className='max-w-0 min-w-0 md:min-w-64'>
                               <Link
                                 to={issueHref(issue)}
                                 className='flex flex-col gap-0.5 hover:underline'
@@ -269,6 +269,22 @@ export function IssueGroupedList({
                                     </span>
                                   ) : null}
                                 </span>
+                                {/* Below md the columns are folded into the title cell: one column fits a phone. */}
+                                <span className='flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground md:hidden'>
+                                  <IssueStatusBadge
+                                    status={statusPresenter(issue.statusKey)}
+                                    size='sm'
+                                  />
+                                  <span className='truncate'>
+                                    {issue.project?.name ??
+                                      t('issues.list.noProject')}
+                                  </span>
+                                  {issue.executorName ? (
+                                    <span className='truncate'>
+                                      {issue.executorName}
+                                    </span>
+                                  ) : null}
+                                </span>
                               </Link>
                               {mark ? (
                                 <a
@@ -281,20 +297,20 @@ export function IssueGroupedList({
                                 </a>
                               ) : null}
                             </TableCell>
-                            <TableCell className='text-sm text-muted-foreground'>
+                            <TableCell className='text-sm text-muted-foreground max-md:hidden'>
                               {issue.project?.name ??
                                 t('issues.list.noProject')}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className='max-md:hidden'>
                               <IssueStatusBadge
                                 status={statusPresenter(issue.statusKey)}
                                 size='sm'
                               />
                             </TableCell>
-                            <TableCell className='text-sm text-muted-foreground'>
+                            <TableCell className='text-sm text-muted-foreground max-md:hidden'>
                               {issue.executorName ?? '—'}
                             </TableCell>
-                            <TableCell className='text-right text-xs text-muted-foreground tabular-nums'>
+                            <TableCell className='text-right text-xs text-muted-foreground tabular-nums max-md:hidden'>
                               {issue.updatedAt
                                 ? new Date(issue.updatedAt).toLocaleDateString(
                                     locale || i18n.language,

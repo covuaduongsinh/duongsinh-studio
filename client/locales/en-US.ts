@@ -1001,6 +1001,7 @@ const enUS = {
     },
     search: 'Search issues',
     filters: {
+      open: 'Filter',
       label: 'Filters',
       status: 'Status',
       allStatuses: 'All statuses',

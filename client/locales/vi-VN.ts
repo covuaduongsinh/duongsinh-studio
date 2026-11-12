@@ -988,6 +988,7 @@ const viVN: AppResource = {
     },
     search: 'Tìm công việc',
     filters: {
+      open: 'Lọc',
       label: 'Bộ lọc',
       status: 'Trạng thái',
       allStatuses: 'Mọi trạng thái',

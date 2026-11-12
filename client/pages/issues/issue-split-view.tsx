@@ -490,7 +490,7 @@ export function IssueSplitView({
         </div>
         <ul
           aria-label={t('issues.split.keys')}
-          className='flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-t px-3 py-2 text-xs text-muted-foreground'
+          className='flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 border-t px-3 py-2 text-xs text-muted-foreground max-lg:hidden'
         >
           {keyHints.map(([keys, label]) => (
             <li key={keys} className='flex items-center gap-1'>
