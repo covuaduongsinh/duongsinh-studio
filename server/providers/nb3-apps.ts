@@ -21,6 +21,7 @@ import {
   type Nb3Store,
 } from '../releases/dokploy-driver.js';
 import { extractArchive } from '../releases/extract.js';
+import { channelFromEnv } from '../nb3-jobs/channel.js';
 import { createNb3PreviewHooks } from '../releases/nb3-preview.js';
 import { gitServiceToken } from './git.js';
 import { releaseServiceToken } from './releases.js';
@@ -121,6 +122,7 @@ export default class Nb3AppsProvider extends ServiceProvider<Application> {
     );
     let client: DokployClient | null | undefined;
     return {
+      channel: () => channelFromEnv(),
       dokploy: () => {
         if (client !== undefined) return client;
         const {

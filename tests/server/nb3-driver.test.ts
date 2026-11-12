@@ -432,6 +432,71 @@ describe('dokploy driver', () => {
     expect(log.some((line) => line.startsWith('deploy'))).toBe(false);
   });
 
+  it('reports what the containers do through the daemon, and says unknown when nobody could look', async () => {
+    const { client } = fakeDokploy();
+    const answers: Record<string, unknown>[] = [];
+    const asked: string[] = [];
+    const channel = {
+      reachable: () => Promise.resolve(true),
+      call: (request: { op: string; app: string }) => {
+        asked.push(`${request.op} ${request.app}`);
+        return Promise.resolve(
+          (answers.shift() ?? { ok: false, error: 'UNREACHABLE' }) as never,
+        );
+      },
+    };
+    const { opened, store } = await session(client, undefined, {
+      channel: () => channel,
+    });
+    await opened.apply(specOf('nocolms'));
+    // Running as the table says.
+    answers.push({ ok: true, state: 'running' });
+    expect((await opened.status(['nocolms'])).get('nocolms')?.state).toBe(
+      'running',
+    );
+    // Nobody could look: not claimed as running.
+    expect((await opened.status(['nocolms'])).get('nocolms')?.state).toBe(
+      'unknown',
+    );
+    // The container died of memory: failed, and the place is free for another App.
+    answers.push({ ok: true, state: 'exited', exitCode: 137, oomKilled: true });
+    const dead = (await opened.status(['nocolms'])).get('nocolms');
+    expect(dead).toMatchObject({ state: 'failed' });
+    expect(dead?.error).toMatch(/memory/u);
+    expect(store.rows.get('nocolms')?.desiredState).toBe('stopped');
+    expect((await opened.apply(specOf('other'))).state).toBe('running');
+    expect(asked[0]).toBe('inspect nb3-nocolms');
+  });
+
+  it('reads the runtime log through the daemon and filters it', async () => {
+    const { client } = fakeDokploy();
+    let sent: Record<string, unknown> = {};
+    const { opened } = await session(client, undefined, {
+      channel: () => ({
+        reachable: () => Promise.resolve(true),
+        call: (request: Record<string, unknown>) => {
+          sent = request;
+          return Promise.resolve({
+            ok: true,
+            log: 'one\nERROR two\n\nthree\n',
+          });
+        },
+      }),
+    });
+    await opened.apply(specOf('nocolms'));
+    const page = await opened.logs('nocolms', { search: 'error' });
+    expect(page.available).toBe(true);
+    expect(page.entries.map((entry) => entry.msg)).toEqual(['ERROR two']);
+    expect(sent).toMatchObject({
+      op: 'logs',
+      app: 'nb3-nocolms',
+      since: '60m',
+    });
+    // Without the channel there is nothing to read.
+    const off = await session(client);
+    expect((await off.opened.logs('nocolms', {})).available).toBe(false);
+  });
+
   it('removes the compose only when asked to purge data', async () => {
     const { client, log } = fakeDokploy();
     const { opened, store } = await session(client);

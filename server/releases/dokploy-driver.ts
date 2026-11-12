@@ -8,6 +8,7 @@ import type {
   DeploymentEvent,
   DriverSession,
 } from '@nocobase/app-plugin-releases/server';
+import type { Nb3Channel } from '../nb3-jobs/channel.js';
 import { appText } from '../agents/ids.js';
 import type { DokployClient } from '../previews/dokploy.js';
 import { DokployError, DokployRefused } from '../previews/dokploy.js';
@@ -65,6 +66,11 @@ export interface Nb3Deps {
     source: NodeJS.ReadableStream,
     directory: string,
   ) => Promise<void>;
+  /**
+   * The ds-nb3-exec daemon, or null while the job channel is off. With it `status()` reports what the containers do and
+   * `logs()` reads their log; without it both answer from Studio's own table as before.
+   */
+  readonly channel?: () => Nb3Channel | null;
   readonly now?: () => Date;
   readonly sleep?: (ms: number) => Promise<void>;
   /** How long a deployment may take before it is reported failed. */
@@ -198,7 +204,7 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
     kind: DOKPLOY_DRIVER,
     title: appText('releaseDrivers.dokploy'),
     configSchema: CONFIG_SCHEMA,
-    capabilities: { logs: false, urlModes: ['subdomain'] },
+    capabilities: { logs: true, urlModes: ['subdomain'] },
     validate: (config) => {
       settingsOf(config);
     },
@@ -508,32 +514,95 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
         const rows = (await deps.store.list()).filter(
           (row) => !appIds || appIds.includes(row.appId),
         );
+        const channel = deps.channel?.() ?? null;
         const result = new Map<string, AppObservedStatus>();
-        for (const row of rows)
-          result.set(
-            row.appId,
-            status(
-              row.lastError
-                ? 'failed'
-                : row.desiredState === 'running'
-                  ? 'running'
-                  : 'stopped',
-              row,
-              row.lastError,
-            ),
+        for (const row of rows) {
+          const recorded = status(
+            row.lastError
+              ? 'failed'
+              : row.desiredState === 'running'
+                ? 'running'
+                : 'stopped',
+            row,
+            row.lastError,
           );
+          // Only an App meant to run is worth asking about; a stopped one has nothing to report.
+          if (!channel || row.desiredState !== 'running') {
+            result.set(row.appId, recorded);
+            continue;
+          }
+          const seen = await channel.call(
+            { op: 'inspect', app: row.composeName },
+            10_000,
+          );
+          if (!seen.ok) {
+            // The table says running, but nobody looked: do not claim it.
+            result.set(row.appId, status('unknown', row, row.lastError));
+            continue;
+          }
+          const state =
+            typeof seen['state'] === 'string' ? seen['state'] : 'missing';
+          if (state === 'running') {
+            result.set(row.appId, recorded);
+            continue;
+          }
+          const why =
+            seen['oomKilled'] === true
+              ? 'The container was killed for lack of memory.'
+              : state === 'missing'
+                ? 'The container is gone.'
+                : `The container is ${state} (exit code ${typeof seen['exitCode'] === 'number' ? seen['exitCode'] : '?'}).`;
+          // A dead container no longer holds one of the server's places: free it so another App may start.
+          const freed = {
+            ...row,
+            desiredState: 'stopped' as const,
+            lastError: why,
+          };
+          await deps.store.save(freed);
+          result.set(row.appId, status('failed', freed, why));
+        }
         return result;
       },
       // Dokploy keeps every compose across restarts of Studio: nothing to send again.
       restore: () => Promise.resolve(),
-      logs: () =>
-        Promise.resolve({
+      logs: async (appId, query) => {
+        const none = {
           entries: [],
           cursor: '',
           hasMore: false,
           available: false,
           reset: false,
-        }),
+        };
+        const channel = deps.channel?.() ?? null;
+        const row = await deps.store.get(appId);
+        if (!channel || !row) return none;
+        const since = query.since ? Date.parse(query.since) : Number.NaN;
+        const minutes = Number.isFinite(since)
+          ? Math.min(
+              Math.max(Math.ceil((now().getTime() - since) / 60_000), 1),
+              9999,
+            )
+          : 60;
+        const answer = await channel.call(
+          { op: 'logs', app: row.composeName, since: `${minutes}m`, tail: 500 },
+          20_000,
+        );
+        if (!answer.ok || typeof answer['log'] !== 'string') return none;
+        const time = now().toISOString();
+        const search = query.search?.toLowerCase();
+        const entries = answer['log']
+          .split('\n')
+          .filter((line) => line !== '')
+          .filter((line) => !search || line.toLowerCase().includes(search))
+          .map((msg) => ({ time, level: 'info', msg }));
+        return {
+          entries,
+          cursor: '',
+          hasMore: false,
+          available: true,
+          reset: false,
+        };
+      },
       url: (appId) => {
         const host = settings.hosts[appId];
         return host ? `https://${host}` : null;
