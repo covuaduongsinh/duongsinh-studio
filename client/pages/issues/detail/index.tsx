@@ -87,11 +87,11 @@ import { IssueProgressPanel } from './issue-progress.js';
 import { IssuePullRequests } from './issue-pull-requests.js';
 import { IssuePreview } from './issue-preview.js';
 import { IssueRelease } from './issue-release.js';
-import { IssueRuns } from './issue-runs.js';
 import { useScrolledPast } from './issue-scroll.js';
+import { IssueDescriptionGlance } from './issue-description-glance.js';
 import { IssueStickyHeader } from './issue-sticky-header.js';
 
-type IssueTab = 'activity' | 'description' | 'code' | 'runs';
+type IssueTab = 'activity' | 'description' | 'code';
 
 function TabCount({ value }: { readonly value: number }): ReactElement | null {
   if (value <= 0) return null;
@@ -320,6 +320,7 @@ export function IssueDetailView({
             link={RouterAnchor}
             labels={labels}
           />
+          <IssueDescriptionGlance description={detail.description} />
           <SecretFindingsBanner issueId={detail.id} />
           <IssueProgressPanel
             issueId={detail.id}
@@ -483,7 +484,6 @@ export function IssueDetailView({
               {t('issueDetail.tabs.code')}
               <TabCount value={pullCount} />
             </TabsTrigger>
-            <TabsTrigger value='runs'>{t('issueDetail.tabs.runs')}</TabsTrigger>
           </TabsList>
           <TabsContent value='activity'>
             <IssueActivity detail={detail} detailKey={detailKey} />
@@ -513,11 +513,6 @@ export function IssueDetailView({
               />
               <IssuePreview issueId={detail.id} />
               <IssueRelease issueId={detail.id} />
-            </div>
-          </TabsContent>
-          <TabsContent value='runs'>
-            <div className={cn(ISSUE_SURFACE, 'flex flex-col gap-6')}>
-              <IssueRuns issueId={detail.id} />
             </div>
           </TabsContent>
         </Tabs>

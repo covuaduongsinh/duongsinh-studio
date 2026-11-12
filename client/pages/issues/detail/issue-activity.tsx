@@ -22,8 +22,14 @@ import type {
 } from '@nocobase/app-plugin-projects/shared/issues';
 import { useLocale, useTranslation } from '@nocobase/i18n/client';
 import type { QueryKey } from '@tanstack/react-query';
-import { BotIcon, ChevronRightIcon, CogIcon } from 'lucide-react';
-import { useState, type ReactElement } from 'react';
+import {
+  ArrowDownIcon,
+  BotIcon,
+  ChevronRightIcon,
+  CogIcon,
+  GitPullRequestIcon,
+} from 'lucide-react';
+import { useRef, useState, type ReactElement } from 'react';
 import { cn } from 'cn';
 
 import {
@@ -39,8 +45,13 @@ import {
   type CommentTimelineEntry,
 } from '#components/comment-thread';
 import { MarkdownView } from '#components/markdown-view';
+import { Button } from '#components/ui/button';
 import { IssueSurface } from '#extensions/nocobase-issue-detail/issue-detail';
+import { useIssuePullRequests, type GitPullRequest } from '#hooks/use-git';
+import { useIssueRuns } from '#hooks/use-issue-work';
+import { useIsMobile } from '#hooks/use-mobile';
 
+import { RunRow } from './issue-runs.js';
 import {
   toAttachmentFile,
   useAttachmentLabels,
@@ -143,6 +154,34 @@ function ActivityLine({
   );
 }
 
+/** A pull request of the issue as one line of the stream: open with its checks, merged, or closed. */
+function PullLine({ pull }: { readonly pull: GitPullRequest }): ReactElement {
+  const { t } = useTranslation();
+  const { locale } = useLocale();
+  const checks = pull.ciState
+    ? t(`issueDetail.timeline.checks.${pull.ciState}`)
+    : null;
+  return (
+    <TimelineActivity
+      actorName={t('issueDetail.timeline.pullRequest')}
+      actorKind='system'
+      actorIcon={<GitPullRequestIcon />}
+      at={pull.mergedAt ?? pull.updatedAt}
+      locale={locale}
+    >
+      <a
+        href={pull.url}
+        target='_blank'
+        rel='noreferrer'
+        className='text-foreground underline-offset-4 hover:underline'
+      >
+        {t(`issueDetail.timeline.pull.${pull.state}`, { number: pull.number })}
+      </a>
+      {pull.state === 'open' && checks ? <span>{checks}</span> : null}
+    </TimelineActivity>
+  );
+}
+
 /** Records the system wrote on its own, folded under one line until a person opens it. */
 function SystemRecords({
   activities,
@@ -191,6 +230,10 @@ export function IssueActivity({
   const { locale } = useLocale();
   const viewer = useViewer();
   const timeline = useIssueTimeline(detail);
+  const runs = useIssueRuns(detail.id);
+  const pulls = useIssuePullRequests(detail.id);
+  const mobile = useIsMobile();
+  const endRef = useRef<HTMLDivElement>(null);
   const comments = useIssueCommentActions(detail.id, detailKey);
   const mayComment = canComment(viewer);
   const mayAttach = mayComment && canUploadAttachments(viewer);
@@ -252,15 +295,20 @@ export function IssueActivity({
     resolved: thread.root.resolvedAt !== null,
     resolvedBy: thread.root.resolvedByName,
   });
-  // What the system recorded on its own, several in a row, folds into one line that opens (the demo's "N system records").
-  const entries: CommentTimelineEntry[] = [];
+  // One stream (V2.2): the comments and changes the projects plugin reads, with the agent runs and the pull requests of
+  // the issue placed among them by time. What the system recorded on its own, several in a row, folds into one line that
+  // opens (the demo's "N system records").
+  const stamped: { at: number; entry: CommentTimelineEntry }[] = [];
   let system: Activity[] = [];
   const flushSystem = (): void => {
     if (system.length === 0) return;
-    entries.push({
-      kind: 'custom',
-      key: `system:${system[0]?.id ?? ''}`,
-      node: <SystemRecords activities={system} />,
+    stamped.push({
+      at: Date.parse(system[0]?.createdAt ?? ''),
+      entry: {
+        kind: 'custom',
+        key: `system:${system[0]?.id ?? ''}`,
+        node: <SystemRecords activities={system} />,
+      },
     });
     system = [];
   };
@@ -271,19 +319,62 @@ export function IssueActivity({
     }
     flushSystem();
     if (entry.kind === 'thread')
-      entries.push({
-        kind: 'thread',
-        key: entry.key,
-        thread: toThread(entry.thread),
+      stamped.push({
+        at: Date.parse(entry.thread.root.createdAt),
+        entry: {
+          kind: 'thread',
+          key: entry.key,
+          thread: toThread(entry.thread),
+        },
       });
     else if (entry.kind === 'activity')
-      entries.push({
-        kind: 'custom',
-        key: entry.key,
-        node: <ActivityLine activity={entry.activity} />,
+      stamped.push({
+        at: Date.parse(entry.activity.createdAt),
+        entry: {
+          kind: 'custom',
+          key: entry.key,
+          node: <ActivityLine activity={entry.activity} />,
+        },
       });
   }
   flushSystem();
+  // Older comments load on demand; runs and pull requests older than what is loaded wait with them, so the stream
+  // never shows a run before the comments around it exist.
+  const loadedFrom = stamped.length
+    ? Math.min(...stamped.map((item) => item.at))
+    : 0;
+  const within = (at: number): boolean =>
+    !timeline.hasOlder || at >= loadedFrom;
+  for (const run of runs.data ?? [])
+    if (within(Date.parse(run.createdAt)))
+      stamped.push({
+        at: Date.parse(run.createdAt),
+        entry: {
+          kind: 'custom',
+          key: `run:${run.id}`,
+          node: (
+            <ul className='list-none rounded-lg border bg-muted/30 p-3'>
+              <RunRow run={run} issueId={detail.id} />
+            </ul>
+          ),
+        },
+      });
+  for (const pull of Array.isArray(pulls.data) ? pulls.data : []) {
+    const at = Date.parse(pull.mergedAt ?? pull.updatedAt);
+    if (within(at))
+      stamped.push({
+        at,
+        entry: {
+          kind: 'custom',
+          key: `pull:${pull.id}`,
+          node: <PullLine pull={pull} />,
+        },
+      });
+  }
+  // `sort` is stable: entries with the same time keep the order they were added in.
+  const entries: CommentTimelineEntry[] = stamped
+    .sort((first, second) => first.at - second.at)
+    .map((item) => item.entry);
 
   const [filterMode, setFilterMode] = useState<'all' | 'conversations'>('all');
 
@@ -356,6 +447,20 @@ export function IssueActivity({
           </button>
         </div>
       </div>
+      {mobile && entries.length > 0 ? (
+        <Button
+          type='button'
+          variant='outline'
+          size='sm'
+          className='w-fit'
+          onClick={() =>
+            endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+          }
+        >
+          <ArrowDownIcon data-icon='inline-start' />
+          {t('issueDetail.timeline.latest')}
+        </Button>
+      ) : null}
       <CommentTimeline
         entries={filteredEntries}
         renderMarkdown={(content) => <MarkdownView content={content} />}
@@ -383,6 +488,7 @@ export function IssueActivity({
         locale={locale}
         labels={threadLabels}
       />
+      <div ref={endRef} />
       {mayComment ? (
         <CommentComposer
           onSubmit={submit}

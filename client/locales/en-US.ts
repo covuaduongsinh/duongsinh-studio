@@ -70,6 +70,7 @@ const enUS = {
       reason: 'What needs to change',
     },
     runs: {
+      waitedBefore: 'waited {{duration}} for a runner',
       title: 'Runs',
       show: 'Show transcript',
       hide: 'Hide transcript',
@@ -1157,6 +1158,24 @@ const enUS = {
     openInIssues: 'Open in Issues',
   },
   issueDetail: {
+    glance: {
+      more: 'Show more',
+      less: 'Show less',
+    },
+    timeline: {
+      latest: 'Latest',
+      pullRequest: 'Pull request',
+      pull: {
+        open: 'Pull request #{{number}} is open',
+        merged: 'Pull request #{{number}} merged',
+        closed: 'Pull request #{{number}} closed',
+      },
+      checks: {
+        success: 'checks passed',
+        failure: 'checks failed',
+        pending: 'checks running',
+      },
+    },
     breadcrumb: 'Issue details',
     loadFailed: 'The issue could not be loaded.',
     notFound: 'This issue does not exist, or you cannot see it.',
@@ -1169,7 +1188,7 @@ const enUS = {
     screenshots: 'Screenshots',
     backToTop: 'Back to top',
     tabs: {
-      activity: 'Activity',
+      activity: 'Timeline',
       description: 'Description',
       code: 'Code & previews',
       runs: 'Runs',

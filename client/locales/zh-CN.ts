@@ -64,6 +64,7 @@ const zhCN: AppResource = {
       reason: '需要修改什么',
     },
     runs: {
+      waitedBefore: '等待运行机 {{duration}}',
       title: '运行记录',
       show: '查看过程',
       hide: '隐藏过程',
@@ -1109,6 +1110,24 @@ const zhCN: AppResource = {
     openInIssues: '在任务中打开',
   },
   issueDetail: {
+    glance: {
+      more: '展开',
+      less: '收起',
+    },
+    timeline: {
+      latest: '最新',
+      pullRequest: '拉取请求',
+      pull: {
+        open: 'PR #{{number}} 已打开',
+        merged: 'PR #{{number}} 已合并',
+        closed: 'PR #{{number}} 已关闭',
+      },
+      checks: {
+        success: '检查通过',
+        failure: '检查失败',
+        pending: '检查进行中',
+      },
+    },
     breadcrumb: '任务详情',
     loadFailed: '无法加载该任务。',
     notFound: '该任务不存在，或你无权查看。',
