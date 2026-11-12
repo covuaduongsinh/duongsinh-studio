@@ -1,6 +1,7 @@
 /** The grouped issue list of My issues' split view (`GET /api/taskGroups`, `server/routes/inbox.ts`). */
 import { useApiClient } from '@nocobase/app-client';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import { LIVE_QUERY } from './live-query.js';
 
 /** The four groups of the split view, in the order they are shown. */
 export const SPLIT_GROUPS = ['wait', 'doing', 'backlog', 'done'] as const;
@@ -112,6 +113,7 @@ export function useTaskGroups(
   ) as Record<string, string>;
   return useQuery({
     queryKey: [...KEY, view, query],
+    ...LIVE_QUERY,
     refetchInterval: REFRESH_MS,
     retry: false,
     queryFn: async ({ signal }) =>

@@ -7,6 +7,7 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from '@tanstack/react-query';
+import { LIVE_QUERY } from './live-query.js';
 
 export interface FollowUpIssue {
   readonly id: string;
@@ -38,6 +39,7 @@ const BADGE_REFRESH_MS = 60_000;
 export function useFollowUps(): UseQueryResult<FollowUps> {
   const api = useApiClient();
   return useQuery({
+    ...LIVE_QUERY,
     queryKey: FOLLOW_UPS_KEY,
     queryFn: async ({ signal }) =>
       (await api.request<{ data: FollowUps }>({ path: 'followUps', signal }))
@@ -84,6 +86,7 @@ export function useNavigationCounts(enabled: boolean): NavigationCounts {
   const result = useQuery({
     queryKey: BADGES_KEY,
     enabled,
+    ...LIVE_QUERY,
     refetchInterval: BADGE_REFRESH_MS,
     retry: false,
     queryFn: async ({ signal }) => {

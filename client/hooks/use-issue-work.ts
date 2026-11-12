@@ -7,6 +7,7 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from '@tanstack/react-query';
+import { LIVE_QUERY } from './live-query.js';
 
 export type ProgressState =
   | 'working'
@@ -145,6 +146,7 @@ export function useIssuePanels(issueId: string): UseQueryResult<IssuePanels> {
           signal,
         })
       ).data,
+    ...LIVE_QUERY,
     refetchInterval: REFRESH_MS,
   });
 }
@@ -163,6 +165,7 @@ export function useIssueRuns(
           signal,
         })
       ).data,
+    ...LIVE_QUERY,
     refetchInterval: REFRESH_MS,
   });
 }
@@ -201,6 +204,7 @@ export function useAgentBoard(
           signal,
         })
       ).data,
+    ...LIVE_QUERY,
     refetchInterval: REFRESH_MS,
   });
 }

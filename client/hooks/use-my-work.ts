@@ -3,6 +3,7 @@ import { useApiClient } from '@nocobase/app-client';
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
 
 import type { InboxEntry } from '#extensions/nocobase-inbox/model';
+import { LIVE_QUERY } from './live-query.js';
 
 export interface MyWorkSummary {
   /** The issues the person owns or executes that are open, and how many of them wait on a decision of theirs. */
@@ -12,13 +13,14 @@ export interface MyWorkSummary {
 
 const WORK = ['my-work'] as const;
 
-/** Refreshed while the page is open and when it regains focus: a decision appears without a reload. */
+/** Polled while the page is open, and asked again when the window regains focus (`LIVE_QUERY`): a decision appears without a reload. */
 const REFRESH_MS = 30_000;
 
 export function useMyWorkSummary(): UseQueryResult<MyWorkSummary> {
   const api = useApiClient();
   return useQuery({
     queryKey: [...WORK, 'summary'],
+    ...LIVE_QUERY,
     refetchInterval: REFRESH_MS,
     // Polled again soon anyway, and the page has a Try again button: an error should show now, not after backoffs.
     retry: false,
@@ -37,6 +39,7 @@ export function useWaitingDecisions(): UseQueryResult<readonly InboxEntry[]> {
   const api = useApiClient();
   return useQuery({
     queryKey: [...WORK, 'waiting'],
+    ...LIVE_QUERY,
     refetchInterval: REFRESH_MS,
     // Polled again soon anyway, and the page has a Try again button: an error should show now, not after backoffs.
     retry: false,
