@@ -20,7 +20,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import { Route, Routes, useLocation } from 'react-router';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import packageMetadata from '../../package.json' with { type: 'json' };
 import enUS from '../../client/locales/en-US.js';
@@ -247,6 +247,15 @@ describe('issue split view', () => {
   beforeEach(() => {
     api.mockClear();
     window.localStorage.clear();
+    // A desktop window; `useIsMobile` listens to `matchMedia`, which jsdom does not have.
+    vi.stubGlobal('matchMedia', () => ({
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('reads the grouped list from taskGroups and shows the four groups with what each row waits for', async () => {
@@ -389,5 +398,95 @@ describe('issue split view', () => {
     expect(
       screen.getAllByRole('button', { name: enUS.issues.split.follow }),
     ).toHaveLength(1);
+  });
+});
+
+describe('My issues on a phone (390 px)', () => {
+  beforeEach(() => {
+    api.mockClear();
+    window.localStorage.clear();
+    vi.stubGlobal('innerWidth', 390);
+    vi.stubGlobal('matchMedia', (query: string) => ({
+      matches: query.includes('max-width'),
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('opens as the grouped list, not the split view', async () => {
+    await renderAt('/mine');
+    expect(
+      await screen.findByText(running.title, { exact: false }),
+    ).toBeInTheDocument();
+    // The list reads the table groups, not the split view's `follow=all` read.
+    expect(calls('GET', 'taskGroups')[0]?.query).toMatchObject({
+      mode: 'table',
+    });
+    expect(screen.queryByText(enUS.issues.split.keys)).toBeNull();
+  });
+
+  it('falls back to the list even when the URL asks for the split view or the agent queue', async () => {
+    await renderAt('/mine?view=split');
+    expect(
+      await screen.findByText(running.title, { exact: false }),
+    ).toBeInTheDocument();
+    expect(calls('GET', 'taskGroups')[0]?.query).toMatchObject({
+      mode: 'table',
+    });
+  });
+
+  it('offers the list and the board only, and no keyboard hints', async () => {
+    await renderAt('/mine');
+    await screen.findByText(running.title, { exact: false });
+    const views = screen.getByRole('group', { name: enUS.issues.view.label });
+    expect(
+      within(views).getByRole('button', { name: enUS.issues.view.list }),
+    ).toBeInTheDocument();
+    expect(
+      within(views).getByRole('button', { name: enUS.issues.view.board }),
+    ).toBeInTheDocument();
+    expect(
+      within(views).queryByRole('button', { name: enUS.issues.view.split }),
+    ).toBeNull();
+    expect(
+      within(views).queryByRole('button', { name: enUS.issues.view.queue }),
+    ).toBeNull();
+  });
+
+  it('puts the filters behind one button that opens a sheet', async () => {
+    const user = userEvent.setup();
+    await renderAt('/mine');
+    await screen.findByText(running.title, { exact: false });
+    // The selects are not in the toolbar until the sheet opens.
+    expect(
+      screen.queryByRole('combobox', { name: enUS.issues.filters.project }),
+    ).toBeNull();
+    await user.click(
+      screen.getByRole('button', {
+        name: new RegExp(enUS.issues.filters.open, 'u'),
+      }),
+    );
+    const sheet = await screen.findByRole('dialog');
+    expect(
+      within(sheet).getByRole('combobox', {
+        name: enUS.issues.filters.project,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(sheet).getByRole('combobox', { name: enUS.issues.filters.owner }),
+    ).toBeInTheDocument();
+  });
+
+  it('lists each issue in one column, with its status and project under the title', async () => {
+    await renderAt('/mine');
+    await screen.findByText(running.title, { exact: false });
+    const table = screen.getAllByRole('table')[0];
+    // Four of the five columns are hidden below md; the title cell carries them.
+    const hidden = table.querySelectorAll('.max-md\\:hidden');
+    expect(hidden.length).toBeGreaterThanOrEqual(4);
   });
 });

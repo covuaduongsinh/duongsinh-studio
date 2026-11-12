@@ -957,6 +957,7 @@ const zhCN: AppResource = {
     },
     search: '搜索任务',
     filters: {
+      open: '筛选',
       label: '筛选',
       status: '状态',
       allStatuses: '全部状态',
