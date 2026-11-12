@@ -977,3 +977,10 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Tài liệu hướng dẫn & Đề xuất (`docs/runner-resource-limits-proposal.md`)**:
   - Tài liệu chi tiết hiện trạng, kết quả đo, hướng dẫn tạo drop-in `override.conf`, quy trình rollback an toàn và câu hỏi xin ý kiến chủ dự án trước khi áp dụng trên VPS.
 - **Test**: `tests/server/runner-recommendations.test.ts`.
+
+## 54. V0.1 — "Tạo công việc" mặc định tab Thủ công (12/11/2026)
+
+- **README plugin projects** nói `IssueCreationModeContext.Provider value='manual'` "chỉ hiện form gốc" — thực tế (`dist/client/pages/issues/new.js`) `manualOnly` bỏ hẳn `Tabs`, bỏ qua `?tab=`, `?draft=`, `?job=` và `localStorage`, nên mất đường Dự thảo AI. Không dùng được nếu muốn giữ tab AI.
+- **Cách làm ở Studio**: `client/routes.ts` (`withManualNewIssue`) bọc `componentLoader` của route `pm-issue-new` mà ứng dụng tự lắp (`issueChildRoutes`) bằng `withManualDefault` (`client/pages/issues/new-issue-entry.tsx`): URL không có `tab`, `draft`, `job` thì chuyển `replace` sang `?tab=manual` (giữ tham số khác). Tab AI vẫn chọn được; tab nhớ trong trình duyệt (`pm:new-issue-tab`) bị bỏ qua có chủ ý. Không khai báo lại route của plugin.
+- **Khi nâng plugin**: nếu `pm-issue-new` đổi tên hoặc plugin thêm chỗ cắm mặc định tab thì bỏ lớp bọc này.
+- **Test**: `tests/client/new-issue-entry.test.tsx` (kèm ca 390 px), helper `tests/client/helpers/mobile-viewport.ts` dùng cho mọi trang V sau này. E2E `tests/playwright/issue-flow.test.ts` vẫn đi `?tab=manual`; chưa chạy được trên máy này.
