@@ -60,6 +60,29 @@ const pmPage = (id: string) =>
   ({ resource: { type: 'page', id }, action: 'access' }) as const;
 
 /**
+ * The projects plugin's "New issue" dialog opens on "Manual" unless the person chose a tab (V0.1): its AI tab splits
+ * every bullet of a long prompt into one issue each. The plugin's `IssueCreationModeContext='manual'` would hide the AI
+ * tab altogether, so the route's own loader is wrapped instead (`pages/issues/new-issue-entry.tsx`). The application
+ * hosts `issueChildRoutes` itself, so this is composition, not a second declaration of the plugin's route.
+ */
+const withManualNewIssue = (
+  route: AppClientRouteDefinition,
+): AppClientRouteDefinition => {
+  const load = route.componentLoader;
+  if (route.name !== 'pm-issue-new' || load === undefined) return route;
+  return {
+    ...route,
+    componentLoader: async () => {
+      const [page, entry] = await Promise.all([
+        load(),
+        import('./pages/issues/new-issue-entry.js'),
+      ]);
+      return { ...page, default: entry.withManualDefault(page.default) };
+    },
+  };
+};
+
+/**
  * The projects plugin's `/projects` (the list and "New project"), routed by the application (`projects({ routes: false })`
  * in `client/plugins.ts`) so a project's own page can be its child. The plugin's definition carries no menu entry or
  * breadcrumb; their titles are the application's.
@@ -261,7 +284,7 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     navigation: { title: 'navigation.issues', icon: ListTodo },
     componentLoader: () => import('./pages/issues/index.js'),
     children: [
-      ...issueChildRoutes,
+      ...issueChildRoutes.map(withManualNewIssue),
       {
         name: 'issue-detail',
         path: ':issueId',
