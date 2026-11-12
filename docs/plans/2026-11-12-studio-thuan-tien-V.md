@@ -95,13 +95,13 @@ hướng sang `?tab=manual` khi URL không có `tab`/`draft`/`job` (không dùng
 
 Mục đích: mỗi bước sau chứng minh được "thuận hơn" hay "nhanh hơn" bằng số, không bằng cảm giác. Ghi số vào bảng này khi đo; **hiện chưa đo**.
 
-| #   | Số                                    | Cách lấy                                                                                                                                                                                                                                                         | Trước | Sau V3 |
-| --- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- | ------ |
-| 1   | Giao việc → PR mở (trung vị, P90)     | Máy chủ tính: mốc việc sang `in_progress` có executor là agent (hoạt động của việc) → `dsPullRequests.createdAt` đầu tiên của việc. Mở rộng `server/reports/service.ts:129-149` (đã có cycle time tổng). 30 ngày gần nhất, theo dự án. Tên cột xác nhận khi làm. | chưa  | chưa   |
-| 2   | Số lượt chạy mỗi việc (trung vị, P90) | Máy chủ: đếm `agRuns` theo việc đến khi PR mở. Cùng route báo cáo.                                                                                                                                                                                               | chưa  | chưa   |
-| 3   | Số chạm: mở app → thấy "cần tôi"      | Quy ước đo tay trên điện thoại thật, 3 lần/ngày × 3 ngày, ghi trung vị; hiện theo A: 1 chạm + cuộn (quyết định), 2 (chat), 3 (phát hành), "không có đường" (run lỗi của việc không phải mình phụ trách). Mục tiêu: 0–1.                                          | chưa  | chưa   |
-| 4   | Kích thước bundle đầu                 | Build trong WSL (`pnpm build`, không chạy trên runner); số byte (gzip) của các chunk nạp ở `/` — lấy từ `dist/client/assets` + `index.html`. Ghi cả tên chunk. Đo **trước V0** và **sau V3.3**.                                                                  | chưa  | chưa   |
-| 5   | Tải trang việc trên 4G                | Chrome DevTools, giới hạn "Fast 4G", cache tắt, 5 lần, trung vị thời gian đến lúc khối "Cần bạn" hiển thị, trên một việc có >50 bản ghi; kèm số request (A#23: 7–9 hiện nay). Ghi dùng bản production.                                                           | chưa  | chưa   |
+| #   | Số                                    | Cách lấy                                                                                                                                                                                                                                                         | Trước                                                           | Sau V3                                                             |
+| --- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 1   | Giao việc → PR mở (trung vị, P90)     | Máy chủ tính: mốc việc sang `in_progress` có executor là agent (hoạt động của việc) → `dsPullRequests.createdAt` đầu tiên của việc. Mở rộng `server/reports/service.ts:129-149` (đã có cycle time tổng). 30 ngày gần nhất, theo dự án. Tên cột xác nhận khi làm. | chưa                                                            | chưa                                                               |
+| 2   | Số lượt chạy mỗi việc (trung vị, P90) | Máy chủ: đếm `agRuns` theo việc đến khi PR mở. Cùng route báo cáo.                                                                                                                                                                                               | chưa                                                            | chưa                                                               |
+| 3   | Số chạm: mở app → thấy "cần tôi"      | Quy ước đo tay trên điện thoại thật, 3 lần/ngày × 3 ngày, ghi trung vị; hiện theo A: 1 chạm + cuộn (quyết định), 2 (chat), 3 (phát hành), "không có đường" (run lỗi của việc không phải mình phụ trách). Mục tiêu: 0–1.                                          | chưa                                                            | chưa                                                               |
+| 4   | Kích thước bundle đầu                 | Build trong WSL (`pnpm build`, không chạy trên runner); số byte (gzip) của các chunk nạp ở `/` — lấy từ `dist/client/assets` + `index.html`. Ghi cả tên chunk. Đo **trước V0** và **sau V3.3**.                                                                  | 1738 KB (529 KB gzip), bản `2a528a7`, chunk `index-BgnkxY7u.js` | 1617 KB (495 KB gzip) sau V3.3, chunk `index-Bzclsjab.js` (PR #98) |
+| 5   | Tải trang việc trên 4G                | Chrome DevTools, giới hạn "Fast 4G", cache tắt, 5 lần, trung vị thời gian đến lúc khối "Cần bạn" hiển thị, trên một việc có >50 bản ghi; kèm số request (A#23: 7–9 hiện nay). Ghi dùng bản production.                                                           | chưa                                                            | chưa                                                               |
 
 Số 1–2 hiển thị trên **Dashboard** (`client/pages/dashboard/index.tsx`) như thẻ "Nhịp giao việc"; số 3–5 nhập tay vào bảng `dsMetricSnapshots`
 (V0.6) để có đường xu hướng trên cùng thẻ. Ghi lại số vào bảng trên trong cùng PR V0.6 và PR V3.
@@ -405,18 +405,18 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
   - [x] V0.4 sửa playbook (#84)
   - [x] V0.5 `.gitattributes` và quy tắc một working tree (#85)
   - [x] V0.6 đo trước (#86; số liệu chưa đo)
-- [ ] V1 — Hôm nay và menu
-  - [ ] V1.1 trang Hôm nay
-  - [ ] V1.2 menu 8 mục
-  - [ ] V1.3 danh sách việc trên điện thoại
-- [ ] V2 — Trang việc
-  - [ ] V2.1 "Cần bạn" ghim, thứ tự khối
-  - [ ] V2.2 dòng thời gian
-  - [ ] V2.3 lưu thời lượng
+- [x] V1 — Hôm nay và menu (mã đã merge 12/11/2026; chưa deploy production)
+  - [x] V1.1 trang Hôm nay (#89)
+  - [x] V1.2 menu 8 mục (#90)
+  - [x] V1.3 danh sách việc trên điện thoại (#91)
+- [x] V2 — Trang việc (mã đã merge; chưa deploy)
+  - [x] V2.1 "Cần bạn" ghim, thứ tự khối (#92)
+  - [x] V2.2 dòng thời gian (#93)
+  - [x] V2.3 lưu thời lượng (#94 migration `202611120002`, #95 hiển thị)
 - [ ] V3 — Nhanh thật
-  - [ ] V3.1 realtime
-  - [ ] V3.2 cache `decisionsOn`
-  - [ ] V3.3 bundle đầu
+  - [ ] V3.1 realtime (#96, chưa merge; **chưa kiểm WebSocket đăng nhập trên production**)
+  - [x] V3.2 chia sẻ `decisionsOn` khi chạy chồng nhau (#97; không giữ kết quả sau khi xong, xem PR)
+  - [ ] V3.3 bundle đầu (#98, chưa merge; 1738 → 1617 KB)
   - [ ] V3.4 runner (đo trước)
 - [ ] V4 — Kênh job và bí mật (chờ duyệt thiết kế §5)
   - [ ] V4.1 daemon
