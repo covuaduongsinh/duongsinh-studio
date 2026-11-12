@@ -1151,6 +1151,7 @@ const viVN: AppResource = {
       less: 'Thu gọn',
     },
     timeline: {
+      checksTook: 'CI chạy {{duration}}',
       latest: 'Mới nhất',
       pullRequest: 'Pull request',
       pull: {

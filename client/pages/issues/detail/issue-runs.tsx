@@ -42,7 +42,7 @@ const RETRYABLE = new Set(['failed', 'cancelled']);
 type Translate = ReturnType<typeof useTranslation>['t'];
 
 /** "4 min 12 s": seconds under a minute, minutes and seconds under an hour, else hours and minutes. */
-function durationText(t: Translate, milliseconds: number): string {
+export function durationText(t: Translate, milliseconds: number): string {
   const total = Math.max(0, Math.round(milliseconds / 1000));
   const hours = Math.floor(total / 3600);
   const minutes = Math.floor((total % 3600) / 60);
