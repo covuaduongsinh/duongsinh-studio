@@ -195,6 +195,13 @@ const CheckSchema = z.object({
   conclusion: z.string().nullable(),
   outcome: z.enum(['pending', 'success', 'failure']),
   url: z.string().nullable(),
+  durationMs: z
+    .number()
+    .nullable()
+    .optional()
+    .describe(
+      'How long a reported check ran, when both its first and last report are known.',
+    ),
 });
 
 const MergeBlocker = z.enum([
@@ -308,6 +315,9 @@ const ReportedCheckSchema = z
     summary: z.string().nullable(),
     runId: z.string().nullable(),
     reportedAt: z.string(),
+    startedAt: z.string().nullable(),
+    completedAt: z.string().nullable(),
+    durationMs: z.number().nullable(),
     pullRequests: z.array(z.object({ repo: z.string(), number: z.number() })),
   })
   .meta({ ref: 'StudioReportedCheck' });
@@ -323,6 +333,7 @@ const ReportedChecksSchema = z
         status: CheckStatus,
         url: z.string().nullable(),
         reportedAt: z.string(),
+        durationMs: z.number().nullable(),
       }),
     ),
   })
