@@ -120,6 +120,11 @@ const enUS = {
   releaseDrivers: {
     dokploy: 'Dokploy (NocoBase 3 Apps on the VPS)',
   },
+  studioCiKey: {
+    expiringTitle: 'The CI key for {{repo}} expires in {{days}} days',
+    expiringBody:
+      'Open the repository’s deployment settings and renew the key before it stops uploads.',
+  },
   studioBudgets: {
     blockedTitle: 'The budget is used up: {{scope}}',
     warnedTitle: 'The budget is nearly used up: {{scope}}',

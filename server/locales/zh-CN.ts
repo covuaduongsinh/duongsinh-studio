@@ -106,6 +106,10 @@ const zhCN: AppServerResource = {
   releaseDrivers: {
     dokploy: 'Dokploy（VPS 上的 NocoBase 3 应用）',
   },
+  studioCiKey: {
+    expiringTitle: '{{repo}} 的 CI 密钥将在 {{days}} 天后过期',
+    expiringBody: '请在上传中断前，到代码库的部署设置中更换密钥。',
+  },
   studioBudgets: {
     blockedTitle: '预算已用完：{{scope}}',
     warnedTitle: '预算即将用完：{{scope}}',

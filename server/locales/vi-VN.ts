@@ -114,6 +114,11 @@ const viVN: AppServerResource = {
   releaseDrivers: {
     dokploy: 'Dokploy (app NocoBase 3 trên VPS)',
   },
+  studioCiKey: {
+    expiringTitle: 'Khoá CI của {{repo}} hết hạn sau {{days}} ngày',
+    expiringBody:
+      'Mở phần triển khai của kho mã và đổi khoá trước khi việc tải bản build bị dừng.',
+  },
   studioBudgets: {
     blockedTitle: 'Ngân sách đã hết: {{scope}}',
     warnedTitle: 'Ngân sách sắp hết: {{scope}}',

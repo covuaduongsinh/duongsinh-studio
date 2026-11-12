@@ -18,6 +18,7 @@ import ReleasesProvider from './releases.js';
 import PreviewsProvider from './previews.js';
 import Nb3AppsProvider from './nb3-apps.js';
 import Nb3JobsProvider from './nb3-jobs.js';
+import CiKeyRemindersProvider from './ci-key-reminders.js';
 import ReviewsProvider from './reviews.js';
 import BenchProvider from './bench.js';
 import LessonsProvider from './lessons.js';
@@ -50,6 +51,7 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   // The `dokploy` driver that runs NocoBase 3 Apps as composes in Studio's Dokploy project (M4.2).
   Nb3AppsProvider,
   Nb3JobsProvider,
+  CiKeyRemindersProvider,
   // Structured review submissions by reviewing agents (AP1).
   ReviewsProvider,
   // Harness benchmarks and grade evaluation (H4).
