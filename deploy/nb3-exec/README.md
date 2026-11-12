@@ -70,3 +70,14 @@ Rotate the key: write a new `hmac.key`, `systemctl restart ds-nb3-exec`, restart
 
 `tests/project/nb3-exec-daemon.test.ts` runs the daemon on a real socket with a fake `docker` (`tests/fixtures/fake-docker/nb3-docker`).
 It does not run Docker.
+
+## Studio's side (V4.3)
+
+Studio talks to the daemon only when both variables are set in its environment (Dokploy → Environment), so the channel is off by default:
+
+| Variable            | Value                                                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------ |
+| `NB3_EXEC_SOCKET`   | The socket path the container sees, such as `/run/ds-nb3/exec.sock` (mount the directory read-write).  |
+| `NB3_EXEC_KEY_FILE` | The HMAC key file the container sees (mount it read-only); the same key as the daemon's `hmacKeyFile`. |
+
+Routes: `POST /api/releases/apps/{appId}/jobs` with `{ "command": "dbApply" | "larkImportDry" | "larkImportCommit" }` answers 202 with the job; `GET .../jobs` and `GET .../jobs/{jobId}` read it (status, exit code, masked log tail, kept 14 days). They need `rel.apps/operate` on the App (the administrator role has it); a command that changes data (`dbApply`, `larkImportCommit`) is for the owner only. 503 `NB3_JOB_CHANNEL_DOWN` means the variables are unset or the daemon is not listening. The daemon's own allowlist (`config.json`) still decides what really runs.
