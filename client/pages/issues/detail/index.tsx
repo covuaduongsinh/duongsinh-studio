@@ -65,6 +65,7 @@ import {
 import { cn } from 'cn';
 
 import { useIssuePullRequests } from '#hooks/use-git';
+import { useIssuePanels } from '#hooks/use-issue-work';
 
 import {
   issueHref,
@@ -217,6 +218,7 @@ export function IssueDetailView({
   const following = detail.subscribers.some(
     (subscriber) => subscriber.userId === viewer?.userId,
   );
+  const panels = useIssuePanels(detail.id);
   const pulls = useIssuePullRequests(detail.id);
   const pullCount = Array.isArray(pulls.data) ? pulls.data.length : 0;
   const [tab, setTab] = useState<IssueTab>('activity');
@@ -247,12 +249,13 @@ export function IssueDetailView({
                 onChanged={refetchAfterMerge}
               />
             }
+            needsYou={panels.data?.progress.needsYou ?? null}
             onTop={toTop}
           />
         ) : null}
         <IssueFileDrop
           {...(canUpload ? { onFiles: upload } : {})}
-          className={cn(ISSUE_SURFACE, 'flex flex-col gap-6')}
+          className={cn(ISSUE_SURFACE, 'order-1 flex flex-col gap-6')}
         >
           <IssueHeader
             identifier={detail.identifier}
@@ -332,6 +335,15 @@ export function IssueDetailView({
               />
             }
           />
+        </IssueFileDrop>
+        {/* On a phone the activity comes before the secondary blocks (order below); from md up the page reads top to bottom as before. */}
+        <IssueFileDrop
+          {...(canUpload ? { onFiles: upload } : {})}
+          className={cn(
+            ISSUE_SURFACE,
+            'order-3 flex flex-col gap-6 md:order-2',
+          )}
+        >
           <IssueDeliveryReport
             issueId={detail.id}
             acceptance={detail.acceptance}
@@ -452,7 +464,11 @@ export function IssueDetailView({
           />
           <IssueKbOffers issueId={detail.id} />
         </IssueFileDrop>
-        <Tabs value={tab} onValueChange={(value) => setTab(value as IssueTab)}>
+        <Tabs
+          value={tab}
+          onValueChange={(value) => setTab(value as IssueTab)}
+          className='order-2 md:order-3'
+        >
           <TabsList variant='line' className='h-auto flex-wrap'>
             <TabsTrigger value='activity'>
               {t('issueDetail.tabs.activity')}

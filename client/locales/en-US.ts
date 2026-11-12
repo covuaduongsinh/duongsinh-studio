@@ -711,6 +711,7 @@ const enUS = {
     },
   },
   studioCriteria: {
+    openEditor: 'Add criteria',
     actions: {
       groupTitle: 'Acceptance criteria',
       propose: {
