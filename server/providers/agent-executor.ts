@@ -5,7 +5,10 @@ import type { Application } from '@nocobase/app-server/application';
 import type { GitService } from '../git/service.js';
 import type { GitHubCheck } from '../git/github.js';
 import type { CiState } from '../git/pull-state.js';
-import { evaluatePreReviewGate } from '../gates/pre-review.js';
+import {
+  evaluatePreReviewGate,
+  REVIEW_PARALLEL_WITH_CI,
+} from '../gates/pre-review.js';
 import { gitServiceToken } from './git.js';
 import { str, num } from '../git/rows.js';
 import { scanSecrets } from '../security/secret-patterns.js';
@@ -256,6 +259,7 @@ export function createAgentKind(deps: {
           checks,
           changedFiles,
           patch,
+          allowPendingCi: REVIEW_PARALLEL_WITH_CI,
         });
         if (!gate.passed) {
           const commentLines = [

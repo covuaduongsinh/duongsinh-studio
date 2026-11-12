@@ -6,6 +6,7 @@ import { IN_PROGRESS_STATUS } from '@nocobase/app-plugin-projects/shared/statuse
 import {
   evaluatePreReviewGate,
   isForbiddenFile,
+  REVIEW_PARALLEL_WITH_CI,
 } from '../../server/gates/pre-review.js';
 import {
   scanAddedLines,
@@ -135,6 +136,60 @@ sk-proj-1234567890abcdefghij1234567890_
           'CI checks are still pending on pull request #42',
         ),
       ]);
+    });
+
+    // 2b. Review beside CI (V3.4, Q9): pending CI no longer stops the review; nothing else changes.
+    describe('with the review running beside CI', () => {
+      const base = {
+        pull: { number: 42 },
+        changedFiles: ['src/app.ts'],
+        patch: cleanPatch,
+        allowPendingCi: true,
+      };
+
+      it('lets a review start while CI is still running, and says the merge waits', () => {
+        const result = evaluatePreReviewGate({
+          ...base,
+          pull: { number: 42, ciState: 'pending' },
+          checks: [{ name: 'build', outcome: 'pending' }],
+        });
+        expect(result.passed).toBe(true);
+        expect(result.ci.state).toBe('pending');
+        expect(result.ci.reason).toContain('the merge waits');
+        expect(result.reasons).toEqual([]);
+      });
+
+      it('still stops a review when CI failed or is missing', () => {
+        const failed = evaluatePreReviewGate({
+          ...base,
+          pull: { number: 42, ciState: 'failure' },
+          checks: [{ name: 'build', outcome: 'failure' }],
+        });
+        expect(failed.passed).toBe(false);
+        expect(failed.ci.state).toBe('failed');
+        const missing = evaluatePreReviewGate({
+          ...base,
+          pull: { number: 42, ciState: 'missing' },
+          checks: [],
+        });
+        expect(missing.passed).toBe(false);
+        expect(missing.ci.state).toBe('missing');
+      });
+
+      it('still stops a review on a secret or a forbidden file while CI runs', () => {
+        const dirty = evaluatePreReviewGate({
+          ...base,
+          pull: { number: 42, ciState: 'pending' },
+          checks: [{ name: 'build', outcome: 'pending' }],
+          changedFiles: ['.env'],
+        });
+        expect(dirty.passed).toBe(false);
+        expect(dirty.forbiddenFiles.passed).toBe(false);
+      });
+
+      it('is the setting the executor uses, on by default', () => {
+        expect(REVIEW_PARALLEL_WITH_CI).toBe(true);
+      });
     });
 
     // 3. Patch có khoá
