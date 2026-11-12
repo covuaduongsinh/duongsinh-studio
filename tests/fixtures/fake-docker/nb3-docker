@@ -1,0 +1,18 @@
+#!/bin/sh
+# A stand-in for `docker` for the ds-nb3-exec tests: answers compose run, ps, logs, inspect and rm, and logs each call.
+echo "$*" >> "$FAKE_DOCKER_LOG"
+case "$1" in
+  compose)
+    case "$*" in
+      *" run "*)
+        echo "job output line"
+        [ -n "${FAKE_PRINT_SECRET:-}" ] && echo "token=$FAKE_PRINT_SECRET and LARK_APP_SECRET=$FAKE_PRINT_SECRET"
+        [ "${FAKE_BIG:-0}" = 1 ] && head -c 60000 /dev/zero | tr '\0' 'x' && echo
+        [ -n "${FAKE_SLEEP:-}" ] && sleep "$FAKE_SLEEP"
+        exit "${FAKE_EXIT:-0}" ;;
+    esac ;;
+  ps) echo "cid123" ;;
+  logs) echo "app log line one"; echo "app log line two" ;;
+  inspect) echo "running|healthy|2026-11-12T01:00:00Z|0|2|false" ;;
+  rm) : ;;
+esac
