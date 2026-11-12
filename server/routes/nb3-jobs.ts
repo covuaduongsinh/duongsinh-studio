@@ -36,6 +36,7 @@ type Ctx = Context<Env>;
 
 const DOMAIN = 'studio';
 const APP_ID = /^[a-z0-9][a-z0-9-]{0,62}$/u;
+const SECRET_NAME = /^[A-Z][A-Z0-9_]{1,63}$/u;
 const PARAM = z.object({ appId: z.string().regex(APP_ID) });
 
 const JobSchema = z
@@ -101,6 +102,23 @@ export const nb3JobRoutes: AppApiRouteContribution<Application> =
       // `getApp` answers the App with what the caller may do (not found for one they cannot see); the guard judges `operate`.
       const view = await rel().releases.getApp(caller, appId);
       await rel().guard.requireApp(caller, 'operate', view.app);
+    };
+
+    const requireOwner = async (context: Ctx) => {
+      if (!(await context.get('authz').snapshot()).unrestricted)
+        throw fail(
+          'PERMISSION_DENIED',
+          'OWNER_ONLY',
+          'Only the owner changes a job secret.',
+        );
+    };
+
+    const secretFailure = (error: unknown): unknown => {
+      if (error instanceof JobError && error.code === 'CHANNEL_DOWN')
+        return fail('UNAVAILABLE', 'NB3_JOB_CHANNEL_DOWN', error.message);
+      if (error instanceof JobError && error.code === 'REFUSED')
+        return fail('INVALID_ARGUMENT', 'JOB_SECRET_REFUSED', error.message);
+      return error;
     };
 
     jobs.post(
@@ -208,6 +226,71 @@ export const nb3JobRoutes: AppApiRouteContribution<Application> =
           if (error instanceof JobError && error.code === 'NOT_FOUND')
             throw fail('NOT_FOUND', 'JOB_NOT_FOUND', error.message);
           throw error;
+        }
+      },
+    );
+
+    jobs.put(
+      '/:appId/jobSecrets/:name',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Store a job secret for a NocoBase 3 App',
+        description:
+          'Owner only. The value goes to the App’s own job file on the server through the job channel and is never kept by Studio or returned; only the job container reads it, not the web service. The daemon accepts only the names it lists for the App.',
+        operationId: 'nb3JobsSetSecret',
+        security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+        ...cliRoute({ command: 'app job secret set' }),
+        responses: {
+          200: dataResponse(z.object({ name: z.string() })),
+          ...apiErrorResponses,
+          404: apiErrorResponse(404),
+          503: apiErrorResponse(503),
+        },
+      }),
+      apiValidator(
+        'param',
+        PARAM.extend({ name: z.string().regex(SECRET_NAME) }),
+      ),
+      apiValidator('json', z.object({ value: z.string().min(1).max(4096) })),
+      async (context) => {
+        const { appId, name } = context.req.valid('param');
+        const { value } = context.req.valid('json');
+        await requireOperate(context, appId);
+        await requireOwner(context);
+        try {
+          await service().setSecret(appId, name, value);
+          return context.json({ data: { name } });
+        } catch (error) {
+          throw secretFailure(error);
+        }
+      },
+    );
+
+    jobs.get(
+      '/:appId/jobSecrets',
+      describeRoute({
+        tags: ['Studio'],
+        summary: 'Names of the job secrets of a NocoBase 3 App (never values)',
+        operationId: 'nb3JobsSecretNames',
+        security: [{ cookieAuth: [] }, { apiKeyAuth: [] }],
+        ...cliRoute({ command: 'app job secret list' }),
+        responses: {
+          200: dataResponse(z.object({ names: z.array(z.string()) })),
+          ...apiErrorResponses,
+          404: apiErrorResponse(404),
+          503: apiErrorResponse(503),
+        },
+      }),
+      apiValidator('param', PARAM),
+      async (context) => {
+        const { appId } = context.req.valid('param');
+        await requireOperate(context, appId);
+        try {
+          return context.json({
+            data: { names: await service().secretNames(appId) },
+          });
+        } catch (error) {
+          throw secretFailure(error);
         }
       },
     );

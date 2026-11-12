@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { DatabaseConnection } from '@nocobase/db';
 import { str, strOrNull, type Row } from '../git/rows.js';
+import { composeNameOf } from '../releases/nb3-compose.js';
 import type { Nb3Channel } from './channel.js';
 import {
   JOB_LOG_DAYS,
@@ -30,7 +31,7 @@ export interface JobView {
 
 export class JobError extends Error {
   constructor(
-    readonly code: 'RUNNING' | 'NOT_FOUND' | 'CHANNEL_DOWN',
+    readonly code: 'RUNNING' | 'NOT_FOUND' | 'CHANNEL_DOWN' | 'REFUSED',
     message: string,
   ) {
     super(message);
@@ -85,6 +86,37 @@ export function createNb3JobsService(deps: {
 
   return {
     get,
+
+    /** Stores a job secret in the App's own job file on the server. The value is never kept or returned by Studio. */
+    async setSecret(appId: string, name: string, value: string): Promise<void> {
+      const channel = deps.channel();
+      if (!channel)
+        throw new JobError('CHANNEL_DOWN', 'The job channel is off.');
+      const answer = await channel.call(
+        { op: 'secretSet', app: composeNameOf(appId), name, value },
+        15_000,
+      );
+      if (!answer.ok)
+        throw new JobError(
+          answer.error === 'UNREACHABLE' ? 'CHANNEL_DOWN' : 'REFUSED',
+          answer.message ?? 'The daemon refused the secret.',
+        );
+    },
+
+    async secretNames(appId: string): Promise<string[]> {
+      const channel = deps.channel();
+      if (!channel)
+        throw new JobError('CHANNEL_DOWN', 'The job channel is off.');
+      const answer = await channel.call(
+        { op: 'secretNames', app: composeNameOf(appId) },
+        15_000,
+      );
+      if (!answer.ok)
+        throw new JobError('CHANNEL_DOWN', answer.message ?? 'No answer.');
+      return Array.isArray(answer['names'])
+        ? (answer['names'] as string[])
+        : [];
+    },
 
     async list(appId: string, limit = 20): Promise<JobView[]> {
       const rows: Row[] = await conn()
@@ -149,7 +181,7 @@ export function createNb3JobsService(deps: {
     ): Promise<void> {
       const answer = await channel.call({
         op: 'run',
-        app: appId,
+        app: composeNameOf(appId),
         argv: command.argv,
       });
       const ended = now();
