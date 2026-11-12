@@ -71,4 +71,96 @@ describe('secret patterns and detection', () => {
     expect(maskSecrets(undefined)).toBe('');
     expect(maskSecrets('')).toBe('');
   });
+
+  // The samples are assembled at run time so this file does not itself trip the diff scan.
+  const assign = (name: string, value: string, glue = '=') =>
+    `${name}${glue}${value}`;
+  const secretName = (...parts: string[]) => [...parts, 'SECRET'].join('_');
+  const passwordName = (...parts: string[]) => [...parts, 'PASSWORD'].join('_');
+
+  describe('named secret assignments (V0.3)', () => {
+    it.each([
+      ['an app secret', assign(secretName('LARK', 'APP'), 'Qw3rTy9uIoP2aSdF')],
+      ['a database password', assign(passwordName('DB'), 'Zk39sLmq02Vx')],
+      ['secret keys', assign('SECRETS_KEYS', 'k3y1-k3y2-k3y3-k3y4')],
+      ['a bare token name', assign('TOKEN', 'abcdef1234567890')],
+      [
+        'a YAML value',
+        assign(secretName('LARK', 'APP'), 'Qw3rTy9uIoP2aSdF', ': '),
+      ],
+      ['a quoted value', assign(passwordName('DB'), '"Zk39sLmq02Vx"')],
+    ])('catches %s', (_label, text) => {
+      const keys = scanSecrets(text).map((m) => m.patternKey);
+      expect(keys).toContain('named_secret_assignment');
+    });
+
+    it('masks only the value and keeps the name', () => {
+      const text = `${assign(secretName('LARK', 'APP'), 'Qw3rTy9uIoP2aSdF')}\nnext line`;
+      const masked = maskSecrets(text);
+      expect(masked).toBe(
+        `${secretName('LARK', 'APP')}=${MASKED_SECRET_PLACEHOLDER}\nnext line`,
+      );
+    });
+
+    it.each([
+      [
+        'a variable reference',
+        assign(secretName('LARK', 'APP'), '${LARK_APP_SECRET}'),
+      ],
+      [
+        'a compose default',
+        assign(passwordName('DB'), '${DB_PASSWORD:?DB_PASSWORD is required}'),
+      ],
+      [
+        'a placeholder in angle brackets',
+        assign(passwordName('DB'), '<your-database-password>'),
+      ],
+      ['a masked value', assign(passwordName('DB'), '************')],
+      ['an elided value', assign(passwordName('DB'), '...........')],
+      ['repeated x', assign(passwordName('DB'), 'xxxxxxxxxxxx')],
+      ['a placeholder word', assign(passwordName('DB'), 'changeme-please-now')],
+      [
+        'a code reference',
+        assign(secretName('LARK', 'APP'), ' process.env.LARK_APP_SECRET', ' ='),
+      ],
+      ['a short value', assign(passwordName('DB'), 'short')],
+      [
+        'a name that only contains the word',
+        assign('TOKENIZER', 'abcdef1234567890'),
+      ],
+      [
+        'a code assignment with spaces around =',
+        assign(secretName('CI'), " 'SomeLongName12345'", ' ='),
+      ],
+      [
+        'a JS property holding an identifier',
+        assign('CALLBACK_TOKEN', ' callbackToken,', ':'),
+      ],
+      [
+        'a YAML value without a digit',
+        assign(secretName('LARK', 'APP'), 'just-some-words-here', ': '),
+      ],
+      [
+        'no value',
+        `${secretName('LARK', 'APP')} is set in the environment of the job`,
+      ],
+    ])('ignores %s', (_label, text) => {
+      expect(scanSecrets(text)).toEqual([]);
+    });
+
+    it('catches a bearer token but not a shell variable', () => {
+      const real = `Authorization: Bearer ${'a1B2c3D4e5F6g7H8i9J0k1L2'}`;
+      expect(scanSecrets(real).map((m) => m.patternKey)).toContain(
+        'bearer_token',
+      );
+      expect(scanSecrets('Authorization: Bearer $token')).toEqual([]);
+    });
+
+    it('still catches a Studio key sent as a header', () => {
+      const header = `x-api-key: ${'Ab12Cd34Ef56Gh78Ij90Kl12Mn34'}`;
+      expect(scanSecrets(header).map((m) => m.patternKey)).toContain(
+        'generic_key_assignment',
+      );
+    });
+  });
 });
