@@ -18,7 +18,7 @@ một App nên chỉ một PR được xem thử tại một thời điểm; PR 
 1. Bản ghi A `<app>-preview.dsc.edu.vn` → `217.15.160.118` (Mắt Bão).
 2. Trong Studio: môi trường `preview` (driver `dokploy`, `hosts` có `<app>-preview` → tên miền ở trên, `maxApps` 1, tự dừng 30), App
    `<app>-preview`, rồi trong trang repo gán App đó cho môi trường `preview`.
-3. Khoá API có phạm vi chỉ App đó (`upload`, `deploy`) lưu thành secret `STUDIO_API_KEY` của repo app, cùng `STUDIO_URL`.
+3. Khoá CI của repo (`ds-studio build ci setup --reveal`, hoặc trang repo): từ 12/11/2026 khoá **chỉ chạm các App đã gán cho repo đó** (`releases.apps` giới hạn theo App), quyền `upload`, hạn **90 ngày** (trước đó mọi App, 365 ngày). Cần gán App cho repo **trước** khi làm khoá; gán thêm App sau đó thì chạy `ci rotate` để có khoá mới (khoá cũ ngừng ngay). Lưu thành secret `DS_STUDIO_API_KEY` của repo app, cùng `STUDIO_URL`. Muốn workflow tự deploy thì khoá cần mức `admin` (hiện Studio chỉ cấp `write`).
 4. Thêm workflow mẫu bên dưới vào `.github/workflows/preview.yml` của repo app (đẩy file workflow cần token có quyền Workflows).
 
 ## Workflow mẫu cho repo app

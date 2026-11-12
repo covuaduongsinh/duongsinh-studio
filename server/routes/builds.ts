@@ -47,7 +47,9 @@ const BUILDS = 'dsBuilds';
 const CI_KEYS = 'dsRepositoryCiKeys';
 const DOWNLOADS = 'dsReleaseDownloads';
 const LINK_HOURS = 24;
-const CI_KEY_DAYS = 365;
+/** A CI key lives 90 days (it was 365): a leaked secret is useful for a season, not a year. Rotation renews it. */
+const CI_KEY_DAYS = 90;
+const DAY_MS = 86_400_000;
 const CI_SECRET = 'DS_STUDIO_API_KEY';
 const APP_ID = /^[a-z0-9][a-z0-9-]{0,62}$/u;
 const ROLES = ['staging', 'production'] as const;
@@ -355,8 +357,10 @@ export const buildRoutes: AppApiRouteContribution<Application> =
       appId: string,
     ): Promise<void> => {
       const caller = await callerOf(context);
-      const app = await rel().releases.getApp(caller, appId);
-      await rel().guard.requireApp(caller, 'upload', app as never);
+      // `getApp` answers the App with its environment and what the caller may do; the guard judges the App itself, and a
+      // key limited to some Apps compares its list with the App's id.
+      const view = await rel().releases.getApp(caller, appId);
+      await rel().guard.requireApp(caller, 'upload', view.app);
     };
 
     const repositoryNamed = async (
@@ -838,13 +842,42 @@ export const buildRoutes: AppApiRouteContribution<Application> =
           'REVEAL_REQUIRED',
           '`reveal: true` is required: the secret is answered once.',
         );
+      // The key reaches the Apps of this repository and no other: a key leaked from repository A must not upload to,
+      // deploy or stop the production App of repository B.
+      const appIds = [
+        ...new Set((await linkedApps(repository.id)).map((app) => app.appId)),
+      ].sort();
+      if (appIds.length === 0)
+        throw fail(
+          'FAILED_PRECONDITION',
+          'NO_APP_LINKED',
+          'Link an App to this repository first: its CI key reaches only the Apps of the repository.',
+        );
+      const scope = {
+        groups: {
+          'releases.apps': { level: 'write', objects: appIds },
+          'studio.checks': { level: 'write' },
+        },
+      } as const;
       const existing = await ciKeyRow(repository.id);
       const live = existing
         ? (await keys().list(ORGANIZATION_KEYS_USER)).find(
             (key) => key.id === str(existing.keyId),
           )
         : undefined;
-      if (live) {
+      // Rotation keeps a key's scope and lifetime, so it fits only a key that is already limited to exactly these Apps
+      // and lives at most 90 days; an older key (every App, a year) is replaced instead.
+      const granted: 'all' | readonly string[] | undefined =
+        live?.scope?.groups['releases.apps']?.objects;
+      const sameApps =
+        granted !== undefined &&
+        granted !== 'all' &&
+        JSON.stringify([...granted].sort()) === JSON.stringify(appIds);
+      const shortLived =
+        live?.expiresAt != null &&
+        Date.parse(live.expiresAt) - Date.now() <=
+          CI_KEY_DAYS * DAY_MS + 60_000;
+      if (live && sameApps && shortLived) {
         const rotated = await keys().rotate(ORGANIZATION_KEYS_USER, live.id);
         return { secret: rotated.secret, setup: await ciOf(repository.id) };
       }
@@ -854,12 +887,7 @@ export const buildRoutes: AppApiRouteContribution<Application> =
           name: `CI ${repository.repo}`,
           description: null,
           expiresInDays: CI_KEY_DAYS,
-          scope: {
-            groups: {
-              'releases.apps': { level: 'write' },
-              'studio.checks': { level: 'write' },
-            },
-          },
+          scope,
         },
         context.get('authz').identity,
       );
@@ -876,6 +904,8 @@ export const buildRoutes: AppApiRouteContribution<Application> =
           createdAt: new Date(),
         })
         .execute();
+      // The old key stops working only after the new one is in place.
+      if (live) await keys().revoke(ORGANIZATION_KEYS_USER, live.id);
       return { secret: created.secret, setup: await ciOf(repository.id) };
     };
 
