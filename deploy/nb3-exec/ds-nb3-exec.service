@@ -18,6 +18,8 @@ ProtectSystem=strict
 ReadWritePaths=/run/ds-nb3 /srv/duongsinh-studio/jobs
 RuntimeDirectory=ds-nb3
 RuntimeDirectoryMode=0750
+# Keep the directory across restarts: the Studio container bind-mounts it, and a recreated directory leaves the mount empty.
+RuntimeDirectoryPreserve=yes
 # The Studio container (group ds-nb3, added with group_add) must be able to enter the directory to reach the socket.
 ExecStartPost=/bin/chgrp ds-nb3 /run/ds-nb3
 
