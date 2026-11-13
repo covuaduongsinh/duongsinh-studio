@@ -9,7 +9,7 @@
  *
  * Protocol: one JSON request per connection (a line), one JSON answer (a line).
  *   { v:1, id, op, app, argv?, since?, tail?, name?, value?, ts, nonce, sig }
- *   op: run | logs | inspect | secretSet | secretNames | lastAccess
+ *   op: run | logs | inspect | secretSet | secretNames | lastAccess | dump
  *   sig: HMAC-SHA256 over the fields below, hex.
  */
 import {
@@ -30,6 +30,7 @@ import {
   readFileSync,
   readSync,
   renameSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { createServer } from 'node:net';
@@ -48,6 +49,7 @@ const OPS = new Set([
   'secretSet',
   'secretNames',
   'lastAccess',
+  'dump',
 ]);
 /** How much of the end of the Traefik access log `lastAccess` reads. */
 const ACCESS_LOG_BYTES = 8 * 1024 * 1024;
@@ -374,6 +376,115 @@ export function createDaemon(config, deps = {}) {
     };
   }
 
+  /** Runs `docker` with its stdout written to `file` (mode 0600) and optionally `input` as stdin; resolves the exit code. */
+  function runToFile(args, file, input) {
+    return new Promise((resolve) => {
+      const out = openSync(file, 'w', 0o600);
+      const inFd = input ? openSync(input, 'r') : null;
+      const child = spawn(docker, args, {
+        stdio: [inFd ?? 'ignore', out, 'ignore'],
+      });
+      const timer = setTimeout(() => child.kill('SIGKILL'), timeoutMs);
+      const done = (code) => {
+        clearTimeout(timer);
+        closeSync(out);
+        if (inFd !== null) closeSync(inFd);
+        resolve(code);
+      };
+      child.on('error', () => done(null));
+      child.on('close', done);
+    });
+  }
+
+  /**
+   * A custom-format `pg_dump` of the app's database into `dumpDir` (V5.2b), checked with `pg_restore -l`, before Studio removes
+   * the app's data. The only place the daemon uses `docker exec`, and with a fixed command: the container comes from the
+   * configuration's compose labels, the user and database from that container's own environment, nothing from the request.
+   */
+  async function opDump(request, app) {
+    if (!app.dbService || !app.dumpDir)
+      throw new Denied('NO_DUMP', 'This app has no database dump configured.');
+    if (busy.has(request.app))
+      throw new Denied('BUSY', 'A job is already running for this app.');
+    busy.add(request.app);
+    try {
+      const found = await run(docker, [
+        'ps',
+        '-q',
+        '--filter',
+        `label=com.docker.compose.project=${app.project}`,
+        '--filter',
+        `label=com.docker.compose.service=${app.dbService}`,
+      ]);
+      const container = found.output.toString('utf8').split('\n').find(Boolean);
+      if (!container)
+        throw new Denied(
+          'NO_CONTAINER',
+          'The database container is not running.',
+        );
+      const env = async (name) =>
+        (await run(docker, ['exec', container, 'printenv', name])).output
+          .toString('utf8')
+          .trim();
+      const user = await env('POSTGRES_USER');
+      const database = await env('POSTGRES_DB');
+      if (
+        !/^[A-Za-z0-9_]{1,63}$/u.test(user) ||
+        !/^[A-Za-z0-9_]{1,63}$/u.test(database)
+      )
+        throw new Denied(
+          'FAILED',
+          'The database container has no usable user or name.',
+        );
+      mkdirSync(app.dumpDir, { recursive: true, mode: 0o700 });
+      const stamp = new Date(now())
+        .toISOString()
+        .replace(/[-:]/gu, '')
+        .replace(/\..*$/u, '')
+        .replace('T', '-');
+      const file = path.join(app.dumpDir, `${request.app}-${stamp}.dump`);
+      const temporary = `${file}.tmp`;
+      const code = await runToFile(
+        ['exec', container, 'pg_dump', '-U', user, '-d', database, '-Fc'],
+        temporary,
+      );
+      const listing = path.join(app.dumpDir, `.${request.app}.list.tmp`);
+      const listed =
+        code === 0
+          ? await runToFile(
+              ['exec', '-i', container, 'pg_restore', '-l'],
+              listing,
+              temporary,
+            )
+          : null;
+      const tables =
+        listed === 0
+          ? readFileSync(listing, 'utf8')
+              .split('\n')
+              .filter((line) => line.includes('TABLE DATA')).length
+          : 0;
+      rmSync(listing, { force: true });
+      if (code !== 0 || tables === 0) {
+        rmSync(temporary, { force: true });
+        throw new Denied(
+          'DUMP_FAILED',
+          'The dump failed or holds no table data.',
+        );
+      }
+      chmodSync(temporary, 0o600);
+      renameSync(temporary, file);
+      const bytes = readFileSync(file);
+      return {
+        file,
+        bytes: bytes.length,
+        sha256: createHash('sha256').update(bytes).digest('hex'),
+        tables,
+      };
+    } finally {
+      busy.delete(request.app);
+    }
+  }
+
   function envFileOf(app) {
     if (!app.envFile)
       throw new Denied('NO_ENV_FILE', 'This app has no job environment file.');
@@ -444,11 +555,13 @@ export function createDaemon(config, deps = {}) {
             ? await opLogs(request, app)
             : request.op === 'inspect'
               ? await opInspect(request, app)
-              : request.op === 'lastAccess'
-                ? opLastAccess(app)
-                : request.op === 'secretSet'
-                  ? opSecretSet(request, app)
-                  : opSecretNames(app);
+              : request.op === 'dump'
+                ? await opDump(request, app)
+                : request.op === 'lastAccess'
+                  ? opLastAccess(app)
+                  : request.op === 'secretSet'
+                    ? opSecretSet(request, app)
+                    : opSecretNames(app);
       return { ok: true, id: request.id, ...body };
     } catch (error) {
       if (error instanceof Denied)

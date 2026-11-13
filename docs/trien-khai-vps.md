@@ -238,6 +238,10 @@ Xoay khoá HMAC: tạo khoá mới, ghi vào file khoá của daemon và của S
 
 Trạng thái và log thật: khi kênh bật, Studio hỏi daemon (`docker inspect`, `docker logs`) về container của app; container chết hoặc hết bộ nhớ thì app báo lỗi kèm lý do và nhả suất chạy; không hỏi được thì báo `unknown` thay vì `running`.
 
+### Dump trước khi xoá dữ liệu app (V5.2b)
+
+Xoá một app **kèm dữ liệu** (`purgeData`) làm Dokploy xoá luôn volume. Từ V5.2b Studio nhờ daemon (`dump`) chạy `pg_dump -Fc` vào `dumpDir` (quyền 0600), kiểm bằng `pg_restore -l`, rồi mới xoá; dump lỗi, kênh job tắt hoặc app dùng SQLite thì **từ chối xoá** (app SQLite: sao lưu bằng `backup-nb3.sh` hoặc xoá giữ dữ liệu). Mục của app trong `config.json` cần `dbService` (`<tên>-db`) và `dumpDir`. Đường dẫn file dump được ghi vào log của Studio (`Dumped …`). Khôi phục: `pg_restore` vào DB tạm, xem `deploy/dokploy/backup-nb3-restore.md`.
+
 ### Tự dừng theo request (V5.1b)
 
 App có `idleStopMinutes` (xem thử) được dừng khi không có request nào tới tên miền của nó trong chừng đó phút. Studio hỏi daemon (`lastAccess`), daemon đọc 8 MiB cuối của nhật ký truy cập Traefik dạng JSON. Việc của chủ dự án (một lần):

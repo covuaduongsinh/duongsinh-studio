@@ -5,6 +5,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   statSync,
@@ -490,5 +491,47 @@ describe('last access (V5.1b)', () => {
       known: true,
       lastAt: null,
     });
+  });
+});
+
+describe('dump before purge (V5.2b)', () => {
+  const dumpApp = () => ({
+    apps: {
+      'nb3-edu': {
+        ...config().apps['nb3-edu'],
+        dbService: 'nb3-edu-db',
+        dumpDir: path.join(folder, 'dumps'),
+      },
+    },
+  });
+
+  it('writes a checked custom-format dump, only readable by root, and answers where it is', async () => {
+    await start(dumpApp());
+    const answer = await request({ op: 'dump', app: 'nb3-edu' });
+    expect(answer).toMatchObject({ ok: true, tables: 1, bytes: 15 });
+    expect(answer.file).toMatch(/dumps\/nb3-edu-\d{8}-\d{6}\.dump$/u);
+    expect(readFileSync(answer.file, 'utf8')).toBe('PGDMP-fake-dump');
+    expect(statSync(answer.file).mode & 0o777).toBe(0o600);
+    expect(calls()).toContain('exec cid123 pg_dump -U nbuser -d nbdb -Fc');
+  });
+
+  it('refuses without a configured database, and leaves no file when the dump fails or is empty', async () => {
+    await start();
+    expect((await request({ op: 'dump', app: 'nb3-edu' })).error).toBe(
+      'NO_DUMP',
+    );
+    await new Promise((resolve) => server.close(resolve));
+    await start(dumpApp());
+    withEnv({ FAKE_DUMP_FAIL: '1' });
+    expect((await request({ op: 'dump', app: 'nb3-edu' })).error).toBe(
+      'DUMP_FAILED',
+    );
+    delete process.env.FAKE_DUMP_FAIL;
+    withEnv({ FAKE_DUMP_EMPTY: '1' });
+    expect((await request({ op: 'dump', app: 'nb3-edu' })).error).toBe(
+      'DUMP_FAILED',
+    );
+    delete process.env.FAKE_DUMP_EMPTY;
+    expect(readdirSync(path.join(folder, 'dumps'))).toEqual([]);
   });
 });

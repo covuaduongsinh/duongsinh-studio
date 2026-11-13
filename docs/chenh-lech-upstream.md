@@ -999,3 +999,8 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Hai bản `dist` mỗi app** và **`DB_PASSWORD` sinh lười**: việc của driver, không có trong hợp đồng plugin.
 - **`GET /api/hostLoad`** (`server/routes/host-load.ts`) và thẻ "Máy chủ" trên trang Phát hành: của Studio, ngoài plugin. Quyền: chủ sở hữu hoặc ai có `view|deploy|operate.all` trên `rel.apps`.
 - **Khi nâng plugin**: nếu hợp đồng driver có nguồn `lastAccessedAt` riêng hoặc plugin tự quản suất thì bỏ phần tương ứng.
+
+## 57. V5.2b — Dump trước khi xoá dữ liệu app (13/11/2026)
+
+- Hợp đồng driver: `remove(appId, {purgeData})` không nói gì về sao lưu. Driver `dokploy` của Studio gọi op `dump` của daemon trước và từ chối xoá khi dump lỗi, kênh tắt hoặc app dùng SQLite. `docker exec` duy nhất của daemon, lệnh cố định (xem `deploy/nb3-exec/README.md`).
+- **Khi nâng plugin**: nếu hợp đồng có hook trước khi xoá dữ liệu thì chuyển sang đó.
