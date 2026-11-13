@@ -991,3 +991,11 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Quy ước `LARK_*` / `JOB_ONLY_*`**: không phải khái niệm của plugin. `nb3ComposeEnv` từ chối các tên này ở tab Biến; bí mật đi qua `PUT …/jobSecrets/{TÊN}` vào file `jobs/<tên>.env` mà chỉ service `-job` đọc.
 - **Quyền**: dùng đúng hành động có sẵn `rel.apps/operate`; seed `202611120004_ds_roles_operate` cấp `operate.all` cho `ds-admin`. Lệnh ghi và bí mật job chỉ chủ sở hữu (Q8), kiểm trong route.
 - **Khi nâng plugin**: nếu hợp đồng driver thêm `exec` hay `inspect` thì chuyển phần này sang hợp đồng và bỏ daemon cho phần đó.
+
+## 56. V5.1 — Suất theo môi trường, tự dừng theo request, thẻ Máy chủ (13/11/2026)
+
+- **`lastAccessedAt` do daemon điền, không phải plugin**: `status()` của driver `dokploy` trả `lastAccessedAt` từ op `lastAccess` của `ds-nb3-exec` (đọc nhật ký truy cập Traefik theo `hosts` của app). Hợp đồng driver có trường này nhưng không nói ai điền; Studio điền khi có kênh job. `sweepIdle` dùng cùng nguồn; thiếu dữ liệu (không kênh/nhật ký) thì giữ quy tắc "kể từ lúc bật", nhật ký quá ngắn thì không dừng.
+- **Đếm suất theo môi trường**: `capacityProblem` chỉ đếm app cùng `environmentId` (cột `dsNb3Apps.environmentId`, migration `202611120005`); seed `202611130001_ds_nb3_apps_environment` gán môi trường cho các dòng cũ từ `relApps.environmentId`. Không phải khái niệm của plugin (plugin chỉ biết `maxApps` trong cấu hình môi trường).
+- **Hai bản `dist` mỗi app** và **`DB_PASSWORD` sinh lười**: việc của driver, không có trong hợp đồng plugin.
+- **`GET /api/hostLoad`** (`server/routes/host-load.ts`) và thẻ "Máy chủ" trên trang Phát hành: của Studio, ngoài plugin. Quyền: chủ sở hữu hoặc ai có `view|deploy|operate.all` trên `rel.apps`.
+- **Khi nâng plugin**: nếu hợp đồng driver có nguồn `lastAccessedAt` riêng hoặc plugin tự quản suất thì bỏ phần tương ứng.

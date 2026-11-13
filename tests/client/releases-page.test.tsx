@@ -31,6 +31,8 @@ const getSession = vi.fn(async () => ({ data: null }));
 let me: { owner: boolean; admin: boolean; deployer: boolean };
 /** Whether the viewer holds every permission; false leaves them none. */
 let everything = true;
+/** What `/hostLoad` answers; null refuses it. */
+let host: Record<string, unknown> | null = null;
 
 const line = {
   repositoryId: 'r1',
@@ -125,6 +127,8 @@ const api = vi.fn((call: ApiCall): unknown => {
         version('v1', 'v1.0', { staging: false, production: true }),
       ],
     };
+  if (method === 'GET' && path === 'hostLoad')
+    return host ? { data: host } : new Response(null, { status: 403 });
   if (method === 'GET' && path === 'deploys/pending') return { data: pending };
   if (method === 'GET' && path === 'deploys/environments')
     return {
@@ -176,6 +180,7 @@ describe('releases page', () => {
     api.mockClear();
     me = { owner: true, admin: true, deployer: true };
     everything = true;
+    host = null;
   });
 
   it('lists the versions with where they run and lets the owner mark production with a note', async () => {
@@ -237,6 +242,38 @@ describe('releases page', () => {
     );
     expect(await screen.findByText('Hàm ratingChange')).toBeInTheDocument();
     expect(screen.getByText('DS-2')).toBeInTheDocument();
+  });
+
+  it('shows the server card: free memory, the Apps running, and a warning below the start threshold', async () => {
+    host = {
+      availableMb: 900,
+      minAvailableMb: 1200,
+      appMemoryLimitMb: 1024,
+      runningApps: [{ appId: 'nocolms', version: 'abc123' }],
+    };
+    vi.stubGlobal('innerWidth', 390);
+    try {
+      await render(<ReleasesPage />);
+      const card = await screen.findByTestId('host-card');
+      expect(within(card).getByText(words.host.title)).toBeInTheDocument();
+      expect(within(card).getByText('900 MiB')).toBeInTheDocument();
+      expect(within(card).getByText(words.host.low)).toBeInTheDocument();
+      expect(within(card).getByText('nocolms')).toBeInTheDocument();
+      expect(within(card).getByText('abc123')).toBeInTheDocument();
+      // One column on a phone (the two-column grid starts at the `sm` breakpoint), nothing fixed-width.
+      expect(
+        card.querySelector('[data-slot="card-content"]')?.className,
+      ).toMatch(/\bsm:grid-cols-2\b/u);
+      expect(card.querySelector('[class*="w-["]')).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('leaves the server card out when the server refuses it, and says so when memory cannot be read', async () => {
+    await render(<ReleasesPage />);
+    await screen.findByRole('table');
+    expect(screen.queryByTestId('host-card')).not.toBeInTheDocument();
   });
 
   it('counts the tabs from the hub counts', async () => {

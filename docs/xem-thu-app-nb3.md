@@ -1,7 +1,7 @@
 # Xem thử (preview) theo PR cho app NocoBase 3 (M4.3)
 
 Mỗi repo app NB3 (ví dụ `covuaduongsinh/nocolms`) có **một App xem thử cố định**: môi trường `preview`, một tên miền riêng
-(ví dụ `nocolms-preview.dsc.edu.vn`, một bản ghi A, không wildcard), `maxApps` 1, tự dừng sau 30 phút **kể từ lúc bật** (hiện chưa đo theo request; xem `docs/plans/2026-11-12-studio-thuan-tien-V.md`, V5.1). Vì chỉ có
+(ví dụ `nocolms-preview.dsc.edu.vn`, một bản ghi A, không wildcard), `maxApps` 1, tự dừng khi **30 phút không có request** tới tên miền của app (daemon đọc nhật ký truy cập Traefik, `accessLog` trong `config.json`); khi daemon chưa cài hoặc chưa cấu hình nhật ký thì vẫn là 30 phút **kể từ lúc bật** (xem `docs/trien-khai-vps.md`, V5.1b). Vì chỉ có
 một App nên chỉ một PR được xem thử tại một thời điểm; PR mới thay bản của PR cũ.
 
 ## Ai làm gì

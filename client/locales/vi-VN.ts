@@ -1775,6 +1775,17 @@ const viVN: AppResource = {
     title: 'Phát hành',
     description:
       'Công việc đang ở đâu: preview, staging, các phiên bản của từng repository và các công việc đã gộp nhưng chưa lên production. Studio chỉ ghi nhận; production được deploy qua Dokploy và chủ dự án đánh dấu ở đây.',
+    host: {
+      title: 'Máy chủ',
+      memory: 'Bộ nhớ còn trống',
+      unknown: 'Không đọc được',
+      megabytes: '{{count}} MiB',
+      low: 'Quá thấp để bật thêm app',
+      needs: 'Bật một app cần ít nhất {{count}} MiB còn trống.',
+      apps: 'App NocoBase 3 đang chạy',
+      noApps: 'Chưa có app nào đang chạy.',
+      perApp: 'Mỗi app dùng tối đa {{count}} MiB.',
+    },
     projects: 'Dự án',
     searchProjects: 'Tìm dự án',
     pendingCount: '{{count}} đang chờ lên production',

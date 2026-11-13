@@ -1794,6 +1794,17 @@ const enUS = {
     title: 'Releases',
     description:
       'Where the work is: previews, staging, the versions of each repository and the merged issues not yet on production. Studio records; production is deployed through Dokploy and marked here by the owner.',
+    host: {
+      title: 'Server',
+      memory: 'Memory available',
+      unknown: 'Cannot be read',
+      megabytes: '{{count}} MiB',
+      low: 'Too low to start another App',
+      needs: 'Starting an App needs at least {{count}} MiB available.',
+      apps: 'NocoBase 3 Apps running',
+      noApps: 'No App is running.',
+      perApp: 'Each App may use up to {{count}} MiB.',
+    },
     projects: 'Projects',
     searchProjects: 'Search projects',
     pendingCount: '{{count}} waiting for production',

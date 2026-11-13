@@ -145,6 +145,27 @@ const read = <T>(
     .request<{ data: T }>({ path, signal, ...(query ? { query } : {}) })
     .then((answer) => answer.data);
 
+export interface HostLoad {
+  readonly availableMb: number | null;
+  readonly minAvailableMb: number;
+  readonly appMemoryLimitMb: number;
+  readonly runningApps: readonly {
+    readonly appId: string;
+    readonly version: string | null;
+  }[];
+}
+
+/** The server's free memory and the NocoBase 3 Apps running on it (the "Server" card); refreshed every 30 s. */
+export function useHostLoad(): UseQueryResult<HostLoad> {
+  const api = useApiClient();
+  return useQuery({
+    queryKey: ['hostLoad'],
+    retry: false,
+    refetchInterval: 30_000,
+    queryFn: ({ signal }) => read<HostLoad>(api, 'hostLoad', signal),
+  });
+}
+
 export function useReleasesMe(): UseQueryResult<ReleasesMe> {
   const api = useApiClient();
   return useQuery({

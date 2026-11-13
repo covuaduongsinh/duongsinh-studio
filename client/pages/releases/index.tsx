@@ -50,6 +50,7 @@ import {
   type ReleaseVersion,
 } from '#hooks/use-releases';
 
+import { HostCard } from './host-card.js';
 import { PreviewsTab } from './previews.js';
 
 const TABS = ['previews', 'staging', 'releases', 'pending'] as const;
@@ -516,6 +517,7 @@ export default function ReleasesPage(): ReactElement {
         title={t('releases.title')}
         description={t('releases.description')}
       />
+      <HostCard />
       <ReleasesHub />
     </PageContainer>
   );
