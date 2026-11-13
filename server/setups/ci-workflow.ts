@@ -59,3 +59,91 @@ jobs:
             exit 1
           fi
 `;
+
+export type Nb3Role = 'preview' | 'staging' | 'production';
+
+export const NB3_CI_SECRET = 'DS_STUDIO_API_KEY';
+
+/**
+ * The one CI file for a NocoBase 3 App (plan V, V5.3; it replaced the two templates M4.3 and the M4.2 build upload had).
+ * Build `dist` for linux-x64, pack it, and upload it with a one-time ticket from the releases plugin
+ * (`POST /api/releases/apps/{appId}/uploadTickets`, then `POST /api{path}` with `X-Artifact-SHA256`), which is the plugin's own
+ * route set (checked against its sources, 13/11/2026). What differs is the role:
+ * - `preview`: a pull request labelled `preview`; deployed on arrival, labelled with its pull request (`pr`, `sha`), one at a time;
+ * - `staging`: a push to the branch; deployed on arrival;
+ * - `production`: a push to the branch; uploaded only. A protected environment refuses a deploying ticket
+ *   (`TICKET_DEPLOY_REFUSED`); the owner deploys it through a deployment request.
+ * The API key is the repository's narrow CI key (only its own Apps, 90 days); never echoed.
+ */
+export function nb3AppWorkflow(input: {
+  readonly appId: string;
+  readonly role: Nb3Role;
+  readonly branch: string;
+  readonly apiBase: string;
+}): { readonly path: string; readonly content: string } {
+  const { appId, role, branch, apiBase } = input;
+  const deploy = role !== 'production';
+  const trigger =
+    role === 'preview'
+      ? `on:
+  pull_request:
+    types: [labeled, synchronize, reopened]
+`
+      : `on:
+  push:
+    branches: [${branch}]
+`;
+  const guard =
+    role === 'preview'
+      ? "    if: contains(github.event.pull_request.labels.*.name, 'preview')\n"
+      : '';
+  const concurrency =
+    role === 'preview'
+      ? `    concurrency: { group: nb3-preview-${appId}, cancel-in-progress: true }\n`
+      : '';
+  const labels =
+    role === 'preview'
+      ? `
+          PR: \${{ github.event.pull_request.number }}
+          SHA: \${{ github.event.pull_request.head.sha }}`
+      : `
+          SHA: \${{ github.sha }}`;
+  const labelHeader =
+    role === 'preview'
+      ? `-H "X-Release-Labels: {\\"pr\\":\\"$PR\\",\\"sha\\":\\"$SHA\\"}"`
+      : `-H "X-Release-Labels: {\\"sha\\":\\"$SHA\\"}"`;
+  return {
+    path: `.github/workflows/ds-studio-${appId}.yml`,
+    content: `name: Dương Sinh Studio ${appId}
+${trigger}jobs:
+  build:
+    runs-on: ubuntu-latest
+${guard}${concurrency}    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build --target linux-x64 --node-version 24
+      - run: tar --exclude='*/.bin' --exclude=dist/.env -czf dist.tar.gz dist config.example.yml
+      - name: Upload${deploy ? ' and deploy' : ''} to Studio
+        env:
+          API: ${apiBase}
+          KEY: \${{ secrets.${NB3_CI_SECRET} }}
+          APP_ID: ${appId}${labels}
+        run: |
+          # A one-time upload ticket; neither the key nor the ticket is printed.
+          ticket=$(curl -fsS -X POST "$API/releases/apps/$APP_ID/uploadTickets" \\
+            -H "x-api-key: $KEY" -H 'content-type: application/json' -d '{"deploy":${deploy ? 'true' : 'false'}}')
+          token=$(jq -er .data.token <<<"$ticket"); path=$(jq -er .data.path <<<"$ticket")
+          curl -fsS -X POST "$API$path" \\
+            -H "Authorization: Bearer $token" \\
+            -H "X-Artifact-SHA256: $(sha256sum dist.tar.gz | cut -d' ' -f1)" \\
+            -H 'X-Release-Deploy: ${deploy ? 'true' : 'false'}' \\
+            ${labelHeader} \\
+            -H 'content-type: application/gzip' --data-binary @dist.tar.gz -o /dev/null
+`,
+  };
+}

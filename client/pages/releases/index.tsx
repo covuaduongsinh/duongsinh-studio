@@ -511,11 +511,26 @@ function ProjectList({
 
 export default function ReleasesPage(): ReactElement {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const me = useReleasesMe();
   return (
     <PageContainer>
       <PageHeader
         title={t('releases.title')}
         description={t('releases.description')}
+        actions={
+          me.data?.owner ? (
+            <Button
+              variant='outline'
+              onClick={() => {
+                const pending = navigate('/releases/register');
+                if (pending) pending.catch(() => undefined);
+              }}
+            >
+              {t('releases.register.open')}
+            </Button>
+          ) : undefined
+        }
       />
       <HostCard />
       <ReleasesHub />

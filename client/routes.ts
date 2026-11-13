@@ -340,6 +340,15 @@ const appRoutes: AppClientRouteContribution = defineAppRoutes([
     componentLoader: () => import('./pages/releases/index.js'),
   },
   {
+    // Registers a NocoBase 3 App for a repository (`POST /api/nb3Apps/register`, the owner only; the page is under the same grant
+    // as the Releases page and the server refuses anyone else). Opened from a button on the Releases page, so no navigation.
+    name: 'releases-register',
+    path: '/releases/register',
+    auth: 'required',
+    authz: pmPage('rel-apps'),
+    componentLoader: () => import('./pages/releases/register-app.js'),
+  },
+  {
     // Dương Sinh's hosted environments (preview, staging, production), all outside Studio and recorded here.
     name: 'hosted-environments',
     path: '/environments',

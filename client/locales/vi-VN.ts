@@ -1474,6 +1474,7 @@ const viVN: AppResource = {
     },
   },
   pagePermissions: {
+    registerApp: 'Đăng ký app NocoBase 3',
     newIssue: 'Tạo công việc',
     plan: 'Kế hoạch thao tác',
     newSubIssue: 'Tạo công việc con',
@@ -1775,6 +1776,50 @@ const viVN: AppResource = {
     title: 'Phát hành',
     description:
       'Công việc đang ở đâu: preview, staging, các phiên bản của từng repository và các công việc đã gộp nhưng chưa lên production. Studio chỉ ghi nhận; production được deploy qua Dokploy và chủ dự án đánh dấu ở đây.',
+    register: {
+      open: 'Đăng ký app',
+      title: 'Đăng ký app NocoBase 3',
+      description:
+        'Tạo môi trường, app và liên kết với repository trong một bước, rồi cho ra tệp workflow CI duy nhất. DNS, secret GitHub và việc đẩy tệp workflow không thuộc Studio.',
+      repository: 'Repository',
+      appId: 'Mã app',
+      host: 'Tên miền',
+      role: 'Vai trò',
+      database: 'Cơ sở dữ liệu',
+      roles: {
+        preview: 'Xem thử (preview)',
+        staging: 'Staging',
+        production: 'Production',
+      },
+      databases: { sqlite: 'SQLite', postgres: 'PostgreSQL' },
+      submit: 'Đăng ký',
+      failed: 'Không đăng ký được. Thử lại hoặc xem nhật ký máy chủ.',
+      errors: {
+        OWNER_ONLY: 'Chỉ chủ dự án đăng ký app.',
+        APP_EXISTS: 'Mã app này đã có.',
+        HOST_TAKEN: 'Tên miền này đã được app khác dùng.',
+        DATABASE_MISMATCH:
+          'Môi trường của vai trò này dùng loại cơ sở dữ liệu khác.',
+        INVALID_HOST: 'Tên miền không hợp lệ hoặc thuộc danh sách dành riêng.',
+        REPOSITORY_NOT_FOUND: 'Không thấy repository này.',
+        ENVIRONMENT_CONFLICT:
+          'Môi trường của vai trò này đang dùng trình điều khiển khác.',
+        NO_PUBLIC_URL: 'Chưa đặt địa chỉ công khai của Studio.',
+      },
+      done: 'Đã đăng ký {{appId}}. Còn các việc sau, Studio không làm thay:',
+      stepDns: 'Trỏ bản ghi DNS của {{host}} về máy chủ.',
+      checkDns: 'Kiểm DNS',
+      dnsPoints: 'Đang trỏ tới {{address}}; so với địa chỉ máy chủ của bạn.',
+      dnsMissing: 'Chưa phân giải được.',
+      stepKey:
+        'Tạo khoá CI hẹp của repository (chỉ chạm các app của repository này, hạn 90 ngày).',
+      makeKey: 'Tạo khoá CI',
+      keyOnce: 'Chỉ hiện một lần. Lưu ngay thành secret của repository.',
+      keyFailed: 'Không tạo được khoá CI.',
+      stepSecret: 'Đặt secret GitHub tên {{name}} bằng khoá trên.',
+      stepWorkflow:
+        'Đẩy tệp {{path}} vào repository bằng token cá nhân có quyền Workflows:',
+    },
     host: {
       title: 'Máy chủ',
       memory: 'Bộ nhớ còn trống',

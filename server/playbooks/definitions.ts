@@ -125,6 +125,52 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
     ],
   },
   {
+    slug: 'noi-app-nb3',
+    name: 'Nối app NocoBase 3 với repository',
+    description:
+      'Đăng ký một app NocoBase 3 cho repository (môi trường, app, liên kết, tệp workflow CI) và liệt kê việc còn lại của chủ dự án.',
+    skillName: 'ds-pb-noi-app-nb3',
+    instructions: `
+# Playbook: Nối app NocoBase 3 với repository
+
+1. Việc đăng ký là của chủ dự án: \`POST /api/nb3Apps/register\` (hoặc trang Phát hành → Đăng ký app) với \`repositoryId\`, \`appId\`, \`host\`, \`role\` (preview / staging / production) và \`database\`. Agent không có quyền này; chuẩn bị đủ thông tin rồi báo người, không tự thử bằng khoá khác.
+2. Studio tạo môi trường \`nb3-<role>\` (nếu chưa có), app, liên kết với repository và trả tệp workflow \`.github/workflows/ds-studio-<appId>.yml\`. Chỉ có một mẫu workflow: lấy vé tải lên của plugin releases (\`/api/releases/apps/{appId}/uploadTickets\`), gửi \`dist.tar.gz\`; preview và staging deploy ngay, production chỉ tải lên (chủ dự án duyệt yêu cầu deploy).
+3. Các việc Studio không làm, ghi rõ trong PR cho chủ dự án: (a) bản ghi DNS của tên miền; (b) tạo khoá CI hẹp (\`Tạo khoá CI\`, chỉ hiện một lần) và đặt secret GitHub \`DS_STUDIO_API_KEY\`; (c) đẩy tệp workflow vào repository bằng token cá nhân có quyền Workflows (GitHub App không có quyền này).
+4. Không in khoá CI hay vé tải lên trong log, PR hay phiên chat.
+5. Kiểm: nhãn \`preview\` trên một PR chạy workflow, app xem thử lên và trả \`/api/healthz\`; không chạm \`nocobase.dsc.edu.vn\`.
+`.trim(),
+    params: [
+      {
+        name: 'repo',
+        description: 'Repository (owner/tên) cần nối',
+        required: true,
+      },
+      {
+        name: 'app',
+        description: 'Mã app (chữ thường, số, dấu gạch)',
+        required: true,
+      },
+      {
+        name: 'role',
+        description: 'Vai trò: preview, staging hoặc production',
+        defaultValue: 'preview',
+        required: false,
+      },
+    ],
+    defaultCriteria: [
+      {
+        text: 'App đã đăng ký và liên kết với repository (Phát hành → Đăng ký app, do chủ dự án)',
+        checkKind: 'manual',
+        checkValue: null,
+      },
+      {
+        text: 'Danh sách việc của chủ dự án (DNS, khoá CI + secret GitHub, đẩy workflow) được ghi trong PR; không có khoá hay vé nào trong log',
+        checkKind: 'review',
+        checkValue: null,
+      },
+    ],
+  },
+  {
     slug: 'deploy-dokploy',
     name: 'Triển khai qua Dokploy',
     description:

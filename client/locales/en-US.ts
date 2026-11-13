@@ -1487,6 +1487,7 @@ const enUS = {
     },
   },
   pagePermissions: {
+    registerApp: 'Register a NocoBase 3 App',
     newIssue: 'New issue',
     plan: 'Operation plan',
     newSubIssue: 'New sub-issue',
@@ -1794,6 +1795,52 @@ const enUS = {
     title: 'Releases',
     description:
       'Where the work is: previews, staging, the versions of each repository and the merged issues not yet on production. Studio records; production is deployed through Dokploy and marked here by the owner.',
+    register: {
+      open: 'Register an App',
+      title: 'Register a NocoBase 3 App',
+      description:
+        'Makes the environment and the App and links it to the repository in one step, then gives the one CI workflow file. DNS, the GitHub secret and pushing the workflow file are not Studio’s.',
+      repository: 'Repository',
+      appId: 'App ID',
+      host: 'Host name',
+      role: 'Role',
+      database: 'Database',
+      roles: {
+        preview: 'Preview',
+        staging: 'Staging',
+        production: 'Production',
+      },
+      databases: { sqlite: 'SQLite', postgres: 'PostgreSQL' },
+      submit: 'Register',
+      failed:
+        'The App could not be registered. Try again or read the server log.',
+      errors: {
+        OWNER_ONLY: 'Only the owner registers an App.',
+        APP_EXISTS: 'This App ID already exists.',
+        HOST_TAKEN: 'Another App already uses this host name.',
+        DATABASE_MISMATCH:
+          'The environment of this role uses another kind of database.',
+        INVALID_HOST: 'The host name is invalid or reserved.',
+        REPOSITORY_NOT_FOUND: 'No such repository.',
+        ENVIRONMENT_CONFLICT:
+          'The environment of this role uses another driver.',
+        NO_PUBLIC_URL: 'Studio’s public address is not set.',
+      },
+      done: '{{appId}} is registered. What is left is not Studio’s to do:',
+      stepDns: 'Point the DNS record of {{host}} at the server.',
+      checkDns: 'Check DNS',
+      dnsPoints:
+        'Points to {{address}}; compare it with your server’s address.',
+      dnsMissing: 'Does not resolve yet.',
+      stepKey:
+        'Make the repository’s narrow CI key (reaches only this repository’s Apps, 90 days).',
+      makeKey: 'Make the CI key',
+      keyOnce: 'Shown once. Store it as the repository secret now.',
+      keyFailed: 'The CI key could not be made.',
+      stepSecret: 'Set the GitHub secret {{name}} to that key.',
+      stepWorkflow:
+        'Push {{path}} to the repository with a personal token that has the Workflows permission:',
+    },
     host: {
       title: 'Server',
       memory: 'Memory available',

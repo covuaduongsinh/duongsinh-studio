@@ -19,6 +19,7 @@ import { reportRoutes } from './reports.js';
 import { reviewRoutes } from './reviews.js';
 import { benchRoutes } from './bench.js';
 import { lessonRoutes } from './lessons.js';
+import { nb3AppsRegisterRoutes } from './nb3-apps-register.js';
 import { nb3JobRoutes } from './nb3-jobs.js';
 import { secretFindingsRoutes } from './secret-findings.js';
 import { playbookRoutes } from './playbooks.js';
@@ -37,6 +38,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   benchRoutes,
   lessonRoutes,
   nb3JobRoutes,
+  nb3AppsRegisterRoutes,
   secretFindingsRoutes,
   playbookRoutes,
   runnerRoutes,
