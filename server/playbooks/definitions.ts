@@ -171,6 +171,49 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
     ],
   },
   {
+    slug: 'don-app-nb3',
+    name: 'Nhận nuôi app NocoBase 3 đang chạy (giữ compose build từ source)',
+    description:
+      'Đưa một app NocoBase 3 đã chạy sẵn trên Dokploy (như NocoEdu) vào quy trình vận hành của Studio mà không di dời dữ liệu: sao lưu, kiểm, ghi nhận, và liệt kê việc chỉ chủ dự án làm.',
+    skillName: 'ds-pb-don-app-nb3',
+    instructions: `
+# Playbook: Nhận nuôi app NocoBase 3 đang chạy
+
+Chủ dự án đã quyết (13/11/2026): **giữ compose build từ source** của NocoEdu, không chuyển sang \`dist\`, không tạo compose mới, không restore dữ liệu. Playbook này chỉ gom việc vận hành quanh compose hiện có; xem docs/nhan-nuoi-nocoedu.md.
+
+1. Mọi lệnh ghi lên VPS (đọc \`.env\`, \`chmod\`, sửa cron, dừng hoặc xoá compose) là của chủ dự án. Agent chỉ soạn lệnh để người chạy; không dùng khoá Dokploy để exec, không chạm \`nocobase.dsc.edu.vn\`, không in giá trị biến môi trường.
+2. **Sao lưu trước hết (dừng chờ người)**: xác nhận có một bản \`pg_dump -Fc\` mới của DB app trong thư mục sao lưu (0600), dung lượng khớp khảo sát (NocoEdu: DB ~15 MB), \`pg_restore -l\` thấy \`TABLE DATA\`; cron sao lưu của app trỏ đúng DB Postgres đang chạy chứ không phải tệp SQLite cũ, và có bản trên Drive.
+3. **Ghi nhận compose**: ghi vào docs tên compose Dokploy, tên dịch vụ, tên volume (DB và storage), tên miền và cách build (repo + nhánh). Chỉ ghi tên biến, không ghi giá trị.
+4. **Kiểm sức khoẻ**: \`/<base>/api/healthz\` trả 200 qua tên miền; hai container healthy; đăng nhập thử bằng tài khoản quản trị do người thực hiện.
+5. **Việc gỡ rủi ro riêng cho chủ dự án** (ghi vào PR, không tự làm): quyền \`0644\` của \`.env\` Dokploy và \`0777\` của \`/etc/dokploy\`; khoá Lark trong môi trường của dịch vụ web (tách sang kênh job, xem docs/lark-cho-dsc.md); thư mục SQLite cũ còn trên máy.
+6. **Triển khai bản mới** vẫn qua Dokploy build từ nhánh (giữ nguyên). Studio không deploy hộ app này; nếu sau này đổi sang \`dist\`, dùng \`!noi-app-nb3\` và chuyển dữ liệu bằng \`pg_dump\` rồi restore, với bước dừng chờ người và giữ compose cũ dừng 14 ngày.
+`.trim(),
+    params: [
+      {
+        name: 'app',
+        description: 'Mã app đang chạy cần nhận nuôi (ví dụ nocoedu)',
+        required: true,
+      },
+    ],
+    defaultCriteria: [
+      {
+        text: 'Bản pg_dump mới của DB app đã được chủ dự án xác nhận (kích thước, pg_restore -l, bản trên Drive)',
+        checkKind: 'manual',
+        checkValue: null,
+      },
+      {
+        text: 'Docs ghi tên compose, dịch vụ, volume, tên miền và cách build; không có giá trị biến hay khoá nào',
+        checkKind: 'review',
+        checkValue: null,
+      },
+      {
+        text: 'PR liệt kê việc chỉ chủ dự án làm (quyền .env, khoá Lark, thư mục SQLite cũ) và không chạm nocobase.dsc.edu.vn',
+        checkKind: 'review',
+        checkValue: null,
+      },
+    ],
+  },
+  {
     slug: 'deploy-dokploy',
     name: 'Triển khai qua Dokploy',
     description:

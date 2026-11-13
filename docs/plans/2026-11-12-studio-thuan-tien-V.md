@@ -338,7 +338,7 @@ Thứ tự: **V0 → V1 → V2 → V3 → V4 → V5 → V6**. V2 và V4 khác nh
 | V2   | 2       |                                                                            |
 | V3   | 2,5     | V3.4 có thể giảm còn 0,5 nếu đo cho thấy `node_modules` đã được dùng lại   |
 | V4   | 5       | + ~0,5 ngày chủ dự án cài daemon; **chờ duyệt thiết kế §5 trước khi code** |
-| V5   | 4       | V5.3 chờ M4.3 đóng; V5.4 chờ Q7; rclone chờ chủ dự án                      |
+| V5   | 4       | V5.3 chờ M4.3 đóng; V5.4 xong (giữ compose); rclone chờ chủ dự án          |
 | V6   | 1,5     | V6.3 cần chủ dự án thiết lập Release asset/token đọc                       |
 | Tổng | ≈ 19,75 | ngày agent, rải 3–4 tuần                                                   |
 
@@ -428,7 +428,7 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
   - [x] V5.1 suất, RAM, tự dừng (#111 lõi: suất theo môi trường, cổng RAM, `check()`; V5.1b PR này: tự dừng theo request qua op `lastAccess` của daemon, thẻ "Máy chủ" + `GET /api/hostLoad`, seed gán môi trường cho dòng cũ, `DB_PASSWORD` sinh lười, giữ 2 bản `dist`. **Cần chủ dự án**: bật nhật ký Traefik JSON và đặt `accessLog`/`hosts` trong config daemon, nếu không vẫn dừng theo "kể từ lúc bật". Chưa làm: runner bận/rảnh trên thẻ, `inspect-host`)
   - [x] V5.2 sao lưu mọi app (#102: `backup-nb3.sh`; **chưa cài lên VPS**; dump trước `remove(purgeData)` xong ở V5.2b qua op `dump` của daemon: lỗi thì từ chối xoá; app SQLite cũng bị từ chối purge. **Cần chủ dự án**: thêm `dbService`/`dumpDir` vào config daemon)
   - [x] V5.3 `!noi-app-nb3` (PR này, sau khi chủ dự án xác nhận M4.3 đã đóng 13/11): `POST /api/nb3Apps/register` (owner), form `client/pages/releases/register-app.tsx`, một mẫu workflow `nb3AppWorkflow` (đường dẫn vé đối chiếu với nguồn plugin), bỏ `/api/builds/deploy`. **Không làm**: `deploy:true` của project-setups tạo App xem thử thật (cần DNS do chủ dự án cấp); nút "Kiểm DNS" dùng route kiểm môi trường của plugin. **Chủ dự án**: DNS, `ci/setup` + secret GitHub, đẩy workflow bằng token có quyền Workflows; chưa thử trên GitHub thật)
-  - [ ] V5.4 `!don-app-nb3` (chờ Q7)
+  - [x] V5.4 `!don-app-nb3` (13/11: chủ dự án quyết **giữ compose build từ source**, nên không tạo compose `nb3-nocoedu`, không restore; playbook chỉ gom sao lưu, ghi nhận, kiểm sức khoẻ và việc của chủ dự án; xem `docs/nhan-nuoi-nocoedu.md`)
 - [ ] V6 — Lark, tài liệu, phát hành
   - [x] V6.1 Lark qua tenant token (phần repo này: playbook `!nhap-lark` qua kênh job, agent chỉ dry-run; `docs/lark-cho-dsc.md`. Lệnh `import-lark` và test của nó thuộc repo NocoEdu; QPS Lark còn "chưa tra")
   - [x] V6.2 dọn tài liệu và ngôn từ (#103)
