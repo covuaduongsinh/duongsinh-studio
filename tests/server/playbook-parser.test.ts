@@ -32,6 +32,13 @@ describe('playbook syntax parser', () => {
     });
   });
 
+  it('parses the adoption playbook with the running App', () => {
+    const result = parsePlaybookInvocations('!don-app-nb3 app=nocoedu');
+    expect(result).toHaveLength(1);
+    expect(result[0]!.slug).toBe('don-app-nb3');
+    expect(result[0]!.params).toEqual({ app: 'nocoedu' });
+  });
+
   it('parses the App registration playbook with its repository and App', () => {
     const result = parsePlaybookInvocations(
       '!noi-app-nb3 repo=covuaduongsinh/nocolms app=nocolms-preview role=preview',

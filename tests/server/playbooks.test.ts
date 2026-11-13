@@ -66,6 +66,7 @@ describe('H3a: Playbooks API and Execution Logic', () => {
       expect(slugs).toContain('nhap-lark');
       expect(slugs).toContain('deploy-dokploy');
       expect(slugs).toContain('noi-app-nb3');
+      expect(slugs).toContain('don-app-nb3');
 
       // 4. Test applyPlaybookToIssue directly on database
       const db = serverApp.container
