@@ -486,3 +486,67 @@ export function useDeployStaging(): UseMutationResult<
     json: { repositoryId },
   }));
 }
+
+export interface RegisterNb3AppInput {
+  readonly repositoryId: string;
+  readonly appId: string;
+  readonly host: string;
+  readonly role: EnvironmentKey;
+  readonly database: 'sqlite' | 'postgres';
+}
+
+export interface Nb3Registration {
+  readonly appId: string;
+  readonly environmentId: string;
+  readonly environmentCreated: boolean;
+  readonly host: string;
+  readonly workflow: { readonly path: string; readonly content: string };
+  readonly secretName: string;
+}
+
+/** Registers a NocoBase 3 App for a repository (`POST /api/nb3Apps/register`, the owner only). */
+export function useRegisterNb3App(): UseMutationResult<
+  Nb3Registration,
+  unknown,
+  RegisterNb3AppInput
+> {
+  return useReleaseMutation<RegisterNb3AppInput, Nb3Registration>((input) => ({
+    path: 'nb3Apps/register',
+    json: input,
+  }));
+}
+
+/** Gives the repository's narrow CI key a secret (shown once). */
+export function useCreateCiKey(): UseMutationResult<
+  { secret: string },
+  unknown,
+  string
+> {
+  return useReleaseMutation<string, { secret: string }>((repositoryId) => ({
+    path: `repositoryDeployments/${repositoryId}/ci/setup`,
+    json: { reveal: true },
+  }));
+}
+
+/** What the environment's driver finds: the data directory and where each host name points. */
+export function useCheckEnvironment(): UseMutationResult<
+  {
+    ok: boolean;
+    message?: string;
+    details?: { dns?: Record<string, string> };
+  },
+  unknown,
+  string
+> {
+  return useReleaseMutation<
+    string,
+    {
+      ok: boolean;
+      message?: string;
+      details?: { dns?: Record<string, string> };
+    }
+  >((environmentId) => ({
+    path: `releases/environments/${environmentId}/check`,
+    json: {},
+  }));
+}

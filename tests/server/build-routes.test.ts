@@ -88,11 +88,7 @@ test(
       '/deploys/releases/x',
     ])
       expect((await request(path)).status).toBe(401);
-    for (const path of [
-      '/builds/report',
-      '/builds/uploadTickets',
-      '/builds/deploy',
-    ])
+    for (const path of ['/builds/report', '/builds/uploadTickets'])
       expect((await request(path, json({}))).status).toBe(401);
     expect((await request('/releaseDownloads/not-a-link')).status).toBe(404);
 
@@ -198,6 +194,9 @@ test(
     expect(workflow.files[0]?.path).toContain('sandbox-app');
     expect(workflow.files[0]?.content).toContain(
       '${{ secrets.DS_STUDIO_API_KEY }}',
+    );
+    expect(workflow.files[0]?.content).toContain(
+      '/releases/apps/$APP_ID/uploadTickets',
     );
 
     // The CI key: its secret only when asked for, once, and never read back.
@@ -305,15 +304,11 @@ test(
       releaseId: sentBody.data.releaseId,
     });
 
-    // Nothing runs here, and it says so.
-    const deploy = await admin.fetch(
-      '/builds/deploy',
-      json({ appId: 'sandbox-app' }),
-    );
-    expect(deploy.status).toBe(400);
+    // The old deploy route is gone: the one template deploys through the releases plugin's own ticket.
     expect(
-      ((await deploy.json()) as { error: { reason: string } }).error.reason,
-    ).toBe('APP_HOST_OFF');
+      (await admin.fetch('/builds/deploy', json({ appId: 'sandbox-app' })))
+        .status,
+    ).toBe(404);
 
     // The release and a link to it: the owner's, 24 hours, the same bytes, without a session.
     const releaseId = sentBody.data.releaseId;

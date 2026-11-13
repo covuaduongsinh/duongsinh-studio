@@ -38,6 +38,7 @@ import { EXTERNAL_ENVIRONMENT } from '../providers/build-storage.js';
 import { gitServiceToken, publicBaseUrlOf } from '../providers/git.js';
 import { ORGANIZATION_KEYS_USER } from '../providers/organization-keys.js';
 import { releaseServiceToken } from '../providers/releases.js';
+import { nb3AppWorkflow, type Nb3Role } from '../setups/ci-workflow.js';
 
 type Env = AuthEnv & AuthorizationEnv;
 type Ctx = Context<Env>;
@@ -53,8 +54,6 @@ const DAY_MS = 86_400_000;
 const CI_SECRET = 'DS_STUDIO_API_KEY';
 const APP_ID = /^[a-z0-9][a-z0-9-]{0,62}$/u;
 const ROLES = ['staging', 'production'] as const;
-const NOT_RUNNING =
-  'Studio stores builds and does not run them: the App Host is off on this server. Deploy through Dokploy and record it.';
 
 const fail = (
   status:
@@ -148,44 +147,11 @@ const buildOf = (row: Row) => ({
 const hashOf = (token: string): string =>
   createHash('sha256').update(token).digest('hex');
 
-/** The CI file a repository starts from: build, then upload the archive to Studio with a one-time ticket. */
-function workflowOf(input: {
-  readonly appId: string;
-  readonly branch: string;
-  readonly apiBase: string;
-}): { readonly path: string; readonly content: string } {
-  const { apiBase, appId, branch } = input;
-  return {
-    path: `.github/workflows/ds-studio-${appId}.yml`,
-    content: `name: Dương Sinh Studio ${appId}
-on:
-  push:
-    branches: [${branch}]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    env:
-      API: ${apiBase}
-      KEY: \${{ secrets.${CI_SECRET} }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-      - uses: pnpm/action-setup@v4
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build --target linux-x64 --node-version 24
-      - run: tar -czf dist.tar.gz dist config.example.yml
-      - name: Upload the build to Studio
-        run: |
-          ticket=$(curl -fsS -X POST "$API/builds/uploadTickets" -H "x-api-key: $KEY" -H 'content-type: application/json' \\
-            -d "{\\"appId\\":\\"${appId}\\",\\"sha\\":\\"$GITHUB_SHA\\",\\"repository\\":\\"$GITHUB_REPOSITORY\\"}")
-          url=$(echo "$ticket" | jq -er .data.url)
-          token=$(echo "$ticket" | jq -er .data.token)
-          curl -fsS -X POST "$url" -H "authorization: Bearer $token" -H 'content-type: application/gzip' --data-binary @dist.tar.gz
-`,
-  };
-}
+/** The CI file for an App of a repository: the one template in `server/setups/ci-workflow.ts`, by the App's role. */
+const roleOf = (environmentKey: string | undefined): Nb3Role =>
+  environmentKey === 'preview' || environmentKey === 'production'
+    ? environmentKey
+    : 'staging';
 
 /**
  * Builds of a repository's Apps, as far as Studio keeps them (the demo's `repositoryDeployments`, `builds` and
@@ -569,13 +535,15 @@ export const buildRoutes: AppApiRouteContribution<Application> =
           app: z.object({ appId: z.string().regex(APP_ID) }),
           defaultBranch: z.string().min(1).optional(),
           provider: z.literal('github').optional(),
+          role: z.enum(['preview', 'staging', 'production']).optional(),
         }),
       ),
       async (context) => {
         const body = context.req.valid('json');
         const data = [
-          workflowOf({
+          nb3AppWorkflow({
             appId: body.app.appId,
+            role: body.role ?? 'staging',
             branch: body.defaultBranch ?? 'main',
             apiBase: apiBaseOf(context),
           }),
@@ -744,8 +712,9 @@ export const buildRoutes: AppApiRouteContribution<Application> =
         return context.json({
           data: {
             files: linked.map((item) =>
-              workflowOf({
+              nb3AppWorkflow({
                 appId: item.appId,
+                role: roleOf(item.environmentKey),
                 branch: repository.defaultBranch,
                 apiBase: apiBaseOf(context),
               }),
@@ -1104,25 +1073,6 @@ export const buildRoutes: AppApiRouteContribution<Application> =
             expiresAt: ticket.expiresAt,
           },
         });
-      },
-    );
-
-    builds.post(
-      '/deploy',
-      describeRoute({
-        tags: ['Studio'],
-        summary: 'Deploy a build',
-        description: `Answers 400 \`APP_HOST_OFF\`. ${NOT_RUNNING}`,
-        operationId: 'buildsDeploy',
-        security: [{ apiKeyAuth: [] }, { cookieAuth: [] }, { runToken: [] }],
-        ...cliRoute({ command: 'deploy' }),
-        responses: {
-          200: dataResponse(z.unknown()),
-          ...apiErrorResponses,
-        },
-      }),
-      () => {
-        throw fail('FAILED_PRECONDITION', 'APP_HOST_OFF', NOT_RUNNING);
       },
     );
 

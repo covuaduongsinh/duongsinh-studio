@@ -1004,3 +1004,11 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 
 - Hợp đồng driver: `remove(appId, {purgeData})` không nói gì về sao lưu. Driver `dokploy` của Studio gọi op `dump` của daemon trước và từ chối xoá khi dump lỗi, kênh tắt hoặc app dùng SQLite. `docker exec` duy nhất của daemon, lệnh cố định (xem `deploy/nb3-exec/README.md`).
 - **Khi nâng plugin**: nếu hợp đồng có hook trước khi xoá dữ liệu thì chuyển sang đó.
+
+## 58. V5.3 — Đăng ký app NocoBase 3 và một mẫu workflow (13/11/2026)
+
+- **`POST /api/nb3Apps/register`** (`server/routes/nb3-apps-register.ts`, chỉ chủ sở hữu) gọi các dịch vụ công khai của plugin `releases` (`environments.create/update`, `releases.createApp/deleteApp`) và dịch vụ liên kết repository của Studio. Plugin không có giao dịch xuyên dịch vụ: lỗi giữa chừng được hoàn tác từng bước (xoá app, trả cấu hình môi trường), không phải một giao dịch cơ sở dữ liệu. Môi trường `nb3-<role>` do Studio đặt tên; `maxApps` 1 (preview, staging) và 4 (production); `database` là của cả môi trường.
+- **Khoá CI hẹp không nằm trong đăng ký**: bí mật chỉ hiện một lần nên tạo bằng `ci/setup` (nút trong form). Đăng ký không trả bí mật.
+- **Một mẫu workflow** `nb3AppWorkflow` thay cho mẫu `/api/builds/uploadTickets` (M4.2) và mẫu preview trong tài liệu (M4.3); dùng route vé của plugin. `POST /api/builds/deploy` (luôn `APP_HOST_OFF`) bị bỏ.
+- Không làm: `deploy:true` của `project-setups` vẫn là `deployLater` — tên miền (DNS) do chủ dự án cấp nên Studio không thể tự tạo App xem thử thật.
+- **Khi nâng plugin**: nếu plugin có API đăng ký App/môi trường trong một giao dịch thì thay phần hoàn tác.

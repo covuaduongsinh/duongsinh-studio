@@ -230,6 +230,7 @@ describe('app client routes', () => {
         // Stage S5.4: Releases and Hosted environments, behind the releases plugin's page grant.
         { name: 'project-setup', authorizedAs: 'pm-projects' },
         { name: 'releases-hub', authorizedAs: 'rel-apps' },
+        { name: 'releases-register', authorizedAs: 'rel-apps' },
         { name: 'hosted-environments', authorizedAs: 'rel-apps' },
         // Stage S4: a conversation with an agent as a page, and the links that open the chat panel. The agents plugin
         // answers each person's own conversations only, so they opt out of page authorization like the inbox.

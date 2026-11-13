@@ -21,46 +21,19 @@ một App nên chỉ một PR được xem thử tại một thời điểm; PR 
 3. Khoá CI của repo (`ds-studio build ci setup --reveal`, hoặc trang repo): từ 12/11/2026 khoá **chỉ chạm các App đã gán cho repo đó** (`releases.apps` giới hạn theo App), quyền `upload`, hạn **90 ngày** (trước đó mọi App, 365 ngày). Cần gán App cho repo **trước** khi làm khoá; gán thêm App sau đó thì chạy `ci rotate` để có khoá mới (khoá cũ ngừng ngay). Lưu thành secret `DS_STUDIO_API_KEY` của repo app, cùng `STUDIO_URL`. Muốn workflow tự deploy thì khoá cần mức `admin` (hiện Studio chỉ cấp `write`).
 4. Thêm workflow mẫu bên dưới vào `.github/workflows/preview.yml` của repo app (đẩy file workflow cần token có quyền Workflows).
 
-## Workflow mẫu cho repo app
+## Workflow cho repo app
 
-```yaml
-name: preview
-on:
-  pull_request:
-    types: [labeled, synchronize, reopened]
-jobs:
-  preview:
-    if: contains(github.event.pull_request.labels.*.name, 'preview')
-    runs-on: ubuntu-latest
-    concurrency: { group: nb3-preview, cancel-in-progress: true } # một chỗ mỗi lúc
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 24, cache: pnpm }
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build --target linux-x64 --node-version 24
-      - run: tar -czf dist.tar.gz --exclude='*/.bin' --exclude=dist/.env dist config.example.yml
-      - name: Upload and deploy to the preview App
-        env:
-          STUDIO_URL: ${{ secrets.STUDIO_URL }}
-          STUDIO_API_KEY: ${{ secrets.STUDIO_API_KEY }}
-          APP_ID: <app>-preview
-          PR: ${{ github.event.pull_request.number }}
-          SHA: ${{ github.event.pull_request.head.sha }}
-        run: |
-          # 1. a one-time upload ticket (never echo the key or the ticket)
-          ticket=$(curl -fsS -X POST "$STUDIO_URL/api/releases/apps/$APP_ID/uploadTickets" \
-            -H "x-api-key: $STUDIO_API_KEY" -H 'content-type: application/json' -d '{"deploy":true}')
-          token=$(jq -r .data.token <<<"$ticket"); path=$(jq -r .data.path <<<"$ticket")
-          # 2. the archive, labelled with its pull request, deployed on arrival
-          curl -fsS -X POST "$STUDIO_URL/api$path" \
-            -H "Authorization: Bearer $token" \
-            -H "X-Artifact-SHA256: $(sha256sum dist.tar.gz | cut -d' ' -f1)" \
-            -H 'X-Release-Deploy: true' \
-            -H "X-Release-Labels: {\"pr\":\"$PR\",\"sha\":\"$SHA\"}" \
-            --data-binary @dist.tar.gz -o /dev/null
-```
+Từ V5.3 chỉ còn **một** mẫu, do Studio sinh theo vai trò của app (`server/setups/ci-workflow.ts`, `nb3AppWorkflow`): xem tệp trả về khi đăng ký
+(Phát hành → Đăng ký app, hoặc `GET /api/repositoryDeployments/{id}/ciWorkflow`). Nó build `dist` cho linux-x64, đóng gói với
+`--exclude '*/.bin' --exclude dist/.env`, xin vé tải lên của plugin `releases` (`POST /api/releases/apps/{appId}/uploadTickets`), rồi gửi
+`dist.tar.gz` tới `path` trong câu trả lời với `X-Artifact-SHA256`, `X-Release-Deploy` và nhãn `pr`/`sha`:
 
-Chưa kiểm trên GitHub thật: đường dẫn ticket (`/api/releases/apps/…`) lấy từ tài liệu route của plugin `releases`; khi chạy lần đầu hãy so với
-`<studio>/api/swagger`. Lỗi build hiện chỉ hiện trong tab Actions của PR; báo vào Hộp thư và push là phần còn lại của M4.3.
+- `preview`: PR có nhãn `preview`, một lượt mỗi lúc (`concurrency`), deploy ngay;
+- `staging`: push vào nhánh mặc định, deploy ngay;
+- `production`: push vào nhánh mặc định, **chỉ tải lên** (môi trường được bảo vệ từ chối vé deploy; chủ dự án duyệt yêu cầu deploy).
+
+Đường dẫn ticket/upload/header đã đối chiếu với nguồn route của plugin `releases` (13/11/2026); khoá CI mức `write` đủ để upload và deploy (README plugin).
+Tên secret là `DS_STUDIO_API_KEY`; địa chỉ Studio nằm sẵn trong tệp, không cần secret `STUDIO_URL`. Route cũ `/api/builds/deploy` (luôn trả `APP_HOST_OFF`) đã bị bỏ;
+`/api/builds/uploadTickets` còn cho workflow đã đẩy từ trước.
+
+Lỗi build hiện trong tab Actions của PR; báo vào Hộp thư và push là phần còn lại của M4.3.

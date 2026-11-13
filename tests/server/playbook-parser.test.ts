@@ -32,6 +32,19 @@ describe('playbook syntax parser', () => {
     });
   });
 
+  it('parses the App registration playbook with its repository and App', () => {
+    const result = parsePlaybookInvocations(
+      '!noi-app-nb3 repo=covuaduongsinh/nocolms app=nocolms-preview role=preview',
+    );
+    expect(result).toHaveLength(1);
+    expect(result[0]!.slug).toBe('noi-app-nb3');
+    expect(result[0]!.params).toEqual({
+      repo: 'covuaduongsinh/nocolms',
+      app: 'nocolms-preview',
+      role: 'preview',
+    });
+  });
+
   it('parses multiple playbook invocations across lines', () => {
     const text = `
     Đầu tiên chạy !nhap-lark table="Customers" dryRun=true
