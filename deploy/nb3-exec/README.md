@@ -13,7 +13,7 @@ configuration allows.
 
 ## Protocol
 
-One JSON request per connection on a unix socket (`/run/ds-nb3/exec.sock`, mode 0660, group = Studio container's gid), one JSON answer.
+One JSON request per connection on a unix socket (`/run/ds-nb3/exec.sock`, mode 0660, group `ds-nb3`), one JSON answer.
 
 ```
 { v:1, id, op, app, argv?, since?, tail?, name?, value?, ts, nonce, sig }
@@ -67,12 +67,10 @@ against `[A-Za-z0-9_]+`), nothing from the request. Studio calls it before remov
 
 1. `install -d -m 755 /usr/local/lib/ds-nb3-exec && install -m 755 ds-nb3-exec.mjs /usr/local/lib/ds-nb3-exec/`
 2. `install -d -m 750 /etc/ds-nb3-exec && install -d -m 700 /srv/duongsinh-studio/jobs`
-3. `openssl rand -hex 32 > /etc/ds-nb3-exec/hmac.key; chown root:1000 /etc/ds-nb3-exec/hmac.key; chmod 640 /etc/ds-nb3-exec/hmac.key`
-4. Copy `config.example.json` to `/etc/ds-nb3-exec/config.json` (root, 0600) and edit the apps and their `allow` lists.
+3. `openssl rand -hex 32 > /etc/ds-nb3-exec/hmac.key; groupadd --system ds-nb3; chgrp ds-nb3 /etc/ds-nb3-exec /etc/ds-nb3-exec/hmac.key; chmod 640 /etc/ds-nb3-exec/hmac.key`
+4. Set `socketGid` to the gid of `ds-nb3` (`getent group ds-nb3`; uid/gid 1000 on the VPS belongs to another user). Copy `config.example.json` to `/etc/ds-nb3-exec/config.json` (root, 0600) and edit the apps and their `allow` lists.
 5. `cp ds-nb3-exec.service /etc/systemd/system/ && systemctl daemon-reload && systemctl enable --now ds-nb3-exec`
-6. Mount into the Studio container (read-only is enough to connect): `/run/ds-nb3:/run/ds-nb3:ro` and
-   `/etc/ds-nb3-exec/hmac.key:/run/secrets/nb3-exec-hmac:ro`, and give Studio the settings `nb3Exec.socket` and `nb3Exec.keyFile` (see
-   `docs/trien-khai-vps.md`). Do **not** mount `/var/run/docker.sock`.
+6. `deploy/dokploy/docker-compose.yml` mounts `/run/ds-nb3` and the key, adds `group_add` for the gid, and sets `NB3_EXEC_SOCKET`/`NB3_EXEC_KEY_FILE`; paste it into the Dokploy compose and Deploy. Do **not** mount `/var/run/docker.sock`.
 
 Rotate the key: write a new `hmac.key`, `systemctl restart ds-nb3-exec`, restart Studio so it reads the new file.
 
