@@ -46,7 +46,15 @@ services:
       STUDIO_SMTP_USER: ${STUDIO_SMTP_USER:-}
       STUDIO_SMTP_PASSWORD: ${STUDIO_SMTP_PASSWORD:-}
       STUDIO_SMTP_FROM: ${STUDIO_SMTP_FROM:-}
+      # Job channel to the ds-nb3-exec daemon (V4): the socket and the HMAC key mounted below. Never the Docker socket.
+      NB3_EXEC_SOCKET: /run/ds-nb3/exec.sock
+      NB3_EXEC_KEY_FILE: /run/secrets/nb3-exec-hmac
+    # The host group `ds-nb3` (gid 986 on this VPS) owns the socket and the key; the app runs as uid 1000, which on the host is another user.
+    group_add:
+      - '986'
     volumes:
+      - /run/ds-nb3:/run/ds-nb3
+      - /etc/ds-nb3-exec/hmac.key:/run/secrets/nb3-exec-hmac:ro
       - /srv/duongsinh-studio/releases/${STUDIO_RELEASE:?STUDIO_RELEASE is required}/dist:/app/dist:ro
       - /srv/duongsinh-studio/config.yml:/app/config.yml:ro
       - /srv/duongsinh-studio/storage:/app/storage
