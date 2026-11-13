@@ -17,7 +17,7 @@ One JSON request per connection on a unix socket (`/run/ds-nb3/exec.sock`, mode 
 
 ```
 { v:1, id, op, app, argv?, since?, tail?, name?, value?, ts, nonce, sig }
-op = run | logs | inspect | secretSet | secretNames | lastAccess
+op = run | logs | inspect | secretSet | secretNames | lastAccess | dump
 sig = HMAC-SHA256(key, v \n id \n op \n app \n JSON(argv) \n since \n tail \n name \n sha256(value) \n ts \n nonce)
 ```
 
@@ -36,7 +36,7 @@ hash of a secret value); a request older or newer than 60 s, or a nonce seen in 
 `nb3-<slug>` or not in its configuration; an operation it does not know; any `argv` that is not **exactly** one of the vectors in the
 app's `allow` list (no prefixes, no extra arguments, so no `; ...`, no `--flag` the list did not name); a second job while one runs for
 the same app; a job past `timeoutMs` (killed, and its container removed); `secretSet` names outside the app's `secretNames`, values
-with a line break; requests over 64 KiB. It never uses a shell, never mounts anything extra, never `docker exec`s.
+with a line break; requests over 64 KiB. It never uses a shell and never mounts anything extra; its one `docker exec` is the fixed `dump` command below.
 
 **What the log can hold.** Whatever the command prints. The daemon keeps only the **last 20 KB**, hides the value of every variable
 in the job's env file and any `NAME=value` where the name ends in SECRET, PASSWORD, PASSWD or TOKEN, and returns the SHA-256 of the
@@ -56,6 +56,12 @@ the app can hit `SQLITE_BUSY`: stop the app first or enable WAL).
 `lastAccess` (V5.1b) answers `{ known, from, lastAt }`: when a request last reached one of the app's `hosts` according to the end (8 MiB) of
 the Traefik JSON access log named by `accessLog`, ignoring `/api/healthz`; `from` is the oldest line it read. It reads only that log, writes
 nothing, and `known: false` means no log or no host is configured or the file cannot be read.
+
+`dump` (V5.2b) writes a custom-format `pg_dump` of the app's database to `dumpDir` (file `<app>-<time>.dump`, mode 0600), checks it with
+`pg_restore -l` (it must hold table data) and answers `{ file, bytes, sha256, tables }`; a failed or empty dump is deleted and refused.
+Needs `dbService` and `dumpDir` in the app's entry. It is the **only** place the daemon uses `docker exec`, and with a fixed command: the
+container comes from the compose labels in the configuration, the user and database name from that container's own environment (checked
+against `[A-Za-z0-9_]+`), nothing from the request. Studio calls it before removing an App's data and refuses the removal if it fails.
 
 ## Install (on the VPS, as root; the owner does this)
 

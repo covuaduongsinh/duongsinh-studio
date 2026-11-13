@@ -32,6 +32,7 @@ import {
  *   minutes have passed without a request to its host name, as the job daemon reads them from Traefik's access log
  *   (`sweepIdle`, V5.1b); where the daemon cannot say (channel off, no log configured) the old rule stands: that many
  *   minutes after it last started or deployed. It is started again by hand ("staging bật khi cần");
+ * - removing an App with its data first dumps its PostgreSQL database through the daemon and refuses if that fails;
  * - only the running release and the newest other one stay under `dataDir` (a rollback is one click, older ones are
  *   extracted again from the archive when needed);
  * - at most `maxApps` Apps run at once; a further deployment or start is refused with an explanation, not queued;
@@ -503,6 +504,26 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
       return status('running', row);
     }
 
+    /** Dumps the App's database through the daemon; the reason it could not be done, or null when the dump exists. */
+    async function dumpBeforePurge(row: Nb3Row): Promise<string | null> {
+      if (settings.database !== 'postgres')
+        return `${row.appId} uses SQLite, which Studio cannot dump before removing its data: back it up with backup-nb3.sh, or remove it keeping its data.`;
+      const channel = deps.channel?.() ?? null;
+      if (!channel)
+        return `Studio cannot dump the database of ${row.appId} (the job channel is off), so its data is kept.`;
+      const answer = await channel.call(
+        { op: 'dump', app: row.composeName },
+        20 * 60_000,
+      );
+      if (!answer.ok)
+        return `The dump of ${row.appId} failed (${answer.error ?? 'no answer'}), so its data is kept.`;
+      // Where the dump is on the server; the compose and the row are about to go, so this is the record of it.
+      console.info(
+        `Dumped ${row.appId} before removing its data: ${String(answer['file'])} (${String(answer['bytes'])} bytes, sha256 ${String(answer['sha256'])}).`,
+      );
+      return null;
+    }
+
     return {
       check: async () => {
         try {
@@ -594,6 +615,9 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
         if (!row) return;
         // Dokploy removes the compose with its volumes (the App's data); a kept-data removal only stops it.
         if (options.purgeData) {
+          // Removing the compose removes its volumes: dump the database first, and keep everything if that cannot be done (V5.2b).
+          const backup = await dumpBeforePurge(row);
+          if (backup) throw new Error(backup);
           await client().remove(row.composeId);
           await deps.store.remove(appId);
           await rm(join(settings.dataDir, row.composeName), {

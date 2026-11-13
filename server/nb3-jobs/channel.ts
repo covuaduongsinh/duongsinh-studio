@@ -8,7 +8,13 @@ import { connect } from 'node:net';
 
 export interface DaemonRequest {
   readonly op:
-    'run' | 'logs' | 'inspect' | 'secretSet' | 'secretNames' | 'lastAccess';
+    | 'run'
+    | 'logs'
+    | 'inspect'
+    | 'secretSet'
+    | 'secretNames'
+    | 'lastAccess'
+    | 'dump';
   readonly app: string;
   readonly argv?: readonly string[];
   readonly since?: string;

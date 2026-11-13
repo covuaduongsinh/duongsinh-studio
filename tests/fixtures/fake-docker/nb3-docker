@@ -14,5 +14,12 @@ case "$1" in
   ps) echo "cid123" ;;
   logs) echo "app log line one"; echo "app log line two" ;;
   inspect) echo "running|healthy|2026-11-12T01:00:00Z|0|2|false" ;;
+  exec)
+    case "$*" in
+      *printenv*POSTGRES_USER*) echo "nbuser" ;;
+      *printenv*POSTGRES_DB*) echo "nbdb" ;;
+      *pg_dump*) [ "${FAKE_DUMP_FAIL:-0}" = 1 ] && exit 1; printf 'PGDMP-fake-dump' ;;
+      *pg_restore*) cat >/dev/null; [ "${FAKE_DUMP_EMPTY:-0}" = 1 ] || echo "1; 0 1 TABLE DATA public users nbuser" ;;
+    esac ;;
   rm) : ;;
 esac

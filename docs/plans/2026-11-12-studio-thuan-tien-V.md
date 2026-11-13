@@ -426,8 +426,8 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
   - [x] V4.5 tài liệu (PR này)
 - [ ] V5 — Dung lượng, sao lưu, đăng ký app
   - [x] V5.1 suất, RAM, tự dừng (#111 lõi: suất theo môi trường, cổng RAM, `check()`; V5.1b PR này: tự dừng theo request qua op `lastAccess` của daemon, thẻ "Máy chủ" + `GET /api/hostLoad`, seed gán môi trường cho dòng cũ, `DB_PASSWORD` sinh lười, giữ 2 bản `dist`. **Cần chủ dự án**: bật nhật ký Traefik JSON và đặt `accessLog`/`hosts` trong config daemon, nếu không vẫn dừng theo "kể từ lúc bật". Chưa làm: runner bận/rảnh trên thẻ, `inspect-host`)
-  - [x] V5.2 sao lưu mọi app (#102: `backup-nb3.sh`; **chưa cài lên VPS**; còn dump trước `remove(purgeData)`, cần V4)
-  - [ ] V5.3 `!noi-app-nb3`
+  - [x] V5.2 sao lưu mọi app (#102: `backup-nb3.sh`; **chưa cài lên VPS**; dump trước `remove(purgeData)` xong ở V5.2b qua op `dump` của daemon: lỗi thì từ chối xoá; app SQLite cũng bị từ chối purge. **Cần chủ dự án**: thêm `dbService`/`dumpDir` vào config daemon)
+  - [ ] V5.3 `!noi-app-nb3` (**hoãn: Q10** — M4.3 chưa được ghi nhận đóng, dòng M4 còn mở và workflow preview "chưa kiểm trên GitHub thật"; cần chủ dự án nói M4.3 đã đóng hoặc V thay thế nó)
   - [ ] V5.4 `!don-app-nb3` (chờ Q7)
 - [ ] V6 — Lark, tài liệu, phát hành
   - [ ] V6.1 Lark qua tenant token

@@ -12,6 +12,8 @@
       "composeDir": "/etc/dokploy/compose/compose-synthesize-online-firewall-897jlk/code",
       "composeFile": "docker-compose.yml",
       "hosts": ["nocoedu.dsc.edu.vn"],
+      "dbService": "nb3-nocoedu-db",
+      "dumpDir": "/srv/duongsinh-studio/backups/nb3",
       "envFile": "/srv/duongsinh-studio/jobs/nb3-nocoedu.env",
       "secretNames": ["LARK_APP_ID", "LARK_APP_SECRET", "LARK_DOMAIN"],
       "allow": [

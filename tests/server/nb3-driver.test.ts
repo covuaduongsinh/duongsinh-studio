@@ -624,17 +624,61 @@ describe('dokploy driver', () => {
     expect((await off.opened.logs('nocolms', {})).available).toBe(false);
   });
 
-  it('removes the compose only when asked to purge data', async () => {
+  it('removes the compose only when asked to purge data, and only after the database was dumped', async () => {
     const { client, log } = fakeDokploy();
-    const { opened, store } = await session(client);
-    await opened.apply(specOf('nocolms'));
-    await opened.remove('nocolms', { purgeData: false });
+    let answer: Record<string, unknown> = {
+      ok: true,
+      file: '/srv/x.dump',
+      bytes: 5,
+      sha256: 'abc',
+    };
+    const asked: string[] = [];
+    const channel = {
+      reachable: () => Promise.resolve(true),
+      call: (request: { op: string; app: string }) => {
+        asked.push(`${request.op} ${request.app}`);
+        return Promise.resolve(answer as never);
+      },
+    };
+    const { store, openIn } = await session(client, undefined, {
+      channel: () => channel,
+    });
+    const postgres = await openIn('p', { database: 'postgres' });
+    await postgres.apply(specOf('nocolms'));
+    await postgres.remove('nocolms', { purgeData: false });
     expect(log.some((line) => line.startsWith('remove'))).toBe(false);
     expect(store.rows.get('nocolms')?.desiredState).toBe('stopped');
-    await opened.remove('nocolms', { purgeData: true });
+    expect(asked).toEqual([]);
+
+    // A failed dump keeps everything.
+    answer = { ok: false, error: 'DUMP_FAILED' };
+    await expect(
+      postgres.remove('nocolms', { purgeData: true }),
+    ).rejects.toThrow(/DUMP_FAILED/u);
+    expect(log.some((line) => line.startsWith('remove'))).toBe(false);
+    expect(store.rows.has('nocolms')).toBe(true);
+
+    answer = { ok: true, file: '/srv/x.dump', bytes: 5, sha256: 'abc' };
+    await postgres.remove('nocolms', { purgeData: true });
+    expect(asked.at(-1)).toBe('dump nb3-nocolms');
     expect(log).toContain('remove id-nb3-nocolms');
     expect(store.rows.has('nocolms')).toBe(false);
     await expect(stat(join(root, 'data', 'nb3-nocolms'))).rejects.toThrow();
+  });
+
+  it('refuses to purge data it cannot dump: SQLite, or no job channel', async () => {
+    const { client, log } = fakeDokploy();
+    const { opened, store, openIn } = await session(client);
+    await opened.apply(specOf('nocolms'));
+    await expect(opened.remove('nocolms', { purgeData: true })).rejects.toThrow(
+      /SQLite/u,
+    );
+    const postgres = await openIn('p', { database: 'postgres' });
+    await expect(
+      postgres.remove('nocolms', { purgeData: true }),
+    ).rejects.toThrow(/channel is off/u);
+    expect(log.some((line) => line.startsWith('remove'))).toBe(false);
+    expect(store.rows.has('nocolms')).toBe(true);
   });
 
   it('stops an App whose idle time is over and only that one', async () => {
