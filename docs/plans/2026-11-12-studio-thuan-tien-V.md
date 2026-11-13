@@ -338,7 +338,7 @@ Thứ tự: **V0 → V1 → V2 → V3 → V4 → V5 → V6**. V2 và V4 khác nh
 | V2   | 2       |                                                                            |
 | V3   | 2,5     | V3.4 có thể giảm còn 0,5 nếu đo cho thấy `node_modules` đã được dùng lại   |
 | V4   | 5       | + ~0,5 ngày chủ dự án cài daemon; **chờ duyệt thiết kế §5 trước khi code** |
-| V5   | 4       | V5.3 chờ M4.3 đóng; V5.4 xong (giữ compose); rclone chờ chủ dự án                      |
+| V5   | 4       | V5.3 chờ M4.3 đóng; V5.4 xong (giữ compose); rclone chờ chủ dự án          |
 | V6   | 1,5     | V6.3 cần chủ dự án thiết lập Release asset/token đọc                       |
 | Tổng | ≈ 19,75 | ngày agent, rải 3–4 tuần                                                   |
 
