@@ -55,6 +55,12 @@ chạy tự động khi app khởi động (`migrations.autoRun`). Kiểm: `http
 
 Nếu `config.yml` đổi: chép `deploy/dokploy/config.yml` lên `/srv/duongsinh-studio/config.yml` rồi Deploy lại.
 
+### Phát hành bằng GitHub Actions (V6.3)
+
+Đẩy tag `v*` lên `main` thì `.github/workflows/release.yml` chạy `deploy/dokploy/build-release.sh`: từ chối nếu không phải Linux, cây làm việc bẩn hoặc commit chưa nằm trên `origin/main`; rồi `pnpm build --target linux-x64 --node-version 24`, `pnpm nocobase dist check`, đóng `studio-<sha>.tar.gz` cùng `.sha256` và đính vào GitHub Release. Actions **chỉ dựng**, không SSH và không giữ khoá VPS.
+
+Trên VPS (chủ dự án, root): tạo token chỉ-đọc cho Releases của repo, lưu vào file 0600, rồi `GH_TOKEN_FILE=/root/.studio-release-token bash release.sh v0.9.0`. Script tải, kiểm SHA-256 (sai thì dừng), giải nén vào `releases/<sha>`, `chown 1000:1000`, giữ 3 bản mới nhất và không bao giờ xoá bản đang chạy. Nó **không đổi bản chạy**: sau đó làm như "Cập nhật lên phiên bản mới" (chờ không còn run, sao lưu, `switch-release.sh <sha>`). Build tay như cũ vẫn dùng được; `build-release.sh` là cùng các bước có chốt chặn.
+
 ## Dọn bản phát hành
 
 Trên VPS giữ 3 thư mục mới nhất trong `releases/` (bản đang chạy và hai bản để quay lui) và không giữ tarball trong `incoming/`
