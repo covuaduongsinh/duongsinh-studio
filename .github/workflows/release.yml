@@ -1,0 +1,41 @@
+name: release
+
+# Builds the Studio release archive when a version tag is pushed and attaches it to the GitHub Release (V6.3). Actions only
+# builds; nothing is sent to the VPS from here and no SSH key is stored. The owner fetches it with deploy/dokploy/release.sh
+# and switches to it by hand (docs/trien-khai-vps.md).
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build (linux-x64, Node 24)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: git fetch origin main
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Build, check and pack
+        run: bash deploy/dokploy/build-release.sh release-out
+      - name: Attach to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes "Studio release $TAG"
+          gh release upload "$TAG" release-out/studio-*.tar.gz release-out/studio-*.tar.gz.sha256 --clobber

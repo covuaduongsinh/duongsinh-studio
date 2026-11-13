@@ -93,11 +93,10 @@ export const PLAYBOOK_DEFINITIONS: readonly PlaybookDefinition[] = [
     instructions: `
 # Playbook: Nhập dữ liệu từ Lark Base
 
-1. Lấy schema từ Lark Base nguồn. Lệnh nhập (\`import-lark\`) nằm trong app đích và chỉ chạy được qua kênh job của Studio; khi kênh này chưa có thì dừng và báo người, không tự cài lark-cli hay giữ token Lark trên runner.
-2. Luôn chạy chế độ dry-run trước: in ra số dòng sẽ thêm/sửa/xóa và mapping các cột. Chỉ in số đếm và khác biệt theo cột, không in bản ghi (có dữ liệu học viên).
-3. Yêu cầu người phê duyệt kết quả dry-run nếu có xóa hoặc sửa đổi cấu trúc lớn.
-4. Thực hiện ghi dữ liệu trong transaction có cơ chế rollback an toàn.
-5. Kiểm tra tính toàn vẹn dữ liệu và các khóa ngoại sau khi nhập xong.
+1. Lệnh nhập (\`edu import-lark\`) nằm trong repo NocoEdu và chỉ chạy được qua kênh job của Studio: \`POST /api/releases/apps/{appId}/jobs\` với \`{"command":"larkImportDry"}\`. Khi kênh trả \`503 NB3_JOB_CHANNEL_DOWN\` thì dừng và báo người; không tự cài lark-cli, không giữ token Lark trên runner, không đặt \`LARK_*\` ở tab Biến của app (bí mật đi qua \`PUT .../jobSecrets/{TÊN}\`, việc của chủ dự án).
+2. Agent chỉ được chạy dry-run (\`larkImportDry\`). Đọc kết quả ở \`GET .../jobs/{id}\`: chỉ có số đếm và khác biệt theo cột, không có bản ghi (dữ liệu học viên). Nếu log in ra bản ghi thì dừng và báo người.
+3. Báo kết quả dry-run cho người phê duyệt, nhất là khi có xóa hoặc sửa cấu trúc lớn. Lệnh ghi (\`larkImportCommit\`) chỉ chủ dự án chạy, sau khi có sao lưu.
+4. Sau khi chủ dự án ghi, kiểm tra số bản ghi theo bảng và các khóa ngoại bằng một dry-run lần nữa.
 `.trim(),
     params: [
       {

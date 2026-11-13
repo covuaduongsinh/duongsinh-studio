@@ -430,6 +430,6 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
   - [ ] V5.3 `!noi-app-nb3` (**hoãn: Q10** — M4.3 chưa được ghi nhận đóng, dòng M4 còn mở và workflow preview "chưa kiểm trên GitHub thật"; cần chủ dự án nói M4.3 đã đóng hoặc V thay thế nó)
   - [ ] V5.4 `!don-app-nb3` (chờ Q7)
 - [ ] V6 — Lark, tài liệu, phát hành
-  - [ ] V6.1 Lark qua tenant token
+  - [x] V6.1 Lark qua tenant token (phần repo này: playbook `!nhap-lark` qua kênh job, agent chỉ dry-run; `docs/lark-cho-dsc.md`. Lệnh `import-lark` và test của nó thuộc repo NocoEdu; QPS Lark còn "chưa tra")
   - [x] V6.2 dọn tài liệu và ngôn từ (#103)
-  - [ ] V6.3 phát hành bằng Actions
+  - [x] V6.3 phát hành bằng Actions (`release.yml` khi đẩy tag `v*`, `build-release.sh` có chốt chặn, `release.sh` trên VPS; Actions chỉ dựng, không SSH. **Cần chủ dự án**: token chỉ-đọc Releases cho `release.sh`, thử một tag thật)
