@@ -1711,6 +1711,17 @@ const zhCN: AppResource = {
     title: '发布',
     description:
       '工作所在：预览、预发布、各仓库的版本，以及已合并但尚未上线的任务。Studio 只做记录；生产环境由负责人通过 Dokploy 部署并在此标记。',
+    host: {
+      title: '服务器',
+      memory: '可用内存',
+      unknown: '无法读取',
+      megabytes: '{{count}} MiB',
+      low: '内存不足，无法再启动应用',
+      needs: '启动一个应用至少需要 {{count}} MiB 可用内存。',
+      apps: '正在运行的 NocoBase 3 应用',
+      noApps: '没有正在运行的应用。',
+      perApp: '每个应用最多使用 {{count}} MiB。',
+    },
     projects: '项目',
     searchProjects: '搜索项目',
     pendingCount: '{{count}} 个等待上线生产',

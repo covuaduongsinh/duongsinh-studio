@@ -673,4 +673,126 @@ describe('dokploy driver', () => {
     expect(store.rows.get('old')?.desiredState).toBe('stopped');
     expect(store.rows.get('fresh')?.desiredState).toBe('running');
   });
+  describe('idle by request (V5.1b)', () => {
+    const at = new Date('2026-11-09T11:00:00Z');
+    const idleRow = (): Nb3Row => ({
+      appId: 'old',
+      composeId: 'id-old',
+      composeName: 'nb3-old',
+      desiredState: 'running',
+      version: 'v',
+      deploymentId: null,
+      dbPasswordSealed: null,
+      idleStopMinutes: 30,
+      lastError: null,
+      startedAt: new Date('2026-11-09T10:00:00Z'),
+    });
+    const sweepWith = async (answer: Record<string, unknown> | null) => {
+      const { client, log } = fakeDokploy();
+      const store = memoryStore();
+      await store.save(idleRow());
+      const stopped = await sweepIdle(
+        {
+          dokploy: () => client,
+          store,
+          now: () => at,
+          channel: () => ({
+            reachable: () => Promise.resolve(true),
+            call: () =>
+              Promise.resolve(
+                (answer ?? { ok: false, error: 'UNREACHABLE' }) as never,
+              ),
+          }),
+        },
+        () => undefined,
+      );
+      return { stopped, log };
+    };
+
+    it('keeps an App that had a request within its idle time, although it started long ago', async () => {
+      const { stopped, log } = await sweepWith({
+        ok: true,
+        known: true,
+        from: '2026-11-09T09:00:00Z',
+        lastAt: '2026-11-09T10:45:00Z',
+      });
+      expect(stopped).toBe(0);
+      expect(log).toEqual([]);
+    });
+
+    it('stops an App whose last request is older than its idle time', async () => {
+      const { stopped, log } = await sweepWith({
+        ok: true,
+        known: true,
+        from: '2026-11-09T09:00:00Z',
+        lastAt: '2026-11-09T10:20:00Z',
+      });
+      expect(stopped).toBe(1);
+      expect(log).toEqual(['stop id-old']);
+    });
+
+    it('stops an App with no request in a log that reaches back past its idle time', async () => {
+      const { stopped } = await sweepWith({
+        ok: true,
+        known: true,
+        from: '2026-11-09T10:10:00Z',
+        lastAt: null,
+      });
+      expect(stopped).toBe(1);
+    });
+
+    it('does not stop an App when the log is too short to tell', async () => {
+      const { stopped } = await sweepWith({
+        ok: true,
+        known: true,
+        from: '2026-11-09T10:50:00Z',
+        lastAt: null,
+      });
+      expect(stopped).toBe(0);
+    });
+
+    it('falls back to the time since start when the daemon cannot say', async () => {
+      expect((await sweepWith({ ok: true, known: false })).stopped).toBe(1);
+      expect((await sweepWith(null)).stopped).toBe(1);
+    });
+  });
+
+  it('makes the database password when a deployment needs it, once, and keeps two releases', async () => {
+    const { client } = fakeDokploy();
+    const { opened, store, openIn } = await session(client, undefined, {});
+    // An App row made while the environment used SQLite, now deployed to PostgreSQL.
+    await opened.apply(specOf('nocolms'));
+    expect(store.rows.get('nocolms')?.dbPasswordSealed).toBeNull();
+    const postgres = await openIn('p', { database: 'postgres' });
+    await postgres.apply(specOf('nocolms'));
+    const sealed = store.rows.get('nocolms')?.dbPasswordSealed;
+    expect(sealed).toMatch(/^sealed:[0-9a-f]{36}$/u);
+    await postgres.apply(specOf('nocolms'));
+    expect(store.rows.get('nocolms')?.dbPasswordSealed).toBe(sealed);
+
+    // Releases: only the running one and the newest other stay.
+    const { utimes } = await import('node:fs/promises');
+    const folder = join(root, 'data', 'nb3-nocolms');
+    const dayOf = (n: number) => new Date(Date.UTC(2026, 10, n));
+    await utimes(join(folder, 'abc123', '.extracted'), dayOf(0), dayOf(0));
+    for (const [version, day] of [
+      ['v1', 1],
+      ['v2', 2],
+      ['v3', 3],
+    ] as const) {
+      await postgres.apply(
+        specOf('nocolms', {
+          release: { id: version, version, checksum: 'x' },
+        }),
+      );
+      await utimes(join(folder, version, '.extracted'), dayOf(day), dayOf(day));
+    }
+    await postgres.apply(
+      specOf('nocolms', {
+        release: { id: 'v4', version: 'v4', checksum: 'x' },
+      }),
+    );
+    const { readdir } = await import('node:fs/promises');
+    expect((await readdir(folder)).sort()).toEqual(['v3', 'v4']);
+  });
 });

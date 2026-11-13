@@ -422,3 +422,73 @@ describe('job secrets', () => {
     expect(existsSync(path.join(folder, 'jobs/nb3-edu.env'))).toBe(false);
   });
 });
+
+describe('last access (V5.1b)', () => {
+  const line = (host: string, at: string, requestPath = '/api/app') =>
+    JSON.stringify({
+      RequestHost: host,
+      RequestPath: requestPath,
+      StartUTC: at,
+    });
+  const hosts = { hosts: ['edu.dsc.edu.vn'] };
+  const stop = () => new Promise((resolve) => server.close(resolve));
+
+  function withLog(lines: string[]) {
+    const log = path.join(folder, 'access.log');
+    writeFileSync(log, `${lines.join('\n')}\nnot json\n`);
+    return log;
+  }
+
+  async function startWith(lines: string[] | null, appHosts = true) {
+    const base = config();
+    const app = base.apps['nb3-edu'];
+    await start({
+      ...(lines ? { accessLog: withLog(lines) } : {}),
+      apps: { 'nb3-edu': { ...app, ...(appHosts ? hosts : {}) } },
+    });
+  }
+
+  it('answers the newest request to the app host and ignores health probes and other hosts', async () => {
+    await startWith([
+      line('edu.dsc.edu.vn', '2026-11-13T01:00:00Z'),
+      line('edu.dsc.edu.vn', '2026-11-13T01:10:00Z'),
+      line('edu.dsc.edu.vn', '2026-11-13T01:20:00Z', '/main/api/healthz'),
+      line('other.dsc.edu.vn', '2026-11-13T01:30:00Z'),
+    ]);
+    expect(await request({ op: 'lastAccess', app: 'nb3-edu' })).toMatchObject({
+      ok: true,
+      known: true,
+      from: '2026-11-13T01:00:00.000Z',
+      lastAt: '2026-11-13T01:10:00.000Z',
+    });
+  });
+
+  it('says it knows nothing without a log, hosts, or a readable file', async () => {
+    await startWith(null);
+    expect(await request({ op: 'lastAccess', app: 'nb3-edu' })).toMatchObject({
+      ok: true,
+      known: false,
+    });
+    await stop();
+    await startWith([line('edu.dsc.edu.vn', '2026-11-13T01:00:00Z')], false);
+    expect((await request({ op: 'lastAccess', app: 'nb3-edu' })).known).toBe(
+      false,
+    );
+    await stop();
+    await start({
+      accessLog: path.join(folder, 'missing.log'),
+      apps: { 'nb3-edu': { ...config().apps['nb3-edu'], ...hosts } },
+    });
+    expect((await request({ op: 'lastAccess', app: 'nb3-edu' })).known).toBe(
+      false,
+    );
+  });
+
+  it('answers no time when the log holds no request to the host', async () => {
+    await startWith([line('other.dsc.edu.vn', '2026-11-13T01:30:00Z')]);
+    expect(await request({ op: 'lastAccess', app: 'nb3-edu' })).toMatchObject({
+      known: true,
+      lastAt: null,
+    });
+  });
+});

@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { resolve4 } from 'node:dns/promises';
 import { join } from 'node:path';
 import type {
@@ -28,8 +28,12 @@ import {
  * (`createDokployClient` with `isNb3ComposeName`) touches Dokploy, over the composes recorded in `dsNb3Apps`.
  *
  * Deviations from the plugin's driver contract, all recorded in docs/chenh-lech-upstream.md:
- * - `onDemand` is not offered: nothing sees requests. An App with `idleStopMinutes` is stopped that many minutes after
- *   it last started or deployed (`sweepIdle`), and is started again by hand ("staging bật khi cần");
+ * - `onDemand` is not offered: nothing wakes an App on a request. An App with `idleStopMinutes` is stopped when that many
+ *   minutes have passed without a request to its host name, as the job daemon reads them from Traefik's access log
+ *   (`sweepIdle`, V5.1b); where the daemon cannot say (channel off, no log configured) the old rule stands: that many
+ *   minutes after it last started or deployed. It is started again by hand ("staging bật khi cần");
+ * - only the running release and the newest other one stay under `dataDir` (a rollback is one click, older ones are
+ *   extracted again from the archive when needed);
  * - at most `maxApps` Apps run at once; a further deployment or start is refused with an explanation, not queued;
  * - a failed deployment leaves the compose as Docker left it (the previous container usually still runs) and the App
  *   is reported `failed`.
@@ -191,13 +195,14 @@ const status = (
   state: AppObservedStatus['state'],
   row: Nb3Row | null,
   error: string | null = null,
+  lastAccessedAt: string | null = null,
 ): AppObservedStatus => ({
   state,
   version: row?.version ?? null,
   deploymentId: row?.deploymentId ?? null,
   startedAt: row?.startedAt?.toISOString() ?? null,
   error,
-  lastAccessedAt: null,
+  lastAccessedAt,
 });
 
 const POLL_MS = 3000;
@@ -338,10 +343,8 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
         desiredState: 'stopped',
         version: null,
         deploymentId: null,
-        dbPasswordSealed:
-          settings.database === 'postgres'
-            ? deps.seal(randomBytes(18).toString('hex'))
-            : null,
+        // The database password is made when a deployment needs it (`apply`), not here.
+        dbPasswordSealed: null,
         idleStopMinutes: null,
         lastError: null,
         startedAt: null,
@@ -349,6 +352,29 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
       };
       await deps.store.save(row);
       return row;
+    }
+
+    /** Keeps the release now deployed and the newest other extracted one (the rollback); removes the rest (B#23). */
+    async function pruneVersions(name: string, current: string): Promise<void> {
+      const base = join(settings.dataDir, name);
+      try {
+        const others: { name: string; at: number }[] = [];
+        for (const entry of await readdir(base, { withFileTypes: true })) {
+          if (!entry.isDirectory() || entry.name === current) continue;
+          const marker = await stat(join(base, entry.name, EXTRACTED)).then(
+            (info) => info.mtimeMs,
+            () => 0,
+          );
+          others.push({ name: entry.name, at: marker });
+        }
+        others.sort((a, b) => b.at - a.at);
+        // The first is the rollback; an incomplete extraction (no marker) is never worth keeping.
+        for (const [index, other] of others.entries())
+          if (index > 0 || other.at === 0)
+            await rm(join(base, other.name), { recursive: true, force: true });
+      } catch {
+        // Tidying is best effort: a release that stays is only disk space.
+      }
     }
 
     async function apply(
@@ -383,6 +409,13 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
           return status('failed', await deps.store.get(spec.appId), problem);
       }
       let row = await ensureRow(spec);
+      if (settings.database === 'postgres' && !row.dbPasswordSealed) {
+        row = {
+          ...row,
+          dbPasswordSealed: deps.seal(randomBytes(18).toString('hex')),
+        };
+        await deps.store.save(row);
+      }
 
       const name = row.composeName;
       const directory = join(settings.dataDir, name, version);
@@ -441,6 +474,7 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
           lastError: null,
         };
         await deps.store.save(row);
+        await pruneVersions(name, version);
         emit('completed', 'The compose is ready; the App stays stopped.');
         return status('stopped', row);
       }
@@ -464,6 +498,7 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
       };
       await deps.store.save(row);
       if (problem) return status('failed', row, problem);
+      await pruneVersions(name, version);
       emit('completed', 'Running.');
       return status('running', row);
     }
@@ -603,7 +638,16 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
           const state =
             typeof seen['state'] === 'string' ? seen['state'] : 'missing';
           if (state === 'running') {
-            result.set(row.appId, recorded);
+            const access = await lastAccessOf(channel, row.composeName);
+            result.set(
+              row.appId,
+              status(
+                recorded.state,
+                row,
+                row.lastError,
+                access?.lastAt ?? null,
+              ),
+            );
             continue;
           }
           const why =
@@ -672,26 +716,65 @@ export function createDokployDriver(deps: Nb3Deps): DeploymentDriver {
   }
 }
 
+/** What the daemon read from the access log for an App; null when it cannot say (channel off, no log, an error). */
+interface AccessSeen {
+  /** Time of the oldest line read: the window the answer covers starts here. */
+  readonly from: number | null;
+  readonly lastAt: string | null;
+}
+
+async function lastAccessOf(
+  channel: Nb3Channel | null,
+  composeName: string,
+): Promise<AccessSeen | null> {
+  if (!channel) return null;
+  const answer = await channel.call(
+    { op: 'lastAccess', app: composeName },
+    10_000,
+  );
+  if (!answer.ok || answer['known'] !== true) return null;
+  const from =
+    typeof answer['from'] === 'string' ? Date.parse(answer['from']) : NaN;
+  return {
+    from: Number.isFinite(from) ? from : null,
+    lastAt: typeof answer['lastAt'] === 'string' ? answer['lastAt'] : null,
+  };
+}
+
 /**
- * Stops the Apps whose idle time is over (see the deviations above). Called every minute while Dokploy is configured;
- * a stop that fails is reported and tried again at the next sweep.
+ * Stops the Apps that have been idle for their `idleStopMinutes` (see the deviations above). Called every minute while
+ * Dokploy is configured; a stop that fails is reported and tried again at the next sweep.
+ *
+ * "Idle" means no request to the App's host name since the later of its start and its last request in Traefik's access log.
+ * When the daemon cannot say (no channel, no log) the App is idle that long after it started, as before. When it can but
+ * the part of the log it read does not reach back as far as the idle time (the log was rotated, or is busy), nothing is
+ * known and the App is left running: stopping one somebody uses is worse than stopping one late.
  */
 export async function sweepIdle(
-  deps: Pick<Nb3Deps, 'dokploy' | 'store' | 'now'>,
+  deps: Pick<Nb3Deps, 'dokploy' | 'store' | 'now' | 'channel'>,
   report: (message: string, error: unknown) => void,
 ): Promise<number> {
   const client = deps.dokploy();
   if (!client) return 0;
   const at = (deps.now ?? (() => new Date()))().getTime();
+  const channel = deps.channel?.() ?? null;
   let stopped = 0;
   for (const row of await deps.store.list()) {
     if (
       row.desiredState !== 'running' ||
       row.idleStopMinutes === null ||
-      !row.startedAt ||
-      row.startedAt.getTime() + row.idleStopMinutes * 60_000 > at
+      !row.startedAt
     )
       continue;
+    const idleMs = row.idleStopMinutes * 60_000;
+    let since = row.startedAt.getTime();
+    if (since + idleMs > at) continue;
+    const seen = await lastAccessOf(channel, row.composeName);
+    if (seen) {
+      if (seen.lastAt) since = Math.max(since, Date.parse(seen.lastAt));
+      else if (seen.from === null || seen.from > at - idleMs) continue;
+      if (since + idleMs > at) continue;
+    }
     try {
       await client.stop(row.composeId);
       await deps.store.save({ ...row, desiredState: 'stopped' });

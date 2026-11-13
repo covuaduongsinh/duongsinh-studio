@@ -9,7 +9,7 @@
  *
  * Protocol: one JSON request per connection (a line), one JSON answer (a line).
  *   { v:1, id, op, app, argv?, since?, tail?, name?, value?, ts, nonce, sig }
- *   op: run | logs | inspect | secretSet | secretNames
+ *   op: run | logs | inspect | secretSet | secretNames | lastAccess
  *   sig: HMAC-SHA256 over the fields below, hex.
  */
 import {
@@ -22,9 +22,13 @@ import { spawn } from 'node:child_process';
 import {
   chmodSync,
   chownSync,
+  closeSync,
   existsSync,
+  fstatSync,
   mkdirSync,
+  openSync,
   readFileSync,
+  readSync,
   renameSync,
   writeFileSync,
 } from 'node:fs';
@@ -37,7 +41,16 @@ const NONCE_TTL_MS = 10 * 60_000;
 const LOG_TAIL_BYTES = 20 * 1024;
 const APP_NAME = /^nb3-[a-z0-9][a-z0-9-]{0,50}$/u;
 const SECRET_NAME = /^[A-Z][A-Z0-9_]{1,63}$/u;
-const OPS = new Set(['run', 'logs', 'inspect', 'secretSet', 'secretNames']);
+const OPS = new Set([
+  'run',
+  'logs',
+  'inspect',
+  'secretSet',
+  'secretNames',
+  'lastAccess',
+]);
+/** How much of the end of the Traefik access log `lastAccess` reads. */
+const ACCESS_LOG_BYTES = 8 * 1024 * 1024;
 const SINCE = /^\d{1,4}[smh]$/u;
 
 /** The text the signature covers; every field that changes what the daemon does is in it. */
@@ -311,6 +324,56 @@ export function createDaemon(config, deps = {}) {
     };
   }
 
+  /**
+   * When did a request last reach one of the app's host names (plan V, V5.1b)? Reads the end of Traefik's JSON access log
+   * (`accessLog` in the configuration) for the app's `hosts`, ignoring health probes. `known` is false when no log or no
+   * host is configured or the log cannot be read: the caller must not conclude anything. `from` is the time of the first
+   * line read, so a caller can tell whether the window reaches back far enough to call an app idle.
+   */
+  function opLastAccess(app) {
+    const hosts = new Set(app.hosts ?? []);
+    if (!config.accessLog || hosts.size === 0) return { known: false };
+    let text;
+    try {
+      const fd = openSync(config.accessLog, 'r');
+      try {
+        const size = fstatSync(fd).size;
+        const length = Math.min(size, ACCESS_LOG_BYTES);
+        const buffer = Buffer.alloc(length);
+        readSync(fd, buffer, 0, length, size - length);
+        text = buffer.toString('utf8');
+      } finally {
+        closeSync(fd);
+      }
+    } catch {
+      return { known: false };
+    }
+    let from = null;
+    let last = null;
+    for (const line of text.split('\n')) {
+      if (!line.startsWith('{')) continue;
+      let entry;
+      try {
+        entry = JSON.parse(line);
+      } catch {
+        continue;
+      }
+      const at = Date.parse(entry.StartUTC ?? entry.time ?? '');
+      if (!Number.isFinite(at)) continue;
+      if (from === null || at < from) from = at;
+      const host = String(entry.RequestHost ?? '').toLowerCase();
+      const requestPath = String(entry.RequestPath ?? '');
+      if (!hosts.has(host) || /^\/(?:[^/]+\/)*api\/healthz/u.test(requestPath))
+        continue;
+      if (last === null || at > last) last = at;
+    }
+    return {
+      known: true,
+      from: from === null ? null : new Date(from).toISOString(),
+      lastAt: last === null ? null : new Date(last).toISOString(),
+    };
+  }
+
   function envFileOf(app) {
     if (!app.envFile)
       throw new Denied('NO_ENV_FILE', 'This app has no job environment file.');
@@ -381,9 +444,11 @@ export function createDaemon(config, deps = {}) {
             ? await opLogs(request, app)
             : request.op === 'inspect'
               ? await opInspect(request, app)
-              : request.op === 'secretSet'
-                ? opSecretSet(request, app)
-                : opSecretNames(app);
+              : request.op === 'lastAccess'
+                ? opLastAccess(app)
+                : request.op === 'secretSet'
+                  ? opSecretSet(request, app)
+                  : opSecretNames(app);
       return { ok: true, id: request.id, ...body };
     } catch (error) {
       if (error instanceof Denied)

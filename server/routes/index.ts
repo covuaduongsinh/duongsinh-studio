@@ -6,6 +6,7 @@ import { budgetRoutes } from './budgets.js';
 import { buildRoutes } from './builds.js';
 import { deployRoutes } from './deploys.js';
 import { gitRoutes } from './git.js';
+import { hostLoadRoutes } from './host-load.js';
 import { inboxRoutes } from './inbox.js';
 import { issueCriteriaRoutes } from './issue-criteria.js';
 import { issueWorkRoutes } from './issue-work.js';
@@ -30,6 +31,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   autopilotRoutes,
   projectManagerRoutes,
   gitRoutes,
+  hostLoadRoutes,
   reviewRoutes,
   verificationRoutes,
   benchRoutes,

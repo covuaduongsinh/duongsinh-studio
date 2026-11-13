@@ -3,6 +3,7 @@
   "socketGid": 1000,
   "hmacKeyFile": "/etc/ds-nb3-exec/hmac.key",
   "timeoutMs": 900000,
+  "accessLog": "/var/log/traefik/access.log",
   "apps": {
     "nb3-nocoedu": {
       "project": "compose-synthesize-online-firewall-897jlk",
@@ -10,6 +11,7 @@
       "jobService": "app",
       "composeDir": "/etc/dokploy/compose/compose-synthesize-online-firewall-897jlk/code",
       "composeFile": "docker-compose.yml",
+      "hosts": ["nocoedu.dsc.edu.vn"],
       "envFile": "/srv/duongsinh-studio/jobs/nb3-nocoedu.env",
       "secretNames": ["LARK_APP_ID", "LARK_APP_SECRET", "LARK_DOMAIN"],
       "allow": [

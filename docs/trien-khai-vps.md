@@ -204,7 +204,7 @@ Studio không bao giờ hiện lại khoá riêng hay webhook secret; chúng n�
 ## App NocoBase 3 trên Dokploy (M4.2)
 
 Driver `dokploy` của plugin `releases` chạy mỗi App NocoBase 3 thành một compose `nb3-<slug>` trong project `duongsinh-studio` (cùng khoá Dokploy và biến `DOKPLOY_*` như preview).
-Quyết định đã chốt (09/11/2026): tên miền cố định từng app (không wildcard), `maxApps` = 1, tự dừng 30 phút **sau khi bật** (không phải sau 30 phút không có request; đo theo request là việc V5.1), staging chỉ bật khi cần, app đầu tiên là NocoLMS.
+Quyết định đã chốt (09/11/2026): tên miền cố định từng app (không wildcard), `maxApps` = 1, tự dừng 30 phút **sau khi bật**; từ V5.1b, khi daemon đọc được nhật ký Traefik thì là 30 phút **không có request** (xem "Tự dừng theo request" dưới), staging chỉ bật khi cần, app đầu tiên là NocoLMS.
 Driver chỉ chạm compose có tên `nb3-…` mà Studio ghi lại; không đụng `nocobase.dsc.edu.vn` hay stack khác.
 
 Để chạy app đầu tiên (việc của chủ dự án trước, rồi agent):
@@ -237,6 +237,17 @@ Bí mật của job (ví dụ `LARK_APP_ID`, `LARK_APP_SECRET`) **không** đặ
 Xoay khoá HMAC: tạo khoá mới, ghi vào file khoá của daemon và của Studio, khởi động lại daemon (`systemctl restart ds-nb3-exec`), rồi kiểm lại bước 4. Compose cũ (NocoLMS, NocoEdu) chưa có service `-job`: chỉ lần triển khai mới viết ra nó; với app đã chạy thì thêm tay hoặc triển khai lại khi chủ dự án đồng ý, kèm sao lưu.
 
 Trạng thái và log thật: khi kênh bật, Studio hỏi daemon (`docker inspect`, `docker logs`) về container của app; container chết hoặc hết bộ nhớ thì app báo lỗi kèm lý do và nhả suất chạy; không hỏi được thì báo `unknown` thay vì `running`.
+
+### Tự dừng theo request (V5.1b)
+
+App có `idleStopMinutes` (xem thử) được dừng khi không có request nào tới tên miền của nó trong chừng đó phút. Studio hỏi daemon (`lastAccess`), daemon đọc 8 MiB cuối của nhật ký truy cập Traefik dạng JSON. Việc của chủ dự án (một lần):
+
+1. Bật nhật ký truy cập JSON của Traefik (`accessLog.format: json`, `filePath` ra một file trên máy chủ) và để root đọc được. Lọc bớt dòng không cần được; daemon bỏ qua `/api/healthz`.
+2. Trong `/etc/ds-nb3-exec/config.json` đặt `"accessLog": "<đường dẫn file>"` và trong mục của mỗi app `"hosts": ["<tên miền>"]` (xem `config.example.json`). Khởi động lại daemon.
+
+Không có nhật ký, không có `hosts`, không đọc được file, hoặc daemon tắt: Studio dùng quy tắc cũ (dừng sau chừng đó phút kể từ lúc bật). Có nhật ký nhưng đoạn đọc được ngắn hơn thời gian chờ (nhật ký vừa xoay vòng, hoặc bận): app **không** bị dừng, vì dừng nhầm app đang có người dùng tệ hơn dừng muộn. Thẻ "Máy chủ" trên trang Phát hành cho biết bộ nhớ còn trống và các app đang chạy.
+
+Mỗi app giữ hai bản `dist` trên đĩa: bản đang chạy và bản vừa trước (để quay lui); các bản cũ hơn bị xoá sau mỗi lần triển khai, và khi cần được giải nén lại từ kho lưu trữ. Mật khẩu cơ sở dữ liệu PostgreSQL của app được sinh khi triển khai lần đầu cần đến nó, không phải lúc tạo dòng.
 
 ## Runner
 

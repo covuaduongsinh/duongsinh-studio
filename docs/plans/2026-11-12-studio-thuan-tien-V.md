@@ -425,7 +425,7 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
   - [x] V4.4 trạng thái/log thật (#107), nhắc khoá CI (#108), khoá CI hẹp theo App 90 ngày (#101)
   - [x] V4.5 tài liệu (PR này)
 - [ ] V5 — Dung lượng, sao lưu, đăng ký app
-  - [ ] V5.1 suất, RAM, tự dừng
+  - [x] V5.1 suất, RAM, tự dừng (#111 lõi: suất theo môi trường, cổng RAM, `check()`; V5.1b PR này: tự dừng theo request qua op `lastAccess` của daemon, thẻ "Máy chủ" + `GET /api/hostLoad`, seed gán môi trường cho dòng cũ, `DB_PASSWORD` sinh lười, giữ 2 bản `dist`. **Cần chủ dự án**: bật nhật ký Traefik JSON và đặt `accessLog`/`hosts` trong config daemon, nếu không vẫn dừng theo "kể từ lúc bật". Chưa làm: runner bận/rảnh trên thẻ, `inspect-host`)
   - [x] V5.2 sao lưu mọi app (#102: `backup-nb3.sh`; **chưa cài lên VPS**; còn dump trước `remove(purgeData)`, cần V4)
   - [ ] V5.3 `!noi-app-nb3`
   - [ ] V5.4 `!don-app-nb3` (chờ Q7)

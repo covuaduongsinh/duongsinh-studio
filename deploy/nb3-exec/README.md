@@ -17,7 +17,7 @@ One JSON request per connection on a unix socket (`/run/ds-nb3/exec.sock`, mode 
 
 ```
 { v:1, id, op, app, argv?, since?, tail?, name?, value?, ts, nonce, sig }
-op = run | logs | inspect | secretSet | secretNames
+op = run | logs | inspect | secretSet | secretNames | lastAccess
 sig = HMAC-SHA256(key, v \n id \n op \n app \n JSON(argv) \n since \n tail \n name \n sha256(value) \n ts \n nonce)
 ```
 
@@ -52,6 +52,10 @@ backup before a write is the backup scripts' job.
 
 **Not covered:** a root compromise of the VPS itself; a command in `allow` that is itself unsafe; SQLite apps (a job running beside
 the app can hit `SQLITE_BUSY`: stop the app first or enable WAL).
+
+`lastAccess` (V5.1b) answers `{ known, from, lastAt }`: when a request last reached one of the app's `hosts` according to the end (8 MiB) of
+the Traefik JSON access log named by `accessLog`, ignoring `/api/healthz`; `from` is the oldest line it read. It reads only that log, writes
+nothing, and `known: false` means no log or no host is configured or the file cannot be read.
 
 ## Install (on the VPS, as root; the owner does this)
 
