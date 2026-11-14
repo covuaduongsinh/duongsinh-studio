@@ -8,7 +8,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { IssueChanges } from '../../client/components/issue-changes/index.js';
+import { IssueChangeSummary } from '../../client/components/issue-changes/index.js';
 import enUS from '../../client/locales/en-US.js';
 import packageMetadata from '../../package.json' with { type: 'json' };
 import { stubMobileViewport } from './helpers/mobile-viewport.js';
@@ -20,7 +20,7 @@ let calls: ApiCall[] = [];
 
 const render = (canComment = true) =>
   renderWithApp(
-    <IssueChanges
+    <IssueChangeSummary
       pullRequestId='pr1'
       headSha='abc1234'
       canComment={canComment}

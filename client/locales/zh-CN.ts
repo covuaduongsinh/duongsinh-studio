@@ -1904,6 +1904,7 @@ const zhCN: AppResource = {
   issueChanges: {
     title: '变更',
     loading: '正在读取变更…',
+    files_one: '{{count}} 个文件',
     files_other: '{{count}} 个文件',
     verification: {
       passed: '验证通过',

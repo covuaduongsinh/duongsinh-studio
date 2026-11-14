@@ -78,7 +78,7 @@ import {
 import { RouterAnchor } from '../router-anchor.js';
 import { IssueActivity } from './issue-activity.js';
 import { IssueAside, IssuePropertyChips } from './issue-aside.js';
-import { IssueChanges } from '#components/issue-changes/index';
+import { IssueChangeSummary } from '#components/issue-changes/index';
 import { IssueDeliveryReport } from './issue-delivery-report.js';
 import { IssueCriteriaSection } from '#components/criteria/criteria-editor';
 import { SecretFindingsBanner } from '#components/secret-findings-banner';
@@ -514,7 +514,7 @@ export function IssueDetailView({
                 onMerged={refetchAfterMerge}
               />
               {openPull ? (
-                <IssueChanges
+                <IssueChangeSummary
                   pullRequestId={openPull.id}
                   headSha={openPull.headSha}
                   canComment={canEdit}

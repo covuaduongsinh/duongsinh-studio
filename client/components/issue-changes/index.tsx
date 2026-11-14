@@ -9,7 +9,7 @@ import {
 import { useState, type ReactElement } from 'react';
 
 import { Badge } from '#components/ui/badge';
-import { Button } from '#components/ui/button';
+import { Button, buttonVariants } from '#components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -26,7 +26,7 @@ import { useChangeSummary, useRequestChanges } from '#hooks/use-change-summary';
  * project's sensitive paths, the latest verification), with two actions: ask for changes (a comment that wakes the author)
  * and open the pull request on GitHub. Approving stays the issue's own acceptance (plan T, T7).
  */
-export function IssueChanges({
+export function IssueChangeSummary({
   pullRequestId,
   headSha,
   canComment,
@@ -130,12 +130,15 @@ export function IssueChanges({
             {t('issueChanges.requestChanges')}
           </Button>
         ) : null}
-        <Button variant='outline' size='sm' asChild>
-          <a href={data.url} target='_blank' rel='noreferrer'>
-            <ExternalLinkIcon />
-            {t('issueChanges.openGithub')}
-          </a>
-        </Button>
+        <a
+          href={data.url}
+          target='_blank'
+          rel='noreferrer'
+          className={buttonVariants({ variant: 'outline', size: 'sm' })}
+        >
+          <ExternalLinkIcon />
+          {t('issueChanges.openGithub')}
+        </a>
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
