@@ -78,6 +78,7 @@ import {
 import { RouterAnchor } from '../router-anchor.js';
 import { IssueActivity } from './issue-activity.js';
 import { IssueAside, IssuePropertyChips } from './issue-aside.js';
+import { IssueChanges } from '#components/issue-changes/index';
 import { IssueDeliveryReport } from './issue-delivery-report.js';
 import { IssueCriteriaSection } from '#components/criteria/criteria-editor';
 import { SecretFindingsBanner } from '#components/secret-findings-banner';
@@ -220,6 +221,7 @@ export function IssueDetailView({
   );
   const panels = useIssuePanels(detail.id);
   const pulls = useIssuePullRequests(detail.id);
+  const openPull = pulls.data?.find((pull) => pull.state === 'open');
   const pullCount = Array.isArray(pulls.data) ? pulls.data.length : 0;
   const [tab, setTab] = useState<IssueTab>('activity');
   const rootRef = useRef<HTMLDivElement>(null);
@@ -511,6 +513,13 @@ export function IssueDetailView({
                 canMerge={mayMerge}
                 onMerged={refetchAfterMerge}
               />
+              {openPull ? (
+                <IssueChanges
+                  pullRequestId={openPull.id}
+                  headSha={openPull.headSha}
+                  canComment={canEdit}
+                />
+              ) : null}
               <IssuePreview issueId={detail.id} />
               <IssueRelease issueId={detail.id} />
             </div>

@@ -1901,6 +1901,27 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  issueChanges: {
+    title: '变更',
+    loading: '正在读取变更…',
+    files_other: '{{count}} 个文件',
+    verification: {
+      passed: '验证通过',
+      failed: '验证未通过',
+      contradicted: 'CI 否定了该验证',
+      stale: '该验证并非针对当前的头部提交。',
+      none: '尚无验证。',
+    },
+    sensitive: '触及敏感路径：{{files}}',
+    requestChanges: '要求修改',
+    requestDescription:
+      '写下需要修改的内容。它会作为评论发布，并唤醒负责该事项的智能体。',
+    note: '需要修改的内容',
+    send: '发送',
+    sent: '已发送修改请求',
+    failed: '无法发送修改请求',
+    openGithub: '在 GitHub 打开',
+  },
   uiSmoke: {
     title: '界面检查',
     description:
