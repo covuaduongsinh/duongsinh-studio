@@ -2001,6 +2001,29 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  harnessExport: {
+    title: 'Rules in the repository',
+    description:
+      'Writes the project’s skills, lessons, playbooks and default criteria into its repository as a pull request, so agents read them there and people review them like code.',
+    loading: 'Comparing with the repository...',
+    error: 'Could not read the export state.',
+    state: {
+      noRepository: 'The project has no repository linked.',
+      notExported:
+        'Never exported to {{repository}}. {{count}} files would be written.',
+      inSync: '{{repository}} has the current rules.',
+      drifted: 'The rules in {{repository}} have drifted from Studio.',
+    },
+    drift: {
+      title: 'The copy in the repository has drifted',
+      edited: 'Edited by hand: {{path}}',
+      missing: 'Missing: {{path}}',
+      outdated: 'Studio has newer content; export again to update.',
+    },
+    action: 'Export to the repository',
+    opened: 'Opened pull request #{{number}}',
+    failed: 'Could not export',
+  },
   branchProtection: {
     title: 'Main branch guard',
     description:

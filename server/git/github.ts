@@ -82,6 +82,8 @@ export interface GitHubClient {
       readonly content: string;
       readonly message: string;
       readonly branch: string;
+      /** The blob's sha when the file exists already: GitHub replaces it only against that sha. */
+      readonly sha?: string;
     },
   ): Promise<void>;
   /** One page of the repositories the token reaches, with whether there are more. */
@@ -581,6 +583,7 @@ export function createGitHubClient(options: {
           message: input.message,
           content: Buffer.from(input.content, 'utf8').toString('base64'),
           branch: input.branch,
+          ...(input.sha ? { sha: input.sha } : {}),
         },
       );
     },
