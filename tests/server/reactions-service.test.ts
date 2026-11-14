@@ -53,6 +53,12 @@ describe('reaction service', () => {
     });
   });
 
+  it('leaves the failed-run decision to people until a project turns runFailed on', () => {
+    expect(
+      DEFAULT_REACTION_RULES.filter((r) => !r.enabled).map((r) => r.event),
+    ).toEqual(['runFailed']);
+  });
+
   it('wakes the agent, records the attempt, and stops at 2 per push', async () => {
     const { store, attempts, blocked } = memoryStore();
     const woken: string[] = [];

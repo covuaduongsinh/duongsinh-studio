@@ -33,7 +33,7 @@ export interface ReactionRule {
   readonly action: 'wake' | 'notify';
 }
 
-/** Used for any event without a stored rule: 2 attempts per push and 5 per issue (Q1), a conflict once. */
+/** Used for any event without a stored rule: 2 attempts per push and 5 per issue (Q1), a conflict once; `runFailed` is off. */
 export const DEFAULT_REACTION_RULES: readonly ReactionRule[] = [
   { event: 'ciFailed', maxAttempts: 2 },
   { event: 'conflicts', maxAttempts: 1 },
@@ -43,7 +43,9 @@ export const DEFAULT_REACTION_RULES: readonly ReactionRule[] = [
   { event: 'greenAndApproved', maxAttempts: 1 },
 ].map((rule) => ({
   projectId: null,
-  enabled: true,
+  // A failed run already reaches the "needs a decision" card, whose retry and hand-over a person chooses; waking the
+  // agent again by itself would hide that card, so this one is off until a project turns it on.
+  enabled: rule.event !== 'runFailed',
   maxPerIssue: 5,
   action: 'wake' as const,
   ...rule,
