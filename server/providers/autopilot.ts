@@ -295,6 +295,9 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
       .resolve(jobExecutorServiceToken)
       .getScheduleExecutor('duongsinh-studio');
 
+    // The quota waits a restart interrupted are read back before the first sweep or the "Quota" card (plan S, S10).
+    await container.resolve(autopilotStallDetectorToken).restoreQuotaState();
+
     await this.executor.addJob({
       name: 'autopilot-sweep',
       options: { every: SWEEP_INTERVAL_MS },
