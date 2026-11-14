@@ -24,6 +24,7 @@ import BenchProvider from './bench.js';
 import LessonsProvider from './lessons.js';
 import SecurityProvider from './security.js';
 import AutopilotProvider from './autopilot.js';
+import ReactionsProvider from './reactions.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -62,6 +63,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   SecurityProvider,
   // Studio autopilot: automatic evaluation, merge, and sweep (AP2).
   AutopilotProvider,
+  // Studio's own reactions to a red CI, a conflict, a review asking for changes or a failed run (plan T, T1).
+  ReactionsProvider,
   // Projects as a skill scope, the skills new projects start with, and Studio's own skills (U6).
   ProjectDefaultsProvider,
   // The account organization API keys belong to (U6).

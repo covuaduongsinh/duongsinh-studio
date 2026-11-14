@@ -300,7 +300,7 @@ job `ds-ui-smoke` (T5); target `dsRoutine` của scheduler (T6); phần T11 plug
 
 - [x] T0 — Dọn và đo trước: kế hoạch này, Tiến độ kế hoạch V đã sửa; bốn số nền **chưa đo được** (mục 3)
 - [x] T2 — Kiểm chứng không tự báo (PR `feat/t-2`; **không có lệnh `verify run`** vì CLI chỉ là route, thay bằng `verify plan` + từ chối phía server + `contradicted`; xem `chenh-lech-upstream.md` §59)
-- [ ] T1 — Phản ứng tự động — **T1.0 xong** (PR `feat/t-1`: sự kiện `ciFailed` có giờ trong `ds_autopilot_events`, một lần cho mỗi đầu PR; `agentWakerToken.wakeIssue()` gọi `wake()` ngoài hook qua `projects.tx.run`, trigger `reaction`; chưa đổi hành vi); còn T1.1–T1.5 (T1.0 nền → T1.1 bảng → T1.2 nguồn sự kiện → T1.3 `prLineComment` → T1.4 PM → T1.5 giao diện)
+- [ ] T1 — Phản ứng tự động — **T1.0 xong** (PR `feat/t-1`: sự kiện `ciFailed` có giờ trong `ds_autopilot_events`, một lần cho mỗi đầu PR; `agentWakerToken.wakeIssue()` gọi `wake()` ngoài hook qua `projects.tx.run`, trigger `reaction`; chưa đổi hành vi); **T1.1 + T1.2 xong** (PR `feat/t-1-1`: bảng `dsReactionRules`/`dsReactionAttempts`, `server/reactions/service.ts`, `ReactionsProvider`; nguồn ciFailed (bỏ check tham chiếu), conflicts, reviewChanges, runFailed (trừ toolQuota/runnerDiskFull; chỉ agent của chính việc đó), greenAndApproved = duyệt xong thì `mergeIfEligible` ngay; mặc định nằm trong code, bảng chỉ là ghi đè; **chưa lấy ~200 dòng log** — chỉ tên check + liên kết, ghi ở §9); còn T1.3–T1.5 (T1.0 nền → T1.1 bảng → T1.2 nguồn sự kiện → T1.3 `prLineComment` → T1.4 PM → T1.5 giao diện)
 - [ ] T10 — Mức việc
 - [ ] T3a — Hàng rào GitHub; [ ] T3b — Auto-merge
 - [ ] T4 — Bộ quy tắc đi theo repo

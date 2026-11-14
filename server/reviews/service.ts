@@ -82,6 +82,14 @@ export function isReadOnlyText(text: string): boolean {
 export function createReviewsService(deps: {
   readonly database: Pick<DatabaseManager, 'connection'>;
   readonly git: () => GitService;
+  /** Told of every review recorded on a pull request of an issue (the reaction rules, plan T T1.2c); never fails it. */
+  readonly onReviewed?: (input: {
+    readonly issueId: string;
+    readonly pullRequestId: string;
+    readonly headSha: string;
+    readonly verdict: string;
+    readonly summary: string;
+  }) => Promise<void>;
 }) {
   const conn = (): DatabaseConnection => deps.database.connection();
 
@@ -394,6 +402,18 @@ export function createReviewsService(deps: {
     };
 
     await conn().query.insertInto(REVIEWS).values(row).execute();
+    if (pull.issueId && deps.onReviewed)
+      await deps
+        .onReviewed({
+          issueId: pull.issueId,
+          pullRequestId: pull.id,
+          headSha: input.headSha,
+          verdict: input.verdict,
+          summary: input.summary,
+        })
+        .catch((error: unknown) =>
+          console.warn('A review reaction failed', error),
+        );
 
     const insertedChecks: ReviewCriteriaCheck[] = [];
     if (input.criteriaChecks && input.criteriaChecks.length > 0) {

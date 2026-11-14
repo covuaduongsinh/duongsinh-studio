@@ -1644,6 +1644,33 @@ export function createGitService(deps: GitServiceDeps) {
     }) => Promise<void>;
   } | null = null;
 
+  /**
+   * Who hears of a pull request turning red or conflicting (the reaction rules of plan T, T1.2). Without one nothing
+   * reacts; the observer's own failure never fails a refresh.
+   */
+  let pullObserver: {
+    readonly ciFailed: (input: {
+      readonly issueId: string;
+      readonly pullRequestId: string;
+      readonly headSha: string;
+      readonly failedChecks: readonly { name: string; url: string | null }[];
+    }) => Promise<void>;
+    readonly conflicts: (input: {
+      readonly issueId: string;
+      readonly pullRequestId: string;
+      readonly headSha: string;
+      readonly baseBranch: string;
+    }) => Promise<void>;
+  } | null = null;
+
+  const observe = async (call: () => Promise<void> | undefined) => {
+    try {
+      await call();
+    } catch (error) {
+      console.warn('A pull request observer failed', error);
+    }
+  };
+
   /** Pull requests Studio is merging for a finished stage now; read by `onMerged`, which completes the stage issue. */
   const stageMerges = new Set<string>();
 
@@ -1952,13 +1979,50 @@ export function createGitService(deps: GitServiceDeps) {
     if (state === 'open' && values.ciState === 'failed' && values.issueId) {
       await contradictVerifications(conn(), values.issueId, values.headSha);
       // The first red check on a head is logged once with its time: what the reaction rules (T1) and the baseline read.
-      if (existing?.ciState !== 'failed' || existing.headSha !== values.headSha)
+      if (
+        existing?.ciState !== 'failed' ||
+        existing.headSha !== values.headSha
+      ) {
         await recordCiFailed(conn(), {
           issueId: values.issueId,
           pullRequestId: pull.id,
           headSha: values.headSha,
         });
+        // A check the repository lists as reference does not block, so it does not call for a fix either.
+        const failedChecks = pull.checks.filter(
+          (check) =>
+            check.outcome === 'failure' &&
+            !repository.referenceChecks.includes(check.name),
+        );
+        if (failedChecks.length > 0)
+          await observe(() =>
+            pullObserver?.ciFailed({
+              issueId: values.issueId!,
+              pullRequestId: pull.id,
+              headSha: values.headSha,
+              failedChecks: failedChecks.map((check) => ({
+                name: check.name,
+                url: check.url,
+              })),
+            }),
+          );
+      }
     }
+    if (
+      state === 'open' &&
+      values.mergeability === 'conflicts' &&
+      values.issueId &&
+      (existing?.mergeability !== 'conflicts' ||
+        existing.headSha !== values.headSha)
+    )
+      await observe(() =>
+        pullObserver?.conflicts({
+          issueId: values.issueId!,
+          pullRequestId: pull.id,
+          headSha: values.headSha,
+          baseBranch: values.baseBranch,
+        }),
+      );
     if (becameMerged)
       await onMerged(
         pull,
@@ -3188,6 +3252,9 @@ export function createGitService(deps: GitServiceDeps) {
     pullFiles,
     pullFileDetails,
     pullPatch,
+    setPullObserver: (observer: NonNullable<typeof pullObserver>) => {
+      pullObserver = observer;
+    },
     setStageMergePolicy: (policy: NonNullable<typeof stageMergePolicy>) => {
       stageMergePolicy = policy;
     },

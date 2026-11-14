@@ -33,6 +33,7 @@ import {
   appText,
 } from '../agents/ids.js';
 import { num, str } from '../git/rows.js';
+import { onRunFailedReaction, reactionServiceToken } from './reactions.js';
 import { maskSecrets } from '../security/secret-patterns.js';
 import { parsePlaybookInvocations } from '../playbooks/parser.js';
 import {
@@ -395,6 +396,8 @@ export function createIssueSubject(deps: {
   readonly projects: Projects;
   readonly viewerOf: (userId: string) => Promise<Viewer | null>;
   readonly translate: () => Promise<Translate>;
+  /** Told, once the run's transaction commits, of an issue's run that failed for a reason a fix may cure (T1.2d). */
+  readonly onRunFailed?: (run: Run) => void | Promise<void>;
   readonly recentSummaries: (
     conn: DatabaseConnection,
     key: {
@@ -518,8 +521,20 @@ export function createIssueSubject(deps: {
       },
     },
     sink: {
-      onRunFinished: (tx, run) =>
-        postRunFinished(
+      onRunFinished: async (tx, run) => {
+        if (
+          run.status === 'failed' &&
+          run.subject.kind === ISSUE_SUBJECT &&
+          run.failureReason !== 'toolQuota' &&
+          run.failureReason !== 'runnerDiskFull' &&
+          deps.onRunFailed
+        )
+          tx.conn.afterCommit(() => {
+            void Promise.resolve(deps.onRunFailed?.(run)).catch((error) =>
+              console.warn('A failed-run reaction failed', error),
+            );
+          });
+        await postRunFinished(
           {
             comments: projects.comments,
             publish: (event) => projects.events.emit(event),
@@ -530,7 +545,8 @@ export function createIssueSubject(deps: {
           },
           tx,
           run,
-        ),
+        );
+      },
     },
     // A run no runner picks up within a day fails as `queuedExpired` and reaches the failed-run card and the Inbox.
     queuedExpiryMs: QUEUED_EXPIRY_MS,
@@ -614,6 +630,9 @@ export default class IssueSubjectProvider extends ServiceProvider<Application> {
           };
         },
         translate,
+        onRunFailed: container.has(reactionServiceToken)
+          ? (run) => onRunFailedReaction(container, run)
+          : undefined,
         recentSummaries: (conn, key, exceptRunId) =>
           container
             .resolve(agentsToken)
