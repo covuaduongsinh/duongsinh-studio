@@ -496,6 +496,23 @@ export function createGitService(deps: GitServiceDeps) {
   const webhookListeners = new Set<
     (repositoryId: string, event: string, payload: Row) => Promise<void>
   >();
+  /** Who hears of review deliveries (`pull_request_review`, `pull_request_review_comment`) of a linked repository. */
+  const reviewListeners = new Set<
+    (repositoryId: string, event: string, payload: Row) => Promise<void>
+  >();
+  function onReviewEvent(
+    listener: (
+      repositoryId: string,
+      event: string,
+      payload: Row,
+    ) => Promise<void>,
+  ): () => void {
+    reviewListeners.add(listener);
+    return () => {
+      reviewListeners.delete(listener);
+    };
+  }
+
   /** Adds a listener for `pull_request` and `workflow_run` deliveries; answers what removes it. */
   function onWebhookEvent(
     listener: (
@@ -1139,6 +1156,23 @@ export function createGitService(deps: GitServiceDeps) {
     if (event === 'push') {
       for (const listener of tagListeners) await listener(repository.id);
       return tagListeners.size > 0 ? 'push.tags' : 'push.ignored';
+    }
+    // A review changes no check and no mergeability: it only tells listeners (the reaction rules), then is done.
+    if (
+      event === 'pull_request_review' ||
+      event === 'pull_request_review_comment'
+    ) {
+      for (const listener of reviewListeners) {
+        try {
+          await listener(repository.id, event, payload);
+        } catch (error) {
+          report(
+            `A ${event} listener failed for ${repository.fullName}`,
+            error,
+          );
+        }
+      }
+      return `${event}.${str(payload.action) || 'received'}`;
     }
     if (event === 'pull_request' || event === 'workflow_run')
       for (const listener of webhookListeners) {
@@ -2979,6 +3013,19 @@ export function createGitService(deps: GitServiceDeps) {
     return client.pullFiles(repo.fullName, pull.number);
   }
 
+  /** The inline comments of one review of a pull request. */
+  async function pullReviewComments(
+    id: string,
+    reviewId: string,
+  ): Promise<{ path: string; line: number | null; body: string }[]> {
+    const pull = await pullRecord(id);
+    const repo = await repositoryRecord(pull.repositoryId);
+    const client = await clientForRepository(repo.id);
+    return [
+      ...(await client.reviewComments(repo.fullName, pull.number, reviewId)),
+    ];
+  }
+
   /** Relative file paths and diff patches changed by a pull request (read via GitHub client). */
   async function pullFileDetails(
     id: string,
@@ -3222,6 +3269,8 @@ export function createGitService(deps: GitServiceDeps) {
     repositoryToken,
     onTagPush,
     onWebhookEvent,
+    onReviewEvent,
+    pullReviewComments,
     linkRepository,
     updateRepository,
     updateConnection,

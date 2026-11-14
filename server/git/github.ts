@@ -100,6 +100,18 @@ export interface GitHubClient {
   pull(fullName: string, number: number): Promise<GitHubPull>;
   /** The files changed by a pull request (relative file paths). */
   pullFiles(fullName: string, number: number): Promise<string[]>;
+  /** The inline comments of one review of a pull request (T1.3). */
+  reviewComments(
+    fullName: string,
+    number: number,
+    reviewId: string,
+  ): Promise<
+    {
+      readonly path: string;
+      readonly line: number | null;
+      readonly body: string;
+    }[]
+  >;
   /** The files and diff patches changed by a pull request. */
   pullFileDetails(
     fullName: string,
@@ -398,6 +410,23 @@ export function createGitHubClient(options: {
       return answer
         .map((entry) => text(record(entry).filename) ?? '')
         .filter((name) => name !== '');
+    },
+    async reviewComments(fullName, number, reviewId) {
+      const answer = items(
+        await call(
+          'GET',
+          `${repoPath(fullName)}/pulls/${number}/reviews/${encodeURIComponent(reviewId)}/comments?per_page=100`,
+        ),
+      );
+      return answer.map((entry) => {
+        const rec = record(entry);
+        const line = rec.line ?? rec.original_line;
+        return {
+          path: text(rec.path) ?? '',
+          line: typeof line === 'number' ? line : null,
+          body: text(rec.body) ?? '',
+        };
+      });
     },
     async pullFileDetails(fullName, number) {
       const answer = items(
