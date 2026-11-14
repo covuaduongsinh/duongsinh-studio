@@ -2,14 +2,6 @@ import { randomUUID } from 'node:crypto';
 import type { DatabaseConnection, DatabaseManager } from '@nocobase/db';
 import type { GitService, GitPullRequestView } from '../git/service.js';
 import type { ReviewsService, ReviewView } from '../reviews/service.js';
-import {
-  DEFAULT_TIER,
-  extraReviewNeeded,
-  isTier,
-  raiseTier,
-  tierOf,
-  type Tier,
-} from '../tiers/service.js';
 import { str, strOrNull, num, bool, iso, type Row } from '../git/rows.js';
 import {
   DEFAULT_TIER,
