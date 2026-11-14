@@ -112,7 +112,10 @@ describe('Settings → New members', () => {
     expect(
       screen.queryByRole('option', { name: 'Owner' }),
     ).not.toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'Admin' })).toBeInTheDocument();
+    // The options mount in a portal after the click; wait for them like the other tests do.
+    expect(
+      await screen.findByRole('option', { name: 'Admin' }),
+    ).toBeInTheDocument();
   });
 
   it('saves the chosen role, and removing it saves null', async () => {
