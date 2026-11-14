@@ -424,12 +424,13 @@ V0.1 (route ghi đè, tại sao không dùng `IssueCreationModeContext`); V3.1 (
   - [x] V4.3 route job và nhật ký (#106)
   - [x] V4.4 trạng thái/log thật (#107), nhắc khoá CI (#108), khoá CI hẹp theo App 90 ngày (#101)
   - [x] V4.5 tài liệu (PR này)
-- [ ] V5 — Dung lượng, sao lưu, đăng ký app
+- [x] V5 — Dung lượng, sao lưu, đăng ký app (mã xong tới #120; **còn chờ chủ dự án**: cài daemon lên VPS, `dbService`/`dumpDir`/`accessLog`/`hosts` trong config daemon, bật nhật ký Traefik JSON, rclone sang Drive, DNS và khoá CI cho app mới, đẩy workflow bằng token có quyền Workflows)
   - [x] V5.1 suất, RAM, tự dừng (#111 lõi: suất theo môi trường, cổng RAM, `check()`; V5.1b PR này: tự dừng theo request qua op `lastAccess` của daemon, thẻ "Máy chủ" + `GET /api/hostLoad`, seed gán môi trường cho dòng cũ, `DB_PASSWORD` sinh lười, giữ 2 bản `dist`. **Cần chủ dự án**: bật nhật ký Traefik JSON và đặt `accessLog`/`hosts` trong config daemon, nếu không vẫn dừng theo "kể từ lúc bật". Chưa làm: runner bận/rảnh trên thẻ, `inspect-host`)
   - [x] V5.2 sao lưu mọi app (#102: `backup-nb3.sh`; **chưa cài lên VPS**; dump trước `remove(purgeData)` xong ở V5.2b qua op `dump` của daemon: lỗi thì từ chối xoá; app SQLite cũng bị từ chối purge. **Cần chủ dự án**: thêm `dbService`/`dumpDir` vào config daemon)
   - [x] V5.3 `!noi-app-nb3` (PR này, sau khi chủ dự án xác nhận M4.3 đã đóng 13/11): `POST /api/nb3Apps/register` (owner), form `client/pages/releases/register-app.tsx`, một mẫu workflow `nb3AppWorkflow` (đường dẫn vé đối chiếu với nguồn plugin), bỏ `/api/builds/deploy`. **Không làm**: `deploy:true` của project-setups tạo App xem thử thật (cần DNS do chủ dự án cấp); nút "Kiểm DNS" dùng route kiểm môi trường của plugin. **Chủ dự án**: DNS, `ci/setup` + secret GitHub, đẩy workflow bằng token có quyền Workflows; chưa thử trên GitHub thật)
   - [x] V5.4 `!don-app-nb3` (13/11: chủ dự án quyết **giữ compose build từ source**, nên không tạo compose `nb3-nocoedu`, không restore; playbook chỉ gom sao lưu, ghi nhận, kiểm sức khoẻ và việc của chủ dự án; xem `docs/nhan-nuoi-nocoedu.md`)
-- [ ] V6 — Lark, tài liệu, phát hành
+- [x] V6 — Lark, tài liệu, phát hành (mã xong; **còn chờ chủ dự án**: token chỉ-đọc Releases cho `release.sh`, thử một tag thật, QPS Lark chưa tra)
   - [x] V6.1 Lark qua tenant token (phần repo này: playbook `!nhap-lark` qua kênh job, agent chỉ dry-run; `docs/lark-cho-dsc.md`. Lệnh `import-lark` và test của nó thuộc repo NocoEdu; QPS Lark còn "chưa tra")
   - [x] V6.2 dọn tài liệu và ngôn từ (#103)
   - [x] V6.3 phát hành bằng Actions (`release.yml` khi đẩy tag `v*`, `build-release.sh` có chốt chặn, `release.sh` trên VPS; Actions chỉ dựng, không SSH. **Cần chủ dự án**: token chỉ-đọc Releases cho `release.sh`, thử một tag thật)
+  - Sửa nhỏ sau V5: #117 nhóm riêng và mount socket vào Studio, #118 giữ thư mục chạy của daemon, #119 cho daemon ghi dump, #120 thu nhật ký Traefik cho các host NB3 (V5.1b)
