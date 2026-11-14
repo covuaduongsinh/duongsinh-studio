@@ -6,6 +6,7 @@ import {
   signIn,
   DEFAULT_ADMIN_CREDENTIALS,
 } from '@nocobase/app-plugin-authentication/testing';
+import { databaseManagerToken } from '@nocobase/db';
 import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
 import { createStandaloneServer } from '../../server/standalone.js';
 import { CONTRIBUTOR_SET_KEY } from '../../server/access/roles.js';
@@ -356,6 +357,19 @@ test('git connections, repositories, pull request sync, merge and run credential
     ciState: 'pending',
     mergeBlocker: 'ciPending',
   });
+  // A verification an agent passed on this head is contradicted when CI turns red on it (plan T, T2).
+  const dbConn = app.container.resolve(databaseManagerToken).connection();
+  await dbConn.query
+    .insertInto('dsVerifications')
+    .values({
+      id: 'verif-contradict-1',
+      issueId: issue.id,
+      headSha: 'head-sha-1',
+      attempt: 1,
+      result: 'passed',
+      createdAt: new Date(),
+    })
+    .execute();
   github.checks = 'failure';
   const refreshed = await admin.fetch(
     `/git/pullRequests/${pending.id}/refresh`,
@@ -390,6 +404,15 @@ test('git connections, repositories, pull request sync, merge and run credential
     reason: 'MERGE_BLOCKED',
     metadata: { mergeBlocker: 'ciFailed' },
   });
+  expect(
+    (
+      await dbConn.query
+        .selectFrom('dsVerifications')
+        .select('result')
+        .where('id', '=', 'verif-contradict-1')
+        .executeTakeFirstOrThrow()
+    ).result,
+  ).toBe('contradicted');
   expect(github.calls.some((call) => call.method === 'PUT')).toBe(false);
   // A contributor who neither owns the issue nor leads the project may not merge.
   expect([403, 404]).toContain(

@@ -806,6 +806,7 @@ const enUS = {
     colTime: 'Time',
     passed: 'Passed',
     failed: 'Failed',
+    contradicted: 'Contradicted by CI',
   },
   settingsReviews: {
     title: 'Reviews',

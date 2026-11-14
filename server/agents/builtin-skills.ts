@@ -63,7 +63,7 @@ export const BUILTIN_SKILLS: readonly BuiltinSkill[] = [
   skill(
     'ds-workflow',
     'project',
-    3,
+    4,
     'Cách một công việc đi từ lúc nhận đến lúc bàn giao ở Dương Sinh Studio. Dùng khi điều phối hoặc bắt đầu một công việc.',
     `
 # Quy trình làm việc
@@ -87,17 +87,18 @@ Viết approach trước khi sửa nếu công việc đụng dữ liệu, migra
 
 ## Sẵn sàng bàn giao
 
-Khi review đạt, check xanh, và đã nộp lượt Kiểm chứng đạt (passed) qua \`ds-studio verify submit\`: chuyển sang chờ nghiệm thu (in_review), ghi rõ việc người cần làm và báo cáo bàn giao. Mọi quyết định của người đều đi qua trạng thái bị vướng kèm một câu hỏi.
+Khi review đạt, check xanh, và lượt Kiểm chứng mới nhất của đúng commit đầu PR đạt (passed, không bị CI phủ định thành contradicted; xem skill \`ds-development\`): chuyển sang chờ nghiệm thu (in_review), ghi rõ việc người cần làm và báo cáo bàn giao. Mọi quyết định của người đều đi qua trạng thái bị vướng kèm một câu hỏi.
 `,
     [
       `---\nname: ds-workflow\ndescription: "Cách một công việc đi từ lúc nhận đến lúc bàn giao ở Dương Sinh Studio. Dùng khi điều phối hoặc bắt đầu một công việc."\n---\n\n# Quy trình làm việc\n\n## Ai làm gì\n\n- Trưởng nhóm agent điều phối: chọn agent, giao từng bước, không tự sửa code.\n- Agent thực thi làm đúng một bước được giao rồi trả lời một lần trong luồng đó.\n- Chủ công việc quyết định và nghiệm thu.\n\n## Cần approach trước hay không\n\nViết approach trước khi sửa nếu công việc đụng dữ liệu, migration, quyền, xử lý đồng thời, hoặc mô tả không nói rõ cách làm. Các việc còn lại làm luôn.\n\n## Các bước\n\n1. Đọc mô tả, bình luận gần nhất và ghi nhớ dự án.\n2. Mỗi lần chỉ một bước đổi code. Chỉ sang bước sau khi lượt chạy trước đã kết thúc.\n3. Review bởi agent khác, không yếu hơn tác giả.\n4. Check đỏ thì đọc log trước khi sửa.\n\n## Sẵn sàng bàn giao\n\nKhi review đạt và check xanh: chuyển sang chờ nghiệm thu, ghi rõ việc người cần làm và báo cáo bàn giao. Mọi quyết định của người đều đi qua trạng thái bị vướng kèm một câu hỏi.\n`,
       `---\nname: ds-workflow\ndescription: "Cách một công việc đi từ lúc nhận đến lúc bàn giao ở Dương Sinh Studio. Dùng khi điều phối hoặc bắt đầu một công việc."\n---\n\n# Quy trình làm việc\n\n## Ai làm gì\n\n- Trưởng nhóm agent điều phối: chọn agent, giao từng bước, không tự sửa code.\n- Agent thực thi làm đúng một bước được giao rồi trả lời một lần trong luồng đó.\n- Chủ công việc quyết định và nghiệm thu.\n\n## Cần approach trước hay không\n\nViết approach trước khi sửa nếu công việc đụng dữ liệu, migration, quyền, xử lý đồng thời, hoặc mô tả không nói rõ cách làm. Các việc còn lại làm luôn.\n\n## Các bước\n\n1. Đọc mô tả, bình luận gần nhất và ghi nhớ dự án.\n2. Mỗi lần chỉ một bước đổi code. Chỉ sang bước sau khi lượt chạy trước đã kết thúc.\n3. Review bởi agent khác, không yếu hơn tác giả.\n4. Check đỏ thì đọc log trước khi sửa.\n\n## Sẵn sàng bàn giao\n\nKhi review đạt, check xanh, và đã nộp lượt Kiểm chứng đạt (passed) qua \`ds-studio verify submit\`: chuyển sang chờ nghiệm thu (in_review), ghi rõ việc người cần làm và báo cáo bàn giao. Mọi quyết định của người đều đi qua trạng thái bị vướng kèm một câu hỏi.\n`,
+      '---\nname: ds-workflow\ndescription: "Cách một công việc đi từ lúc nhận đến lúc bàn giao ở Dương Sinh Studio. Dùng khi điều phối hoặc bắt đầu một công việc."\n---\n\n# Quy trình làm việc\n\n## Ai làm gì\n\n- Trưởng nhóm agent điều phối: chọn agent, giao từng bước, không tự sửa code.\n- Agent thực thi làm đúng một bước được giao rồi trả lời một lần trong luồng đó.\n- Chủ công việc quyết định và nghiệm thu.\n\n## Cần approach trước hay không\n\nViết approach trước khi sửa nếu công việc đụng dữ liệu, migration, quyền, xử lý đồng thời, hoặc mô tả không nói rõ cách làm. Các việc còn lại làm luôn.\n\n## Các bước\n\n1. Đọc mô tả, bình luận gần nhất và ghi nhớ dự án.\n2. Mỗi lần chỉ một bước đổi code. Chỉ sang bước sau khi lượt chạy trước đã kết thúc.\n3. Review bởi agent khác, không yếu hơn tác giả: đối chiếu từng tiêu chí nghiệm thu và kết quả kiểm chứng. Nếu có tiêu chí chưa đạt thì không được duyệt (approve).\n4. Check đỏ thì đọc log trước khi sửa.\n\n## Sẵn sàng bàn giao\n\nKhi review đạt, check xanh, và đã nộp lượt Kiểm chứng đạt (passed) qua `ds-studio verify submit`: chuyển sang chờ nghiệm thu (in_review), ghi rõ việc người cần làm và báo cáo bàn giao. Mọi quyết định của người đều đi qua trạng thái bị vướng kèm một câu hỏi.\n',
     ],
   ),
   skill(
     'ds-development',
     'project',
-    2,
+    3,
     'Cách làm một bước đổi code: thiết kế, kiểm chứng, xử lý CI, nhận review và bàn giao. Dùng khi được giao sửa code.',
     `
 # Làm một bước phát triển
@@ -116,7 +117,7 @@ Với đoạn chạy thường xuyên, tránh truy vấn lặp theo từng dòng
 
 ## Kiểm chứng
 
-Thêm test cho đúng hành vi vừa đổi. Chạy kiểm tra trong phạm vi file bị ảnh hưởng và báo kết quả thật; không báo xong khi còn test đỏ, test bị bỏ qua hay chưa chạy thử. Bắt buộc nộp lượt Kiểm chứng (\`ds-studio verify submit\`) đối chiếu với toàn bộ tiêu chí nghiệm thu của việc; chỉ chuyển sang in_review khi kết quả Kiểm chứng đạt (passed). Nếu thất bại liên tiếp đến ngưỡng giới hạn (mặc định 2 lần), việc sẽ tự động chuyển sang Đang vướng (Blocked).
+Thêm test cho đúng hành vi vừa đổi. Chạy kiểm tra trong phạm vi file bị ảnh hưởng và báo kết quả thật; không báo xong khi còn test đỏ, test bị bỏ qua hay chưa chạy thử. Kiểm chứng không do bạn tự báo: chạy \`ds-studio verify plan <IDENTIFIER>\` để lấy đúng câu lệnh của từng tiêu chí và commit cần kiểm (đầu PR đang mở); tự chạy từng câu lệnh ở đúng commit đó, giữ mã thoát (exit code) và phần cuối của output; rồi nộp bằng \`ds-studio verify submit\` với \`exitCode\` và \`output\` thật của từng câu lệnh. Studio suy kết quả từ exitCode, bỏ qua mọi \`result\` bạn tự ghi, từ chối bản nộp thiếu exitCode hoặc sai commit, và nếu CI đỏ trên cùng commit thì lượt Kiểm chứng đạt bị đổi thành contradicted (không chuyển được sang in_review; sửa rồi kiểm chứng lại). Đối chiếu với toàn bộ tiêu chí nghiệm thu của việc; chỉ chuyển sang in_review khi kết quả Kiểm chứng đạt (passed). Nếu thất bại liên tiếp đến ngưỡng giới hạn (mặc định 2 lần), việc sẽ tự động chuyển sang Đang vướng (Blocked).
 
 ## CI lỗi
 
@@ -132,6 +133,7 @@ Trên runner dùng chung, theo giới hạn trong skill \`ds-app-rules\`. Commit
 `,
     [
       `---\nname: ds-development\ndescription: "Cách làm một bước đổi code: thiết kế, kiểm chứng, xử lý CI, nhận review và bàn giao. Dùng khi được giao sửa code."\n---\n\n# Làm một bước phát triển\n\n## Làm một bước\n\nChỉ làm đúng bước được giao. Thấy việc khác cần làm thì nêu trong phần trả lời, không tự mở rộng.\n\n## Thiết kế\n\nTheo cách repo đang làm; đọc tài liệu và file quy tắc của repo trước. Ưu tiên cơ chế sẵn có hơn tự viết.\n\n## Chi phí đường nóng\n\nVới đoạn chạy thường xuyên, tránh truy vấn lặp theo từng dòng và tránh tải dữ liệu không dùng.\n\n## Kiểm chứng\n\nThêm test cho đúng hành vi vừa đổi. Chạy kiểm tra trong phạm vi file bị ảnh hưởng và báo kết quả thật; không báo xong khi còn test đỏ, test bị bỏ qua hay chưa chạy thử.\n\n## CI lỗi\n\nĐọc log của check, tìm nguyên nhân, sửa nguyên nhân. Không tắt check để cho xanh.\n\n## Review\n\nSửa mọi mục must fix. Mục nào không đồng ý thì trả lời kèm lý do trong luồng.\n\n## Bàn giao\n\nTrên runner dùng chung, theo giới hạn trong skill \`ds-app-rules\`.\nCommit và push lên nhánh của công việc, không viết lại lịch sử (riêng việc khởi tạo dự án được commit mốc gốc lên nhánh mặc định). Trả lời một lần: đã đổi gì, đã kiểm chứng thế nào, còn gì chưa làm.\n`,
+      '---\nname: ds-development\ndescription: "Cách làm một bước đổi code: thiết kế, kiểm chứng, xử lý CI, nhận review và bàn giao. Dùng khi được giao sửa code."\n---\n\n# Làm một bước phát triển\n\n## Làm một bước\n\nChỉ làm đúng bước được giao. Thấy việc khác cần làm thì nêu trong phần trả lời, không tự mở rộng.\n\n## Thiết kế\n\nTheo cách repo đang làm; đọc tài liệu và file quy tắc của repo trước. Ưu tiên cơ chế sẵn có hơn tự viết.\n\n## Chi phí đường nóng\n\nVới đoạn chạy thường xuyên, tránh truy vấn lặp theo từng dòng và tránh tải dữ liệu không dùng.\n\n## Kiểm chứng\n\nThêm test cho đúng hành vi vừa đổi. Chạy kiểm tra trong phạm vi file bị ảnh hưởng và báo kết quả thật; không báo xong khi còn test đỏ, test bị bỏ qua hay chưa chạy thử. Bắt buộc nộp lượt Kiểm chứng (`ds-studio verify submit`) đối chiếu với toàn bộ tiêu chí nghiệm thu của việc; chỉ chuyển sang in_review khi kết quả Kiểm chứng đạt (passed). Nếu thất bại liên tiếp đến ngưỡng giới hạn (mặc định 2 lần), việc sẽ tự động chuyển sang Đang vướng (Blocked).\n\n## CI lỗi\n\nĐọc log của check, tìm nguyên nhân, sửa nguyên nhân. Không tắt check để cho xanh.\n\n## Review\n\nSửa mọi mục must fix. Mục nào không đồng ý thì trả lời kèm lý do trong luồng.\n\n## Bàn giao\n\nTrên runner dùng chung, theo giới hạn trong skill `ds-app-rules`. Commit và push lên nhánh của công việc, không viết lại lịch sử (riêng việc khởi tạo dự án được commit mốc gốc lên nhánh mặc định). Trả lời một lần: đã đổi gì, đã kiểm chứng thế nào, còn gì chưa làm.\n',
     ],
   ),
   skill(

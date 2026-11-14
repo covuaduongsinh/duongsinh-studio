@@ -25,6 +25,7 @@ import {
   webhookUrlOf,
   type AppInstallation,
 } from './github-app.js';
+import { contradictVerifications } from '../verifications/contradiction.js';
 import {
   FORCEABLE_BLOCKERS,
   ciStateOf,
@@ -1946,6 +1947,9 @@ export function createGitService(deps: GitServiceDeps) {
             values.mergedAt.getTime() >= Date.parse(repository.createdAt)));
     }
     const pull = await pullRecord(id ?? '');
+    // CI is the last word: red checks on a head that an agent verified contradict that verification (plan T, T2).
+    if (state === 'open' && values.ciState === 'failed' && values.issueId)
+      await contradictVerifications(conn(), values.issueId, values.headSha);
     if (becameMerged)
       await onMerged(
         pull,

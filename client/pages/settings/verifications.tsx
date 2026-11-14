@@ -2,7 +2,13 @@
 import { useToaster } from '@nocobase/app-client';
 import { useCan } from '@nocobase/app-plugin-authorization/client';
 import { useTranslation } from '@nocobase/i18n/client';
-import { CheckCircle2, XCircle, ShieldCheck, RefreshCw } from 'lucide-react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  ShieldCheck,
+  RefreshCw,
+} from 'lucide-react';
 import { useState, type FormEvent, type ReactElement } from 'react';
 
 import { PageContainer } from '#components/page-container';
@@ -222,6 +228,14 @@ export default function VerificationSettingsPage(): ReactElement {
                           >
                             <CheckCircle2 className='size-3 mr-1 inline' />
                             {t('settingsVerifications.passed')}
+                          </Badge>
+                        ) : item.result === 'contradicted' ? (
+                          <Badge
+                            variant='outline'
+                            className='border-destructive/40 text-destructive'
+                          >
+                            <AlertTriangle className='size-3 mr-1 inline' />
+                            {t('settingsVerifications.contradicted')}
                           </Badge>
                         ) : (
                           <Badge

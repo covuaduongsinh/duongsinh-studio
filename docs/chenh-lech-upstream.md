@@ -1012,3 +1012,13 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Một mẫu workflow** `nb3AppWorkflow` thay cho mẫu `/api/builds/uploadTickets` (M4.2) và mẫu preview trong tài liệu (M4.3); dùng route vé của plugin. `POST /api/builds/deploy` (luôn `APP_HOST_OFF`) bị bỏ.
 - Không làm: `deploy:true` của `project-setups` vẫn là `deployLater` — tên miền (DNS) do chủ dự án cấp nên Studio không thể tự tạo App xem thử thật.
 - **Khi nâng plugin**: nếu plugin có API đăng ký App/môi trường trong một giao dịch thì thay phần hoàn tác.
+
+## 59. T2 — Kiểm chứng không tự báo (14/11/2026)
+
+- **Lệnh CLI chỉ là route**: hợp đồng plugin agents không có lệnh chạy cục bộ (`cliRoute` biến mỗi route thành một lệnh, "không có registry riêng"), nên `ds-studio verify run` như bản gốc kế hoạch T mô tả **không dựng được**. Thay bằng `GET /api/issues/{id}/verificationPlan` (`ds-studio verify plan`, `server/routes/verification-plan.ts`) trả câu lệnh của từng tiêu chí và commit cần kiểm; agent tự chạy rồi nộp `exitCode` và `output` bằng `verify submit`. Agent vẫn là bên truyền `exitCode`: sức mạnh nằm ở ba chỗ phía server dưới đây, và ở trọng tài CI.
+- **Server** (`server/routes/verifications.ts`): `test`/`command` có mục nộp mà thiếu `exitCode` bị 400 `EXIT_CODE_REQUIRED`; `result` do agent ghi bị bỏ, kết quả suy từ `exitCode`; bản nộp cho commit khác đầu PR mở bị 400 `STALE_HEAD` và không ghi gì.
+- **Lỗi có sẵn được sửa**: tiêu chí `ci` so `dsPullRequests.ciState === 'success'`, nhưng cột lưu `passed` (`ciStateOf`), nên ngoài test (gieo `success`) tiêu chí `ci` luôn đỏ. Nay nhận `passed` (và `success` của dữ liệu cũ).
+- **`contradicted`**: `server/verifications/contradiction.ts`, gọi từ `refreshPull` (`server/git/service.ts`) khi `ciState` của PR mở là `failed`; đổi mọi verification `passed` cùng `headSha` thành `contradicted` (migration `202611140001`: `contradictedAt`, `contradictedBy`). `mayMove` và cổng merge chỉ đọc `passed` nên tự chặn.
+- **Review**: `server/reviews/verification-check.ts`; approve cần `checklist.verificationOutputReviewed === true` khi lượt kiểm chứng có mục test/command, và không bao giờ approve trên `contradicted`. Skill `ds-workflow` 4, `ds-development` 3 và hướng dẫn review đã nâng.
+- **Stop hook của Claude Code**: bỏ. Runner headless nạp hook của dự án hay không chưa kiểm được trong phiên này, và `verify plan` + từ chối phía server đã đủ cho mục tiêu.
+- **Khi nâng plugin**: nếu plugin agents có lệnh chạy cục bộ trong manifest thì thêm `verify run` đúng như kế hoạch gốc.
