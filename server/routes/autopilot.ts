@@ -59,6 +59,7 @@ const AutopilotSettingsSchema = z
     stallMinutes: z.number().int(),
     sensitivePaths: z.array(z.string()).nullable(),
     sensitivePolicy: z.enum(['extraReview', 'human']),
+    defaultTier: z.enum(['small', 'standard', 'sensitive']),
     pausedReason: z.string().nullable(),
     updatedAt: z.string(),
     updatedById: z.string().nullable(),
@@ -89,6 +90,7 @@ const UpdateAutopilotSettingsBody = z
       .transform((paths) => (paths && paths.length === 0 ? null : paths))
       .optional(),
     sensitivePolicy: z.enum(['extraReview', 'human']).optional(),
+    defaultTier: z.enum(['small', 'standard', 'sensitive']).optional(),
     pausedReason: z.string().nullable().optional(),
   })
   .strict();
@@ -297,6 +299,7 @@ export const autopilotRoutes: AppApiRouteContribution<Application> =
           stallMinutes: 30,
           sensitivePaths: null,
           sensitivePolicy: 'extraReview',
+          defaultTier: 'standard',
           pausedReason: null,
           updatedAt: new Date().toISOString(),
           updatedById: null,

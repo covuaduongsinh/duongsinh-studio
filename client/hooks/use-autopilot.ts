@@ -7,6 +7,9 @@ import {
   type UseQueryResult,
 } from '@tanstack/react-query';
 
+/** How much care an issue asks for (plan T, T10). */
+export type IssueTierName = 'small' | 'standard' | 'sensitive';
+
 export interface AutopilotSettings {
   readonly projectId: string;
   readonly enabled: boolean;
@@ -18,6 +21,7 @@ export interface AutopilotSettings {
   readonly stallMinutes: number;
   readonly sensitivePaths: string[] | null;
   readonly sensitivePolicy: 'extraReview' | 'human';
+  readonly defaultTier: IssueTierName;
   readonly pausedReason: string | null;
   readonly updatedAt: string;
   readonly updatedById: string | null;
@@ -32,6 +36,7 @@ export interface AutopilotUpdateInput {
   readonly stallMinutes?: number;
   readonly sensitivePaths?: string[] | null;
   readonly sensitivePolicy?: 'extraReview' | 'human';
+  readonly defaultTier?: IssueTierName;
 }
 
 export interface AutopilotEvent {

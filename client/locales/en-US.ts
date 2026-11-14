@@ -2001,6 +2001,25 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  tier: {
+    label: 'Issue tier',
+    names: { small: 'Small', standard: 'Standard', sensitive: 'Sensitive' },
+    hints: {
+      small: 'Do it directly; no approach needed.',
+      standard:
+        'Write an approach when the change spans packages, data, permissions or concurrency.',
+      sensitive:
+        'Approach required, two review passes, final sign-off as the project’s policy says.',
+    },
+    fromDefault: 'Follows the project’s default tier.',
+    raised:
+      'Raised from "{{from}}" because it touches sensitive paths; it is not lowered.',
+    saveError: 'Could not save the tier',
+    project: {
+      title: 'Default issue tier',
+      description: 'An issue with no tier of its own follows this one.',
+    },
+  },
   reactions: {
     section: {
       title: 'Automatic reactions',
