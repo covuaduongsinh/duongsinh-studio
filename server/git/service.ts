@@ -26,6 +26,7 @@ import {
   type AppInstallation,
 } from './github-app.js';
 import { contradictVerifications } from '../verifications/contradiction.js';
+import { recordCiFailed } from '../reactions/ci-failed.js';
 import {
   FORCEABLE_BLOCKERS,
   ciStateOf,
@@ -1948,8 +1949,16 @@ export function createGitService(deps: GitServiceDeps) {
     }
     const pull = await pullRecord(id ?? '');
     // CI is the last word: red checks on a head that an agent verified contradict that verification (plan T, T2).
-    if (state === 'open' && values.ciState === 'failed' && values.issueId)
+    if (state === 'open' && values.ciState === 'failed' && values.issueId) {
       await contradictVerifications(conn(), values.issueId, values.headSha);
+      // The first red check on a head is logged once with its time: what the reaction rules (T1) and the baseline read.
+      if (existing?.ciState !== 'failed' || existing.headSha !== values.headSha)
+        await recordCiFailed(conn(), {
+          issueId: values.issueId,
+          pullRequestId: pull.id,
+          headSha: values.headSha,
+        });
+    }
     if (becameMerged)
       await onMerged(
         pull,

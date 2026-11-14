@@ -122,6 +122,7 @@ const AutopilotEventSchema = z
       'stalled',
       'blocked',
       'paused',
+      'ciFailed',
     ]),
     reason: z.string().nullable(),
     data: z.record(z.string(), z.unknown()).nullable(),
