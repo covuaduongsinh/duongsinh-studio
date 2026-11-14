@@ -81,6 +81,8 @@ describe('disableAutoMerge', () => {
     await expect(
       client().disableAutoMerge('acme/sandbox', 5),
     ).rejects.toMatchObject({ status: 422 });
+  });
+});
 
 // S3 (plan S): Studio finds the interface check's run of a head, newest first, by the workflow's name.
 describe('workflowRun', () => {
