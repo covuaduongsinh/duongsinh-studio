@@ -615,7 +615,6 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
             attempt: num(v.attempt),
             result: str(v.result) as 'passed' | 'failed' | 'contradicted',
             source: sourceOf(v.source),
-            source: sourceOf(v.source),
             createdAt: new Date(
               v.createdAt as string | number | Date,
             ).toISOString(),
