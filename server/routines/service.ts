@@ -13,6 +13,7 @@ import {
   decideRoutineRun,
   isValidCron,
   routineMarker,
+  type RoutineJob,
   type RoutineSkip,
 } from './decide.js';
 
@@ -36,6 +37,8 @@ export interface RoutineView {
   readonly cron: string;
   readonly enabled: boolean;
   readonly projectIds: string[];
+  /** Set when the routine is a job of the daemon and opens no issue. */
+  readonly job: RoutineJob | null;
   readonly lastRunAt: string | null;
   readonly lastResult: string | null;
 }
@@ -46,6 +49,7 @@ export interface RoutineInput {
   readonly template: string;
   readonly cron: string;
   readonly projectIds: readonly string[];
+  readonly job?: RoutineJob | null;
 }
 
 export interface RoutineRunReport {
@@ -66,6 +70,17 @@ export function createRoutinesService(deps: {
   readonly executor: () => ScheduleExecutor | undefined;
   /** A person's permissions, for the issues a routine makes in their name. */
   readonly viewerOf: (userId: string) => Promise<Viewer | null>;
+  /** The NocoBase 3 Apps a project's repositories are linked to (for the routines that are jobs of the daemon). */
+  readonly appsOf?: (projectId: string) => Promise<string[]>;
+  /** Asks the daemon to dump an App's database and read the dump back; `ok` false carries the reason. */
+  readonly dumpApp?: (
+    appId: string,
+  ) => Promise<{ readonly ok: boolean; readonly detail: string }>;
+  /** Tells the owners that a job of a routine failed. */
+  readonly onJobFailed?: (input: {
+    readonly routineName: string;
+    readonly detail: string;
+  }) => Promise<void>;
   readonly now?: () => Date;
 }) {
   const now = () => (deps.now ? deps.now() : new Date());
@@ -86,6 +101,7 @@ export function createRoutinesService(deps: {
       cron: str(row.cron),
       enabled: bool(row.enabled),
       projectIds: projects.map((p) => str(p.projectId)),
+      job: row.job === 'backupDump' ? 'backupDump' : null,
       lastRunAt: row.lastRunAt
         ? new Date(str(row.lastRunAt)).toISOString()
         : null,
@@ -183,6 +199,7 @@ export function createRoutinesService(deps: {
         playbookSlug: input.playbookSlug ?? null,
         template: input.template,
         cron: input.cron,
+        job: input.job ?? null,
         // Off until a person turns it on.
         enabled: false,
         createdById: userId,
@@ -208,6 +225,7 @@ export function createRoutinesService(deps: {
       template: template.template,
       cron: template.cron,
       projectIds,
+      job: template.job,
     });
   }
 
@@ -265,6 +283,7 @@ export function createRoutinesService(deps: {
   async function run(id: string): Promise<RoutineRunReport> {
     const conn = deps.conn();
     const routine = await get(id);
+    if (routine.job) return runJob(routine);
     const owner = await conn.query
       .selectFrom('dsRoutines')
       .select('createdById')
@@ -358,6 +377,66 @@ export function createRoutinesService(deps: {
         updatedAt: now(),
       })
       .where('id', '=', id)
+      .execute();
+    return report;
+  }
+
+  /**
+   * A routine that is a job of the daemon (plan S, S7): no issue, no agent. For each App of each of its projects the daemon
+   * dumps the database and reads the dump back; a failure is told to the owners, and each is in the routine's last result.
+   */
+  async function runJob(routine: RoutineView): Promise<RoutineRunReport> {
+    const report: {
+      -readonly [K in keyof RoutineRunReport]: RoutineRunReport[K];
+    } = { created: [], skipped: [] };
+    const lines: string[] = [];
+    let failed = 0;
+    for (const projectId of routine.projectIds) {
+      const apps = (await deps.appsOf?.(projectId)) ?? [];
+      if (apps.length === 0) {
+        report.skipped.push({
+          projectId,
+          reason: 'failed',
+          detail: 'The project has no NocoBase 3 App.',
+        });
+        lines.push(`${projectId}: no App`);
+        continue;
+      }
+      for (const appId of apps) {
+        const result = deps.dumpApp
+          ? await deps.dumpApp(appId).catch((error: unknown) => ({
+              ok: false,
+              detail: error instanceof Error ? error.message : String(error),
+            }))
+          : { ok: false, detail: 'The job channel is off.' };
+        lines.push(
+          `${appId}: ${result.ok ? 'ok' : 'failed'} (${result.detail})`,
+        );
+        if (!result.ok) {
+          failed += 1;
+          report.skipped.push({
+            projectId,
+            reason: 'failed',
+            detail: `${appId}: ${result.detail}`,
+          });
+        }
+      }
+    }
+    if (failed > 0)
+      await deps
+        .onJobFailed?.({ routineName: routine.name, detail: lines.join('; ') })
+        .catch((error: unknown) =>
+          console.warn('A routine could not tell its owners', error),
+        );
+    await deps
+      .conn()
+      .query.updateTable('dsRoutines')
+      .set({
+        lastRunAt: now(),
+        lastResult: lines.join('; ').slice(0, 2000) || 'nothing to do',
+        updatedAt: now(),
+      })
+      .where('id', '=', routine.id)
       .execute();
     return report;
   }

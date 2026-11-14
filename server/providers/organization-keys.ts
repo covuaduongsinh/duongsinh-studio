@@ -155,6 +155,17 @@ export default class OrganizationKeysProvider extends ServiceProvider<Applicatio
       { type: 'settings', id: 'studio.apiKeys' },
       { section: 'studio' },
     );
+    // The run-log search page (plan S, S6). The route itself answers only to unrestricted administrators; the page item
+    // lets the navigation hide the card from everyone else.
+    authz.settings.add({
+      id: 'studio.runLogs',
+      title: appText('studioOrgKeys.runLogsTitle'),
+      actions: [{ name: 'read', title: appText('studioOrgKeys.read') }],
+    });
+    authz.ui.place(
+      { type: 'settings', id: 'studio.runLogs' },
+      { section: 'studio' },
+    );
     authz.settings.add({
       id: 'studio.checks',
       title: appText('studioOrgKeys.checksTitle'),

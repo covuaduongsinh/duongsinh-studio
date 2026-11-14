@@ -60,6 +60,8 @@ const HitSchema = z
 const SearchQuery = z.object({
   q: z.string().trim().min(2).max(200),
   limit: z.coerce.number().int().min(1).max(100).default(30),
+  // A `LIKE '%text%'` over every event reads the whole table, which only grows; the window keeps it to recent runs.
+  days: z.coerce.number().int().min(1).max(365).default(30),
 });
 
 const ContinueBody = z
@@ -120,8 +122,7 @@ export const runProfileRoutes: AppApiRouteContribution<Application> =
           status: 'PERMISSION_DENIED',
           reason: 'RUN_NOT_ALLOWED',
           domain: DOMAIN,
-          message:
-            'Branch protection is read by people, not by runs or scoped keys.',
+          message: 'Run logs are read by people, not by runs or scoped keys.',
         });
       return {
         userId: session.user.id,
@@ -184,7 +185,7 @@ export const runProfileRoutes: AppApiRouteContribution<Application> =
         tags: ['Studio Agents'],
         summary: 'Search the logs of every run',
         description:
-          'The text of events across runs, with a short window around the match and secrets masked. For administrators.',
+          'The text of events across runs of the last `days` days (30 by default, 365 at most), with a short window around the match and secrets masked. For administrators.',
         security: PERSON_ONLY,
         ...cliRoute({ command: 'run-log search' }),
         responses: { '200': listResponse(HitSchema), ...apiErrorResponses },
@@ -199,7 +200,8 @@ export const runProfileRoutes: AppApiRouteContribution<Application> =
             domain: DOMAIN,
             message: 'Only administrators search every run’s log.',
           });
-        const { q, limit } = context.req.valid('query');
+        const { q, limit, days } = context.req.valid('query');
+        const since = new Date(Date.now() - days * 86_400_000);
         const like = `%${q.replace(/[\\%_]/gu, (c) => `\\${c}`)}%`;
         const rows = await conn()
           .query.selectFrom('agRunEvents as event')
@@ -214,6 +216,7 @@ export const runProfileRoutes: AppApiRouteContribution<Application> =
             'run.subjectKind as subjectKind',
             'run.subjectId as subjectId',
           ])
+          .where('event.at', '>=', since)
           .where((eb) =>
             eb.or([
               eb('event.content', 'like', like),

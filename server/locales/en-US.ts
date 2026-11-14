@@ -149,6 +149,7 @@ const enUS = {
     verifyDescription:
       'Lets a repository’s CI key read the verification plan and submit results for the issues of that repository.',
     submit: 'Submit verifications',
+    runLogsTitle: 'Search run logs',
     section: 'Studio',
     settingsTitle: 'Organization API keys',
     read: 'View',

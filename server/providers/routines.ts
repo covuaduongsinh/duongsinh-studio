@@ -1,5 +1,6 @@
 import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
 import { authorizationToken } from '@nocobase/app-plugin-authorization';
+import { notificationServiceToken } from '@nocobase/app-plugin-notification/server';
 import {
   projectsAccessToken,
   projectsToken,
@@ -13,7 +14,10 @@ import {
   createServiceToken,
   type ServiceToken,
 } from '@nocobase/service-provider';
+import { ROOT_SET_KEY } from '../access/roles.js';
 import { appText } from '../agents/ids.js';
+import { channelFromEnv } from '../nb3-jobs/channel.js';
+import { composeNameOf } from '../releases/nb3-compose.js';
 import {
   createRoutinesService,
   type RoutinesService,
@@ -38,6 +42,66 @@ export default class RoutinesProvider extends ServiceProvider<Application> {
         projects: () => container.resolve(projectsToken),
         budgets: () => container.resolve(budgetServiceToken),
         executor: () => this.executor,
+        appsOf: async (projectId) => {
+          const rows = await container
+            .resolve(databaseManagerToken)
+            .connection()
+            .query.selectFrom('dsProjectRepositories as link')
+            .innerJoin(
+              'dsRepositoryApps as app',
+              'app.repositoryId',
+              'link.repositoryId',
+            )
+            .select('app.appId as appId')
+            .where('link.projectId', '=', projectId)
+            .execute();
+          return [...new Set(rows.map((row) => String(row.appId)))];
+        },
+        dumpApp: async (appId) => {
+          const channel = channelFromEnv();
+          if (!channel || !(await channel.reachable()))
+            return {
+              ok: false,
+              detail: 'The job channel is off or the daemon is not running.',
+            };
+          const answer = await channel.call(
+            { op: 'dump', app: composeNameOf(appId) },
+            20 * 60_000,
+          );
+          return answer.ok
+            ? {
+                ok: true,
+                detail: `${String(answer['bytes'])} bytes, ${String(answer['tables'])} tables, sha256 ${String(answer['sha256']).slice(0, 12)}`,
+              }
+            : {
+                ok: false,
+                detail: answer.message ?? answer.error ?? 'no answer',
+              };
+        },
+        onJobFailed: async ({ routineName, detail }) => {
+          if (!container.has(notificationServiceToken)) return;
+          const to = (
+            await container
+              .resolve(authorizationToken)
+              .permissionSets.listAssignments(ROOT_SET_KEY)
+          )
+            .filter((assignment) => assignment.subject.type === 'user')
+            .map((assignment) => assignment.subject.id);
+          if (to.length === 0) return;
+          const key = `routine-job-failed:${routineName}:${new Date().toISOString().slice(0, 10)}`;
+          await container.resolve(notificationServiceToken).send({
+            idempotencyKey: key,
+            source: { type: 'duongsinh-studio/routines', referenceId: key },
+            messages: {
+              inbox: {
+                to,
+                title: `Việc định kỳ lỗi: ${routineName}`,
+                body: detail.slice(0, 500),
+                target: { type: 'route', path: '/settings/routines' },
+              },
+            },
+          });
+        },
         viewerOf: async (userId) => {
           const access = container.resolve(projectsAccessToken);
           if (!access.permissionsOfUser) return null;

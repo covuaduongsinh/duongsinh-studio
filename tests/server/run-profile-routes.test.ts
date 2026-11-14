@@ -157,6 +157,36 @@ test(
     expect(JSON.stringify(secretHits)).not.toContain('ghp_');
     expect((await admin.fetch('/runLogs/search?q=x')).status).toBe(400);
 
+    // S6: only the last 30 days by default; an older event is found when the window is widened, and `days` is bounded.
+    const old = new Date(Date.now() - 60 * 86_400_000);
+    await conn.query
+      .insertInto('agRunEvents')
+      .values({
+        id: randomUUID(),
+        runId,
+        seq: 4,
+        at: old,
+        type: 'message',
+        content: 'an old OLDNEEDLE line',
+        output: null,
+        createdAt: old,
+      } as never)
+      .execute();
+    const found = async (query: string) =>
+      (
+        (await (await admin.fetch(`/runLogs/search?${query}`)).json()) as {
+          data: unknown[];
+        }
+      ).data.length;
+    expect(await found('q=OLDNEEDLE')).toBe(0);
+    expect(await found('q=OLDNEEDLE&days=90')).toBe(1);
+    expect(
+      (await admin.fetch('/runLogs/search?q=OLDNEEDLE&days=0')).status,
+    ).toBe(400);
+    expect(
+      (await admin.fetch('/runLogs/search?q=OLDNEEDLE&days=999')).status,
+    ).toBe(400);
+
     // A step becomes a proposed lesson, with no secret in it.
     const lesson = await admin.fetch(
       `/runs/${runId}/lesson`,

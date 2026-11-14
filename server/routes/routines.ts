@@ -46,6 +46,10 @@ const RoutineSchema = z
     enabled: z.boolean(),
     projectIds: z.array(z.string()),
     lastRunAt: z.string().nullable(),
+    job: z
+      .enum(['backupDump'])
+      .nullable()
+      .describe('Set for a routine the daemon runs: it opens no issue.'),
     lastResult: z.string().nullable(),
   })
   .meta({ ref: 'StudioRoutine' });

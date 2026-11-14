@@ -931,6 +931,9 @@ const enUS = {
     },
     budgets: 'Budgets',
     budgetsDescription: 'Limits of runs and tokens, and what they used.',
+    runLogs: 'Run logs',
+    runLogsDescription:
+      'Find text in the logs of every recent run. Administrators only.',
     routines: 'Routines',
     routinesDescription:
       'Work that comes back on a schedule, off until someone turns it on.',
@@ -2031,10 +2034,28 @@ const enUS = {
     lessonSaved: 'Lesson proposed, waiting for approval',
     failed: 'Could not do it',
   },
+  runLogs: {
+    title: 'Run logs',
+    description:
+      'Find text in the logs of every run in the chosen window (30 days by default). Secrets are masked.',
+    text: 'Text to find',
+    placeholder: 'For example an error or a file name',
+    window: 'Window',
+    days_one: 'Last {{count}} day',
+    days_other: 'Last {{count}} days',
+    search: 'Search',
+    hint: 'Type at least two characters, then Search.',
+    loading: 'Searching...',
+    error: 'Could not search the logs.',
+    empty: 'Nothing found in this window.',
+    step: 'Step {{seq}} · {{type}}',
+    openIssue: 'Open the issue',
+  },
   routines: {
     title: 'Routines',
     description:
       'Work that comes back on a schedule (Vietnam time). At each time Studio opens one issue in each project, unless the last one is still open, the project has enough going on or a budget holds work back.',
+    job: 'Run by the daemon, no agent',
     loading: 'Loading...',
     error: 'Could not load the list.',
     empty: 'No routines yet. Add one from a template below or create one.',
