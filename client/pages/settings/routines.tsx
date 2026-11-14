@@ -239,6 +239,9 @@ function RoutineRow({ routine }: { readonly routine: Routine }): ReactElement {
             <Badge variant={routine.enabled ? 'default' : 'outline'}>
               {routine.enabled ? t('routines.on') : t('routines.off')}
             </Badge>
+            {routine.job ? (
+              <Badge variant='secondary'>{t('routines.job')}</Badge>
+            ) : null}
           </div>
           <p className='text-sm text-muted-foreground'>
             <code>{routine.cron}</code> ·{' '}

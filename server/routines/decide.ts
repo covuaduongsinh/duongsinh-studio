@@ -3,6 +3,9 @@
  * functions, so each rule is tested without a database or a clock.
  */
 
+/** What a routine does when it is not an issue for an agent: the daemon's job Studio runs itself (plan S, S7). */
+export type RoutineJob = 'backupDump';
+
 export interface RoutineTemplate {
   readonly key:
     'nangTemplate' | 'licences' | 'backupRestore' | 'pendingLessons';
@@ -11,6 +14,8 @@ export interface RoutineTemplate {
   /** The issue's description (the playbook's `!slug` line is added in front when there is one). */
   readonly template: string;
   readonly cron: string;
+  /** Set for a routine the daemon runs, which opens no issue and wakes no agent. */
+  readonly job: RoutineJob | null;
 }
 
 /** Four ready-made routines. None runs until a person turns it on. */
@@ -22,6 +27,7 @@ export const ROUTINE_TEMPLATES: readonly RoutineTemplate[] = [
     template:
       'Xem bản mẫu ứng dụng NocoBase 3 có bản mới không và báo kết quả; chỉ nâng khi người duyệt.',
     cron: '0 8 * * 1',
+    job: null,
   },
   {
     key: 'licences',
@@ -30,14 +36,16 @@ export const ROUTINE_TEMPLATES: readonly RoutineTemplate[] = [
     template:
       'Chạy `pnpm licenses list --json` (liệt kê cả devDependencies, vì thư viện giao diện nằm ở đó) và báo thư viện nào theo GPL/AGPL/LGPL mà không có lựa chọn `OR` cho phép. Không sửa gì, chỉ báo.',
     cron: '0 9 1 * *',
+    job: null,
   },
   {
     key: 'backupRestore',
     name: 'Thử khôi phục sao lưu',
     playbookSlug: null,
     template:
-      'Chọn bản sao lưu mới nhất, khôi phục vào một CSDL tạm theo hướng dẫn trong docs, kiểm vài bảng quan trọng có dữ liệu, rồi xoá CSDL tạm và báo kết quả. Không đụng dữ liệu thật.',
+      'Chạy qua daemon, không giao cho agent: tạo bản dump mới của CSDL mỗi App NocoBase 3 của dự án và đọc lại danh mục của nó bằng pg_restore để chắc rằng bản dump dùng được. Chưa khôi phục vào CSDL tạm.',
     cron: '0 10 1 * *',
+    job: 'backupDump',
   },
   {
     key: 'pendingLessons',
@@ -46,6 +54,7 @@ export const ROUTINE_TEMPLATES: readonly RoutineTemplate[] = [
     template:
       'Liệt kê các bài học đang chờ duyệt, gộp những bài trùng ý và đề xuất duyệt hay bỏ từng bài. Quyết định cuối là của người.',
     cron: '0 9 * * 5',
+    job: null,
   },
 ];
 

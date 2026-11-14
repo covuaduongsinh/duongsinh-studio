@@ -86,4 +86,19 @@ describe('ROUTINE_TEMPLATES', () => {
     expect(licences.template).toContain('pnpm licenses list');
     expect(licences.template).not.toContain('--prod');
   });
+
+  // S7 (plan S): the backup check is the daemon's job, not an issue for an agent; only that template is.
+  it('makes the backup check a job of the daemon and the others work for an agent', () => {
+    expect(
+      Object.fromEntries(ROUTINE_TEMPLATES.map((t) => [t.key, t.job])),
+    ).toEqual({
+      nangTemplate: null,
+      licences: null,
+      backupRestore: 'backupDump',
+      pendingLessons: null,
+    });
+    expect(
+      ROUTINE_TEMPLATES.find((t) => t.key === 'backupRestore')!.playbookSlug,
+    ).toBeNull();
+  });
 });

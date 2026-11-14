@@ -25,6 +25,7 @@ const routine = {
   enabled: false,
   projectIds: ['p1'],
   lastRunAt: null,
+  job: null,
   lastResult: null,
 };
 

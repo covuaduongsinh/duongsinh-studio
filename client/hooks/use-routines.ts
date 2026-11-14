@@ -15,6 +15,8 @@ export interface Routine {
   readonly cron: string;
   readonly enabled: boolean;
   readonly projectIds: string[];
+  /** Set when the routine is a job of the daemon: it opens no issue. */
+  readonly job: 'backupDump' | null;
   readonly lastRunAt: string | null;
   readonly lastResult: string | null;
 }

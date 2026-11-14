@@ -26,6 +26,7 @@ import {
   ShieldCheck,
   FileCheck,
   GraduationCap,
+  SearchIcon,
   Tags,
   type LucideIcon,
 } from 'lucide-react';
@@ -571,6 +572,23 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
       icon: CalendarClock,
     },
     componentLoader: () => import('./pages/settings/routines.js'),
+  },
+  {
+    // The text of any run's events, for administrators only (the server answers only to unrestricted ones).
+    name: 'settingsRunLogs',
+    parent: 'settingsAi',
+    path: '/run-logs',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'studio.runLogs' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.runLogs',
+      description: 'navigation.runLogsDescription',
+      icon: SearchIcon,
+    },
+    componentLoader: () => import('./pages/settings/run-logs.js'),
   },
   {
     // The role a new member is given once when they accept an invitation, and who holds it (`/api/access/settings`).

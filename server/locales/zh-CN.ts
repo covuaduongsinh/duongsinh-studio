@@ -133,6 +133,7 @@ const zhCN: AppServerResource = {
     verifyDescription:
       '允许仓库的 CI 密钥读取验证计划，并为该仓库的任务提交验证结果。',
     submit: '提交验证',
+    runLogsTitle: '搜索运行日志',
     section: 'Studio',
     settingsTitle: '组织 API 密钥',
     read: '查看',

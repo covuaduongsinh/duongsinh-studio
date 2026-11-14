@@ -62,5 +62,5 @@ S2 và S3 cần một kho nháp thật (Q2) nên phần thử thật chưa làm 
 - [x] S3 (phần mã) — Kiểm giao diện (PR `feat/s-3`; `chenh-lech-upstream.md` §72; **chưa chạy thật trên Actions**, cần kho nháp Q2)
 - [x] S4 (phần mã) — Kiểm chứng trên CI, cách A, tắt sẵn (PR `feat/s-4`; `chenh-lech-upstream.md` §73; **job `verify` chưa chạy trên Actions thật**)
 - [x] S5 (phần mã) — T4 gói xuất và nhập ngược (PR `feat/s-5`; `chenh-lech-upstream.md` §74; **chưa xuất thử vào dự án thật**, chờ chủ dự án chỉ định)
-- [ ] S6 + S7 — T11 ô tìm nhật ký; T6 khôi phục qua kênh job
+- [x] S6 + S7 (phần mã) — T11 ô tìm nhật ký; T6 sao lưu qua kênh job (PR `feat/s-6`; `chenh-lech-upstream.md` §75; **S7 là dump + đọc lại danh mục, chưa khôi phục vào CSDL tạm; chưa thử với daemon thật**)
 - [ ] S8 + S9 + S10 — runner audit mạng; nhật ký đợt T; lưu giảm tải hạn mức

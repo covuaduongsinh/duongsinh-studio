@@ -142,6 +142,7 @@ const viVN: AppServerResource = {
     verifyDescription:
       'Cho khoá CI của kho đọc kế hoạch kiểm chứng và nộp kết quả cho việc của chính kho đó.',
     submit: 'Nộp kiểm chứng',
+    runLogsTitle: 'Tìm nhật ký các lượt chạy',
     section: 'Studio',
     settingsTitle: 'Khoá API của tổ chức',
     read: 'Xem',

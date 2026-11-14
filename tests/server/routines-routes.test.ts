@@ -8,6 +8,7 @@ import {
 } from '@nocobase/app-plugin-authentication/testing';
 import { databaseManagerToken } from '@nocobase/db';
 import { createStandaloneServer } from '../../server/standalone.js';
+import { createRoutinesService } from '../../server/routines/service.js';
 
 // T6 (plan T): routines are managed by whoever holds the settings permission, start off, and never double up.
 const test = createAppTest({
@@ -196,5 +197,67 @@ test(
     expect(
       (await admin.fetch(`/routines/${routine.id}/run`, json({}))).status,
     ).toBe(404);
+  },
+);
+
+test(
+  'S7: the backup routine dumps each App through the daemon, opens no issue and tells the owners of a failure',
+  { timeout: 180_000 },
+  async ({ testApp, app }) => {
+    const admin = await signIn(testApp, DEFAULT_ADMIN_CREDENTIALS);
+    const conn = app.container.resolve(databaseManagerToken).connection();
+    const projectId = (
+      (await (
+        await admin.fetch('/projects', json({ name: 'Backup Project' }))
+      ).json()) as {
+        data: { id: string };
+      }
+    ).data.id;
+    const dumped: string[] = [];
+    const told: string[] = [];
+    const service = createRoutinesService({
+      conn: () => conn,
+      projects: () => {
+        throw new Error('A job opens no issue.');
+      },
+      budgets: () => {
+        throw new Error('A job asks no budget.');
+      },
+      executor: () => undefined,
+      viewerOf: async () => null,
+      appsOf: async () => ['edu', 'lms'],
+      dumpApp: async (appId) => {
+        dumped.push(appId);
+        return appId === 'edu'
+          ? { ok: true, detail: '1024 bytes, 31 tables' }
+          : { ok: false, detail: 'NO_DUMP' };
+      },
+      onJobFailed: async ({ detail }) => {
+        told.push(detail);
+      },
+    });
+    const routine = await service.createFromTemplate(
+      'studio-organization-keys',
+      'backupRestore',
+      [projectId],
+    );
+    expect(routine.job).toBe('backupDump');
+    expect(routine.enabled).toBe(false);
+    const report = await service.run(routine.id);
+    expect(dumped).toEqual(['edu', 'lms']);
+    expect(report.created).toEqual([]);
+    expect(report.skipped).toMatchObject([{ reason: 'failed' }]);
+    expect(told).toHaveLength(1);
+    expect(told[0]).toContain('lms: failed (NO_DUMP)');
+    const after = await service.get(routine.id);
+    expect(after.lastResult).toContain('edu: ok (1024 bytes, 31 tables)');
+    // No issue was made in the project.
+    expect(
+      await conn.query
+        .selectFrom('pmIssues')
+        .select('id')
+        .where('projectId', '=', projectId)
+        .execute(),
+    ).toHaveLength(0);
   },
 );

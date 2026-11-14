@@ -919,6 +919,9 @@ const viVN: AppResource = {
     },
     budgets: 'Ngân sách',
     budgetsDescription: 'Hạn mức lượt chạy và token, và mức đã dùng.',
+    runLogs: 'Tìm nhật ký lượt chạy',
+    runLogsDescription:
+      'Tìm chữ trong nhật ký mọi lượt chạy gần đây. Chỉ quản trị viên.',
     routines: 'Việc định kỳ',
     routinesDescription:
       'Việc quay lại theo lịch, tắt cho tới khi có người bật.',
@@ -2014,10 +2017,28 @@ const viVN: AppResource = {
     lessonSaved: 'Đã đề xuất bài học, đang chờ duyệt',
     failed: 'Không làm được',
   },
+  runLogs: {
+    title: 'Tìm nhật ký lượt chạy',
+    description:
+      'Tìm chữ trong nhật ký mọi lượt chạy trong khoảng thời gian chọn (mặc định 30 ngày). Bí mật đã được che.',
+    text: 'Chữ cần tìm',
+    placeholder: 'Ví dụ: lỗi hoặc tên tệp',
+    window: 'Khoảng thời gian',
+    days_one: '{{count}} ngày gần đây',
+    days_other: '{{count}} ngày gần đây',
+    search: 'Tìm',
+    hint: 'Nhập ít nhất hai ký tự rồi bấm Tìm.',
+    loading: 'Đang tìm...',
+    error: 'Không tìm được nhật ký.',
+    empty: 'Không có kết quả trong khoảng thời gian này.',
+    step: 'Bước {{seq}} · {{type}}',
+    openIssue: 'Mở việc',
+  },
   routines: {
     title: 'Việc định kỳ',
     description:
       'Việc quay lại theo lịch (giờ Việt Nam). Mỗi lần tới giờ, Studio mở một việc ở từng dự án, trừ khi việc của lần trước còn mở, dự án đã đủ việc đang làm hoặc ngân sách đang chặn.',
+    job: 'Chạy qua daemon, không giao agent',
     loading: 'Đang tải...',
     error: 'Không tải được danh sách.',
     empty: 'Chưa có việc định kỳ nào. Thêm từ mẫu bên dưới hoặc tạo mới.',

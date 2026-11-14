@@ -113,7 +113,7 @@ export const effectiveConfigRoutes: AppApiRouteContribution<Application> =
           reason: 'RUN_NOT_ALLOWED',
           domain: DOMAIN,
           message:
-            'Branch protection is read by people, not by runs or scoped keys.',
+            'The effective configuration is read by people, not by runs or scoped keys.',
         });
       return {
         userId: session.user.id,
