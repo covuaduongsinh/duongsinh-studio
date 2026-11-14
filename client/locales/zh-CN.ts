@@ -1901,6 +1901,28 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  harnessExport: {
+    title: '仓库中的规则集',
+    description:
+      '以拉取请求的形式把项目的技能、经验教训、剧本和默认标准写入仓库，智能体可直接在仓库中读取，人也能像审代码一样审阅。',
+    loading: '正在与仓库比对…',
+    error: '无法读取导出状态。',
+    state: {
+      noRepository: '项目尚未关联代码仓库。',
+      notExported: '尚未导出到 {{repository}}，将写入 {{count}} 个文件。',
+      inSync: '{{repository}} 已是当前规则集。',
+      drifted: '{{repository}} 中的规则集与 Studio 不一致。',
+    },
+    drift: {
+      title: '仓库中的副本已偏离',
+      edited: '被手动修改：{{path}}',
+      missing: '缺失：{{path}}',
+      outdated: 'Studio 中有更新内容，请重新导出。',
+    },
+    action: '导出到仓库',
+    opened: '已创建拉取请求 #{{number}}',
+    failed: '导出失败',
+  },
   branchProtection: {
     title: '主分支防护',
     description:

@@ -13,6 +13,7 @@ import { ProjectDefaultCriteriaCard } from '#components/criteria/criteria-editor
 import { ProjectAgentSettings } from '../project-agent-settings.js';
 import { ProjectAutopilot } from '../project-autopilot.js';
 import { ProjectBranchProtection } from '../project-branch-protection.js';
+import { ProjectHarnessExport } from '../project-harness-export.js';
 import { ProjectDefaultTier } from '../project-default-tier.js';
 import { ProjectReactions } from '../project-reactions.js';
 import { ProjectCode } from '../project-code.js';
@@ -61,6 +62,10 @@ export function ProjectSettingsTab(): ReactElement {
               canManage={canManage}
             />
             <ProjectReactions projectId={project.id} canManage={canManage} />
+            <ProjectHarnessExport
+              projectId={project.id}
+              canManage={canManage}
+            />
             <ProjectDefaultCriteriaCard
               projectId={project.id}
               canManage={canManage}

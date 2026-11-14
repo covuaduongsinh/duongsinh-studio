@@ -25,6 +25,7 @@ import LessonsProvider from './lessons.js';
 import SecurityProvider from './security.js';
 import AutopilotProvider from './autopilot.js';
 import ReactionsProvider from './reactions.js';
+import HarnessExportProvider from './harness-export.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -65,6 +66,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   AutopilotProvider,
   // Studio's own reactions to a red CI, a conflict, a review asking for changes or a failed run (plan T, T1).
   ReactionsProvider,
+  // Writes the project's rules into its repository as a pull request (plan T, T4).
+  HarnessExportProvider,
   // Projects as a skill scope, the skills new projects start with, and Studio's own skills (U6).
   ProjectDefaultsProvider,
   // The account organization API keys belong to (U6).
