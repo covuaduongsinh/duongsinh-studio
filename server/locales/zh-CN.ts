@@ -110,6 +110,9 @@ const zhCN: AppServerResource = {
     expiringTitle: '{{repo}} 的 CI 密钥将在 {{days}} 天后过期',
     expiringBody: '请在上传中断前，到代码库的部署设置中更换密钥。',
   },
+  studioRoutines: {
+    settingsTitle: '定期事项',
+  },
   studioBudgets: {
     blockedTitle: '预算已用完：{{scope}}',
     warnedTitle: '预算即将用完：{{scope}}',

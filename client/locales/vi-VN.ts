@@ -917,6 +917,9 @@ const viVN: AppResource = {
     },
     budgets: 'Ngân sách',
     budgetsDescription: 'Hạn mức lượt chạy và token, và mức đã dùng.',
+    routines: 'Việc định kỳ',
+    routinesDescription:
+      'Việc quay lại theo lịch, tắt cho tới khi có người bật.',
     projectManager: 'Trưởng nhóm agent',
     projectManagerDescription:
       'Chọn mô hình chính và dự phòng, thời gian chờ và nguyên tắc làm việc.',
@@ -1983,6 +1986,38 @@ const viVN: AppResource = {
     idleStop: 'Dừng sau {{minutes}} phút không dùng',
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
+  },
+  routines: {
+    title: 'Việc định kỳ',
+    description:
+      'Việc quay lại theo lịch (giờ Việt Nam). Mỗi lần tới giờ, Studio mở một việc ở từng dự án, trừ khi việc của lần trước còn mở, dự án đã đủ việc đang làm hoặc ngân sách đang chặn.',
+    loading: 'Đang tải...',
+    error: 'Không tải được danh sách.',
+    empty: 'Chưa có việc định kỳ nào. Thêm từ mẫu bên dưới hoặc tạo mới.',
+    on: 'Đang bật',
+    off: 'Đang tắt',
+    turnOn: 'Bật "{{name}}"',
+    last: 'Lần chạy gần nhất {{time}}: {{result}}',
+    runNow: 'Chạy ngay',
+    ran: 'Đã mở {{created}} việc, bỏ qua {{skipped}} dự án',
+    runFailed: 'Không chạy được',
+    delete: 'Xoá',
+    new: 'Tạo việc định kỳ',
+    name: 'Tên',
+    template: 'Nội dung việc',
+    cron: 'Lịch (cron, 5 trường)',
+    cronHint:
+      'Phút giờ ngày tháng thứ, ví dụ "0 8 * * 1" là 8 giờ sáng thứ Hai.',
+    playbook: 'Playbook (tuỳ chọn)',
+    projects: 'Dự án',
+    create: 'Tạo (đang tắt)',
+    createFailed: 'Không tạo được',
+    templates: {
+      title: 'Mẫu có sẵn',
+      description:
+        'Bốn mẫu, đều tắt cho tới khi anh bật. Chọn dự án rồi bấm thêm.',
+      add: 'Thêm',
+    },
   },
   effectiveConfig: {
     title: 'Cấu hình hiệu lực',

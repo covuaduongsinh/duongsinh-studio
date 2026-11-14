@@ -307,7 +307,7 @@ job `ds-ui-smoke` (T5); target `dsRoutine` của scheduler (T6); phần T11 plug
 - [x] T5 — Kiểm giao diện (PR `feat/t-5`: `server/setups/ui-smoke-workflow.ts`, `POST /projects/:id/uiSmoke`, nút đề xuất; **chưa chạy thử trên Actions**; phần "hiện ảnh trên trang việc" và `nb3AppWorkflow` chưa làm, xem `chenh-lech-upstream.md` §64)
 - [x] T7 — Thẻ "Thay đổi" (PR `feat/t-7`: `server/changes/summary.ts`, `GET /pullRequests/:id/changeSummary`, `POST /pullRequests/:id/requestChanges`, `client/components/issue-changes/`; **không có nút Duyệt, chưa có ảnh T5**, xem `chenh-lech-upstream.md` §65)
 - [x] T13 — Hạn mức và Cấu hình hiệu lực (PR `feat/t-13`: `GET /quota`, `GET /projects/:id/effectiveConfig`, thẻ "Hạn mức" trên Hôm nay, mục "Cấu hình hiệu lực" ở Cài đặt dự án; xem `chenh-lech-upstream.md` §66)
-- [ ] T6 — Việc định kỳ
+- [x] T6 — Việc định kỳ (PR `feat/t-6`: `dsRoutines`/`dsRoutineProjects`, `server/routines/`, `/api/routines*`, trang Cài đặt hệ thống → Việc định kỳ (quyền `studio.routines`), bốn mẫu tắt; **không dùng plugin Scheduler**, xem `chenh-lech-upstream.md` §67)
 - [ ] T11 — Hồ sơ lượt chạy
 - [ ] T12 — Hai phương án
 - [x] T8 — Siết runner (`deploy/runner/{ds-runner-slice.conf,nocobase-runner-hardening.conf,audit.sh}` + mục 7 của `docs/runner-resource-limits-proposal.md`; chủ dự án tự áp dụng và tự chạy `audit.sh`; **không kiểm được trên VPS**; chặn mạng bằng dải riêng chứ không bằng danh sách miền vì `IPAddressAllow` chỉ nhận IP)
