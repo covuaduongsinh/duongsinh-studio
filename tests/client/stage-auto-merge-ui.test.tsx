@@ -59,6 +59,7 @@ const settings = () => ({
   stallMinutes: 30,
   sensitivePaths: null,
   sensitivePolicy: 'extraReview',
+  defaultTier: 'standard',
   pausedReason: null,
   updatedAt: '2026-11-11T00:00:00.000Z',
   updatedById: null,

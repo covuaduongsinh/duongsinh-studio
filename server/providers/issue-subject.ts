@@ -33,6 +33,7 @@ import {
   appText,
 } from '../agents/ids.js';
 import { num, str } from '../git/rows.js';
+import { tierOf, type Tier } from '../tiers/service.js';
 import { onRunFailedReaction, reactionServiceToken } from './reactions.js';
 import { maskSecrets } from '../security/secret-patterns.js';
 import { parsePlaybookInvocations } from '../playbooks/parser.js';
@@ -243,6 +244,18 @@ interface RecentRunSummary {
   readonly summary: string | null;
 }
 
+/** What each tier asks of the agent, decided by code and not guessed by the project manager (plan T, T10). */
+export function tierRuleOf(tier: Tier): string {
+  switch (tier) {
+    case 'small':
+      return 'Issue tier: small. Do the change directly; do not write an approach first.';
+    case 'sensitive':
+      return 'Issue tier: sensitive. Write a short approach in read-only mode and wait for it to be accepted before you change code; the merge needs a second, security review and a person’s sign-off as the project’s policy says.';
+    default:
+      return 'Issue tier: standard. Write an approach first only when the change touches several packages, data or migrations, permissions or concurrency, or the issue does not say how.';
+  }
+}
+
 export const AUTOPILOT_ON_RULE =
   'Autopilot is on for this project: when the work is ready for acceptance, move it to in_review with the delivery report and leave needsYou empty, so Studio merges it. Write needsYou only for a decision a person really has to make.';
 
@@ -311,6 +324,8 @@ function assemblyOf(
     }[];
     readonly latestVerificationSummary?: string | null;
     readonly playbookRules?: readonly string[];
+    /** The issue's tier (plan T, T10): what the agent is asked to do before it changes code. */
+    readonly tier?: Tier;
   },
 ): SubjectAssembly {
   const coordinating = claim.agent.id === PROJECT_MANAGER_ID;
@@ -331,6 +346,7 @@ function assemblyOf(
           : 'Never change the issue’s status or assign it; the project manager does.',
         'Write every comment and your final run summary in Vietnamese; keep commands, paths and identifiers as they are.',
         ...(extras.playbookRules ?? []),
+        ...(extras.tier ? [tierRuleOf(extras.tier)] : []),
         ...(coordinating && extras.autopilotOn ? [AUTOPILOT_ON_RULE] : []),
         ...(readOnly ? [READ_ONLY_TURN_RULE] : []),
         ...(readOnly && extras.criteria.length > 0
@@ -500,6 +516,7 @@ export function createIssueSubject(deps: {
           criteria,
           latestVerificationSummary,
           playbookRules,
+          tier: (await tierOf(conn, issue.id)).tier,
           autopilotOn:
             coordinating && issue.project
               ? await autopilotOn(conn, issue.project.id)

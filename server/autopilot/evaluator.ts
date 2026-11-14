@@ -2,7 +2,23 @@ import { randomUUID } from 'node:crypto';
 import type { DatabaseConnection, DatabaseManager } from '@nocobase/db';
 import type { GitService, GitPullRequestView } from '../git/service.js';
 import type { ReviewsService, ReviewView } from '../reviews/service.js';
+import {
+  DEFAULT_TIER,
+  extraReviewNeeded,
+  isTier,
+  raiseTier,
+  tierOf,
+  type Tier,
+} from '../tiers/service.js';
 import { str, strOrNull, num, bool, iso, type Row } from '../git/rows.js';
+import {
+  DEFAULT_TIER,
+  extraReviewNeeded,
+  isTier,
+  raiseTier,
+  tierOf,
+  type Tier,
+} from '../tiers/service.js';
 import { AUTOPILOT_USER_ID } from '../../database/main/seeds/2026110803_ds_autopilot_user.js';
 
 export const SETTINGS_TABLE = 'dsAutopilotSettings';
@@ -33,6 +49,7 @@ export interface AutopilotSettingsView {
   readonly stallMinutes: number;
   readonly sensitivePaths: string[] | null;
   readonly sensitivePolicy: 'extraReview' | 'human';
+  readonly defaultTier: 'small' | 'standard' | 'sensitive';
   readonly pausedReason: string | null;
   readonly updatedAt: string;
   readonly updatedById: string | null;
@@ -47,6 +64,7 @@ export interface AutopilotSettingsInput {
   readonly stallMinutes?: number;
   readonly sensitivePaths?: string[] | null;
   readonly sensitivePolicy?: 'extraReview' | 'human';
+  readonly defaultTier?: 'small' | 'standard' | 'sensitive';
   readonly pausedReason?: string | null;
 }
 
@@ -141,6 +159,9 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       sensitivePaths,
       sensitivePolicy:
         (str(row.sensitivePolicy) as 'extraReview' | 'human') || 'extraReview',
+      defaultTier: isTier(strOrNull(row.defaultTier))
+        ? (str(row.defaultTier) as Tier)
+        : DEFAULT_TIER,
       pausedReason: strOrNull(row.pausedReason),
       updatedAt: iso(row.updatedAt) ?? new Date().toISOString(),
       updatedById: strOrNull(row.updatedById),
@@ -223,6 +244,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
         input.sensitivePolicy !== undefined
           ? input.sensitivePolicy
           : (existing?.sensitivePolicy ?? 'extraReview'),
+      defaultTier:
+        input.defaultTier !== undefined
+          ? input.defaultTier
+          : (existing?.defaultTier ?? DEFAULT_TIER),
       pausedReason:
         input.pausedReason !== undefined
           ? input.pausedReason
@@ -443,12 +468,23 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       isSensitive(f, sensitivePatterns),
     );
 
+    // The issue's tier (T10): sensitive paths raise it, and a sensitive issue asks for the extra review whatever it touches.
+    if (touchedSensitive.length > 0 && pr.issueId)
+      await raiseTier(
+        conn(),
+        pr.issueId,
+        touchedSensitive.slice(0, 3).join(', '),
+      );
+    const tier = pr.issueId
+      ? (await tierOf(conn(), pr.issueId)).tier
+      : DEFAULT_TIER;
+
     let securityReview: ReviewView | undefined;
-    if (touchedSensitive.length > 0) {
+    if (extraReviewNeeded(tier, touchedSensitive)) {
       const policy = settings?.sensitivePolicy ?? 'extraReview';
       if (policy === 'human') {
         reasons.push(
-          `Pull request touches sensitive paths (${touchedSensitive.join(', ')}), human review required.`,
+          `Pull request touches sensitive paths (${touchedSensitive.join(', ') || 'none; the issue tier is sensitive'}), human review required.`,
         );
       } else {
         const sec = await deps
@@ -456,7 +492,7 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
           .latestFor(pr.id, pr.headSha, 'security');
         if (!sec) {
           reasons.push(
-            `Pull request touches sensitive paths (${touchedSensitive.join(', ')}), missing extra security review approval.`,
+            `Pull request touches sensitive paths (${touchedSensitive.join(', ') || 'none; the issue tier is sensitive'}), missing extra security review approval.`,
           );
         } else {
           securityReview = sec;

@@ -1984,6 +1984,24 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  tier: {
+    label: 'Mức việc',
+    names: { small: 'Nhỏ', standard: 'Chuẩn', sensitive: 'Nhạy cảm' },
+    hints: {
+      small: 'Làm luôn, không cần viết approach.',
+      standard:
+        'Viết approach khi việc đụng nhiều package, dữ liệu, quyền hoặc đồng thời.',
+      sensitive:
+        'Bắt buộc approach, hai lượt review, người duyệt cuối theo chính sách của dự án.',
+    },
+    fromDefault: 'Theo mức mặc định của dự án.',
+    raised: 'Đã tự nâng từ "{{from}}" vì chạm đường dẫn nhạy cảm; không tự hạ.',
+    saveError: 'Không lưu được mức việc',
+    project: {
+      title: 'Mức việc mặc định',
+      description: 'Việc chưa được chọn mức riêng sẽ theo mức này.',
+    },
+  },
   reactions: {
     section: {
       title: 'Tự phản ứng',

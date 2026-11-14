@@ -3,6 +3,7 @@ import type { AppRouteContribution } from '@nocobase/app-server/router';
 import { accessRoutes } from './access.js';
 import { autopilotRoutes } from './autopilot.js';
 import { reactionRoutes } from './reactions.js';
+import { issueTierRoutes } from './issue-tier.js';
 import { budgetRoutes } from './budgets.js';
 import { buildRoutes } from './builds.js';
 import { deployRoutes } from './deploys.js';
@@ -33,6 +34,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   accessRoutes,
   autopilotRoutes,
   reactionRoutes,
+  issueTierRoutes,
   projectManagerRoutes,
   gitRoutes,
   hostLoadRoutes,

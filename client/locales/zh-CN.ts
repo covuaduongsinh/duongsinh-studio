@@ -1901,6 +1901,22 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  tier: {
+    label: '事项级别',
+    names: { small: '小', standard: '标准', sensitive: '敏感' },
+    hints: {
+      small: '直接动手，无需先写方案。',
+      standard: '涉及多个包、数据、权限或并发时先写方案。',
+      sensitive: '必须先写方案、两轮评审，最终签字按项目策略执行。',
+    },
+    fromDefault: '沿用项目的默认级别。',
+    raised: '因触及敏感路径，已由“{{from}}”自动提升；不会自动降低。',
+    saveError: '无法保存级别',
+    project: {
+      title: '默认事项级别',
+      description: '没有单独设置级别的事项沿用此级别。',
+    },
+  },
   reactions: {
     section: {
       title: '自动响应',
