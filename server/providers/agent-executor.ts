@@ -1,3 +1,4 @@
+import { trustedVerificationOf } from '../verifications/trust.js';
 import { runPriorityOf } from '../agents/run-priority.js';
 import type { BudgetService } from '../budgets/service.js';
 import { budgetServiceToken } from './outbound.js';
@@ -666,12 +667,11 @@ export function createAgentKind(deps: {
           .execute();
         if (criteria.length === 0) return false;
 
-        const latestVerification = await conn.query
-          .selectFrom('dsVerifications')
-          .selectAll()
-          .where('issueId', '=', move.issue.id)
-          .orderBy('createdAt', 'desc')
-          .executeTakeFirst();
+        // While the project asks for it, only a verification of its CI key counts (plan S, S4).
+        const latestVerification = await trustedVerificationOf(
+          conn,
+          move.issue.id,
+        );
         if (!latestVerification || latestVerification.result !== 'passed') {
           return false;
         }

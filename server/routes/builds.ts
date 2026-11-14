@@ -826,6 +826,7 @@ export const buildRoutes: AppApiRouteContribution<Application> =
         groups: {
           'releases.apps': { level: 'write', objects: appIds },
           'studio.checks': { level: 'write' },
+          'studio.verify': { level: 'write' },
         },
       } as const;
       const existing = await ciKeyRow(repository.id);
@@ -838,7 +839,10 @@ export const buildRoutes: AppApiRouteContribution<Application> =
       // and lives at most 90 days; an older key (every App, a year) is replaced instead.
       const granted: 'all' | readonly string[] | undefined =
         live?.scope?.groups['releases.apps']?.objects;
+      // A key made before plan S cannot verify; rotating it would keep that, so it is replaced.
+      const canVerify = live?.scope?.groups['studio.verify'] !== undefined;
       const sameApps =
+        canVerify &&
         granted !== undefined &&
         granted !== 'all' &&
         JSON.stringify([...granted].sort()) === JSON.stringify(appIds);

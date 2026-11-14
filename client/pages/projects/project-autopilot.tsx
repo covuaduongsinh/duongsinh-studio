@@ -122,6 +122,7 @@ function ProjectAutopilotForm({
   const [autoMergeStages, setAutoMergeStages] = useState(
     settings?.autoMergeStages ?? true,
   );
+  const [verifyOnCi, setVerifyOnCi] = useState(settings?.verifyOnCi ?? false);
   const [mergeMethod, setMergeMethod] = useState<'squash' | 'merge' | 'rebase'>(
     (settings?.mergeMethod as 'squash' | 'merge' | 'rebase') || 'squash',
   );
@@ -146,6 +147,7 @@ function ProjectAutopilotForm({
     const payload: AutopilotUpdateInput = {
       enabled,
       autoMergeStages,
+      verifyOnCi,
       mergeMethod,
       maxActiveIssues: maxActiveIssues.trim()
         ? Number.parseInt(maxActiveIssues.trim(), 10)
@@ -224,6 +226,23 @@ function ProjectAutopilotForm({
           aria-label={t('autopilot.fields.autoMergeStages')}
           checked={autoMergeStages}
           onCheckedChange={setAutoMergeStages}
+          disabled={!canManage || updateMutation.isPending}
+        />
+      </div>
+
+      <div className='flex items-center justify-between pb-2 border-b'>
+        <div>
+          <Label className='text-base font-medium'>
+            {t('autopilot.fields.verifyOnCi')}
+          </Label>
+          <p className='text-xs text-muted-foreground'>
+            {t('autopilot.fields.verifyOnCiHint')}
+          </p>
+        </div>
+        <Switch
+          aria-label={t('autopilot.fields.verifyOnCi')}
+          checked={verifyOnCi}
+          onCheckedChange={setVerifyOnCi}
           disabled={!canManage || updateMutation.isPending}
         />
       </div>

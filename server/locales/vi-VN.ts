@@ -138,6 +138,10 @@ const viVN: AppServerResource = {
     checksTitle: 'Báo kết quả check',
     checksDescription: 'Cho CI báo kết quả check của repo lấy check từ CI.',
     report: 'Báo kết quả check',
+    verifyTitle: 'Nộp kết quả kiểm chứng',
+    verifyDescription:
+      'Cho khoá CI của kho đọc kế hoạch kiểm chứng và nộp kết quả cho việc của chính kho đó.',
+    submit: 'Nộp kiểm chứng',
     section: 'Studio',
     settingsTitle: 'Khoá API của tổ chức',
     read: 'Xem',

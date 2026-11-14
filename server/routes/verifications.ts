@@ -32,6 +32,7 @@ import { z } from 'zod';
 import { str, num } from '../git/rows.js';
 import { VERIFICATIONS_SUBMIT_ACTION } from '../agents/actions.js';
 import { outboundToken } from '../providers/outbound.js';
+import { ciCallerOf, ciIssueOf } from '../verifications/ci-caller.js';
 import { BLOCKED_STATUS } from '@nocobase/app-plugin-projects/shared/statuses';
 
 type Env = AuthEnv & AuthorizationEnv;
@@ -103,6 +104,8 @@ export const VerificationOutputSchema = z.object({
   headSha: z.string(),
   attempt: z.number(),
   result: VerificationResultEnum,
+  /** Who submitted it: an agent's run, the project's CI key or a person. */
+  source: z.enum(['agent', 'ci', 'person']),
   createdAt: z.string(),
   items: z.array(VerificationItemOutputSchema).optional(),
 });
@@ -112,6 +115,10 @@ export const VerificationSettingsSchema = z.object({
 });
 
 const DOMAIN = 'verifications';
+
+/** A row made before plan S has no source: an agent submitted it. */
+const sourceOf = (value: unknown): 'agent' | 'ci' | 'person' =>
+  value === 'ci' || value === 'person' ? value : 'agent';
 const IssueParam = z.object({ issueId: z.string() });
 
 const notFound = (what: string): ApiError =>
@@ -221,12 +228,28 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
           }
         }
 
+        // A repository's CI key verifies the issues that have an open pull request in that repository, and nothing else.
+        const ci = await ciCallerOf(c, conn());
         let issue: IssueView;
-        try {
-          issue = await projects().issueQueries.visible(viewer, input.issueId);
-        } catch {
-          throw notFound('Issue');
+        if (ci) {
+          const found = await ciIssueOf(conn(), ci.repositoryId, input.issueId);
+          if (!found || found.id !== input.issueId) throw notFound('Issue');
+          issue = found;
+        } else {
+          try {
+            issue = await projects().issueQueries.visible(
+              viewer,
+              input.issueId,
+            );
+          } catch {
+            throw notFound('Issue');
+          }
         }
+        const source: 'agent' | 'ci' | 'person' = ci
+          ? 'ci'
+          : isRun
+            ? 'agent'
+            : 'person';
 
         const connection = conn();
         const now = new Date();
@@ -379,6 +402,7 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
             headSha: input.headSha,
             attempt,
             result: overallResult,
+            source,
             createdAt: now,
           })
           .execute();
@@ -497,6 +521,7 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
           headSha: input.headSha,
           attempt,
           result: overallResult,
+          source,
           createdAt: now.toISOString(),
           items: evaluatedItems.map((it) => ({
             ...it,
@@ -589,6 +614,7 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
             headSha: str(v.headSha),
             attempt: num(v.attempt),
             result: str(v.result) as 'passed' | 'failed' | 'contradicted',
+            source: sourceOf(v.source),
             createdAt: new Date(
               v.createdAt as string | number | Date,
             ).toISOString(),
@@ -711,6 +737,7 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
           headSha: str(v.headSha),
           attempt: num(v.attempt),
           result: str(v.result) as 'passed' | 'failed' | 'contradicted',
+          source: sourceOf(v.source),
           createdAt: new Date(
             v.createdAt as string | number | Date,
           ).toISOString(),

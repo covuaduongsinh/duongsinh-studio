@@ -145,6 +145,10 @@ const enUS = {
     checksDescription:
       'Lets CI report the checks of a repository whose checks come from it.',
     report: 'Report checks',
+    verifyTitle: 'Submit verifications',
+    verifyDescription:
+      'Lets a repository’s CI key read the verification plan and submit results for the issues of that repository.',
+    submit: 'Submit verifications',
     section: 'Studio',
     settingsTitle: 'Organization API keys',
     read: 'View',

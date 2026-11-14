@@ -756,6 +756,8 @@ const zhCN: AppResource = {
   settingsVerifications: {
     title: '验证',
     description: '管理连续失败阈值并跟踪任务的验证历史记录。',
+    ciLimit:
+      '限制：默认情况下验证命令由 Studio 指定，但由智能体自己运行并自行上报退出码，因此 CI 仍是最终裁判。在项目设置中开启“在 CI 上验证”后，只信任 CI 密钥提交的结果（来源：ci）。',
     thresholdTitle: '连续失败阈值',
     thresholdDescription:
       '当任务的连续验证失败次数达到此阈值 (N) 时，系统将自动将其置为已阻塞 (Blocked) 并标注需要人工处理。',
@@ -2215,6 +2217,9 @@ const zhCN: AppResource = {
       autoMergeStages: '自动合并每个已完成的阶段',
       autoMergeStagesHint:
         '当某阶段的检查通过且已交付时，Studio 会自动合并其拉取请求，工作继续进入下一阶段。暂停或紧急停止时不会合并，涉及敏感路径的拉取请求留给人工处理。',
+      verifyOnCi: '在 CI 上验证',
+      verifyOnCiHint:
+        '只信任仓库 CI 密钥提交的验证结果（ds-check 的 verify 任务）。自动驾驶的合并关卡和智能体转入待验收时，会忽略智能体自行提交的结果。需要在仓库中设置密钥 DS_STUDIO_API_KEY 和变量 DS_STUDIO_API。',
     },
     mergeMethods: {
       squash: 'Squash (压缩提交并合并)',

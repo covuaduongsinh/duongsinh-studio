@@ -29,6 +29,7 @@ import type { Context } from 'hono';
 import { Hono } from 'hono';
 import { z } from 'zod';
 import { str, strOrNull } from '../git/rows.js';
+import { ciCallerOf, ciIssueOf } from '../verifications/ci-caller.js';
 
 type Env = AuthEnv & AuthorizationEnv;
 type Ctx = Context<Env>;
@@ -118,23 +119,39 @@ export const verificationPlanRoutes: AppApiRouteContribution<Application> =
       }),
       apiValidator('param', IssueParam),
       async (c) => {
-        const { issueId } = c.req.valid('param');
-        const viewer = await viewerOf(c);
-        try {
-          await app.container
-            .resolve(projectsToken)
-            .issueQueries.visible(viewer, issueId);
-        } catch {
-          throw new ApiError({
-            status: 'NOT_FOUND',
-            reason: 'NOT_FOUND',
-            domain: 'verifications',
-            message: 'Issue not found.',
-          });
-        }
+        const { issueId: issueRef } = c.req.valid('param');
         const connection = app.container
           .resolve(databaseManagerToken)
           .connection();
+        // A repository's CI key reads the plan of the issues that have an open pull request in that repository (plan S, S4);
+        // `issueId` may then be the issue's identifier, and the answer names its id.
+        const ci = await ciCallerOf(c, connection);
+        let issueId = issueRef;
+        if (ci) {
+          const found = await ciIssueOf(connection, ci.repositoryId, issueRef);
+          if (!found)
+            throw new ApiError({
+              status: 'NOT_FOUND',
+              reason: 'NOT_FOUND',
+              domain: 'verifications',
+              message: 'Issue not found.',
+            });
+          issueId = found.id;
+        } else {
+          const viewer = await viewerOf(c);
+          try {
+            await app.container
+              .resolve(projectsToken)
+              .issueQueries.visible(viewer, issueRef);
+          } catch {
+            throw new ApiError({
+              status: 'NOT_FOUND',
+              reason: 'NOT_FOUND',
+              domain: 'verifications',
+              message: 'Issue not found.',
+            });
+          }
+        }
         const rows = await connection.query
           .selectFrom('dsIssueCriteria')
           .selectAll()

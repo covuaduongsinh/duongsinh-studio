@@ -129,6 +129,10 @@ const zhCN: AppServerResource = {
     checksTitle: '上报检查',
     checksDescription: '允许 CI 上报其仓库的检查结果。',
     report: '上报检查',
+    verifyTitle: '提交验证结果',
+    verifyDescription:
+      '允许仓库的 CI 密钥读取验证计划，并为该仓库的任务提交验证结果。',
+    submit: '提交验证',
     section: 'Studio',
     settingsTitle: '组织 API 密钥',
     read: '查看',

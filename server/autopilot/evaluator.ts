@@ -1,3 +1,4 @@
+import { trustedVerificationOf } from '../verifications/trust.js';
 import { randomUUID } from 'node:crypto';
 import type { DatabaseConnection, DatabaseManager } from '@nocobase/db';
 import type { GitService, GitPullRequestView } from '../git/service.js';
@@ -44,6 +45,8 @@ export interface AutopilotSettingsView {
   readonly defaultTier: 'small' | 'standard' | 'sensitive';
   /** Studio asks GitHub to merge once its checks pass, instead of merging through the API (T3b). */
   readonly autoMergeOnGithub: boolean;
+  /** Only a verification submitted by the project's CI key counts for the gates (plan S, S4). */
+  readonly verifyOnCi: boolean;
   readonly pausedReason: string | null;
   readonly updatedAt: string;
   readonly updatedById: string | null;
@@ -60,6 +63,7 @@ export interface AutopilotSettingsInput {
   readonly sensitivePolicy?: 'extraReview' | 'human';
   readonly defaultTier?: 'small' | 'standard' | 'sensitive';
   readonly autoMergeOnGithub?: boolean;
+  readonly verifyOnCi?: boolean;
   readonly pausedReason?: string | null;
 }
 
@@ -170,6 +174,7 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       sensitivePolicy:
         (str(row.sensitivePolicy) as 'extraReview' | 'human') || 'extraReview',
       autoMergeOnGithub: bool(row.autoMergeOnGithub),
+      verifyOnCi: bool(row.verifyOnCi),
       defaultTier: isTier(strOrNull(row.defaultTier))
         ? (str(row.defaultTier) as Tier)
         : DEFAULT_TIER,
@@ -263,6 +268,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
         input.autoMergeOnGithub !== undefined
           ? input.autoMergeOnGithub
           : (existing?.autoMergeOnGithub ?? false),
+      verifyOnCi:
+        input.verifyOnCi !== undefined
+          ? input.verifyOnCi
+          : (existing?.verifyOnCi ?? false),
       pausedReason:
         input.pausedReason !== undefined
           ? input.pausedReason
@@ -434,12 +443,8 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     }
 
     // Condition 4b: Verification passes on current headSha
-    const latestVerification = await conn()
-      .query.selectFrom('dsVerifications')
-      .selectAll()
-      .where('issueId', '=', issueId)
-      .orderBy('createdAt', 'desc')
-      .executeTakeFirst();
+    // While the project asks for it, only a verification of its CI key counts (plan S, S4).
+    const latestVerification = await trustedVerificationOf(conn(), issueId);
     if (!latestVerification || latestVerification.result !== 'passed') {
       reasons.push(
         'Chưa có lượt Kiểm chứng nào đạt kết quả (passed) cho việc này.',
@@ -824,12 +829,7 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       .where('id', '=', input.pullRequestId)
       .executeTakeFirst();
     if (prRow?.headSha) {
-      const latestVerif = await conn()
-        .query.selectFrom('dsVerifications')
-        .selectAll()
-        .where('issueId', '=', input.issueId)
-        .orderBy('createdAt', 'desc')
-        .executeTakeFirst();
+      const latestVerif = await trustedVerificationOf(conn(), input.issueId);
       if (!latestVerif || latestVerif.result !== 'passed') {
         return {
           allowed: false,

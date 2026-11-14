@@ -786,6 +786,8 @@ const enUS = {
     title: 'Verifications',
     description:
       'Manage consecutive failure thresholds and track verification history for issues.',
+    ciLimit:
+      'Limit: by default Studio fixes the verification commands but the agent runs them and sends the exit code itself, so CI stays the final judge. Turn on “Verify on CI” in the project settings to trust only what the CI key submits (source: ci).',
     thresholdTitle: 'Consecutive Failure Threshold',
     thresholdDescription:
       'When an issue reaches this number of consecutive verification failures (N), the system automatically moves it to Blocked and sets needsYou.',
@@ -2332,6 +2334,9 @@ const enUS = {
       autoMergeStages: 'Merge each finished stage by itself',
       autoMergeStagesHint:
         'When a stage’s checks pass and it has been handed over, Studio merges its pull request and the work goes on to the next stage. Stops with a pause or the emergency stop, and leaves pull requests that touch sensitive paths for a person.',
+      verifyOnCi: 'Verify on CI',
+      verifyOnCiHint:
+        'Trust only the verification the repository’s CI key submits (the verify job of ds-check). The autopilot’s merge gate and an agent’s move to review ignore what the agent submitted itself. Needs the secret DS_STUDIO_API_KEY and the variable DS_STUDIO_API in the repository.',
     },
     mergeMethods: {
       squash: 'Squash and merge',

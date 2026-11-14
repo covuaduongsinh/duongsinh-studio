@@ -773,6 +773,8 @@ const viVN: AppResource = {
     title: 'Kiểm chứng',
     description:
       'Quản lý ngưỡng thất bại liên tiếp và theo dõi lịch sử kiểm chứng của các công việc.',
+    ciLimit:
+      'Giới hạn: mặc định lệnh kiểm chứng do Studio cấp nhưng agent tự chạy và tự gửi mã thoát, nên CI vẫn là trọng tài cuối. Bật "Kiểm chứng trên CI" ở Cài đặt dự án để chỉ tin bản nộp của khoá CI (nguồn: ci).',
     thresholdTitle: 'Ngưỡng dừng khi kiểm chứng thất bại',
     thresholdDescription:
       'Khi một việc có số lượt kiểm chứng thất bại liên tiếp chạm ngưỡng này (N), hệ thống sẽ tự động chuyển trạng thái việc sang Đang vướng (Blocked) và ghi lý do Cần bạn.',
@@ -2314,6 +2316,9 @@ const viVN: AppResource = {
       autoMergeStages: 'Tự merge từng giai đoạn đã xong',
       autoMergeStagesHint:
         'Khi kiểm tra của một giai đoạn đạt và agent đã bàn giao, Studio tự merge PR của giai đoạn đó để công việc đi tiếp sang giai đoạn sau. Dừng khi tạm dừng hoặc dừng khẩn cấp, và để người xử lý các PR đụng tới đường dẫn nhạy cảm.',
+      verifyOnCi: 'Kiểm chứng trên CI',
+      verifyOnCiHint:
+        'Chỉ tin kết quả kiểm chứng do khoá CI của kho nộp (job verify trong ds-check). Cổng merge của tự lái và việc agent chuyển sang Chờ nghiệm thu bỏ qua bản agent tự nộp. Cần đặt secret DS_STUDIO_API_KEY và biến DS_STUDIO_API ở kho.',
     },
     mergeMethods: {
       squash: 'Squash (ghép commit)',

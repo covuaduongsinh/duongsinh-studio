@@ -66,6 +66,11 @@ const AutopilotSettingsSchema = z
       .describe(
         'Whether GitHub merges once its checks pass; only while the branch protection reads green.',
       ),
+    verifyOnCi: z
+      .boolean()
+      .describe(
+        'Whether only a verification submitted by the project’s CI key counts for the merge gate and for an agent’s move to review.',
+      ),
     pausedReason: z.string().nullable(),
     updatedAt: z.string(),
     updatedById: z.string().nullable(),
@@ -98,6 +103,7 @@ const UpdateAutopilotSettingsBody = z
     sensitivePolicy: z.enum(['extraReview', 'human']).optional(),
     defaultTier: z.enum(['small', 'standard', 'sensitive']).optional(),
     autoMergeOnGithub: z.boolean().optional(),
+    verifyOnCi: z.boolean().optional(),
     pausedReason: z.string().nullable().optional(),
   })
   .strict();
@@ -311,6 +317,7 @@ export const autopilotRoutes: AppApiRouteContribution<Application> =
           sensitivePolicy: 'extraReview',
           defaultTier: 'standard',
           autoMergeOnGithub: false,
+          verifyOnCi: false,
           pausedReason: null,
           updatedAt: new Date().toISOString(),
           updatedById: null,
