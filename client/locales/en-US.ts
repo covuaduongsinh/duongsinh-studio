@@ -2200,8 +2200,8 @@ const enUS = {
       4: 'Save, then come back here and press "Check again".',
     },
     autoMerge: {
-      title: 'Let GitHub merge when checks pass',
-      hint: 'Studio turns on GitHub’s auto-merge for a pull request that is ready. The repository must allow auto-merge (the owner’s step).',
+      title: 'Let GitHub merge when checks pass (experimental)',
+      hint: 'Experimental, not yet tried against real GitHub. A pull request that is ready is merged by Studio directly; only while the checks are still running does Studio ask GitHub to merge when they pass, and it turns that off on a new commit or a person’s comment. The repository must allow auto-merge (the owner’s step).',
       needsGreen: 'Can be turned on only once the branch guard is green.',
       error: 'Could not change the auto-merge setting',
     },

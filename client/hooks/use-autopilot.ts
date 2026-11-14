@@ -56,7 +56,9 @@ export interface AutopilotEvent {
     | 'paused'
     | 'ciFailed'
     | 'reacted'
-    | 'reactionSkipped';
+    | 'reactionSkipped'
+    | 'autoMergeOn'
+    | 'autoMergeOff';
   readonly reason: string | null;
   readonly data: Record<string, unknown> | null;
   readonly createdAt: string;

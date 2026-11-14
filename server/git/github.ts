@@ -116,6 +116,8 @@ export interface GitHubClient {
    * Throws `GitHubError` 422 with GitHub's own words when the repository does not allow auto-merge.
    */
   enableAutoMerge(fullName: string, number: number): Promise<void>;
+  /** Switches GitHub's auto-merge off again (S2): a new head, a person's comment or a failing evaluation. */
+  disableAutoMerge(fullName: string, number: number): Promise<void>;
   /** The inline comments of one review of a pull request (T1.3). */
   reviewComments(
     fullName: string,
@@ -465,6 +467,31 @@ export function createGitHubClient(options: {
         throw new GitHubError(
           422,
           text(record(problems[0]).message) ?? 'GitHub refused auto-merge.',
+        );
+    },
+    async disableAutoMerge(fullName, number) {
+      const nodeId = text(
+        record(await call('GET', `${repoPath(fullName)}/pulls/${number}`))
+          .node_id,
+      );
+      if (!nodeId)
+        throw new GitHubError(
+          502,
+          `GitHub named no node for ${fullName}#${number}.`,
+        );
+      const answer = record(
+        await call('POST', '/graphql', {
+          query:
+            'mutation($id: ID!) { disablePullRequestAutoMerge(input: { pullRequestId: $id }) { pullRequest { number } } }',
+          variables: { id: nodeId },
+        }),
+      );
+      const problems = items(answer.errors);
+      if (problems.length > 0)
+        throw new GitHubError(
+          422,
+          text(record(problems[0]).message) ??
+            'GitHub refused to turn auto-merge off.',
         );
     },
     async reviewComments(fullName, number, reviewId) {

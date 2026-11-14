@@ -64,3 +64,22 @@ describe('enableAutoMerge', () => {
     ).rejects.toBeInstanceOf(GitHubError);
   });
 });
+
+describe('disableAutoMerge', () => {
+  it('asks GraphQL to turn auto-merge off on the pull request node', async () => {
+    stub({
+      data: { disablePullRequestAutoMerge: { pullRequest: { number: 5 } } },
+    });
+    await client().disableAutoMerge('acme/sandbox', 5);
+    const graph = calls.find((c) => c.url.endsWith('/graphql'))!;
+    expect(JSON.stringify(graph.body)).toContain('disablePullRequestAutoMerge');
+    expect(JSON.stringify(graph.body)).toContain('PR_node_1');
+  });
+
+  it('says so when GitHub refuses', async () => {
+    stub({ errors: [{ message: 'Auto merge is not enabled' }] });
+    await expect(
+      client().disableAutoMerge('acme/sandbox', 5),
+    ).rejects.toMatchObject({ status: 422 });
+  });
+});
