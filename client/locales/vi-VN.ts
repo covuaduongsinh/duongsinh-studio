@@ -1984,6 +1984,45 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  branchProtection: {
+    title: 'Hàng rào nhánh chính',
+    description:
+      'Studio đọc cách GitHub bảo vệ nhánh mặc định của kho chính. Studio không tự đổi cài đặt GitHub.',
+    loading: 'Đang đọc từ GitHub...',
+    error: 'Không đọc được cài đặt bảo vệ nhánh.',
+    noRepository: 'Dự án chưa nối kho mã nguồn nào.',
+    unreadable:
+      'GitHub không cho Studio đọc cài đặt của {{repository}} (mã {{status}}). Chưa thể nói là đạt hay chưa; kiểm tay theo các bước dưới đây.',
+    verdict: {
+      ok: 'Nhánh {{branch}} của {{repository}} đã được bảo vệ đúng.',
+      problem: 'Nhánh {{branch}} của {{repository}} còn hở.',
+      unknown:
+        'Nhánh {{branch}} của {{repository}}: chưa thấy lỗi, nhưng có điều Studio không đọc được.',
+    },
+    problems: {
+      noRequiredCheck: 'Chưa bắt buộc check "ds-check" trước khi merge.',
+      pushAllowed: 'Vẫn cho đẩy thẳng lên nhánh, không qua pull request.',
+      reviewRequired:
+        'Đang bắt buộc người duyệt (approve). App của Studio không tự duyệt được, nên PR sẽ không bao giờ merge.',
+    },
+    unknowns: {
+      pullRequestUnknown:
+        'Chưa đọc được việc có bắt buộc pull request hay không (cần quyền Administration, Studio không xin quyền này).',
+    },
+    steps: {
+      1: 'Mở GitHub, vào Settings của kho, chọn Rules rồi Rulesets, bấm New branch ruleset.',
+      2: 'Áp dụng cho nhánh mặc định; bật "Require a pull request before merging" với số duyệt bằng 0.',
+      3: 'Bật "Require status checks to pass" và thêm check "ds-check".',
+      4: 'Lưu, rồi quay lại đây bấm "Kiểm lại".',
+    },
+    autoMerge: {
+      title: 'Để GitHub tự merge khi check xanh',
+      hint: 'Studio bật auto-merge của GitHub cho PR đủ điều kiện. Kho phải bật "Allow auto-merge" (việc của chủ dự án).',
+      needsGreen: 'Chỉ bật được khi hàng rào nhánh đã đạt.',
+      error: 'Không đổi được cài đặt auto-merge',
+    },
+    recheck: 'Kiểm lại',
+  },
   tier: {
     label: 'Mức việc',
     names: { small: 'Nhỏ', standard: 'Chuẩn', sensitive: 'Nhạy cảm' },

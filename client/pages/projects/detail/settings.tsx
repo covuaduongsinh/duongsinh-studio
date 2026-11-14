@@ -12,6 +12,7 @@ import { cn } from 'cn';
 import { ProjectDefaultCriteriaCard } from '#components/criteria/criteria-editor';
 import { ProjectAgentSettings } from '../project-agent-settings.js';
 import { ProjectAutopilot } from '../project-autopilot.js';
+import { ProjectBranchProtection } from '../project-branch-protection.js';
 import { ProjectDefaultTier } from '../project-default-tier.js';
 import { ProjectReactions } from '../project-reactions.js';
 import { ProjectCode } from '../project-code.js';
@@ -55,6 +56,10 @@ export function ProjectSettingsTab(): ReactElement {
           <div className='flex flex-col gap-6'>
             <ProjectAutopilot projectId={project.id} />
             <ProjectDefaultTier projectId={project.id} canManage={canManage} />
+            <ProjectBranchProtection
+              projectId={project.id}
+              canManage={canManage}
+            />
             <ProjectReactions projectId={project.id} canManage={canManage} />
             <ProjectDefaultCriteriaCard
               projectId={project.id}

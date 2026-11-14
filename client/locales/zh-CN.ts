@@ -1901,6 +1901,45 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  branchProtection: {
+    title: '主分支防护',
+    description:
+      'Studio 读取 GitHub 对主仓库默认分支的保护设置，不会自行修改 GitHub 设置。',
+    loading: '正在从 GitHub 读取…',
+    error: '无法读取分支保护设置。',
+    noRepository: '项目尚未关联代码仓库。',
+    unreadable:
+      'GitHub 不允许 Studio 读取 {{repository}} 的设置（状态 {{status}}），无法判断是否合格；请按下面的步骤手动检查。',
+    verdict: {
+      ok: '{{repository}} 的 {{branch}} 分支保护正确。',
+      problem: '{{repository}} 的 {{branch}} 分支仍有缺口。',
+      unknown:
+        '{{repository}} 的 {{branch}} 分支：未发现问题，但有些内容读取不到。',
+    },
+    problems: {
+      noRequiredCheck: '合并前尚未强制要求 “ds-check” 检查。',
+      pushAllowed: '仍允许直接推送到该分支，无需拉取请求。',
+      reviewRequired:
+        '要求审批通过。Studio 的 App 无法自行审批，因此拉取请求永远无法合并。',
+    },
+    unknowns: {
+      pullRequestUnknown:
+        '无法读取是否要求拉取请求（需要 Administration 权限，Studio 不申请该权限）。',
+    },
+    steps: {
+      1: '在 GitHub 打开仓库的 Settings，进入 Rules，再进入 Rulesets，点击 New branch ruleset。',
+      2: '作用于默认分支；开启 “Require a pull request before merging”，审批数设为 0。',
+      3: '开启 “Require status checks to pass”，并添加 “ds-check” 检查。',
+      4: '保存后回到这里，点击“重新检查”。',
+    },
+    autoMerge: {
+      title: '检查通过后由 GitHub 自动合并',
+      hint: 'Studio 会为符合条件的拉取请求开启 GitHub 自动合并。仓库需允许自动合并（由负责人设置）。',
+      needsGreen: '仅当分支防护通过后才能开启。',
+      error: '无法更改自动合并设置',
+    },
+    recheck: '重新检查',
+  },
   tier: {
     label: '事项级别',
     names: { small: '小', standard: '标准', sensitive: '敏感' },

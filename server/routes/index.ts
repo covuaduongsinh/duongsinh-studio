@@ -4,6 +4,7 @@ import { accessRoutes } from './access.js';
 import { autopilotRoutes } from './autopilot.js';
 import { reactionRoutes } from './reactions.js';
 import { issueTierRoutes } from './issue-tier.js';
+import { branchProtectionRoutes } from './branch-protection.js';
 import { budgetRoutes } from './budgets.js';
 import { buildRoutes } from './builds.js';
 import { deployRoutes } from './deploys.js';
@@ -35,6 +36,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   autopilotRoutes,
   reactionRoutes,
   issueTierRoutes,
+  branchProtectionRoutes,
   projectManagerRoutes,
   gitRoutes,
   hostLoadRoutes,

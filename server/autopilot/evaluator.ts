@@ -42,6 +42,8 @@ export interface AutopilotSettingsView {
   readonly sensitivePaths: string[] | null;
   readonly sensitivePolicy: 'extraReview' | 'human';
   readonly defaultTier: 'small' | 'standard' | 'sensitive';
+  /** Studio asks GitHub to merge once its checks pass, instead of merging through the API (T3b). */
+  readonly autoMergeOnGithub: boolean;
   readonly pausedReason: string | null;
   readonly updatedAt: string;
   readonly updatedById: string | null;
@@ -57,6 +59,7 @@ export interface AutopilotSettingsInput {
   readonly sensitivePaths?: string[] | null;
   readonly sensitivePolicy?: 'extraReview' | 'human';
   readonly defaultTier?: 'small' | 'standard' | 'sensitive';
+  readonly autoMergeOnGithub?: boolean;
   readonly pausedReason?: string | null;
 }
 
@@ -151,6 +154,7 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       sensitivePaths,
       sensitivePolicy:
         (str(row.sensitivePolicy) as 'extraReview' | 'human') || 'extraReview',
+      autoMergeOnGithub: bool(row.autoMergeOnGithub),
       defaultTier: isTier(strOrNull(row.defaultTier))
         ? (str(row.defaultTier) as Tier)
         : DEFAULT_TIER,
@@ -240,6 +244,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
         input.defaultTier !== undefined
           ? input.defaultTier
           : (existing?.defaultTier ?? DEFAULT_TIER),
+      autoMergeOnGithub:
+        input.autoMergeOnGithub !== undefined
+          ? input.autoMergeOnGithub
+          : (existing?.autoMergeOnGithub ?? false),
       pausedReason:
         input.pausedReason !== undefined
           ? input.pausedReason
@@ -308,6 +316,19 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       .limit(limit)
       .execute();
     return rows.map(eventView);
+  }
+
+  /**
+   * GitHub's auto-merge is only trusted while the branch protection reads green (plan T, T3b): with the check not required
+   * or pushes open, "merge when checks pass" would merge on nothing. Null when it may go on.
+   */
+  async function autoMergeBlocker(projectId: string): Promise<string | null> {
+    const protection = await deps.git().readBranchProtection(projectId);
+    if (protection.status === 'read' && protection.verdict === 'ok')
+      return null;
+    return protection.status === 'unreadable'
+      ? 'GitHub auto-merge is on but the branch protection cannot be read.'
+      : 'GitHub auto-merge is on but the branch protection is not green.';
   }
 
   async function evaluate(issueId: string): Promise<EvaluationResult> {
@@ -523,6 +544,11 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       }
     }
 
+    if (settings?.autoMergeOnGithub) {
+      const blocked = await autoMergeBlocker(projectId);
+      if (blocked) reasons.push(blocked);
+    }
+
     return {
       eligible: reasons.length === 0,
       reasons,
@@ -551,18 +577,27 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       }
 
       const pr = evaluation.pullRequest;
-      const mergedPr = await deps.git().mergePullRequest(pr.id, {
-        byUserId: AUTOPILOT_USER_ID,
-        force: false,
-        reason: null,
-      });
+      const viaGithub = Boolean(
+        (await getSettings(evaluation.projectId ?? ''))?.autoMergeOnGithub,
+      );
+      // With GitHub's auto-merge on, GitHub merges when its checks pass; the pull request is merged for Studio's records
+      // when the next refresh sees it so.
+      const mergedPr = viaGithub
+        ? await deps.git().enableAutoMerge(pr.id)
+        : await deps.git().mergePullRequest(pr.id, {
+            byUserId: AUTOPILOT_USER_ID,
+            force: false,
+            reason: null,
+          });
 
       const eventId = await recordEvent({
         projectId: evaluation.projectId ?? '',
         issueId,
         pullRequestId: pr.id,
         kind: 'merged',
-        reason: `Autopilot merged PR #${pr.number} (head ${pr.headSha.slice(0, 7)})`,
+        reason: viaGithub
+          ? `Autopilot enabled GitHub auto-merge on PR #${pr.number} (head ${pr.headSha.slice(0, 7)})`
+          : `Autopilot merged PR #${pr.number} (head ${pr.headSha.slice(0, 7)})`,
         data: {
           headSha: pr.headSha,
           pullNumber: pr.number,
@@ -636,6 +671,10 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
         allowed: false,
         reason: `Autopilot is paused: ${settings.pausedReason}`,
       };
+    if (settings?.autoMergeOnGithub) {
+      const blocked = await autoMergeBlocker(projectId);
+      if (blocked) return { allowed: false, reason: blocked };
+    }
     if (settings?.maxMergesPerDay != null) {
       const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const recent = await conn()
