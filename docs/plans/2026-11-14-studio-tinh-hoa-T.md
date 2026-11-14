@@ -310,6 +310,6 @@ job `ds-ui-smoke` (T5); target `dsRoutine` của scheduler (T6); phần T11 plug
 - [ ] T6 — Việc định kỳ
 - [ ] T11 — Hồ sơ lượt chạy
 - [ ] T12 — Hai phương án
-- [ ] T8 — Siết runner
+- [x] T8 — Siết runner (`deploy/runner/{ds-runner-slice.conf,nocobase-runner-hardening.conf,audit.sh}` + mục 7 của `docs/runner-resource-limits-proposal.md`; chủ dự án tự áp dụng và tự chạy `audit.sh`; **không kiểm được trên VPS**; chặn mạng bằng dải riêng chứ không bằng danh sách miền vì `IPAddressAllow` chỉ nhận IP)
 - [x] T9 — Chính sách thuê bao và đối chứng (`docs/chinh-sach-thue-bao.md`; **không có trường "nguồn" ở agent** — kiểm rồi, plugin `agents` không có chỗ; đường lui là đổi đăng nhập trên runner hoặc thêm agent công cụ khác; việc đối chứng 2 tuần là của chủ dự án)
 - (chỉ khi chủ dự án bảo) [ ] T3c — Review trên Actions; [ ] T7b — Góp ý trên bản xem thử
