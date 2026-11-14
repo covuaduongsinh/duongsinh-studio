@@ -27,6 +27,7 @@ import AutopilotProvider from './autopilot.js';
 import ReactionsProvider from './reactions.js';
 import HarnessExportProvider from './harness-export.js';
 import RoutinesProvider from './routines.js';
+import ApproachesProvider from './approaches.js';
 import type { ApplicationServiceProviderConstructor } from '@nocobase/app-server/application';
 
 const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
@@ -71,6 +72,8 @@ const serviceProviders: readonly ApplicationServiceProviderConstructor[] = [
   HarnessExportProvider,
   // Work that comes back on a schedule (plan T, T6).
   RoutinesProvider,
+  // Two approaches for one issue, on request (plan T, T12).
+  ApproachesProvider,
   // Projects as a skill scope, the skills new projects start with, and Studio's own skills (U6).
   ProjectDefaultsProvider,
   // The account organization API keys belong to (U6).

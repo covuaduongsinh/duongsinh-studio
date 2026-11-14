@@ -2004,6 +2004,12 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  twoApproaches: {
+    action: 'Ask for two approaches',
+    hint: 'Two agents of different providers each write an approach (read-only); when both are done the agent holding the issue compares and chooses, with the reason. It costs two runs.',
+    asked: 'Two approaches requested',
+    failed: 'Could not ask for two approaches',
+  },
   runProfile: {
     continueShort: 'Continue',
     lessonShort: 'Lesson',

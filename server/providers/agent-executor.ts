@@ -94,6 +94,10 @@ export interface AgentWaker {
   wakeIssue(input: {
     readonly issueId: string;
     readonly text: string;
+    /** Another agent than the one holding the issue (T12: the two writers of approaches). */
+    readonly agentId?: string;
+    /** The run may not change files; the brief says so. */
+    readonly readOnly?: boolean;
   }): Promise<RunAttempt | null>;
 }
 
@@ -342,7 +346,7 @@ export function createAgentKind(deps: {
   }
 
   deps.exposeWaker?.({
-    async wakeIssue({ issueId, text }) {
+    async wakeIssue({ issueId, text, agentId, readOnly }) {
       const row = await projects.tx
         .read()
         .query.selectFrom('pmIssues')
@@ -365,11 +369,12 @@ export function createAgentKind(deps: {
       return projects.tx.run((tx) =>
         wake(tx, {
           issue,
-          agentId: str(row.executorId),
+          agentId: agentId ?? str(row.executorId),
           trigger: 'reaction',
           type: 'statusChange',
           actor: { type: 'system', id: null },
           text,
+          ...(readOnly ? { readOnly: true } : {}),
         }),
       );
     },

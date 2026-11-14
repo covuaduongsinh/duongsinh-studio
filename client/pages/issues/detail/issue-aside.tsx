@@ -44,6 +44,7 @@ import {
 } from '#hooks/use-autopilot';
 import { IssueReactions } from './issue-reactions.js';
 import { IssueTierRow } from './issue-tier.js';
+import { IssueTwoApproaches } from './issue-two-approaches.js';
 
 import {
   useIssueDetailLabels,
@@ -521,6 +522,7 @@ export function IssueAside({
       </PropertyCard>
       <IssueAutopilotSection issueId={detail.id} canEdit={canEdit} />
       <IssueTierRow issueId={detail.id} canEdit={canEdit} />
+      <IssueTwoApproaches issueId={detail.id} canEdit={canEdit} />
       <IssueReactions issueId={detail.id} />
       <IssueFollowers
         followers={detail.subscribers.map((subscriber) => ({
