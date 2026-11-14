@@ -2001,6 +2001,50 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  effectiveConfig: {
+    title: 'Effective configuration',
+    description:
+      'What is in force for this project and where each value comes from. Read-only; change it in the other sections of this page.',
+    loading: 'Reading the configuration...',
+    error: 'Could not read the effective configuration.',
+    source: { default: 'Default', project: 'Project', system: 'System' },
+    keys: {
+      'autopilot.enabled': 'Autopilot',
+      'autopilot.autoMergeStages': 'Merge stages by itself',
+      'autopilot.maxActiveIssues': 'Most issues open at once',
+      'autopilot.stallMinutes': 'Minutes before work counts as stalled',
+      'autopilot.sensitivePolicy': 'Sensitive paths policy',
+      'autopilot.autoMergeOnGithub': 'GitHub merges when checks pass',
+      'reaction.ciFailed': 'Reaction: CI failed (attempts per push/per issue)',
+      'reaction.conflicts': 'Reaction: branch conflict',
+      'reaction.reviewChanges': 'Reaction: review asks for changes',
+      'reaction.runFailed': 'Reaction: run failed',
+      'reaction.prLineComment': 'Reaction: GitHub review comments',
+      'reaction.greenAndApproved': 'Reaction: green and approved',
+      'tier.default': 'Default issue tier',
+      'skills.attached': 'Skills attached to the project',
+      'budget.global.day': 'System budget per day',
+      'budget.global.month': 'System budget per month',
+      'budget.project.day': 'Project budget per day',
+      'budget.project.month': 'Project budget per month',
+    },
+  },
+  quota: {
+    title: 'Quota',
+    state: { warning: 'Running low', blocked: 'Blocked' },
+    waiting:
+      'Project {{project}} is waiting on a tool quota until about {{time}}.',
+    scope: { global: 'System', project: 'Project', agent: 'Agent' },
+    period: { day: 'day', month: 'month' },
+    budget: {
+      warning:
+        'The {{scope}} {{name}} budget per {{period}} is running low ({{runs}} runs).',
+      blocked:
+        'The {{scope}} {{name}} budget per {{period}} is used up ({{runs}} runs); new work is held.',
+      released:
+        'The {{scope}} {{name}} budget per {{period}} is used up but was extended.',
+    },
+  },
   issueChanges: {
     title: 'Changes',
     loading: 'Reading the changes...',

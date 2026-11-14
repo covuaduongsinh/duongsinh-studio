@@ -1984,6 +1984,50 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  effectiveConfig: {
+    title: 'Cấu hình hiệu lực',
+    description:
+      'Những gì đang có hiệu lực cho dự án này và mỗi giá trị đến từ đâu. Chỉ đọc; sửa ở các mục khác của trang này.',
+    loading: 'Đang đọc cấu hình...',
+    error: 'Không đọc được cấu hình hiệu lực.',
+    source: { default: 'Mặc định', project: 'Dự án', system: 'Hệ thống' },
+    keys: {
+      'autopilot.enabled': 'Tự lái',
+      'autopilot.autoMergeStages': 'Tự merge giai đoạn',
+      'autopilot.maxActiveIssues': 'Số việc mở tối đa',
+      'autopilot.stallMinutes': 'Phút trước khi coi là đứng việc',
+      'autopilot.sensitivePolicy': 'Chính sách đường dẫn nhạy cảm',
+      'autopilot.autoMergeOnGithub': 'GitHub tự merge khi check xanh',
+      'reaction.ciFailed': 'Phản ứng: CI đỏ (lượt mỗi lần đẩy/mỗi việc)',
+      'reaction.conflicts': 'Phản ứng: xung đột nhánh',
+      'reaction.reviewChanges': 'Phản ứng: review xin sửa',
+      'reaction.runFailed': 'Phản ứng: lượt chạy lỗi',
+      'reaction.prLineComment': 'Phản ứng: góp ý trên GitHub',
+      'reaction.greenAndApproved': 'Phản ứng: xanh và đã duyệt',
+      'tier.default': 'Mức việc mặc định',
+      'skills.attached': 'Kỹ năng gắn với dự án',
+      'budget.global.day': 'Ngân sách chung theo ngày',
+      'budget.global.month': 'Ngân sách chung theo tháng',
+      'budget.project.day': 'Ngân sách dự án theo ngày',
+      'budget.project.month': 'Ngân sách dự án theo tháng',
+    },
+  },
+  quota: {
+    title: 'Hạn mức',
+    state: { warning: 'Sắp hết', blocked: 'Đã chặn' },
+    waiting:
+      'Dự án {{project}} đang chờ hạn mức của công cụ, tới khoảng {{time}}.',
+    scope: { global: 'Chung', project: 'Dự án', agent: 'Agent' },
+    period: { day: 'ngày', month: 'tháng' },
+    budget: {
+      warning:
+        'Ngân sách {{scope}} {{name}} theo {{period}} sắp hết ({{runs}} lượt).',
+      blocked:
+        'Ngân sách {{scope}} {{name}} theo {{period}} đã hết ({{runs}} lượt); việc mới bị chặn.',
+      released:
+        'Ngân sách {{scope}} {{name}} theo {{period}} đã hết nhưng được mở thêm.',
+    },
+  },
   issueChanges: {
     title: 'Thay đổi',
     loading: 'Đang đọc thay đổi...',

@@ -1067,3 +1067,9 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Dữ liệu**: số tệp, dòng thêm/bớt (từ `patch` của GitHub, bỏ dòng tiêu đề `---`/`+++`), nhóm theo hai thư mục đầu, tệp khớp `sensitivePaths` của dự án (hoặc mặc định), kết quả kiểm chứng mới nhất và có khớp đầu PR không. Bộ nhớ đệm trong tiến trình theo `(pullRequestId, headSha)`, 50 mục; khởi động lại thì đọc lại từ GitHub. PR không gắn việc nào thì 404 (không hiện ở đâu cả).
 - **Ảnh T5 chưa hiện**: ảnh chỉ là artifact của lượt chạy Actions; đọc artifact cần thêm lời gọi GitHub và chưa làm. Thẻ gắn vào tab "Mã" của trang việc, ngay dưới danh sách PR, cho PR mở đầu tiên. `tests/client/issue-changes.test.tsx` có ca 390 px.
 - **Chưa có test tích hợp cho nhánh đọc GitHub của `changeSummary`** (cần giả GitHub; phần tính toán và bộ nhớ đệm có test riêng, route có test 401/404/quyền).
+
+## 66. T13 — Hạn mức và Cấu hình hiệu lực (14/11/2026)
+
+- **Thẻ "Hạn mức" tự hỏi nguồn của nó** (`GET /api/quota`, `client/pages/home/quota-card.tsx`) thay vì nằm trong `use-today.ts`: nguồn này chỉ dành cho quản trị viên (403 với người khác) và `use-today` tính "mọi nguồn lỗi" theo số 6, nên thêm vào đó sẽ làm người thường luôn thấy một nguồn lỗi. Thẻ ẩn khi mọi thứ ổn hoặc khi không đọc được; `tests/client/home.test.tsx` thêm `quota` vào danh sách đường dẫn Hôm nay hỏi.
+- **Nguồn dữ liệu**: `getQuotaThrottle` của bộ phát hiện đứng việc (hỏi từng dự án; trạng thái nằm trong bộ nhớ tiến trình nên mất khi khởi động lại) và `budgets.list()` (chỉ ngân sách ở mức cảnh báo/chặn).
+- **Cấu hình hiệu lực là một mục chỉ đọc trong Cài đặt dự án**, không phải trang riêng trong Cài đặt hệ thống: mọi giá trị là của từng dự án. Mỗi dòng ghi nguồn `default` (hệ thống chưa lưu gì cho dự án), `project` (dự án đã lưu) hoặc `system` (ngân sách chung). Mức việc "theo việc" không nằm trong danh sách này vì là của từng việc. Kỹ năng hiện số kỹ năng _gắn với dự án_.
