@@ -413,6 +413,17 @@ test('git connections, repositories, pull request sync, merge and run credential
         .executeTakeFirstOrThrow()
     ).result,
   ).toBe('contradicted');
+  // The first red check on a head is logged once, with its time, for the reaction rules (plan T, T1.0).
+  await admin.fetch(`/git/pullRequests/${pending.id}/refresh`, json({}));
+  const redEvents = await dbConn.query
+    .selectFrom('dsAutopilotEvents')
+    .selectAll()
+    .where('issueId', '=', issue.id)
+    .where('kind', '=', 'ciFailed')
+    .execute();
+  expect(redEvents).toHaveLength(1);
+  expect(redEvents[0].pullRequestId).toBe(pending.id);
+  expect(redEvents[0].createdAt).toBeTruthy();
   expect(github.calls.some((call) => call.method === 'PUT')).toBe(false);
   // A contributor who neither owns the issue nor leads the project may not merge.
   expect([403, 404]).toContain(

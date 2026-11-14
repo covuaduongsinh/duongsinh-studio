@@ -46,7 +46,11 @@ import {
   IN_REVIEW_STATUS,
 } from '@nocobase/app-plugin-projects/shared/statuses';
 import type { DatabaseConnection } from '@nocobase/db';
-import { ServiceProvider } from '@nocobase/service-provider';
+import {
+  ServiceProvider,
+  createServiceToken,
+  type ServiceToken,
+} from '@nocobase/service-provider';
 import {
   AGENT_KIND,
   ISSUE_SUBJECT,
@@ -74,7 +78,27 @@ function agentOf(issue: Issue | null): string | null {
 
 /** What wakes an agent, as `RunAttempt.triggerType` and the run input's `payload.trigger`. */
 type Trigger =
-  'statusChange' | 'assigned' | 'comment' | 'mention' | 'unblocked';
+  | 'statusChange'
+  | 'assigned'
+  | 'comment'
+  | 'mention'
+  | 'unblocked'
+  | 'reaction';
+
+/**
+ * Wakes the agent working on an issue from outside the projects hooks (T1: a red CI, a conflict, a review comment). It
+ * goes through the same `wake()` the hooks use, so a dormant, blocked or over-budget issue is left alone.
+ */
+export interface AgentWaker {
+  /** Null when the issue does not exist or has no agent as its executor. */
+  wakeIssue(input: {
+    readonly issueId: string;
+    readonly text: string;
+  }): Promise<RunAttempt | null>;
+}
+
+export const agentWakerToken: ServiceToken<AgentWaker> =
+  createServiceToken<AgentWaker>('app/agent-waker');
 
 interface Wake {
   readonly issue: Issue;
@@ -99,6 +123,8 @@ export function createAgentKind(deps: {
   readonly budgets: () => BudgetService;
   readonly git?: () => GitService;
   readonly secrets?: () => SecretFindingsService;
+  /** Hands out the waker once the kind exists. */
+  readonly exposeWaker?: (waker: AgentWaker) => void;
 }): PrincipalKind {
   const { agents, projects } = deps;
 
@@ -314,6 +340,40 @@ export function createAgentKind(deps: {
       ? attempt({ started: false, skipped: 'waitingOwner' })
       : attempt({ started: true, runId: result.runId });
   }
+
+  deps.exposeWaker?.({
+    async wakeIssue({ issueId, text }) {
+      const row = await projects.tx
+        .read()
+        .query.selectFrom('pmIssues')
+        .selectAll()
+        .where('id', '=', issueId)
+        .where('deletedAt', 'is', null)
+        .executeTakeFirst();
+      if (!row || str(row.executorType) !== AGENT_KIND || !row.executorId)
+        return null;
+      // `wake()` reads only these fields of the issue; the rest is not needed to decide or to enqueue.
+      const issue = {
+        id: str(row.id),
+        identifier: str(row.identifier),
+        statusKey: str(row.statusKey),
+        priority: str(row.priority),
+        ownerUserId: str(row.ownerUserId),
+        projectId: row.projectId ? str(row.projectId) : null,
+        executor: { type: AGENT_KIND, id: str(row.executorId) },
+      } as unknown as Issue;
+      return projects.tx.run((tx) =>
+        wake(tx, {
+          issue,
+          agentId: str(row.executorId),
+          trigger: 'reaction',
+          type: 'statusChange',
+          actor: { type: 'system', id: null },
+          text,
+        }),
+      );
+    },
+  });
 
   /** Takes back the issue's queued work, of one agent or of every one; work a runner holds goes on. */
   const withdraw = (
@@ -637,8 +697,15 @@ export default class AgentExecutorProvider extends ServiceProvider<Application> 
   override async boot(): Promise<void> {
     const { container } = this.app;
     if (!container.has(agentsToken) || !container.has(projectsToken)) return;
+    let waker: AgentWaker | undefined;
+    container.singleton(agentWakerToken, () => ({
+      wakeIssue: async (input) => (waker ? waker.wakeIssue(input) : null),
+    }));
     this.release = container.resolve(projectsKindsToken).add(
       createAgentKind({
+        exposeWaker: (value) => {
+          waker = value;
+        },
         agents: container.resolve(agentsToken),
         projects: container.resolve(projectsToken),
         budgets: () => container.resolve(budgetServiceToken),

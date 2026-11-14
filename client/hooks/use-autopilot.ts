@@ -40,7 +40,13 @@ export interface AutopilotEvent {
   readonly issueId: string | null;
   readonly pullRequestId: string | null;
   readonly kind:
-    'merged' | 'skipped' | 'opened' | 'stalled' | 'blocked' | 'paused';
+    | 'merged'
+    | 'skipped'
+    | 'opened'
+    | 'stalled'
+    | 'blocked'
+    | 'paused'
+    | 'ciFailed';
   readonly reason: string | null;
   readonly data: Record<string, unknown> | null;
   readonly createdAt: string;
