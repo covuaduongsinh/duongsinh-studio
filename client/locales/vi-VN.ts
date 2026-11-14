@@ -1984,6 +1984,24 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  uiSmoke: {
+    title: 'Kiểm giao diện',
+    description:
+      'Đề xuất một workflow GitHub Actions mở các trang chính ở cỡ điện thoại và máy tính, đỏ khi có lỗi trang hoặc trang trắng.',
+    points: {
+      actions:
+        'Chạy trên GitHub Actions, không chạy trên máy chạy của Studio, không dùng bí mật nào, tối đa 15 phút.',
+      sizes:
+        'Mở từng trang ở 390×844 và 1280×800, đẩy ảnh chụp làm tệp đính kèm của lượt chạy.',
+      pages:
+        'Danh sách trang nằm trong .nb-studio/ui-smoke-pages.json (mặc định chỉ trang chủ).',
+    },
+    action: 'Đề xuất workflow ds-ui-smoke',
+    opened: 'Đã mở pull request #{{number}}',
+    failed: 'Không đề xuất được',
+    ownerNote:
+      'Cần token cá nhân GitHub có quyền Workflows; sau khi merge, workflow mới chạy ở các pull request kế tiếp.',
+  },
   harnessExport: {
     title: 'Bộ quy tắc trong kho mã',
     description:

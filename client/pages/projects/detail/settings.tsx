@@ -14,6 +14,7 @@ import { ProjectAgentSettings } from '../project-agent-settings.js';
 import { ProjectAutopilot } from '../project-autopilot.js';
 import { ProjectBranchProtection } from '../project-branch-protection.js';
 import { ProjectHarnessExport } from '../project-harness-export.js';
+import { ProjectUiSmoke } from '../project-ui-smoke.js';
 import { ProjectDefaultTier } from '../project-default-tier.js';
 import { ProjectReactions } from '../project-reactions.js';
 import { ProjectCode } from '../project-code.js';
@@ -62,6 +63,7 @@ export function ProjectSettingsTab(): ReactElement {
               canManage={canManage}
             />
             <ProjectReactions projectId={project.id} canManage={canManage} />
+            <ProjectUiSmoke projectId={project.id} canManage={canManage} />
             <ProjectHarnessExport
               projectId={project.id}
               canManage={canManage}

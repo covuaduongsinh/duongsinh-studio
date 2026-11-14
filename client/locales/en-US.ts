@@ -2001,6 +2001,24 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  uiSmoke: {
+    title: 'Interface check',
+    description:
+      'Proposes a GitHub Actions workflow that opens the main pages at phone and desktop sizes and fails on a page error or a blank page.',
+    points: {
+      actions:
+        'Runs on GitHub Actions, never on Studio’s runner, uses no secret, 15 minutes at most.',
+      sizes:
+        'Opens each page at 390×844 and 1280×800 and uploads the screenshots as an artifact of the run.',
+      pages:
+        'The pages are listed in .nb-studio/ui-smoke-pages.json (the home page by default).',
+    },
+    action: 'Propose the ds-ui-smoke workflow',
+    opened: 'Opened pull request #{{number}}',
+    failed: 'Could not propose it',
+    ownerNote:
+      'Needs your GitHub personal token with the Workflows permission; once merged, the workflow runs on the next pull requests.',
+  },
   harnessExport: {
     title: 'Rules in the repository',
     description:
