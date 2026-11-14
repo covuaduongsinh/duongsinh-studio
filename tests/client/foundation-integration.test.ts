@@ -82,6 +82,7 @@ describe('default Foundation integration', () => {
           ['settingsPlaybooks', '/settings/playbooks'],
           ['settingsProjectManager', '/settings/project-manager'],
           ['settingsBudgets', '/settings/budgets'],
+          ['settingsRoutines', '/settings/routines'],
           ['settingsGoAgents', '/settings/go/agents'],
           ['settingsGoRuntimes', '/settings/go/runtimes'],
           ['settingsGoSkills', '/settings/go/skills'],
