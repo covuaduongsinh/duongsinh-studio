@@ -2004,6 +2004,25 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  runProfile: {
+    continueShort: 'Continue',
+    lessonShort: 'Lesson',
+    continueFrom: 'Continue from step #{{seq}}',
+    lessonFrom: 'Turn step #{{seq}} into a lesson',
+    continueDescription:
+      'Wakes the agent that holds the issue with the log up to this step (secrets masked). Add a note if needed.',
+    lessonDescription:
+      'The lesson is proposed with the log up to this step (secrets masked) and waits for approval.',
+    note: 'Note for the agent',
+    rule: 'The rule it teaches',
+    tag: 'Tag',
+    continueAction: 'Continue',
+    lessonAction: 'Propose lesson',
+    started: 'A new run has started',
+    notStarted: 'It could not start: {{reason}}',
+    lessonSaved: 'Lesson proposed, waiting for approval',
+    failed: 'Could not do it',
+  },
   routines: {
     title: 'Routines',
     description:

@@ -308,7 +308,7 @@ job `ds-ui-smoke` (T5); target `dsRoutine` của scheduler (T6); phần T11 plug
 - [x] T7 — Thẻ "Thay đổi" (PR `feat/t-7`: `server/changes/summary.ts`, `GET /pullRequests/:id/changeSummary`, `POST /pullRequests/:id/requestChanges`, `client/components/issue-changes/`; **không có nút Duyệt, chưa có ảnh T5**, xem `chenh-lech-upstream.md` §65)
 - [x] T13 — Hạn mức và Cấu hình hiệu lực (PR `feat/t-13`: `GET /quota`, `GET /projects/:id/effectiveConfig`, thẻ "Hạn mức" trên Hôm nay, mục "Cấu hình hiệu lực" ở Cài đặt dự án; xem `chenh-lech-upstream.md` §66)
 - [x] T6 — Việc định kỳ (PR `feat/t-6`: `dsRoutines`/`dsRoutineProjects`, `server/routines/`, `/api/routines*`, trang Cài đặt hệ thống → Việc định kỳ (quyền `studio.routines`), bốn mẫu tắt; **không dùng plugin Scheduler**, xem `chenh-lech-upstream.md` §67)
-- [ ] T11 — Hồ sơ lượt chạy
+- [x] T11 — Hồ sơ lượt chạy (PR `feat/t-11`: khảo sát xong; chỉ viết ba phần plugin thiếu: tìm theo từ khoá, chạy tiếp từ một bước, ghi thành bài học; xem `chenh-lech-upstream.md` §68)
 - [ ] T12 — Hai phương án
 - [x] T8 — Siết runner (`deploy/runner/{ds-runner-slice.conf,nocobase-runner-hardening.conf,audit.sh}` + mục 7 của `docs/runner-resource-limits-proposal.md`; chủ dự án tự áp dụng và tự chạy `audit.sh`; **không kiểm được trên VPS**; chặn mạng bằng dải riêng chứ không bằng danh sách miền vì `IPAddressAllow` chỉ nhận IP)
 - [x] T9 — Chính sách thuê bao và đối chứng (`docs/chinh-sach-thue-bao.md`; **không có trường "nguồn" ở agent** — kiểm rồi, plugin `agents` không có chỗ; đường lui là đổi đăng nhập trên runner hoặc thêm agent công cụ khác; việc đối chứng 2 tuần là của chủ dự án)

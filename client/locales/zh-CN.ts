@@ -1903,6 +1903,24 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  runProfile: {
+    continueShort: '继续',
+    lessonShort: '经验',
+    continueFrom: '从第 {{seq}} 步继续',
+    lessonFrom: '把第 {{seq}} 步记为经验',
+    continueDescription:
+      '带着截至该步骤的日志（已屏蔽密钥）唤醒负责该事项的智能体。需要时可添加备注。',
+    lessonDescription: '经验会附上截至该步骤的日志（已屏蔽密钥），等待审批。',
+    note: '给智能体的备注',
+    rule: '得出的规则',
+    tag: '标签',
+    continueAction: '继续',
+    lessonAction: '提出经验',
+    started: '已开始新的运行',
+    notStarted: '无法开始：{{reason}}',
+    lessonSaved: '已提出经验，等待审批',
+    failed: '操作失败',
+  },
   routines: {
     title: '定期事项',
     description:
