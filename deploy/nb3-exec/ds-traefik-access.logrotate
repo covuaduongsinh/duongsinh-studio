@@ -1,0 +1,12 @@
+# Install as /etc/logrotate.d/ds-traefik-access. The collector appends to the file, so copytruncate is safe.
+/var/log/traefik/access.log {
+    daily
+    rotate 3
+    maxsize 50M
+    missingok
+    notifempty
+    copytruncate
+    compress
+    delaycompress
+    create 0640 root root
+}

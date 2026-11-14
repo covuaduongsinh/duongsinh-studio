@@ -53,6 +53,8 @@ const OPS = new Set([
 ]);
 /** How much of the end of the Traefik access log `lastAccess` reads. */
 const ACCESS_LOG_BYTES = 8 * 1024 * 1024;
+/** The collector writes a heartbeat line every minute; a log not touched for this long is not trusted (the collector is down). */
+const ACCESS_LOG_MAX_AGE_MS = 10 * 60_000;
 const SINCE = /^\d{1,4}[smh]$/u;
 
 /** The text the signature covers; every field that changes what the daemon does is in it. */
@@ -339,7 +341,10 @@ export function createDaemon(config, deps = {}) {
     try {
       const fd = openSync(config.accessLog, 'r');
       try {
-        const size = fstatSync(fd).size;
+        const stat = fstatSync(fd);
+        const maxAge = config.accessLogMaxAgeMs ?? ACCESS_LOG_MAX_AGE_MS;
+        if (now() - stat.mtimeMs > maxAge) return { known: false };
+        const size = stat.size;
         const length = Math.min(size, ACCESS_LOG_BYTES);
         const buffer = Buffer.alloc(length);
         readSync(fd, buffer, 0, length, size - length);

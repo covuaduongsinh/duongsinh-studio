@@ -1,0 +1,21 @@
+[Unit]
+Description=Duong Sinh Studio: copy Traefik's access log for the NB3 app hosts (ds-traefik-access)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /usr/local/lib/ds-nb3-exec/ds-traefik-access.mjs
+Environment=DS_NB3_EXEC_CONFIG=/etc/ds-nb3-exec/config.json
+Restart=always
+RestartSec=5
+# It needs the Docker socket to read one container's log, so it runs as root; nothing else is allowed.
+User=root
+NoNewPrivileges=true
+ProtectHome=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/log/traefik
+
+[Install]
+WantedBy=multi-user.target

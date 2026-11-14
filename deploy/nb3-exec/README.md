@@ -89,3 +89,30 @@ Studio talks to the daemon only when both variables are set in its environment (
 | `NB3_EXEC_KEY_FILE` | The HMAC key file the container sees (mount it read-only); the same key as the daemon's `hmacKeyFile`. |
 
 Routes: `POST /api/releases/apps/{appId}/jobs` with `{ "command": "dbApply" | "larkImportDry" | "larkImportCommit" }` answers 202 with the job; `GET .../jobs` and `GET .../jobs/{jobId}` read it (status, exit code, masked log tail, kept 14 days). They need `rel.apps/operate` on the App (the administrator role has it); a command that changes data (`dbApply`, `larkImportCommit`) is for the owner only. 503 `NB3_JOB_CHANNEL_DOWN` means the variables are unset or the daemon is not listening. The daemon's own allowlist (`config.json`) still decides what really runs.
+
+## Traefik access log (V5.1b)
+
+`lastAccess` needs a file of recent requests. Traefik's container has no directory of its own on the host and Docker's log has no size
+limit, so Traefik logs to stdout and `ds-traefik-access.mjs` (`ds-traefik-access.service`) follows it with `docker logs -f`, keeping
+only `{RequestHost, RequestPath, StartUTC}` of requests to the hosts in `apps.*.hosts`, plus a heartbeat line every minute, in
+`accessLog` (`/var/log/traefik/access.log`). The daemon answers `known: false` when that file has not been written for ten minutes
+(the collector is down), so Studio falls back to the old idle rule instead of stopping an App that is in use.
+
+Install (root): copy `ds-traefik-access.mjs` to `/usr/local/lib/ds-nb3-exec/`, `ds-traefik-access.service` to `/etc/systemd/system/`,
+`ds-traefik-access.logrotate` to `/etc/logrotate.d/ds-traefik-access`, `ds-traefik-log-cap.sh` to `/etc/cron.hourly/ds-traefik-log-cap`
+(mode 755); `systemctl enable --now ds-traefik-access`. Then add to `/etc/dokploy/traefik/traefik.yml` and restart the `dokploy-traefik`
+container (every site is down for a few seconds):
+
+```yaml
+accessLog:
+  format: json
+  fields:
+    defaultMode: drop
+    names:
+      RequestHost: keep
+      RequestPath: keep
+      StartUTC: keep
+```
+
+Dokploy owns `traefik.yml`: a change of Traefik settings in its UI can drop these lines. The log then goes quiet and Studio uses the
+old idle rule.
