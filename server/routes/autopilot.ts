@@ -134,6 +134,8 @@ const AutopilotEventSchema = z
       'ciFailed',
       'reacted',
       'reactionSkipped',
+      'autoMergeOn',
+      'autoMergeOff',
     ]),
     reason: z.string().nullable(),
     data: z.record(z.string(), z.unknown()).nullable(),

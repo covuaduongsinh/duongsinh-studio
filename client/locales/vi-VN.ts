@@ -2183,8 +2183,8 @@ const viVN: AppResource = {
       4: 'Lưu, rồi quay lại đây bấm "Kiểm lại".',
     },
     autoMerge: {
-      title: 'Để GitHub tự merge khi check xanh',
-      hint: 'Studio bật auto-merge của GitHub cho PR đủ điều kiện. Kho phải bật "Allow auto-merge" (việc của chủ dự án).',
+      title: 'Để GitHub tự merge khi check xanh (thử nghiệm)',
+      hint: 'Thử nghiệm, chưa thử với GitHub thật. PR đã sẵn sàng thì Studio merge trực tiếp; chỉ khi còn mỗi check đang chạy mới nhờ GitHub merge khi check xanh, và tắt lại nếu có commit mới hay có người bình luận. Kho phải bật "Allow auto-merge" (việc của chủ dự án).',
       needsGreen: 'Chỉ bật được khi hàng rào nhánh đã đạt.',
       error: 'Không đổi được cài đặt auto-merge',
     },

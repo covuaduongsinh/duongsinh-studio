@@ -77,7 +77,9 @@ export interface AutopilotEventView {
     | 'paused'
     | 'ciFailed'
     | 'reacted'
-    | 'reactionSkipped';
+    | 'reactionSkipped'
+    | 'autoMergeOn'
+    | 'autoMergeOff';
   readonly reason: string | null;
   readonly data: Record<string, unknown> | null;
   readonly createdAt: string;
@@ -85,6 +87,11 @@ export interface AutopilotEventView {
 
 export interface EvaluationResult {
   readonly eligible: boolean;
+  /**
+   * Not eligible only because the checks are still running, with the project's GitHub auto-merge on (S2): the one case
+   * in which Studio asks GitHub to merge when they pass.
+   */
+  readonly waitingOnChecks?: boolean;
   readonly reasons: string[];
   readonly issueId: string;
   readonly projectId?: string;
@@ -100,6 +107,13 @@ export interface MergeResult {
   readonly pullRequest?: GitPullRequestView;
   readonly eventId?: string;
 }
+
+const CHECKS_PENDING = 'CI checks are pending.';
+/** What a pull request whose required checks are still running is told, besides `CI checks are pending.` */
+const isWaitingReason = (reason: string): boolean =>
+  reason === CHECKS_PENDING ||
+  reason === 'Pull request is blocked: ciPending' ||
+  reason.startsWith("Pull request mergeability is 'blocked'");
 
 export function matchesGlob(pattern: string, path: string): boolean {
   const normalized = path.replace(/\\/g, '/').replace(/^\/+/, '');
@@ -550,8 +564,15 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       if (blocked) reasons.push(blocked);
     }
 
+    // Only the running checks (and what GitHub says while they run) hold it back: GitHub may merge when they pass.
+    const waitingOnChecks =
+      Boolean(settings?.autoMergeOnGithub) &&
+      reasons.includes(CHECKS_PENDING) &&
+      reasons.every(isWaitingReason);
+
     return {
       eligible: reasons.length === 0,
+      ...(waitingOnChecks ? { waitingOnChecks } : {}),
       reasons,
       issueId,
       projectId,
@@ -559,6 +580,95 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
       codeReview: codeReview ?? undefined,
       securityReview,
       changedFiles,
+    };
+  }
+
+  interface ActiveAutoMerge {
+    pullRequestId: string;
+    headSha: string;
+    projectId: string;
+    issueId: string;
+  }
+
+  /** The pull request GitHub was last told to merge by itself for this issue, while that is still the case. */
+  async function activeAutoMerge(
+    issueId: string,
+  ): Promise<ActiveAutoMerge | null> {
+    const latest = await conn()
+      .query.selectFrom(EVENTS_TABLE)
+      .selectAll()
+      .where('issueId', '=', issueId)
+      .where('kind', 'in', ['autoMergeOn', 'autoMergeOff'])
+      .orderBy('createdAt', 'desc')
+      .executeTakeFirst();
+    if (!latest || str(latest.kind) !== 'autoMergeOn' || !latest.pullRequestId)
+      return null;
+    const raw: unknown =
+      typeof latest.data === 'string' ? JSON.parse(latest.data) : latest.data;
+    const headSha =
+      typeof raw === 'object' && raw !== null
+        ? (raw as Record<string, unknown>).headSha
+        : null;
+    return typeof headSha === 'string'
+      ? {
+          pullRequestId: str(latest.pullRequestId),
+          headSha,
+          projectId: str(latest.projectId),
+          issueId,
+        }
+      : null;
+  }
+
+  async function turnOffAutoMerge(
+    active: ActiveAutoMerge,
+    reason: string,
+  ): Promise<void> {
+    try {
+      await deps.git().disableAutoMerge(active.pullRequestId);
+    } catch (error) {
+      // Left on, GitHub would still merge when the checks pass: say so, and try again at the next sweep.
+      console.warn('Autopilot could not turn GitHub auto-merge off', error);
+      return;
+    }
+    await recordEvent({
+      projectId: active.projectId,
+      issueId: active.issueId,
+      pullRequestId: active.pullRequestId,
+      kind: 'autoMergeOff',
+      reason: `Autopilot turned GitHub auto-merge off: ${reason}`,
+      data: { headSha: active.headSha },
+    });
+  }
+
+  async function turnOnAutoMerge(
+    issueId: string,
+    evaluation: EvaluationResult,
+    pr: GitPullRequestView,
+  ): Promise<MergeResult> {
+    try {
+      await deps.git().enableAutoMerge(pr.id);
+    } catch (error) {
+      return {
+        merged: false,
+        reasons: [
+          error instanceof Error
+            ? error.message
+            : 'GitHub refused to turn auto-merge on.',
+        ],
+      };
+    }
+    const eventId = await recordEvent({
+      projectId: evaluation.projectId ?? '',
+      issueId,
+      pullRequestId: pr.id,
+      kind: 'autoMergeOn',
+      reason: `Autopilot asked GitHub to merge PR #${pr.number} when its checks pass (head ${pr.headSha.slice(0, 7)})`,
+      data: { headSha: pr.headSha, pullNumber: pr.number },
+    });
+    return {
+      merged: false,
+      reasons: ['Waiting for the checks; GitHub auto-merge is on.'],
+      eventId,
     };
   }
 
@@ -572,33 +682,50 @@ export function createAutopilotEvaluator(deps: AutopilotEvaluatorDeps) {
     locks.add(issueId);
 
     try {
+      const active = await activeAutoMerge(issueId);
       const evaluation = await evaluate(issueId);
-      if (!evaluation.eligible || !evaluation.pullRequest) {
+      const head = evaluation.pullRequest;
+
+      // GitHub merges by itself once the checks pass, so it must stop the moment what it was told to merge changes (S2):
+      // a new head, a person's comment after the review, or any other condition that no longer holds.
+      if (active) {
+        const unchanged = head?.headSha === active.headSha;
+        const stillWanted = evaluation.eligible || evaluation.waitingOnChecks;
+        if (!head || !unchanged || !stillWanted)
+          await turnOffAutoMerge(
+            active,
+            !head
+              ? 'the pull request is gone'
+              : !unchanged
+                ? 'the pull request has a new head'
+                : (evaluation.reasons[0] ?? 'the evaluation no longer passes'),
+          );
+      }
+
+      if (!evaluation.eligible || !head) {
+        if (
+          evaluation.waitingOnChecks &&
+          head &&
+          !(active && active.headSha === head.headSha)
+        )
+          return await turnOnAutoMerge(issueId, evaluation, head);
         return { merged: false, reasons: evaluation.reasons };
       }
 
-      const pr = evaluation.pullRequest;
-      const viaGithub = Boolean(
-        (await getSettings(evaluation.projectId ?? ''))?.autoMergeOnGithub,
-      );
-      // With GitHub's auto-merge on, GitHub merges when its checks pass; the pull request is merged for Studio's records
-      // when the next refresh sees it so.
-      const mergedPr = viaGithub
-        ? await deps.git().enableAutoMerge(pr.id)
-        : await deps.git().mergePullRequest(pr.id, {
-            byUserId: AUTOPILOT_USER_ID,
-            force: false,
-            reason: null,
-          });
+      // A pull request that is ready is merged here, as before; GitHub's auto-merge is only for waiting on checks.
+      const pr = head;
+      const mergedPr = await deps.git().mergePullRequest(pr.id, {
+        byUserId: AUTOPILOT_USER_ID,
+        force: false,
+        reason: null,
+      });
 
       const eventId = await recordEvent({
         projectId: evaluation.projectId ?? '',
         issueId,
         pullRequestId: pr.id,
         kind: 'merged',
-        reason: viaGithub
-          ? `Autopilot enabled GitHub auto-merge on PR #${pr.number} (head ${pr.headSha.slice(0, 7)})`
-          : `Autopilot merged PR #${pr.number} (head ${pr.headSha.slice(0, 7)})`,
+        reason: `Autopilot merged PR #${pr.number} (head ${pr.headSha.slice(0, 7)})`,
         data: {
           headSha: pr.headSha,
           pullNumber: pr.number,

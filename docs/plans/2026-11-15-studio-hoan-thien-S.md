@@ -31,13 +31,13 @@ S2 và S3 cần một kho nháp thật (Q2) nên phần thử thật chưa làm 
 
 ## Các bước
 
-| Thứ tự | Bước                  | Trạng thái                                                   |
-| ------ | --------------------- | ------------------------------------------------------------ |
-| 1      | S1 Phản ứng tự động   | xong, PR `feat/s-1`                                          |
-| 2      | S2 Auto-merge GitHub  | mã + test giả; **chưa thử thật** (cần kho nháp Q2)           |
-| 3      | S3 Kiểm giao diện     | mã + test; **chưa chạy thật trên Actions** (cần kho nháp Q2) |
-| 4      | S4 Kiểm chứng trên CI | cách A theo mặc định, tắt sẵn                                |
-| 5      | S5–S10                | theo kế hoạch                                                |
+| Thứ tự | Bước                  | Trạng thái                                                              |
+| ------ | --------------------- | ----------------------------------------------------------------------- |
+| 1      | S1 Phản ứng tự động   | xong, PR `feat/s-1`                                                     |
+| 2      | S2 Auto-merge GitHub  | xong mã + test giả (PR `feat/s-2`); **chưa thử thật** (cần kho nháp Q2) |
+| 3      | S3 Kiểm giao diện     | mã + test; **chưa chạy thật trên Actions** (cần kho nháp Q2)            |
+| 4      | S4 Kiểm chứng trên CI | cách A theo mặc định, tắt sẵn                                           |
+| 5      | S5–S10                | theo kế hoạch                                                           |
 
 ## Quyết định theo mặc định (chủ dự án uỷ quyền 14/11/2026 "tự quyết theo cách tối ưu")
 
@@ -58,7 +58,7 @@ S2 và S3 cần một kho nháp thật (Q2) nên phần thử thật chưa làm 
 
 - [x] KIỂM LẠI — bảng trên
 - [x] S1 — Phản ứng tự động (PR `feat/s-1`; `chenh-lech-upstream.md` §70)
-- [ ] S2 — Auto-merge GitHub
+- [x] S2 — Auto-merge GitHub (PR `feat/s-2`; `chenh-lech-upstream.md` §71; **chưa thử với GitHub thật**)
 - [ ] S3 — Kiểm giao diện
 - [ ] S4 — Kiểm chứng trên CI (cách A)
 - [ ] S5 — T4 gói xuất và nhập ngược

@@ -87,7 +87,7 @@ describe('ProjectBranchProtection', () => {
   it('lets GitHub auto-merge be turned on only when the guard is green', async () => {
     await render();
     const toggle = await screen.findByRole('switch', {
-      name: 'Let GitHub merge when checks pass',
+      name: 'Let GitHub merge when checks pass (experimental)',
     });
     await waitFor(() => expect(isOff(toggle)).toBe(false));
   });
@@ -101,7 +101,7 @@ describe('ProjectBranchProtection', () => {
     };
     await render();
     const toggle = await screen.findByRole('switch', {
-      name: 'Let GitHub merge when checks pass',
+      name: 'Let GitHub merge when checks pass (experimental)',
     });
     expect(isOff(toggle)).toBe(true);
   });

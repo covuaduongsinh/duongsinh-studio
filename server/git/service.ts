@@ -3126,7 +3126,8 @@ export function createGitService(deps: GitServiceDeps) {
       ...pull,
       checksSource: repository.checksSource,
     });
-    if (blocker)
+    // Waiting for the checks is what auto-merge is for (S2); every other blocker stops it as it stops a merge.
+    if (blocker && blocker !== 'ciPending')
       throw new GitError(
         'FAILED_PRECONDITION',
         'MERGE_BLOCKED',
@@ -3147,6 +3148,21 @@ export function createGitService(deps: GitServiceDeps) {
       throw hostError(error, { repo: repository.fullName });
     }
     return getPullRequest(id);
+  }
+
+  /** Switches GitHub's auto-merge off for a pull request (S2). A host that says it was not on is not an error. */
+  async function disableAutoMerge(id: string): Promise<void> {
+    const before = await pullRecord(id);
+    const repository = await repositoryRecord(before.repositoryId);
+    try {
+      const client = await clientOf(
+        await connectionRecord(repository.connectionId),
+      );
+      await client.disableAutoMerge(repository.fullName, before.number);
+    } catch (error) {
+      if (error instanceof GitHubError && error.status === 422) return;
+      throw hostError(error, { repo: repository.fullName });
+    }
   }
 
   async function mergePullRequest(
@@ -3416,6 +3432,7 @@ export function createGitService(deps: GitServiceDeps) {
     pollIntervals,
     mergePullRequest,
     enableAutoMerge,
+    disableAutoMerge,
     openPullRequest,
     credentialsFor,
     appCredentialsFor,
