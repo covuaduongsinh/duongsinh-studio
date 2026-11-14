@@ -13,7 +13,7 @@ export const LICENSE_GATE_JS =
  * The CI a new project starts with, pushed to `.github/workflows/ds-check.yml` with the creator's own token. The GitHub App
  * has no `workflows` permission, so an agent working through the App can never edit it, and autopilot treats
  * `.github/workflows/**` as sensitive. Studio reads the result as an ordinary check run (`checks_source = host`): nothing here
- * calls Studio and no secret is used. Runs only for pull requests, cancels a superseded run and has a time limit, because
+ * calls Studio and no secret is used, except its `verify` job (plan S, S4), which is inert without the repository's CI key. Runs only for pull requests, cancels a superseded run and has a time limit, because
  * Actions minutes are shared by every private repository of the account.
  */
 export const CI_WORKFLOW_PATH = '.github/workflows/ds-check.yml';
@@ -58,6 +58,53 @@ jobs:
             echo "Files that must not be committed" >&2
             exit 1
           fi
+  # Verification on CI (plan S, S4): runs the commands Studio fixed for the issue's criteria and submits their exit codes
+  # with the repository's CI key, so a project can trust the verification without trusting the agent that wrote the code.
+  # Inert until the repository has the secret DS_STUDIO_API_KEY and the variable DS_STUDIO_API (Studio's API address, such
+  # as https://studio.example.com/main/api), and for a branch that is not an issue's (agent/DS-12).
+  verify:
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Verify the criteria of the issue
+        env:
+          API: \${{ vars.DS_STUDIO_API }}
+          KEY: \${{ secrets.DS_STUDIO_API_KEY }}
+          BRANCH: \${{ github.head_ref }}
+          SHA: \${{ github.event.pull_request.head.sha }}
+        run: |
+          issue="\${BRANCH##*/}"
+          if [ -z "$API" ] || [ -z "$KEY" ] || ! printf '%s' "$issue" | grep -qE '^[A-Za-z][A-Za-z0-9]*-[0-9]+$'; then
+            echo "Nothing to verify here."
+            exit 0
+          fi
+          plan=$(curl -fsS -H "x-api-key: $KEY" "$API/issues/$issue/verificationPlan")
+          if [ "$(jq -r .data.headSha <<<"$plan")" != "$SHA" ]; then
+            echo "The pull request moved on; this run verifies an old commit."
+            exit 0
+          fi
+          items='[]'
+          for id in $(jq -r '.data.criteria[] | select(.command != null) | .id' <<<"$plan"); do
+            command=$(jq -r --arg id "$id" '.data.criteria[] | select(.id == $id) | .command' <<<"$plan")
+            start=$(date +%s%3N)
+            set +e
+            output=$(bash -c "$command" 2>&1)
+            code=$?
+            set -e
+            ms=$(( $(date +%s%3N) - start ))
+            items=$(jq -c --arg id "$id" --argjson code "$code" --argjson ms "$ms" --arg out "$(tail -c 4000 <<<"$output")" \\
+              '. + [{criterionId: $id, exitCode: $code, durationMs: $ms, output: $out}]' <<<"$items")
+          done
+          curl -fsS -X POST "$API/verifications" -H "x-api-key: $KEY" -H 'content-type: application/json' \\
+            -d "$(jq -c --arg sha "$SHA" --argjson items "$items" '{issueId: .data.issueId, headSha: $sha, items: $items}' <<<"$plan")" -o /dev/null
 `;
 
 export type Nb3Role = 'preview' | 'staging' | 'production';

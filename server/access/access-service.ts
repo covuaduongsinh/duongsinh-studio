@@ -48,6 +48,7 @@ const SOURCES: readonly AccessSource[] = [
     SETTINGS_ACTIONS: {
       'studio.apiKeys': ['read', 'manage'],
       'studio.checks': ['report'],
+      'studio.verify': ['submit'],
       'studio.budgets': ['read', 'manage'],
       'studio.routines': ['read', 'manage'],
     },

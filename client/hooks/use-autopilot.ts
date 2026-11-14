@@ -24,6 +24,7 @@ export interface AutopilotSettings {
   readonly defaultTier: IssueTierName;
   /** GitHub merges once its checks pass; only while the branch protection reads green (T3b). */
   readonly autoMergeOnGithub: boolean;
+  readonly verifyOnCi: boolean;
   readonly pausedReason: string | null;
   readonly updatedAt: string;
   readonly updatedById: string | null;
@@ -40,6 +41,7 @@ export interface AutopilotUpdateInput {
   readonly sensitivePolicy?: 'extraReview' | 'human';
   readonly defaultTier?: IssueTierName;
   readonly autoMergeOnGithub?: boolean;
+  readonly verifyOnCi?: boolean;
 }
 
 export interface AutopilotEvent {

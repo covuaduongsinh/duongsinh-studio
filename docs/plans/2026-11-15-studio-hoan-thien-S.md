@@ -60,7 +60,7 @@ S2 và S3 cần một kho nháp thật (Q2) nên phần thử thật chưa làm 
 - [x] S1 — Phản ứng tự động (PR `feat/s-1`; `chenh-lech-upstream.md` §70)
 - [x] S2 — Auto-merge GitHub (PR `feat/s-2`; `chenh-lech-upstream.md` §71; **chưa thử với GitHub thật**)
 - [x] S3 (phần mã) — Kiểm giao diện (PR `feat/s-3`; `chenh-lech-upstream.md` §72; **chưa chạy thật trên Actions**, cần kho nháp Q2)
-- [ ] S4 — Kiểm chứng trên CI (cách A)
+- [x] S4 (phần mã) — Kiểm chứng trên CI, cách A, tắt sẵn (PR `feat/s-4`; `chenh-lech-upstream.md` §73; **job `verify` chưa chạy trên Actions thật**)
 - [ ] S5 — T4 gói xuất và nhập ngược
 - [ ] S6 + S7 — T11 ô tìm nhật ký; T6 khôi phục qua kênh job
 - [ ] S8 + S9 + S10 — runner audit mạng; nhật ký đợt T; lưu giảm tải hạn mức

@@ -131,6 +131,9 @@ export default function VerificationSettingsPage(): ReactElement {
         title={t('settingsVerifications.title')}
         description={t('settingsVerifications.description')}
       />
+      <p className='mt-2 text-sm text-muted-foreground'>
+        {t('settingsVerifications.ciLimit')}
+      </p>
 
       <div className='flex flex-col gap-6 mt-6'>
         {/* Card Cấu hình giới hạn thất bại liên tiếp */}

@@ -95,6 +95,19 @@ export default class OrganizationKeysProvider extends ServiceProvider<Applicatio
         },
       }),
     );
+    // A repository's CI key reads the verification plan and submits the verification of the issues of its own repository
+    // (plan S, S4); the repository is the key's binding in `dsRepositoryCiKeys`, checked by the route.
+    this.releases.push(
+      scopes.groups.add({
+        id: 'studio.verify',
+        category: 'business',
+        title: appText('studioOrgKeys.verifyTitle'),
+        description: appText('studioOrgKeys.verifyDescription'),
+        levels: {
+          write: [{ kind: 'settings', id: 'studio.verify', action: 'submit' }],
+        },
+      }),
+    );
     for (const group of [
       ...pmAccess.KEY_SCOPE_GROUPS,
       ...agentsAccess.KEY_SCOPE_GROUPS,
@@ -149,6 +162,15 @@ export default class OrganizationKeysProvider extends ServiceProvider<Applicatio
     });
     authz.ui.place(
       { type: 'settings', id: 'studio.checks' },
+      { section: 'studio' },
+    );
+    authz.settings.add({
+      id: 'studio.verify',
+      title: appText('studioOrgKeys.verifyTitle'),
+      actions: [{ name: 'submit', title: appText('studioOrgKeys.submit') }],
+    });
+    authz.ui.place(
+      { type: 'settings', id: 'studio.verify' },
       { section: 'studio' },
     );
     this.offerScopes();
