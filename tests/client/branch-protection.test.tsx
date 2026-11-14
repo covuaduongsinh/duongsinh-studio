@@ -4,7 +4,7 @@ import {
   renderWithApp,
   type ApiCall,
 } from '@nocobase/app-testing/client';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import enUS from '../../client/locales/en-US.js';
@@ -16,13 +16,22 @@ stubMobileViewport();
 
 let answer: Record<string, unknown>;
 
+const isOff = (element: HTMLElement): boolean =>
+  element.getAttribute('aria-disabled') === 'true' ||
+  element.hasAttribute('data-disabled') ||
+  Boolean((element as HTMLButtonElement).disabled);
+
 const render = (canManage = true) =>
   renderWithApp(
     <ProjectBranchProtection projectId='p1' canManage={canManage} />,
     {
       namespace: packageMetadata.name,
       namespaces: { [packageMetadata.name]: enUS },
-      fetch: answerApi((_call: ApiCall) => ({ data: answer })),
+      fetch: answerApi((call: ApiCall) =>
+        String(call.path).endsWith('/autopilot')
+          ? { data: { projectId: 'p1', autoMergeOnGithub: false } }
+          : { data: answer },
+      ),
     },
   );
 
@@ -73,6 +82,28 @@ describe('ProjectBranchProtection', () => {
     ).toBeTruthy();
     expect(screen.getByText(/New branch ruleset/u)).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Check again' })).toBeTruthy();
+  });
+
+  it('lets GitHub auto-merge be turned on only when the guard is green', async () => {
+    await render();
+    const toggle = await screen.findByRole('switch', {
+      name: 'Let GitHub merge when checks pass',
+    });
+    await waitFor(() => expect(isOff(toggle)).toBe(false));
+  });
+
+  it('keeps the auto-merge switch off while the guard has gaps', async () => {
+    answer = {
+      ...base,
+      status: 'read',
+      verdict: 'problem',
+      problems: ['pushAllowed'],
+    };
+    await render();
+    const toggle = await screen.findByRole('switch', {
+      name: 'Let GitHub merge when checks pass',
+    });
+    expect(isOff(toggle)).toBe(true);
   });
 
   it('does not call a refusal a pass or a failure', async () => {

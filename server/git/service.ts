@@ -3107,6 +3107,48 @@ export function createGitService(deps: GitServiceDeps) {
    * Squash-merges a pull request on GitHub after reading it again. Refused with its `mergeBlocker`; `force` with a reason
    * ("Merge anyway") overrides the blockers of `FORCEABLE_BLOCKERS`, records the reason and says so on the pull request.
    */
+  /**
+   * Asks GitHub to merge the pull request itself once its required checks pass (plan T, T3b). The same blockers that stop a
+   * merge stop this, and a repository that does not allow auto-merge answers with GitHub's own words.
+   */
+  async function enableAutoMerge(id: string): Promise<GitPullRequestView> {
+    const before = await pullRecord(id);
+    const repository = await repositoryRecord(before.repositoryId);
+    let client: GitHubClient;
+    let pull: PullRecord;
+    try {
+      client = await clientOf(await connectionRecord(repository.connectionId));
+      pull = await refreshPull(repository, client, before.number);
+    } catch (error) {
+      throw hostError(error, { repo: repository.fullName });
+    }
+    const blocker = mergeBlockerOf({
+      ...pull,
+      checksSource: repository.checksSource,
+    });
+    if (blocker)
+      throw new GitError(
+        'FAILED_PRECONDITION',
+        'MERGE_BLOCKED',
+        `${repository.fullName}#${pull.number} cannot be merged: ${blocker}.`,
+        { blocker },
+        { mergeBlocker: blocker, forceable: FORCEABLE_BLOCKERS.has(blocker) },
+      );
+    try {
+      await client.enableAutoMerge(repository.fullName, pull.number);
+    } catch (error) {
+      if (error instanceof GitHubError && error.status === 422)
+        throw new GitError(
+          'FAILED_PRECONDITION',
+          'AUTO_MERGE_REFUSED_BY_HOST',
+          error.message,
+          { repo: repository.fullName },
+        );
+      throw hostError(error, { repo: repository.fullName });
+    }
+    return getPullRequest(id);
+  }
+
   async function mergePullRequest(
     id: string,
     input: {
@@ -3373,6 +3415,7 @@ export function createGitService(deps: GitServiceDeps) {
     syncDue,
     pollIntervals,
     mergePullRequest,
+    enableAutoMerge,
     openPullRequest,
     credentialsFor,
     appCredentialsFor,

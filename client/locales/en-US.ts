@@ -2032,6 +2032,12 @@ const enUS = {
       3: 'Turn on "Require status checks to pass" and add the "ds-check" check.',
       4: 'Save, then come back here and press "Check again".',
     },
+    autoMerge: {
+      title: 'Let GitHub merge when checks pass',
+      hint: 'Studio turns on GitHub’s auto-merge for a pull request that is ready. The repository must allow auto-merge (the owner’s step).',
+      needsGreen: 'Can be turned on only once the branch guard is green.',
+      error: 'Could not change the auto-merge setting',
+    },
     recheck: 'Check again',
   },
   tier: {

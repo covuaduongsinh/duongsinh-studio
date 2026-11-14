@@ -633,6 +633,26 @@ test('a GitHub App connection: manifest flow, installation, tokens, webhooks and
     verdict: null,
     httpStatus: 403,
   });
+  // GitHub's auto-merge can be switched on only while the protection reads green (T3b).
+  const autoMerge = (on: boolean) =>
+    admin.fetch(
+      `/projects/${project.id}/autopilot`,
+      json({ autoMergeOnGithub: on }, 'PUT'),
+    );
+  const refused = await autoMerge(true);
+  expect(refused.status).toBe(400);
+  expect((await refused.json()).error.reason).toBe(
+    'BRANCH_PROTECTION_NOT_GREEN',
+  );
+  github.protection = 'open';
+  expect((await autoMerge(true)).status).toBe(400);
+  github.protection = 'protected';
+  const allowed = await autoMerge(true);
+  expect(allowed.status).toBe(200);
+  expect((await allowed.json()).data.autoMergeOnGithub).toBe(true);
+  // Turning it off needs nothing.
+  github.protection = 'denied';
+  expect((await autoMerge(false)).status).toBe(200);
   github.protection = 'protected';
   expect(
     (await request(`/projects/${project.id}/branchProtection`)).status,

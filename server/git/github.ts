@@ -109,6 +109,11 @@ export interface GitHubClient {
     fullName: string,
     branch: string,
   ): Promise<{ readonly branch: unknown; readonly rules: unknown[] | null }>;
+  /**
+   * Switches on GitHub's auto-merge (squash) for a pull request, so GitHub merges it once its required checks pass (T3b).
+   * Throws `GitHubError` 422 with GitHub's own words when the repository does not allow auto-merge.
+   */
+  enableAutoMerge(fullName: string, number: number): Promise<void>;
   /** The inline comments of one review of a pull request (T1.3). */
   reviewComments(
     fullName: string,
@@ -435,6 +440,30 @@ export function createGitHubClient(options: {
         if (!(error instanceof GitHubError)) throw error;
       }
       return { branch: answer, rules };
+    },
+    async enableAutoMerge(fullName, number) {
+      const nodeId = text(
+        record(await call('GET', `${repoPath(fullName)}/pulls/${number}`))
+          .node_id,
+      );
+      if (!nodeId)
+        throw new GitHubError(
+          502,
+          `GitHub named no node for ${fullName}#${number}.`,
+        );
+      const answer = record(
+        await call('POST', '/graphql', {
+          query:
+            'mutation($id: ID!) { enablePullRequestAutoMerge(input: { pullRequestId: $id, mergeMethod: SQUASH }) { pullRequest { number } } }',
+          variables: { id: nodeId },
+        }),
+      );
+      const problems = items(answer.errors);
+      if (problems.length > 0)
+        throw new GitHubError(
+          422,
+          text(record(problems[0]).message) ?? 'GitHub refused auto-merge.',
+        );
     },
     async reviewComments(fullName, number, reviewId) {
       const answer = items(

@@ -60,6 +60,7 @@ const settings = () => ({
   sensitivePaths: null,
   sensitivePolicy: 'extraReview',
   defaultTier: 'standard',
+  autoMergeOnGithub: false,
   pausedReason: null,
   updatedAt: '2026-11-11T00:00:00.000Z',
   updatedById: null,
