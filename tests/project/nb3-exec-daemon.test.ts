@@ -2,6 +2,7 @@
 // runs and what it says back (V4.1). The threat model is in deploy/nb3-exec/README.md.
 import { randomBytes } from 'node:crypto';
 import {
+  utimesSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -480,6 +481,16 @@ describe('last access (V5.1b)', () => {
       accessLog: path.join(folder, 'missing.log'),
       apps: { 'nb3-edu': { ...config().apps['nb3-edu'], ...hosts } },
     });
+    expect((await request({ op: 'lastAccess', app: 'nb3-edu' })).known).toBe(
+      false,
+    );
+  });
+
+  it('does not trust a log nobody has written to for ten minutes (the collector is down)', async () => {
+    await startWith([line('edu.dsc.edu.vn', '2026-11-13T01:00:00Z')]);
+    clock = Date.now();
+    const old = new Date(clock - 11 * 60_000);
+    utimesSync(path.join(folder, 'access.log'), old, old);
     expect((await request({ op: 'lastAccess', app: 'nb3-edu' })).known).toBe(
       false,
     );
