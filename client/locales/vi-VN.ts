@@ -1984,6 +1984,29 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  harnessExport: {
+    title: 'Bộ quy tắc trong kho mã',
+    description:
+      'Ghi kỹ năng, bài học, playbook và tiêu chí mặc định của dự án vào kho dưới dạng pull request, để agent đọc được ngay trong kho và người xem được như xem code.',
+    loading: 'Đang so với kho...',
+    error: 'Không đọc được trạng thái xuất.',
+    state: {
+      noRepository: 'Dự án chưa nối kho mã nguồn nào.',
+      notExported:
+        'Chưa xuất lần nào sang {{repository}}. Sẽ ghi {{count}} tệp.',
+      inSync: '{{repository}} đã có đúng bộ quy tắc hiện tại.',
+      drifted: 'Bộ quy tắc trong {{repository}} đã lệch với Studio.',
+    },
+    drift: {
+      title: 'Bản trong kho đã lệch',
+      edited: 'Đã bị sửa tay: {{path}}',
+      missing: 'Thiếu: {{path}}',
+      outdated: 'Studio có nội dung mới hơn; xuất lại để cập nhật.',
+    },
+    action: 'Xuất vào kho',
+    opened: 'Đã mở pull request #{{number}}',
+    failed: 'Không xuất được',
+  },
   branchProtection: {
     title: 'Hàng rào nhánh chính',
     description:
