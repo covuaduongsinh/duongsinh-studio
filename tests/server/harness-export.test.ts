@@ -5,7 +5,10 @@ import {
   addIndexRow,
   buildHarnessFiles,
   driftOf,
+  lessonHash,
+  parseLessonsFile,
   scanHarnessFiles,
+  unknownLessons,
 } from '../../server/harness-export/build.js';
 
 // T4 (plan T): the rules Studio keeps travel with the repository, as files a person can read and a PR can review.
@@ -139,5 +142,51 @@ describe('driftOf', () => {
     expect(result.missing).toEqual([`${HARNESS_DIR}/criteria-template.md`]);
     const newer = buildHarnessFiles({ ...input, lessons: [] });
     expect(driftOf(newer, repo).outdated).toBe(true);
+  });
+});
+
+// S5 (plan S): what an agent adds to lessons.md in a merged pull request, by the hash of its rule.
+describe('lessons written back by an agent', () => {
+  const text = (blocks: string[]) =>
+    ['# Bài học của X', '', ...blocks].join('\n') + '\n';
+  const block = (tag: string, rule: string, mistake = 'Lỗi.') =>
+    `## ${tag}\n\n- **Quy tắc**: ${rule}\n- **Lỗi đã gặp**: ${mistake}\n`;
+
+  it('reads every block of the file Studio writes', () => {
+    const parsed = parseLessonsFile(
+      text([
+        block('migration', 'Always write a down migration.', 'Forgot it.'),
+        block('tests', 'Name tests after behaviour.'),
+      ]),
+    );
+    expect(parsed).toEqual([
+      {
+        tag: 'migration',
+        rule: 'Always write a down migration.',
+        mistake: 'Forgot it.',
+      },
+      { tag: 'tests', rule: 'Name tests after behaviour.', mistake: 'Lỗi.' },
+    ]);
+  });
+
+  it('keeps only what Studio does not know, whatever the case and spacing, each once', () => {
+    const known = new Set([lessonHash('Always write a down migration.')]);
+    const fresh = unknownLessons(
+      text([
+        block('migration', 'always  write a DOWN migration.'),
+        block('tests', 'Name tests after behaviour.'),
+        block('tests', 'Name tests   after behaviour.'),
+      ]),
+      known,
+    );
+    expect(fresh.map((lesson) => lesson.rule)).toEqual([
+      'Name tests after behaviour.',
+    ]);
+  });
+
+  it('says nothing for an empty file', () => {
+    expect(
+      unknownLessons(text(['Chưa có bài học nào được duyệt.']), new Set()),
+    ).toEqual([]);
   });
 });

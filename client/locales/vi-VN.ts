@@ -2156,6 +2156,11 @@ const viVN: AppResource = {
       missing: 'Thiếu: {{path}}',
       outdated: 'Studio có nội dung mới hơn; xuất lại để cập nhật.',
     },
+    builtins: {
+      title: 'Dự án chưa có đủ kỹ năng dựng sẵn',
+      description:
+        'Các kỹ năng ds-* dựng sẵn chỉ tự gắn cho dự án tạo sau khi chúng được phát hành, nên gói xuất của dự án này thiếu: {{skills}}. Gắn thêm ở thư viện kỹ năng rồi xuất lại.',
+    },
     action: 'Xuất vào kho',
     opened: 'Đã mở pull request #{{number}}',
     failed: 'Không xuất được',

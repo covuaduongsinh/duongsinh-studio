@@ -41,6 +41,7 @@ beforeEach(() => {
     missing: [],
     edited: [],
     outdated: false,
+    missingBuiltinSkills: [],
     state: 'notExported',
   };
 });
@@ -86,6 +87,18 @@ describe('ProjectHarnessExport', () => {
       screen.getByText(/Missing: \.nb-studio\/harness\/criteria-template\.md/u),
     ).toBeTruthy();
     expect(screen.getByText(/Studio has newer content/u)).toBeTruthy();
+  });
+
+  // S5 (plan S): a project made before the built-in skills were published may export a set without them.
+  it('warns when the project lacks built-in skills, and says nothing when it has them all', async () => {
+    status = {
+      ...status,
+      missingBuiltinSkills: ['ds-app-rules', 'ds-workflow'],
+    };
+    const first = await render();
+    expect(await screen.findByText(/lacks some built-in skills/u)).toBeTruthy();
+    expect(screen.getByText(/ds-app-rules, ds-workflow/u)).toBeTruthy();
+    first.unmount?.();
   });
 
   it('has nothing to export without a repository or when in sync', async () => {

@@ -58,6 +58,16 @@ export function ProjectHarnessExport({
                 count: data.files,
               })}
             </p>
+            {data.missingBuiltinSkills.length > 0 ? (
+              <Alert>
+                <AlertTitle>{t('harnessExport.builtins.title')}</AlertTitle>
+                <AlertDescription>
+                  {t('harnessExport.builtins.description', {
+                    skills: data.missingBuiltinSkills.join(', '),
+                  })}
+                </AlertDescription>
+              </Alert>
+            ) : null}
             {data.state === 'drifted' ? (
               <Alert>
                 <AlertTitle>{t('harnessExport.drift.title')}</AlertTitle>

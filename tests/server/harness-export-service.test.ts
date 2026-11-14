@@ -214,3 +214,109 @@ test(
     expect(second.number).toBe(2);
   },
 );
+
+test(
+  'S5: the export carries the global skills, warns about missing built-ins, and a merged lessons.md becomes proposals',
+  { timeout: 180_000 },
+  async ({ testApp, app }) => {
+    const admin = await signIn(testApp, DEFAULT_ADMIN_CREDENTIALS);
+    const conn = app.container.resolve(databaseManagerToken).connection();
+    const agents = app.container.resolve(agentsToken);
+    const projectId = (
+      (await (
+        await admin.fetch('/projects', json({ name: 'S5 Project' }))
+      ).json()) as { data: { id: string } }
+    ).data.id;
+    const issueId = (
+      (await (
+        await admin.fetch(
+          '/projects/issues',
+          json({ title: 'Lesson', projectId }),
+        )
+      ).json()) as { data: { id: string } }
+    ).data.id;
+    const repo = fakeRepository();
+    const proposed: { rule: string; proposedByType?: string; tag: string }[] =
+      [];
+    const service = createHarnessExportService({
+      conn: () => conn,
+      git: () =>
+        ({
+          primaryRepository: async () => ({
+            id: 'r1',
+            repo: 'acme/sandbox',
+            defaultBranch: 'main',
+          }),
+          clientForRepository: async () => repo.client,
+          pullFiles: async () => ['.nb-studio/harness/lessons.md', 'src/a.ts'],
+        }) as never,
+      agents: () => agents,
+      lessons: () => ({
+        proposeLesson: async (input: never) => {
+          proposed.push(input);
+          return {} as never;
+        },
+      }),
+    });
+
+    // The global skills (ds-comment-style) are written with the project's own.
+    const files = (await service.collect(projectId)).skills.map((s) => s.slug);
+    expect(files).toContain('ds-comment-style');
+
+    // A project made before the built-in project skills were attached to new projects lacks them: a warning, no block.
+    const given = await agents.skills.attached({
+      scope: 'project',
+      scopeId: projectId,
+    });
+    expect((await service.status(projectId)).missingBuiltinSkills).toEqual([]);
+    await agents.skills.attach({ scope: 'project', scopeId: projectId }, []);
+    const older = await service.status(projectId);
+    expect(given.length).toBeGreaterThan(0);
+    expect(older.missingBuiltinSkills).toContain('ds-app-rules');
+    expect(older.state).toBe('notExported');
+
+    // An accepted lesson Studio already has; the file an agent extended in the merged pull request.
+    await conn.query
+      .insertInto('dsLessons')
+      .values({
+        id: randomUUID(),
+        projectId,
+        mistake: 'Forgot it.',
+        rule: 'Always write a down migration.',
+        tag: 'migration',
+        target: 'skill',
+        status: 'accepted',
+        proposedByType: 'user',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as never)
+      .execute();
+    repo.edit(
+      '.nb-studio/harness/lessons.md',
+      [
+        '# Bài học',
+        '',
+        '## migration',
+        '',
+        '- **Quy tắc**: Always write a down migration.',
+        '- **Lỗi đã gặp**: Forgot it.',
+        '',
+        '## tests',
+        '',
+        '- **Quy tắc**: Run tests by file.',
+        '- **Lỗi đã gặp**: Ran everything.',
+        '',
+      ].join('\n'),
+    );
+    const input = {
+      issueId,
+      pullRequestId: 'pr-s5',
+      number: 12,
+      baseBranch: 'main',
+    };
+    expect(await service.importMergedLessons(input)).toBe(1);
+    expect(proposed).toMatchObject([
+      { rule: 'Run tests by file.', tag: 'tests', proposedByType: 'agent' },
+    ]);
+  },
+);
