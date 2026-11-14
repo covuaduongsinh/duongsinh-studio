@@ -1903,6 +1903,12 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  twoApproaches: {
+    action: '请求两个方案',
+    hint: '两个不同供应商的智能体各自写一个方案（只读）；两个都完成后，负责该事项的智能体比较并选择，并写明理由。会消耗两次运行。',
+    asked: '已请求两个方案',
+    failed: '无法请求两个方案',
+  },
   runProfile: {
     continueShort: '继续',
     lessonShort: '经验',

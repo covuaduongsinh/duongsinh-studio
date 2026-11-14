@@ -34,6 +34,7 @@ import {
 } from '../agents/ids.js';
 import { num, str } from '../git/rows.js';
 import { tierOf, type Tier } from '../tiers/service.js';
+import { twoApproachesServiceToken } from './approaches.js';
 import { onRunFailedReaction, reactionServiceToken } from './reactions.js';
 import { maskSecrets } from '../security/secret-patterns.js';
 import { parsePlaybookInvocations } from '../playbooks/parser.js';
@@ -414,6 +415,8 @@ export function createIssueSubject(deps: {
   readonly translate: () => Promise<Translate>;
   /** Told, once the run's transaction commits, of an issue's run that failed for a reason a fix may cure (T1.2d). */
   readonly onRunFailed?: (run: Run) => void | Promise<void>;
+  /** Told, once the transaction commits, of every run of an issue that ended (T12: a pair of approaches completes). */
+  readonly onRunEnded?: (run: Run) => void | Promise<void>;
   readonly recentSummaries: (
     conn: DatabaseConnection,
     key: {
@@ -551,6 +554,12 @@ export function createIssueSubject(deps: {
               console.warn('A failed-run reaction failed', error),
             );
           });
+        if (run.subject.kind === ISSUE_SUBJECT && deps.onRunEnded)
+          tx.conn.afterCommit(() => {
+            void Promise.resolve(deps.onRunEnded?.(run)).catch((error) =>
+              console.warn('A run-ended hook failed', error),
+            );
+          });
         await postRunFinished(
           {
             comments: projects.comments,
@@ -647,6 +656,13 @@ export default class IssueSubjectProvider extends ServiceProvider<Application> {
           };
         },
         translate,
+        onRunEnded: container.has(twoApproachesServiceToken)
+          ? async (run) => {
+              await container
+                .resolve(twoApproachesServiceToken)
+                .onRunEnded(run);
+            }
+          : undefined,
         onRunFailed: container.has(reactionServiceToken)
           ? (run) => onRunFailedReaction(container, run)
           : undefined,

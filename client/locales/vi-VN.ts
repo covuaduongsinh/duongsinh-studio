@@ -1987,6 +1987,12 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  twoApproaches: {
+    action: 'Xin hai phương án',
+    hint: 'Hai agent của hai nhà cung cấp khác nhau mỗi bên viết một approach (chỉ đọc); xong cả hai thì agent giữ việc so sánh và chọn, ghi lý do. Tốn hai lượt chạy.',
+    asked: 'Đã xin hai phương án',
+    failed: 'Không xin được hai phương án',
+  },
   runProfile: {
     continueShort: 'Chạy tiếp',
     lessonShort: 'Bài học',
