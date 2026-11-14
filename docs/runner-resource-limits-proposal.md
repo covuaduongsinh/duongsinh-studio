@@ -100,3 +100,33 @@ sudo systemctl daemon-reload
 
 - **Câu hỏi**: _Anh có đồng ý áp dụng cấu hình `MemoryHigh=2.0GiB` trên VPS `217.15.160.118` cho `user-1002.slice` không?_
 - **Tác động**: Không gây gián đoạn dịch vụ Studio (không cần restart VPS hay container chính); có quy trình rollback lập tức nếu cần.
+
+---
+
+## 7. Bản hoàn chỉnh (đợt T, bước T8)
+
+Các tệp dưới đây thay cho đoạn lệnh ở mục 4. **Chủ dự án tự áp dụng trên VPS; phiên nào của agent cũng không SSH hay ghi lên VPS.**
+
+| Tệp                                            | Cài vào                                                                  | Làm gì                                                                                                                                                                                                    |
+| ---------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `deploy/runner/ds-runner-slice.conf`           | `/etc/systemd/system/user-1002.slice.d/ds-runner.conf` (root)            | `MemoryHigh=2.0G` cùng ba giới hạn cũ; chặn runner vào các dải mạng riêng (`10/8`, `172.16/12`, `192.168/16`, `169.254/16`, `100.64/10`, `fc00::/7`, `fe80::/10`), mở loopback; Internet công cộng vẫn mở |
+| `deploy/runner/nocobase-runner-hardening.conf` | `~/.config/systemd/user/nocobase-runner.service.d/hardening.conf` (user) | `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=strict` với `ReadWritePaths=%h`, và vài `Protect*` khác                                                                                                   |
+| `deploy/runner/audit.sh`                       | chạy bằng user runner (`su - studio-runner`, `bash audit.sh`)            | Báo **đỏ** khi user này đọc được bí mật của Studio, thư mục Dokploy, socket Docker, socket `ds-nb3-exec` hoặc thư mục sao lưu; không in nội dung, không đổi gì                                            |
+
+Vì sao không có danh sách miền cho phép: `IPAddressAllow` chỉ nhận địa chỉ IP, mà địa chỉ của GitHub, npm và nhà cung cấp mô hình
+đổi theo thời gian; chặn nhầm sẽ làm runner hỏng giữa lượt. Chặn các dải riêng là phần có lợi mà không phụ thuộc danh sách đó.
+
+Cách làm, từng bước (mỗi bước có hoàn tác):
+
+1. Chạy `audit.sh` trước khi đổi gì, ghi kết quả (đỏ ở đâu).
+2. Cài tệp slice (root), `systemctl daemon-reload`, `systemctl show user-1002.slice | grep -E 'MemoryHigh|IPAddress'`.
+3. Cài tệp hardening (user), `systemctl --user daemon-reload && systemctl --user restart nocobase-runner`; chạy **một** lượt thử.
+   Nếu log lượt đó có `Read-only file system` hay `Operation not permitted`, ghi đường dẫn ra rồi thêm vào `ReadWritePaths=`
+   hoặc xoá tệp để hoàn tác.
+4. Chạy lại `audit.sh`; mục tiêu là không còn dòng đỏ. Phần đỏ do quyền tệp (ví dụ `config.yml` đọc được bởi mọi người) sửa bằng
+   `chmod`/`chown` của chủ dự án, không phải bằng drop-in.
+5. Hoàn tác: xoá hai tệp, `daemon-reload` (và `--user` cho tệp thứ hai), khởi động lại runner.
+
+**Chưa kiểm trên VPS**: cú pháp và nội dung được test (`tests/project/runner-audit.test.ts`), nhưng tác dụng thật của `ProtectSystem=strict`
+và `IPAddressDeny` trong một `systemd --user` chưa được thử; cần thử trên máy dev có systemd trước khi áp dụng cho VPS. Không dùng Docker
+cho từng lượt (không đủ RAM).
