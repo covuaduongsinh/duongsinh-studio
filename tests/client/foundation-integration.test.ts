@@ -83,6 +83,7 @@ describe('default Foundation integration', () => {
           ['settingsProjectManager', '/settings/project-manager'],
           ['settingsBudgets', '/settings/budgets'],
           ['settingsRoutines', '/settings/routines'],
+          ['settingsRunLogs', '/settings/run-logs'],
           ['settingsGoAgents', '/settings/go/agents'],
           ['settingsGoRuntimes', '/settings/go/runtimes'],
           ['settingsGoSkills', '/settings/go/skills'],
