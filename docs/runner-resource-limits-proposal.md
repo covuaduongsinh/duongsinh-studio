@@ -107,11 +107,11 @@ sudo systemctl daemon-reload
 
 Các tệp dưới đây thay cho đoạn lệnh ở mục 4. **Chủ dự án tự áp dụng trên VPS; phiên nào của agent cũng không SSH hay ghi lên VPS.**
 
-| Tệp                                            | Cài vào                                                                  | Làm gì                                                                                                                                                                                                    |
-| ---------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `deploy/runner/ds-runner-slice.conf`           | `/etc/systemd/system/user-1002.slice.d/ds-runner.conf` (root)            | `MemoryHigh=2.0G` cùng ba giới hạn cũ; chặn runner vào các dải mạng riêng (`10/8`, `172.16/12`, `192.168/16`, `169.254/16`, `100.64/10`, `fc00::/7`, `fe80::/10`), mở loopback; Internet công cộng vẫn mở |
-| `deploy/runner/nocobase-runner-hardening.conf` | `~/.config/systemd/user/nocobase-runner.service.d/hardening.conf` (user) | `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=strict` với `ReadWritePaths=%h`, và vài `Protect*` khác                                                                                                   |
-| `deploy/runner/audit.sh`                       | chạy bằng user runner (`su - studio-runner`, `bash audit.sh`)            | Báo **đỏ** khi user này đọc được bí mật của Studio, thư mục Dokploy, socket Docker, socket `ds-nb3-exec` hoặc thư mục sao lưu; không in nội dung, không đổi gì                                            |
+| Tệp                                            | Cài vào                                                                  | Làm gì                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `deploy/runner/ds-runner-slice.conf`           | `/etc/systemd/system/user-1002.slice.d/ds-runner.conf` (root)            | `MemoryHigh=2.0G` cùng ba giới hạn cũ; chặn runner vào các dải mạng riêng (`10/8`, `172.16/12`, `192.168/16`, `169.254/16`, `100.64/10`, `fc00::/7`, `fe80::/10`), mở loopback; Internet công cộng vẫn mở                                                                                                                                  |
+| `deploy/runner/nocobase-runner-hardening.conf` | `~/.config/systemd/user/nocobase-runner.service.d/hardening.conf` (user) | `NoNewPrivileges`, `PrivateTmp`, `ProtectSystem=strict` với `ReadWritePaths=%h`, và vài `Protect*` khác                                                                                                                                                                                                                                    |
+| `deploy/runner/audit.sh`                       | chạy bằng user runner (`su - studio-runner`, `bash audit.sh`)            | Báo **đỏ** khi user này đọc được bí mật của Studio, thư mục Dokploy, socket Docker, socket `ds-nb3-exec`, thư mục sao lưu, **hoặc nối được tới cổng Dokploy (3000), Postgres (5432), Docker TCP (2375, 2376)** qua loopback và qua địa chỉ công khai của chính VPS; chỉ mở rồi đóng kết nối, không gửi gì, không in nội dung, không đổi gì |
 
 Vì sao không có danh sách miền cho phép: `IPAddressAllow` chỉ nhận địa chỉ IP, mà địa chỉ của GitHub, npm và nhà cung cấp mô hình
 đổi theo thời gian; chặn nhầm sẽ làm runner hỏng giữa lượt. Chặn các dải riêng là phần có lợi mà không phụ thuộc danh sách đó.
@@ -126,6 +126,21 @@ Cách làm, từng bước (mỗi bước có hoàn tác):
 4. Chạy lại `audit.sh`; mục tiêu là không còn dòng đỏ. Phần đỏ do quyền tệp (ví dụ `config.yml` đọc được bởi mọi người) sửa bằng
    `chmod`/`chown` của chủ dự án, không phải bằng drop-in.
 5. Hoàn tác: xoá hai tệp, `daemon-reload` (và `--user` cho tệp thứ hai), khởi động lại runner.
+
+**Kiểm mạng của `audit.sh` (đợt S, S8).** `IPAddressDeny` ở slice chỉ chặn các dải riêng, còn loopback được mở (`IPAddressAllow=127.0.0.0/8 ::1`)
+và địa chỉ công khai của chính VPS không nằm trong dải nào bị chặn, nên một dịch vụ lắng nghe ở `0.0.0.0` (Dokploy, Postgres, Docker qua TCP)
+vẫn tới được từ runner. `audit.sh` thử nối tới `127.0.0.1` và tới địa chỉ mà bảng định tuyến dùng để ra ngoài (đọc bằng `ip route get`, không gửi gói
+nào) trên từng cổng, và báo đỏ dòng `network` cho cổng nào nhận kết nối. Đổi danh sách bằng `DS_AUDIT_NET_HOSTS` và `DS_AUDIT_NET_PORTS`
+(`cổng:tên`). Dòng đỏ không tự sửa bằng drop-in: gỡ dịch vụ khỏi `0.0.0.0` (Postgres chỉ lắng nghe trong mạng Docker, tắt Docker TCP), hoặc chặn
+theo user bằng tường lửa của máy (`iptables -m owner --uid-owner <uid của runner>`), việc của chủ dự án.
+
+**Chỉ thị sandbox trong unit `--user` có thể làm runner không khởi động.** Với `systemd --user`, nhiều chỉ thị của `nocobase-runner-hardening.conf`
+(`ProtectSystem=strict`, `PrivateTmp`, `ProtectKernelTunables`, `ProtectControlGroups`, `RestrictSUIDSGID`, `LockPersonality`) cần
+user namespace không đặc quyền; máy tắt `kernel.unprivileged_userns_clone` hoặc `user.max_user_namespaces=0` sẽ thấy dịch vụ thoát ngay với
+`status=218/CAPABILITIES`, `226/NAMESPACE` hoặc `Failed to set up mount namespacing` trong `systemctl --user status nocobase-runner` và
+`journalctl --user -u nocobase-runner`. Cách gỡ: xoá `~/.config/systemd/user/nocobase-runner.service.d/hardening.conf`, rồi
+`systemctl --user daemon-reload && systemctl --user restart nocobase-runner`. Thử với **một** lượt trước khi coi là xong, và để tệp slice (không phụ
+thuộc user namespace) chạy riêng nếu tệp hardening không dùng được.
 
 **Chưa kiểm trên VPS**: cú pháp và nội dung được test (`tests/project/runner-audit.test.ts`), nhưng tác dụng thật của `ProtectSystem=strict`
 và `IPAddressDeny` trong một `systemd --user` chưa được thử; cần thử trên máy dev có systemd trước khi áp dụng cho VPS. Không dùng Docker

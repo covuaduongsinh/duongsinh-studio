@@ -75,6 +75,8 @@ export interface AutopilotStallDetector {
   getQuotaThrottle(projectId: string): QuotaThrottleState | null;
   /** Reads which projects' queued runs wait on tool quota, and throttles those until the known reset. */
   syncQuotaWaits(): Promise<void>;
+  /** Reads the quota waits a restart left in the table back into memory (plan S, S10). */
+  restoreQuotaState(): Promise<void>;
 }
 
 const DEFAULT_STALL_MINUTES = 30;
@@ -90,6 +92,60 @@ export function createAutopilotStallDetector(
   const quotaThrottles = new Map<string, QuotaThrottleState>();
   // The last guessed delay of each project, kept past the throttle's end so the backoff grows while the wait lasts.
   const lastQuotaDelays = new Map<string, number>();
+
+  const QUOTA_TABLE = 'dsQuotaThrottles';
+
+  /** Writes a project's throttle and last delay to the table; a failure is said and never stops the wait itself. */
+  async function persistQuota(projectId: string): Promise<void> {
+    try {
+      const state = quotaThrottles.get(projectId);
+      const lastDelay = lastQuotaDelays.get(projectId) ?? null;
+      await conn()
+        .query.deleteFrom(QUOTA_TABLE)
+        .where('projectId', '=', projectId)
+        .execute();
+      if (!state && lastDelay === null) return;
+      await conn()
+        .query.insertInto(QUOTA_TABLE)
+        .values({
+          projectId,
+          activeUntil: state?.activeUntil ?? null,
+          retryDelayMs: state?.retryDelayMs ?? null,
+          effectiveConcurrency: state?.effectiveConcurrency ?? null,
+          lastDelayMs: lastDelay,
+          updatedAt: getNow(),
+        })
+        .execute();
+    } catch (error) {
+      console.warn('Autopilot could not keep a quota wait', error);
+    }
+  }
+
+  async function restoreQuotaState(): Promise<void> {
+    try {
+      const rows: readonly Row[] = await conn()
+        .query.selectFrom(QUOTA_TABLE)
+        .selectAll()
+        .execute();
+      const now = getNow();
+      for (const row of rows) {
+        const projectId = str(row.projectId);
+        if (row.lastDelayMs !== null && row.lastDelayMs !== undefined)
+          lastQuotaDelays.set(projectId, Number(row.lastDelayMs));
+        if (!row.activeUntil) continue;
+        const activeUntil = new Date(str(row.activeUntil));
+        // A wait that ended while Studio was down is over; only its last delay is kept.
+        if (activeUntil > now)
+          quotaThrottles.set(projectId, {
+            activeUntil,
+            retryDelayMs: Number(row.retryDelayMs ?? 0),
+            effectiveConcurrency: Number(row.effectiveConcurrency ?? 1),
+          });
+      }
+    } catch (error) {
+      console.warn('Autopilot could not read the quota waits back', error);
+    }
+  }
 
   function getQuotaThrottle(projectId: string): QuotaThrottleState | null {
     const existing = quotaThrottles.get(projectId);
@@ -128,6 +184,7 @@ export function createAutopilotStallDetector(
       effectiveConcurrency: 1,
     };
     quotaThrottles.set(projectId, state);
+    await persistQuota(projectId);
 
     // Record audit event for quota limitation
     await deps.evaluator.recordEvent({
@@ -173,8 +230,12 @@ export function createAutopilotStallDetector(
       if (projectId)
         byProject.set(projectId, [...(byProject.get(projectId) ?? []), run]);
     }
-    for (const projectId of lastQuotaDelays.keys())
-      if (!byProject.has(projectId)) lastQuotaDelays.delete(projectId);
+    for (const projectId of [...lastQuotaDelays.keys()])
+      if (!byProject.has(projectId)) {
+        lastQuotaDelays.delete(projectId);
+        // The wait is over, so the backoff starts again next time; a throttle still running keeps its row until it ends.
+        await persistQuota(projectId);
+      }
 
     for (const [projectId, projectRuns] of byProject) {
       const settings = await deps.evaluator.getSettings(projectId);
@@ -517,5 +578,6 @@ export function createAutopilotStallDetector(
     handleQuotaFailure,
     getQuotaThrottle,
     syncQuotaWaits,
+    restoreQuotaState,
   };
 }

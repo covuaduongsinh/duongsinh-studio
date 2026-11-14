@@ -279,3 +279,70 @@ test(
     expect(quotaResult.effectiveConcurrency).toBe(1); // reduced to 1
   },
 );
+
+// S10 (plan S): the quota wait survives a restart, so the "Quota" card does not say "fine" after a deploy and the backoff
+// goes on growing instead of starting again.
+test(
+  'S10: a quota throttle and its backoff are read back by a detector started after a restart',
+  { timeout: 120_000 },
+  async ({ testApp, app }) => {
+    await signIn(testApp, DEFAULT_ADMIN_CREDENTIALS);
+    const db = app.container.resolve(databaseManagerToken);
+    const evaluator = createAutopilotEvaluator({
+      database: db,
+      git: () => ({ listPullRequests: vi.fn().mockResolvedValue([]) }) as any,
+      reviews: () => ({ latestFor: vi.fn().mockResolvedValue(null) }) as any,
+    });
+    let clock = new Date('2026-11-15T08:00:00.000Z');
+    const make = () =>
+      createAutopilotStallDetector({
+        database: db,
+        evaluator,
+        owners: async () => [],
+        now: () => clock,
+      });
+    const projectId = 'proj-quota-restart';
+    const before = make();
+    const first = await before.handleQuotaFailure(projectId, 'issue-q', {
+      runId: 'run-q1',
+      failureReason: 'toolQuota',
+    });
+    expect(first.retryDelayMs).toBe(30 * 60_000);
+    expect(before.getQuotaThrottle(projectId)).not.toBeNull();
+
+    // A new process: nothing in memory until it reads the table.
+    const after = make();
+    expect(after.getQuotaThrottle(projectId)).toBeNull();
+    await after.restoreQuotaState();
+    expect(after.getQuotaThrottle(projectId)).toMatchObject({
+      retryDelayMs: 30 * 60_000,
+      effectiveConcurrency: 1,
+    });
+    expect(after.getQuotaThrottle(projectId)!.activeUntil.toISOString()).toBe(
+      '2026-11-15T08:30:00.000Z',
+    );
+
+    // The wait grows from where it was, not from the start.
+    clock = new Date('2026-11-15T08:31:00.000Z');
+    const second = await after.handleQuotaFailure(projectId, 'issue-q', {
+      runId: 'run-q2',
+      failureReason: 'toolQuota',
+    });
+    expect(second.retryDelayMs).toBe(60 * 60_000);
+
+    // A throttle that ended before the restart is not brought back, but its last delay is.
+    clock = new Date('2026-11-15T12:00:00.000Z');
+    const late = make();
+    await late.restoreQuotaState();
+    expect(late.getQuotaThrottle(projectId)).toBeNull();
+    clock = new Date('2026-11-15T12:01:00.000Z');
+    expect(
+      (
+        await late.handleQuotaFailure(projectId, 'issue-q', {
+          runId: 'run-q3',
+          failureReason: 'toolQuota',
+        })
+      ).retryDelayMs,
+    ).toBe(2 * 60 * 60_000);
+  },
+);

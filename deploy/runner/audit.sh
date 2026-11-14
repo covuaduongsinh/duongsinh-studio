@@ -9,7 +9,9 @@
 #   DS_AUDIT_DOCKER_SOCK  the Docker socket
 #   DS_AUDIT_EXEC_SOCK    the ds-nb3-exec daemon's socket
 #   DS_AUDIT_BACKUPS      the backup directory
-# Each variable holds paths separated by spaces.
+#   DS_AUDIT_NET_HOSTS    the addresses to try (default: loopback, and this machine's own outward address)
+#   DS_AUDIT_NET_PORTS    `port:name` pairs to try (default: Dokploy 3000, Postgres 5432, Docker over TCP 2375 and 2376)
+# Each variable holds words separated by spaces. The network check only opens a connection and closes it: it sends nothing.
 set -u
 
 if [ "$(id -u)" -eq 0 ]; then
@@ -22,6 +24,15 @@ dokploy=${DS_AUDIT_DOKPLOY-"/etc/dokploy /var/lib/dokploy"}
 docker_sock=${DS_AUDIT_DOCKER_SOCK-"/var/run/docker.sock /run/docker.sock"}
 exec_sock=${DS_AUDIT_EXEC_SOCK-"/run/ds-nb3/exec.sock"}
 backups=${DS_AUDIT_BACKUPS-"/srv/duongsinh-studio/backups"}
+
+# Where a runner could reach the services it must not: loopback is open to it (the slice allows it), and so is this
+# machine's own public address, which the private ranges the slice denies do not cover.
+own_address() {
+  # The address the kernel would use to go outward, read from its routing table; no packet is sent.
+  ip -4 route get 1.1.1.1 2>/dev/null | sed -n 's/.* src \([0-9.]*\).*/\1/p' | head -n 1
+}
+net_hosts=${DS_AUDIT_NET_HOSTS-"127.0.0.1 $(own_address)"}
+net_ports=${DS_AUDIT_NET_PORTS-"3000:dokploy 5432:postgres 2375:docker-tcp 2376:docker-tcp"}
 
 red=0
 say() {
@@ -52,6 +63,18 @@ for path in $exec_sock; do
 done
 for path in $backups; do
   [ -e "$path" ] && readable "$path" && say "backups" "$path can be read"
+done
+
+# A connection that opens is a service the runner's user can talk to. The probe closes it at once and sends nothing.
+accepts() {
+  timeout 2 bash -c "exec 3<>/dev/tcp/$1/$2" 2>/dev/null
+}
+for host in $net_hosts; do
+  for entry in $net_ports; do
+    port=${entry%%:*}
+    name=${entry#*:}
+    accepts "$host" "$port" && say "network" "$host:$port accepts a connection ($name)"
+  done
 done
 
 if [ "$red" -eq 0 ]; then
