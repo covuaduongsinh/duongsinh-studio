@@ -1987,6 +1987,25 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  runProfile: {
+    continueShort: 'Chạy tiếp',
+    lessonShort: 'Bài học',
+    continueFrom: 'Chạy tiếp từ bước #{{seq}}',
+    lessonFrom: 'Ghi bước #{{seq}} thành bài học',
+    continueDescription:
+      'Đánh thức agent đang giữ việc với nhật ký tới bước này (đã che bí mật). Thêm ghi chú nếu cần.',
+    lessonDescription:
+      'Bài học được đề xuất kèm đoạn nhật ký tới bước này (đã che bí mật) và chờ người duyệt.',
+    note: 'Ghi chú cho agent',
+    rule: 'Quy tắc rút ra',
+    tag: 'Nhãn',
+    continueAction: 'Chạy tiếp',
+    lessonAction: 'Đề xuất bài học',
+    started: 'Đã bắt đầu lượt chạy mới',
+    notStarted: 'Chưa bắt đầu được: {{reason}}',
+    lessonSaved: 'Đã đề xuất bài học, đang chờ duyệt',
+    failed: 'Không làm được',
+  },
   routines: {
     title: 'Việc định kỳ',
     description:

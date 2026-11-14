@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from '#components/ui/alert-dialog';
 import { Badge } from '#components/ui/badge';
+import { RunEventActions } from '#components/run-event-actions';
 import { Button } from '#components/ui/button';
 import { IssueSection } from '#extensions/nocobase-issue-detail/issue-detail';
 import { useRealtimeAvailable } from '#hooks/use-realtime';
@@ -83,6 +84,7 @@ function RunTranscript({ runId }: { readonly runId: string }): ReactElement {
             {event.tool ?? event.type}
           </span>
           <span className='min-w-0 break-words'>{event.text}</span>
+          <RunEventActions runId={runId} seq={event.seq} />
         </li>
       ))}
     </ol>
