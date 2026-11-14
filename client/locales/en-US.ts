@@ -2001,6 +2001,55 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  reactions: {
+    section: {
+      title: 'Automatic reactions',
+      description:
+        'Studio wakes the agent holding an issue when CI turns red, a branch conflicts, a review asks for changes or a run fails.',
+    },
+    loading: 'Loading rules...',
+    error: 'Could not load the reaction rules.',
+    overridden: 'This project’s own',
+    attempts: 'Attempts',
+    attemptsFor: 'Attempts for "{{event}}"',
+    enabledFor: 'Turn on the reaction for "{{event}}"',
+    limitNote:
+      'An issue gets at most 5 automatic fixes; after that it moves to Blocked with "Needs you".',
+    events: {
+      ciFailed: {
+        title: 'CI failed',
+        description: 'A check failed on the issue’s pull request.',
+      },
+      conflicts: {
+        title: 'Branch conflict',
+        description: 'The branch no longer merges cleanly into its base.',
+      },
+      reviewChanges: {
+        title: 'Review asks for changes',
+        description: 'A review was submitted without approval.',
+      },
+      runFailed: {
+        title: 'Run failed',
+        description:
+          'The agent’s run ended in failure (except quota and a full runner disk).',
+      },
+      prLineComment: {
+        title: 'GitHub review comments',
+        description: 'A person left inline comments in a GitHub review.',
+      },
+      greenAndApproved: {
+        title: 'Green and approved',
+        description:
+          'Autopilot considers the merge as soon as a review approves, without waiting for the sweep.',
+      },
+    },
+    toast: { saveError: 'Could not save the rule' },
+    issue: {
+      title: 'What Studio did',
+      reacted: 'Woke the agent on its own: {{event}} (attempt {{attempt}})',
+      blocked: 'Stopped to wait for a person: {{reason}}',
+    },
+  },
   autopilot: {
     section: {
       title: 'Autopilot',

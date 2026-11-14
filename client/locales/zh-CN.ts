@@ -1901,6 +1901,53 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  reactions: {
+    section: {
+      title: '自动响应',
+      description:
+        '当 CI 变红、分支冲突、评审要求修改或运行失败时，Studio 会自动唤醒负责该事项的智能体。',
+    },
+    loading: '正在加载规则…',
+    error: '无法加载自动响应规则。',
+    overridden: '本项目自定义',
+    attempts: '次数',
+    attemptsFor: '“{{event}}”的自动修复次数',
+    enabledFor: '开启“{{event}}”的自动响应',
+    limitNote:
+      '每个事项最多自动修复 5 次；用完后事项会转为“受阻”并标记“需要你”。',
+    events: {
+      ciFailed: {
+        title: 'CI 失败',
+        description: '事项的拉取请求上有检查失败。',
+      },
+      conflicts: {
+        title: '分支冲突',
+        description: '分支无法再干净地合并到基线分支。',
+      },
+      reviewChanges: {
+        title: '评审要求修改',
+        description: '提交了一份未通过的评审。',
+      },
+      runFailed: {
+        title: '运行失败',
+        description: '智能体的运行以失败结束（额度用尽和运行器磁盘已满除外）。',
+      },
+      prLineComment: {
+        title: 'GitHub 评审评论',
+        description: '有人在 GitHub 评审中留下了行内评论。',
+      },
+      greenAndApproved: {
+        title: '通过且已批准',
+        description: '评审一批准，自动驾驶就立即考虑合并，不等待轮询。',
+      },
+    },
+    toast: { saveError: '无法保存规则' },
+    issue: {
+      title: 'Studio 自动做了什么',
+      reacted: '已自动唤醒智能体：{{event}}（第 {{attempt}} 次）',
+      blocked: '已停止并等待人工处理：{{reason}}',
+    },
+  },
   autopilot: {
     section: {
       title: '自动驾驶',

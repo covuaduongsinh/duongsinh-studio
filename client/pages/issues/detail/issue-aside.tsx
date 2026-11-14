@@ -42,6 +42,7 @@ import {
   useIssueAutopilotFlag,
   useSetIssueAutopilotFlag,
 } from '#hooks/use-autopilot';
+import { IssueReactions } from './issue-reactions.js';
 
 import {
   useIssueDetailLabels,
@@ -518,6 +519,7 @@ export function IssueAside({
         </PropertyRow>
       </PropertyCard>
       <IssueAutopilotSection issueId={detail.id} canEdit={canEdit} />
+      <IssueReactions issueId={detail.id} />
       <IssueFollowers
         followers={detail.subscribers.map((subscriber) => ({
           id: subscriber.userId,
