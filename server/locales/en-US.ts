@@ -125,6 +125,9 @@ const enUS = {
     expiringBody:
       'Open the repository’s deployment settings and renew the key before it stops uploads.',
   },
+  studioRoutines: {
+    settingsTitle: 'Routines',
+  },
   studioBudgets: {
     blockedTitle: 'The budget is used up: {{scope}}',
     warnedTitle: 'The budget is nearly used up: {{scope}}',

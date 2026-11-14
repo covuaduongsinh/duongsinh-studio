@@ -384,6 +384,7 @@ const settingsAuthorizations = [
     authorizedAs: 'settings:agents.agents',
   },
   { name: 'settingsBudgets', authorizedAs: 'settings:studio.budgets' },
+  { name: 'settingsRoutines', authorizedAs: 'settings:studio.routines' },
 ];
 
 /** This application's own contribution, registered the way the client runtime registers it. */

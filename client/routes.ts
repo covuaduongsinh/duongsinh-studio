@@ -14,6 +14,7 @@ import {
   KeyRound,
   UserCog,
   UserPlus,
+  CalendarClock,
   Wallet,
   Library,
   PackageIcon,
@@ -553,6 +554,23 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
       icon: Wallet,
     },
     componentLoader: () => import('./pages/settings/budgets.js'),
+  },
+  {
+    // Work that comes back on a schedule, off until someone turns it on. The server checks `studio.routines` too.
+    name: 'settingsRoutines',
+    parent: 'settingsAi',
+    path: '/routines',
+    auth: 'required',
+    authz: {
+      resource: { type: 'settings', id: 'studio.routines' },
+      action: 'read',
+    },
+    navigation: {
+      title: 'navigation.routines',
+      description: 'navigation.routinesDescription',
+      icon: CalendarClock,
+    },
+    componentLoader: () => import('./pages/settings/routines.js'),
   },
   {
     // The role a new member is given once when they accept an invitation, and who holds it (`/api/access/settings`).

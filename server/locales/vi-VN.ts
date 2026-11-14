@@ -119,6 +119,9 @@ const viVN: AppServerResource = {
     expiringBody:
       'Mở phần triển khai của kho mã và đổi khoá trước khi việc tải bản build bị dừng.',
   },
+  studioRoutines: {
+    settingsTitle: 'Việc định kỳ',
+  },
   studioBudgets: {
     blockedTitle: 'Ngân sách đã hết: {{scope}}',
     warnedTitle: 'Ngân sách sắp hết: {{scope}}',

@@ -929,6 +929,9 @@ const enUS = {
     },
     budgets: 'Budgets',
     budgetsDescription: 'Limits of runs and tokens, and what they used.',
+    routines: 'Routines',
+    routinesDescription:
+      'Work that comes back on a schedule, off until someone turns it on.',
     projectManager: 'Lead agent',
     projectManagerDescription:
       'The first-choice and fallback models, the waits and the working principles.',
@@ -2000,6 +2003,38 @@ const enUS = {
     idleStop: 'Stops after {{minutes}} idle minutes',
     protected: 'Protected',
     recordOnly: 'Recorded only',
+  },
+  routines: {
+    title: 'Routines',
+    description:
+      'Work that comes back on a schedule (Vietnam time). At each time Studio opens one issue in each project, unless the last one is still open, the project has enough going on or a budget holds work back.',
+    loading: 'Loading...',
+    error: 'Could not load the list.',
+    empty: 'No routines yet. Add one from a template below or create one.',
+    on: 'On',
+    off: 'Off',
+    turnOn: 'Turn on "{{name}}"',
+    last: 'Last run {{time}}: {{result}}',
+    runNow: 'Run now',
+    ran: 'Opened {{created}} issue(s), left {{skipped}} project(s) alone',
+    runFailed: 'Could not run it',
+    delete: 'Delete',
+    new: 'New routine',
+    name: 'Name',
+    template: 'What the issue says',
+    cron: 'Schedule (cron, 5 fields)',
+    cronHint:
+      'Minute, hour, day, month, weekday; "0 8 * * 1" is 8 am on Monday.',
+    playbook: 'Playbook (optional)',
+    projects: 'Projects',
+    create: 'Create (off)',
+    createFailed: 'Could not create it',
+    templates: {
+      title: 'Ready-made',
+      description:
+        'Four templates, all off until you turn them on. Pick the projects, then add.',
+      add: 'Add',
+    },
   },
   effectiveConfig: {
     title: 'Effective configuration',
