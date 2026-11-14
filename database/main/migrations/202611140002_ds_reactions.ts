@@ -36,9 +36,8 @@ const migration: MigrationDefinition = defineMigration({
       collection.string('runId', { length: 64 }).nullable();
       collection.datetime('createdAt').notNull();
       collection.primary('id', { name: 'pk_ds_reaction_attempts' });
-      collection.index(['issueId', 'event', 'headSha', 'attempt'], {
-        name: 'ux_ds_reaction_attempts_attempt',
-        unique: true,
+      collection.unique(['issueId', 'event', 'headSha', 'attempt'], {
+        name: 'uq_ds_reaction_attempts_attempt',
       });
       collection.index(['issueId', 'createdAt'], {
         name: 'ix_ds_reaction_attempts_issue_time',
