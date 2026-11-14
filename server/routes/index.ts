@@ -8,6 +8,7 @@ import { branchProtectionRoutes } from './branch-protection.js';
 import { harnessExportRoutes } from './harness-export.js';
 import { uiSmokeRoutes } from './ui-smoke.js';
 import { changeSummaryRoutes } from './change-summary.js';
+import { effectiveConfigRoutes } from './effective-config.js';
 import { budgetRoutes } from './budgets.js';
 import { buildRoutes } from './builds.js';
 import { deployRoutes } from './deploys.js';
@@ -43,6 +44,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   harnessExportRoutes,
   uiSmokeRoutes,
   changeSummaryRoutes,
+  effectiveConfigRoutes,
   projectManagerRoutes,
   gitRoutes,
   hostLoadRoutes,

@@ -337,6 +337,8 @@ describe('Today', () => {
         'agentBoard',
         'reports/attention',
         'taskGroups',
+        // The quota card (plan T, T13) asks for itself and hides when it may not read it.
+        'quota',
       ]),
     );
   });

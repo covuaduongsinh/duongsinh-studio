@@ -1901,6 +1901,48 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  effectiveConfig: {
+    title: '生效配置',
+    description:
+      '此项目当前生效的内容及各值的来源。只读；请在本页其他部分修改。',
+    loading: '正在读取配置…',
+    error: '无法读取生效配置。',
+    source: { default: '默认', project: '项目', system: '系统' },
+    keys: {
+      'autopilot.enabled': '自动驾驶',
+      'autopilot.autoMergeStages': '自动合并阶段',
+      'autopilot.maxActiveIssues': '同时打开的最多事项数',
+      'autopilot.stallMinutes': '多少分钟视为停滞',
+      'autopilot.sensitivePolicy': '敏感路径策略',
+      'autopilot.autoMergeOnGithub': '检查通过后由 GitHub 合并',
+      'reaction.ciFailed': '响应：CI 失败（每次推送/每个事项的次数）',
+      'reaction.conflicts': '响应：分支冲突',
+      'reaction.reviewChanges': '响应：评审要求修改',
+      'reaction.runFailed': '响应：运行失败',
+      'reaction.prLineComment': '响应：GitHub 评审评论',
+      'reaction.greenAndApproved': '响应：通过且已批准',
+      'tier.default': '默认事项级别',
+      'skills.attached': '项目已关联的技能',
+      'budget.global.day': '系统预算（每日）',
+      'budget.global.month': '系统预算（每月）',
+      'budget.project.day': '项目预算（每日）',
+      'budget.project.month': '项目预算（每月）',
+    },
+  },
+  quota: {
+    title: '额度',
+    state: { warning: '即将用完', blocked: '已阻止' },
+    waiting: '项目 {{project}} 正在等待工具额度，约至 {{time}}。',
+    scope: { global: '系统', project: '项目', agent: '智能体' },
+    period: { day: '日', month: '月' },
+    budget: {
+      warning:
+        '{{scope}} {{name}} 的每{{period}}预算即将用完（{{runs}} 次运行）。',
+      blocked:
+        '{{scope}} {{name}} 的每{{period}}预算已用完（{{runs}} 次运行），新工作被暂停。',
+      released: '{{scope}} {{name}} 的每{{period}}预算已用完，但已被放宽。',
+    },
+  },
   issueChanges: {
     title: '变更',
     loading: '正在读取变更…',

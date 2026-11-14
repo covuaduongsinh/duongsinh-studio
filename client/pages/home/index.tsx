@@ -16,6 +16,7 @@ import { Badge } from '#components/ui/badge';
 import { Button, buttonVariants } from '#components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '#components/ui/card';
 import { Skeleton } from '#components/ui/skeleton';
+import { QuotaCard } from './quota-card.js';
 import { entryLink, relativeTime } from '#extensions/nocobase-inbox/model';
 import {
   needMeTotal,
@@ -306,6 +307,7 @@ export default function HomePage(): ReactElement {
         <div className='flex flex-col gap-4'>
           <NeedMe today={today.data} />
           <AgentsNow today={today.data} />
+          <QuotaCard />
           <Recent today={today.data} />
           {/* Pages that left the sidebar (V1.2) stay one tap from here. */}
           <nav
