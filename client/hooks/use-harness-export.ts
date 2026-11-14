@@ -14,6 +14,7 @@ export interface HarnessStatus {
   readonly missing: string[];
   readonly edited: string[];
   readonly outdated: boolean;
+  readonly missingBuiltinSkills: string[];
   readonly state: 'noRepository' | 'notExported' | 'inSync' | 'drifted';
 }
 

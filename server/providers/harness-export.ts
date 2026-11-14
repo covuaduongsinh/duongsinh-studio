@@ -11,6 +11,7 @@ import {
   type HarnessExportService,
 } from '../harness-export/service.js';
 import { gitServiceToken } from './git.js';
+import { lessonsServiceToken } from './lessons.js';
 
 export const harnessExportServiceToken: ServiceToken<HarnessExportService> =
   createServiceToken<HarnessExportService>('app/harness-export');
@@ -26,6 +27,7 @@ export default class HarnessExportProvider extends ServiceProvider<Application> 
         conn: () => container.resolve(databaseManagerToken).connection(),
         git: () => container.resolve(gitServiceToken),
         agents: () => container.resolve(agentsToken),
+        lessons: () => container.resolve(lessonsServiceToken),
       }),
     );
   }

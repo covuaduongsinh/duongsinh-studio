@@ -1701,6 +1701,13 @@ export function createGitService(deps: GitServiceDeps) {
       readonly headSha: string;
       readonly baseBranch: string;
     }) => Promise<void>;
+    /** A pull request linked to an issue was merged (plan S, S5: lessons an agent wrote into the repository). */
+    readonly merged?: (input: {
+      readonly issueId: string;
+      readonly pullRequestId: string;
+      readonly number: number;
+      readonly baseBranch: string;
+    }) => Promise<void>;
   } | null = null;
 
   const observe = async (call: () => Promise<void> | undefined) => {
@@ -1791,6 +1798,15 @@ export function createGitService(deps: GitServiceDeps) {
   ): Promise<void> {
     const projects = deps.projects();
     if (!projects || !pull.issueId) return;
+    const mergedIssueId = pull.issueId;
+    await observe(() =>
+      pullObserver?.merged?.({
+        issueId: mergedIssueId,
+        pullRequestId: pull.id,
+        number: pull.number,
+        baseBranch: pull.baseBranch,
+      }),
+    );
 
     let shouldComplete = stageMerges.has(pull.id) || !pull.autoCompleteDisabled;
 

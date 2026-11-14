@@ -2064,6 +2064,11 @@ const zhCN: AppResource = {
       missing: '缺失：{{path}}',
       outdated: 'Studio 中有更新内容，请重新导出。',
     },
+    builtins: {
+      title: '项目缺少部分内置技能',
+      description:
+        '内置的 ds-* 技能只会附加到它们发布之后创建的项目，因此该项目的导出包缺少：{{skills}}。请在技能库中附加后重新导出。',
+    },
     action: '导出到仓库',
     opened: '已创建拉取请求 #{{number}}',
     failed: '导出失败',

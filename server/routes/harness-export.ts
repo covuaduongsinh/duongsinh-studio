@@ -45,6 +45,11 @@ const StatusSchema = z
     missing: z.array(z.string()),
     edited: z.array(z.string()),
     outdated: z.boolean(),
+    missingBuiltinSkills: z
+      .array(z.string())
+      .describe(
+        'Built-in project skills the project was not given (they are attached to projects created after they were published).',
+      ),
     state: z.enum(['noRepository', 'notExported', 'inSync', 'drifted']),
   })
   .meta({ ref: 'StudioHarnessExportStatus' });

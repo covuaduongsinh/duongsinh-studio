@@ -2173,6 +2173,11 @@ const enUS = {
       missing: 'Missing: {{path}}',
       outdated: 'Studio has newer content; export again to update.',
     },
+    builtins: {
+      title: 'The project lacks some built-in skills',
+      description:
+        'The built-in ds-* skills are attached only to projects created after they were published, so this project’s export lacks: {{skills}}. Attach them in the skill library and export again.',
+    },
     action: 'Export to the repository',
     opened: 'Opened pull request #{{number}}',
     failed: 'Could not export',

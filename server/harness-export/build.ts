@@ -205,3 +205,63 @@ export function driftOf(
   }
   return { missing, edited, outdated };
 }
+
+/** A lesson as `lessons.md` lists it: the tag it sits under, its rule and the mistake it came from. */
+export interface FileLesson {
+  readonly tag: string;
+  readonly rule: string;
+  readonly mistake: string;
+}
+
+/** What identifies a lesson across the repository and Studio: its rule, case and spacing aside (plan S, S5). */
+export const lessonHash = (rule: string): string =>
+  sha256(rule.replace(/\s+/gu, ' ').trim().toLowerCase());
+
+/**
+ * The lessons in a `lessons.md` (the format `buildHarnessFiles` writes, which an agent extends with another block):
+ * `## <tag>`, then `- **Quy tắc**: …` and `- **Lỗi đã gặp**: …`. A block without a rule is left out; a missing mistake is empty.
+ */
+export function parseLessonsFile(text: string): FileLesson[] {
+  const found: FileLesson[] = [];
+  let tag: string | null = null;
+  let rule: string | null = null;
+  let mistake = '';
+  const flush = (): void => {
+    if (tag !== null && rule !== null && rule.trim() !== '')
+      found.push({ tag, rule: rule.trim(), mistake: mistake.trim() });
+    rule = null;
+    mistake = '';
+  };
+  for (const line of text.replace(HEADER, '').split('\n')) {
+    const heading = /^##\s+(.+?)\s*$/u.exec(line);
+    if (heading) {
+      flush();
+      tag = heading[1] ?? null;
+      continue;
+    }
+    const ruleLine = /^-\s+\*\*Quy tắc\*\*:\s*(.*)$/u.exec(line);
+    if (ruleLine) {
+      if (rule !== null) flush();
+      rule = ruleLine[1] ?? '';
+      continue;
+    }
+    const mistakeLine = /^-\s+\*\*Lỗi đã gặp\*\*:\s*(.*)$/u.exec(line);
+    if (mistakeLine) mistake = mistakeLine[1] ?? '';
+  }
+  flush();
+  return found;
+}
+
+/** The lessons of `text` that Studio does not know yet, each once, by the hash of its rule. */
+export function unknownLessons(
+  text: string,
+  knownHashes: ReadonlySet<string>,
+): FileLesson[] {
+  const seen = new Set(knownHashes);
+  return parseLessonsFile(text).filter((lesson) => {
+    const hash = lessonHash(lesson.rule);
+    if (seen.has(hash)) return false;
+    seen.add(hash);
+    return true;
+  });
+}

@@ -25,6 +25,7 @@ import {
 } from '../reactions/service.js';
 import { skippedData, SKIPPED_KIND } from '../reactions/retry.js';
 import { agentWakerToken } from './agent-executor.js';
+import { harnessExportServiceToken } from './harness-export.js';
 import { outboundToken } from './outbound.js';
 import { autopilotServiceToken } from './autopilot.js';
 import { gitServiceToken } from './git.js';
@@ -378,6 +379,13 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
               ', ',
             )}. Đọc log, sửa nguyên nhân, chạy lại kiểm chứng rồi đẩy.`,
         );
+      },
+      merged: async (input) => {
+        // The one observer slot is this provider's; the lessons an agent wrote into the repository go to Studio from here.
+        if (!container.has(harnessExportServiceToken)) return;
+        await container
+          .resolve(harnessExportServiceToken)
+          .importMergedLessons(input);
       },
       conflicts: async (input) => {
         await react(
