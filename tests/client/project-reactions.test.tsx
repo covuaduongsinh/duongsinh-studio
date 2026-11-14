@@ -68,6 +68,14 @@ async function render(element: React.ReactElement) {
               reason: 'ciFailed: 2 attempts on one push did not finish',
               createdAt: '2026-11-14T08:10:00.000Z',
             },
+            {
+              id: 'e3',
+              kind: 'skipped',
+              event: 'conflicts',
+              attempt: null,
+              reason: 'limited',
+              createdAt: '2026-11-14T08:20:00.000Z',
+            },
           ],
         };
       return { data: null };
@@ -126,6 +134,12 @@ describe('IssueReactions', () => {
     ).toBeTruthy();
     expect(
       screen.getByText(/Stopped to wait for a person: ciFailed/u),
+    ).toBeTruthy();
+    // A reaction that did not start leaves a line with its reason (S1c).
+    expect(
+      screen.getByText(
+        /Could not wake the agent \(.*\): a limit or budget applies/u,
+      ),
     ).toBeTruthy();
   });
 });

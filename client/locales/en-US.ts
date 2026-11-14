@@ -2273,6 +2273,17 @@ const enUS = {
       title: 'What Studio did',
       reacted: 'Woke the agent on its own: {{event}} (attempt {{attempt}})',
       blocked: 'Stopped to wait for a person: {{reason}}',
+      skipped:
+        'Could not wake the agent ({{event}}): {{reason}}. If the reason is temporary, Studio tries once more.',
+      skipReasons: {
+        notInProgress: 'the issue is no longer in progress or in review',
+        noAgent: 'no agent holds the issue',
+        limited: 'a limit or budget applies',
+        unavailable: 'the agent is not ready',
+        waitingOwner: 'waiting for the issue owner',
+        dormant: 'the issue is dormant',
+        blocked: 'the issue waits on another',
+      },
     },
   },
   autopilot: {

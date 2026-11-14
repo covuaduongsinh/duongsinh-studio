@@ -32,7 +32,7 @@ export interface ReactionRuleInput {
 
 export interface IssueReaction {
   readonly id: string;
-  readonly kind: 'reacted' | 'blocked';
+  readonly kind: 'reacted' | 'blocked' | 'skipped';
   readonly event: ReactionEventName | null;
   readonly attempt: number | null;
   readonly reason: string | null;

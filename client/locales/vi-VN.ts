@@ -2255,6 +2255,17 @@ const viVN: AppResource = {
       title: 'Studio tự làm',
       reacted: 'Đã tự đánh thức agent: {{event}} (lượt {{attempt}})',
       blocked: 'Đã dừng để chờ người: {{reason}}',
+      skipped:
+        'Chưa đánh thức được agent ({{event}}): {{reason}}. Đây là lý do tạm thời thì Studio thử lại một lần.',
+      skipReasons: {
+        notInProgress: 'việc không còn ở Đang làm hay Chờ nghiệm thu',
+        noAgent: 'việc chưa giao cho agent nào',
+        limited: 'đang chạm giới hạn hoặc ngân sách',
+        unavailable: 'agent chưa sẵn sàng',
+        waitingOwner: 'đang chờ chủ việc',
+        dormant: 'việc đang ngủ',
+        blocked: 'việc còn chờ việc khác',
+      },
     },
   },
   autopilot: {

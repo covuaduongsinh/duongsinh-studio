@@ -55,7 +55,8 @@ export interface AutopilotEvent {
     | 'blocked'
     | 'paused'
     | 'ciFailed'
-    | 'reacted';
+    | 'reacted'
+    | 'reactionSkipped';
   readonly reason: string | null;
   readonly data: Record<string, unknown> | null;
   readonly createdAt: string;

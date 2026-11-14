@@ -68,7 +68,7 @@ const UpdateRuleBody = z
 const IssueReactionSchema = z
   .object({
     id: z.string(),
-    kind: z.enum(['reacted', 'blocked']),
+    kind: z.enum(['reacted', 'blocked', 'skipped']),
     event: EventName.nullable(),
     attempt: z.number().int().nullable(),
     reason: z.string().nullable(),

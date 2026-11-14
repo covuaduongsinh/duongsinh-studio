@@ -62,12 +62,39 @@ export interface ReactionAttempt {
   readonly createdAt: Date;
 }
 
+/**
+ * The events that spend the issue's self-fix budget. A person's review comment (`prLineComment`) and the approval do
+ * not: a reviewer writing more must never make an issue "fail" (plan S, S1).
+ */
+export const COUNTED_EVENTS: readonly ReactionEvent[] = [
+  'ciFailed',
+  'conflicts',
+  'reviewChanges',
+  'runFailed',
+];
+
+/** Why a reaction did not start; these may pass by themselves, so the autopilot sweep tries once more (S1c). */
+export const TRANSIENT_SKIPS: readonly string[] = [
+  'limited',
+  'unavailable',
+  'waitingOwner',
+];
+
+/** Statuses in which Studio reacts; from `in_review` the issue goes back to `in_progress` so autopilot cannot merge midway. */
+const REACTIVE_STATUSES: readonly string[] = ['in_progress', 'in_review'];
+
 export interface ReactionContext {
   readonly issueId: string;
   readonly projectId: string | null;
   readonly pullRequestId?: string | null;
-  /** The pull request's head (or the run, for `runFailed`): one reaction group per value. */
+  /**
+   * The pull request's head (the run for `runFailed`, `review:<id>` for `prLineComment`): one reaction group per value.
+   */
   readonly headSha: string;
+  /** More keys of the same group (the other reviews of one batch); a group is a duplicate when every key was seen. */
+  readonly dedupeKeys?: readonly string[];
+  /** Set by the sweep's retry: a skip is not retried a second time. */
+  readonly retried?: boolean;
   /** What the agent is told. */
   readonly text: string;
 }
@@ -94,6 +121,10 @@ export interface ReactionStore {
     headSha?: string,
   ): Promise<ReactionAttempt[]>;
   record(attempt: ReactionAttempt): Promise<void>;
+  /** Attempts across these events: the issue's budget is one number, not one per kind. */
+  totalFor(issueId: string, events: readonly ReactionEvent[]): Promise<number>;
+  /** Back to `in_progress` with `needsYou` cleared, through the projects plugin (never a direct write). */
+  resume(issueId: string): Promise<void>;
   /** Moves the issue to `blocked` with `needsYou`, comments, records the event and tells the owners. */
   escalate(input: {
     readonly issueId: string;
@@ -116,6 +147,12 @@ export function createReactionService(deps: {
   readonly store: ReactionStore;
   readonly waker: Pick<AgentWaker, 'wakeIssue'>;
   readonly now?: () => Date;
+  /** Told of every reaction that did not start, with the reason; its failure never undoes anything. */
+  readonly onSkipped?: (
+    event: ReactionEvent,
+    context: ReactionContext,
+    reason: string,
+  ) => Promise<void>;
   /** Told of every wake, for the issue page and the log; its failure never undoes the wake. */
   readonly onWoke?: (
     event: ReactionEvent,
@@ -142,24 +179,30 @@ export function createReactionService(deps: {
     );
   };
 
-  return {
-    async react(event, context) {
-      const rule = await ruleFor(context.projectId, event);
-      if (!rule.enabled || rule.action !== 'wake')
-        return { outcome: 'disabled' };
-      const issue = await store.issueState(context.issueId);
-      if (!issue || issue.statusKey !== 'in_progress')
-        return { outcome: 'skipped', reason: 'notInProgress' };
+  const react = async (
+    event: ReactionEvent,
+    context: ReactionContext,
+  ): Promise<ReactionOutcome> => {
+    const rule = await ruleFor(context.projectId, event);
+    if (!rule.enabled || rule.action !== 'wake') return { outcome: 'disabled' };
+    const issue = await store.issueState(context.issueId);
+    if (!issue || !REACTIVE_STATUSES.includes(issue.statusKey))
+      return { outcome: 'skipped', reason: 'notInProgress' };
 
-      const onIssue = await store.attemptsFor(context.issueId, event);
+    const counted = COUNTED_EVENTS.includes(event);
+    const onIssue = await store.attemptsFor(context.issueId, event);
+    const keys = [context.headSha, ...(context.dedupeKeys ?? [])];
+    if (!counted) {
+      // One person's review is answered once, however often GitHub delivers it.
+      if (keys.every((key) => onIssue.some((a) => a.headSha === key)))
+        return { outcome: 'skipped', reason: 'duplicate' };
+    } else {
       const onHead = onIssue.filter((a) => a.headSha === context.headSha);
-      if (
-        onHead.length >= rule.maxAttempts ||
-        onIssue.length >= rule.maxPerIssue
-      ) {
+      const total = await store.totalFor(context.issueId, COUNTED_EVENTS);
+      if (onHead.length >= rule.maxAttempts || total >= rule.maxPerIssue) {
         const reason =
-          onIssue.length >= rule.maxPerIssue
-            ? `${event}: ${onIssue.length} lượt tự sửa trên việc này vẫn chưa xong (trần ${rule.maxPerIssue}).`
+          total >= rule.maxPerIssue
+            ? `${event}: ${total} lượt tự sửa trên việc này vẫn chưa xong (trần ${rule.maxPerIssue}).`
             : `${event}: ${onHead.length} lượt tự sửa trên cùng một lần đẩy vẫn chưa xong (trần ${rule.maxAttempts}).`;
         await store.escalate({
           issueId: context.issueId,
@@ -170,30 +213,52 @@ export function createReactionService(deps: {
         });
         return { outcome: 'escalated', reason };
       }
+    }
 
-      const attempt: RunAttempt | null = await waker.wakeIssue({
-        issueId: context.issueId,
-        text: context.text,
-      });
-      if (!attempt?.started)
-        return { outcome: 'skipped', reason: attempt?.skipped ?? 'noAgent' };
-      const number = onHead.length + 1;
+    const attempt: RunAttempt | null = await waker.wakeIssue({
+      issueId: context.issueId,
+      text: context.text,
+    });
+    if (!attempt?.started)
+      return { outcome: 'skipped', reason: attempt?.skipped ?? 'noAgent' };
+    const number = counted
+      ? onIssue.filter((a) => a.headSha === context.headSha).length + 1
+      : 1;
+    for (const key of counted ? [context.headSha] : keys)
       await store.record({
         id: randomUUID(),
         issueId: context.issueId,
         projectId: context.projectId,
         event,
-        headSha: context.headSha,
+        headSha: key,
         attempt: number,
         runId: attempt.runId ?? null,
         createdAt: now(),
       });
-      await deps
-        .onWoke?.(event, context, number)
+    if (issue.statusKey === 'in_review')
+      await store
+        .resume(context.issueId)
         .catch((error: unknown) =>
-          console.warn('A reaction could not be logged', error),
+          console.warn('A reaction could not move the issue back', error),
         );
-      return { outcome: 'woke', runId: attempt.runId ?? null, attempt: number };
+    await deps
+      .onWoke?.(event, context, number)
+      .catch((error: unknown) =>
+        console.warn('A reaction could not be logged', error),
+      );
+    return { outcome: 'woke', runId: attempt.runId ?? null, attempt: number };
+  };
+
+  return {
+    async react(event, context) {
+      const outcome = await react(event, context);
+      if (outcome.outcome === 'skipped' && outcome.reason !== 'duplicate')
+        await deps
+          .onSkipped?.(event, context, outcome.reason)
+          .catch((error: unknown) =>
+            console.warn('A skipped reaction could not be logged', error),
+          );
+      return outcome;
     },
   };
 }
@@ -207,6 +272,7 @@ type Row = Record<string, unknown>;
 export function createDatabaseReactionStore(deps: {
   readonly conn: () => DatabaseConnection;
   readonly escalate: ReactionStore['escalate'];
+  readonly resume: ReactionStore['resume'];
 }): ReactionStore {
   const { conn } = deps;
   return {
@@ -252,6 +318,15 @@ export function createDatabaseReactionStore(deps: {
         }),
       );
     },
+    async totalFor(issueId, events) {
+      const rows = await conn()
+        .query.selectFrom('dsReactionAttempts')
+        .select('id')
+        .where('issueId', '=', issueId)
+        .where('event', 'in', [...events])
+        .execute();
+      return rows.length;
+    },
     async record(attempt) {
       await conn()
         .query.insertInto('dsReactionAttempts')
@@ -259,6 +334,7 @@ export function createDatabaseReactionStore(deps: {
         .execute();
     },
     escalate: deps.escalate,
+    resume: deps.resume,
     async issueState(issueId) {
       const row = await conn()
         .query.selectFrom('pmIssues')

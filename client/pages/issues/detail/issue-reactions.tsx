@@ -1,5 +1,5 @@
 import { useTranslation } from '@nocobase/i18n/client';
-import { BotIcon, OctagonAlertIcon } from 'lucide-react';
+import { BotIcon, CircleSlashIcon, OctagonAlertIcon } from 'lucide-react';
 import type { ReactElement } from 'react';
 
 import { useIssueReactions } from '#hooks/use-reactions';
@@ -24,18 +24,29 @@ export function IssueReactions({
           <li key={item.id} className='flex items-start gap-2'>
             {item.kind === 'blocked' ? (
               <OctagonAlertIcon className='mt-0.5 size-4 shrink-0 text-destructive' />
+            ) : item.kind === 'skipped' ? (
+              <CircleSlashIcon className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
             ) : (
               <BotIcon className='mt-0.5 size-4 shrink-0 text-muted-foreground' />
             )}
             <span className='min-w-0'>
               {item.kind === 'blocked'
                 ? t('reactions.issue.blocked', { reason: item.reason ?? '' })
-                : t('reactions.issue.reacted', {
-                    event: item.event
-                      ? t(`reactions.events.${item.event}.title`)
-                      : '',
-                    attempt: item.attempt ?? 1,
-                  })}
+                : item.kind === 'skipped'
+                  ? t('reactions.issue.skipped', {
+                      event: item.event
+                        ? t(`reactions.events.${item.event}.title`)
+                        : '',
+                      reason: t(`reactions.issue.skipReasons.${item.reason}`, {
+                        defaultValue: item.reason ?? '',
+                      }),
+                    })
+                  : t('reactions.issue.reacted', {
+                      event: item.event
+                        ? t(`reactions.events.${item.event}.title`)
+                        : '',
+                      attempt: item.attempt ?? 1,
+                    })}
               <time
                 className='ml-2 text-xs text-muted-foreground'
                 dateTime={item.createdAt}

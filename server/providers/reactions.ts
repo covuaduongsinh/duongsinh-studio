@@ -5,6 +5,10 @@ import type { Run } from '@nocobase/app-plugin-agents/shared/runs';
 import { authorizationToken } from '@nocobase/app-plugin-authorization';
 import { notificationServiceToken } from '@nocobase/app-plugin-notification/server';
 import {
+  projectsStatusEventsToken,
+  projectsToken,
+} from '@nocobase/app-plugin-projects/server/tokens';
+import {
   ServiceProvider,
   createServiceToken,
   type ServiceToken,
@@ -19,12 +23,17 @@ import {
   type ReactionEvent,
   type ReactionService,
 } from '../reactions/service.js';
+import { skippedData, SKIPPED_KIND } from '../reactions/retry.js';
 import { agentWakerToken } from './agent-executor.js';
+import { outboundToken } from './outbound.js';
 import { autopilotServiceToken } from './autopilot.js';
 import { gitServiceToken } from './git.js';
 import {
+  createReviewBatcher,
   reviewFromPayload,
-  reviewReactionText,
+  reviewHasContent,
+  reviewKey,
+  reviewsReactionText,
 } from '../reactions/review-comments.js';
 
 export const reactionServiceToken: ServiceToken<ReactionService> =
@@ -32,6 +41,11 @@ export const reactionServiceToken: ServiceToken<ReactionService> =
 
 // The channel name `server/config/notification.ts` configures.
 const INBOX_CHANNEL = 'inbox';
+
+/** Moves an issue Studio woke from `in_review` back to work, so autopilot cannot merge it midway (S1a). */
+export const REACTION_RESUME_EVENT = 'ds.reaction.resume';
+/** Reviews of one person within this window wake the author once. */
+const REVIEW_BATCH_MS = 90_000;
 
 type Container = Application['container'];
 
@@ -104,6 +118,7 @@ export async function onReviewedReaction(
 export default class ReactionsProvider extends ServiceProvider<Application> {
   readonly name = 'app/reactions';
   private releaseReview?: () => void;
+  private releaseEvent?: () => void;
 
   private async ownerIds(): Promise<string[]> {
     return (
@@ -166,13 +181,42 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
               createdAt: now,
             })
             .execute();
+        // Each escalation is its own notice: the same pair of issue and event can be escalated again after a person
+        // sent the issue back to work, and the second must not be swallowed as a repeat (S1e).
+        const times = (
+          await conn()
+            .query.selectFrom(EVENTS_TABLE)
+            .select('data')
+            .where('issueId', '=', input.issueId)
+            .where('kind', '=', 'blocked')
+            .execute()
+        ).filter((row) =>
+          (typeof row.data === 'string'
+            ? row.data
+            : JSON.stringify(row.data ?? '')
+          ).includes('"reaction"'),
+        ).length;
+        if (container.has(outboundToken))
+          for (const userId of await this.ownerIds())
+            await container
+              .resolve(outboundToken)
+              .deliver(userId, {
+                key: `ds-reaction-blocked-${input.issueId}-${input.event}-${times}`,
+                kind: 'decision',
+                title: 'Cần tôi quyết định: tự sửa chưa xong',
+                body: input.reason,
+                path: `/issues/${input.issueId}`,
+              })
+              .catch((error: unknown) =>
+                console.warn('Reactions could not push to the owners', error),
+              );
         if (container.has(notificationServiceToken)) {
           const to = await this.ownerIds();
           if (to.length > 0)
             await container
               .resolve(notificationServiceToken)
               .send({
-                idempotencyKey: `ds-reaction-blocked-${input.issueId}-${input.event}`,
+                idempotencyKey: `ds-reaction-blocked-${input.issueId}-${input.event}-${times}`,
                 source: {
                   type: 'duongsinh-studio/reactions',
                   referenceId: input.issueId,
@@ -195,7 +239,34 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
         }
       };
       return createReactionService({
-        store: createDatabaseReactionStore({ conn, escalate: record }),
+        store: createDatabaseReactionStore({
+          conn,
+          escalate: record,
+          resume: async (issueId) => {
+            await container.resolve(projectsToken).statusEvents.fire({
+              event: REACTION_RESUME_EVENT,
+              issueIds: [issueId],
+              note: 'Tự phản ứng',
+              needsYou: null,
+            });
+          },
+        }),
+        onSkipped: async (event, context, reason) => {
+          if (!context.projectId) return;
+          await conn()
+            .query.insertInto(EVENTS_TABLE)
+            .values({
+              id: randomUUID(),
+              projectId: context.projectId,
+              issueId: context.issueId,
+              pullRequestId: context.pullRequestId ?? null,
+              kind: SKIPPED_KIND,
+              reason,
+              data: JSON.stringify(skippedData(event, context, reason)),
+              createdAt: new Date(),
+            })
+            .execute();
+        },
         waker: {
           wakeIssue: (input) =>
             container.resolve(agentWakerToken).wakeIssue(input),
@@ -222,6 +293,12 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
 
   override async boot(): Promise<void> {
     const { container } = this.app;
+    if (container.has(projectsStatusEventsToken))
+      this.releaseEvent = container.resolve(projectsStatusEventsToken).add({
+        key: REACTION_RESUME_EVENT,
+        from: ['in_review'],
+        to: 'in_progress',
+      });
     if (!container.has(gitServiceToken)) return;
     const react = (
       event: ReactionEvent,
@@ -229,13 +306,37 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
       headSha: string,
       pullRequestId: string,
       text: string,
+      dedupeKeys?: readonly string[],
     ) =>
       projectOf(container, issueId).then((projectId) =>
-        container
-          .resolve(reactionServiceToken)
-          .react(event, { issueId, projectId, pullRequestId, headSha, text }),
+        container.resolve(reactionServiceToken).react(event, {
+          issueId,
+          projectId,
+          pullRequestId,
+          headSha,
+          text,
+          ...(dedupeKeys ? { dedupeKeys } : {}),
+        }),
       );
     const git = container.resolve(gitServiceToken);
+    const batcher = createReviewBatcher({
+      windowMs: REVIEW_BATCH_MS,
+      flush: async (batch) => {
+        const keys = batch.reviews.map((review) => reviewKey(review.reviewId));
+        await react(
+          'prLineComment',
+          batch.issueId,
+          keys[0],
+          batch.pullRequestId,
+          reviewsReactionText({
+            number: batch.number,
+            reviewer: batch.reviewer,
+            reviews: batch.reviews,
+          }),
+          keys.slice(1),
+        );
+      },
+    });
     this.releaseReview = git.onReviewEvent(
       async (repositoryId, _event, payload) => {
         const review = reviewFromPayload(payload);
@@ -252,18 +353,14 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
           str(pull.id),
           review.reviewId,
         );
-        await react(
-          'prLineComment',
-          str(pull.issueId),
-          review.headSha,
-          str(pull.id),
-          reviewReactionText({
-            number: review.number,
-            reviewer: review.reviewer,
-            body: review.body,
-            comments,
-          }),
-        );
+        if (!reviewHasContent(review.body, comments)) return;
+        batcher.add({
+          issueId: str(pull.issueId),
+          pullRequestId: str(pull.id),
+          number: review.number,
+          reviewer: review.reviewer,
+          review: { reviewId: review.reviewId, body: review.body, comments },
+        });
       },
     );
     git.setPullObserver({
@@ -297,5 +394,7 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
   override async shutdown(): Promise<void> {
     this.releaseReview?.();
     this.releaseReview = undefined;
+    this.releaseEvent?.();
+    this.releaseEvent = undefined;
   }
 }

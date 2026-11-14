@@ -10,6 +10,7 @@ import {
 function memoryStore(rules: any[] = []) {
   const attempts: any[] = [];
   const blocked: any[] = [];
+  const resumed: string[] = [];
   let statusKey = 'in_progress';
   const store: ReactionStore = {
     rules: async () => rules,
@@ -20,6 +21,13 @@ function memoryStore(rules: any[] = []) {
           a.event === event &&
           (headSha === undefined || a.headSha === headSha),
       ),
+    totalFor: async (issueId, events) =>
+      attempts.filter((a) => a.issueId === issueId && events.includes(a.event))
+        .length,
+    resume: async () => {
+      resumed.push('i1');
+      statusKey = 'in_progress';
+    },
     record: async (a) => {
       attempts.push(a);
     },
@@ -29,7 +37,15 @@ function memoryStore(rules: any[] = []) {
     },
     issueState: async () => ({ statusKey }),
   };
-  return { store, attempts, blocked };
+  return {
+    store,
+    attempts,
+    blocked,
+    resumed,
+    setStatus: (key: string) => {
+      statusKey = key;
+    },
+  };
 }
 
 const ctx = (headSha = 'sha1') => ({
@@ -177,5 +193,139 @@ describe('reaction service', () => {
       },
     });
     expect((await svc.react('ciFailed', ctx())).outcome).toBe('skipped');
+  });
+
+  const started = (n = 1) => ({
+    kind: 'agent' as const,
+    principalId: 'a',
+    subjectId: 'i1',
+    triggerType: 'reaction' as const,
+    started: true,
+    runId: `run${n}`,
+  });
+
+  // S1: three single-comment reviews on one commit are three reviews, not three failed self-fixes.
+  it('answers each person review once and never blocks the issue for them', async () => {
+    const { store, attempts, blocked } = memoryStore();
+    let n = 0;
+    const svc = createReactionService({
+      store,
+      waker: { wakeIssue: async () => started(++n) },
+    });
+    const outcomes: string[] = [];
+    for (const id of ['review:1', 'review:2', 'review:3', 'review:4'])
+      outcomes.push((await svc.react('prLineComment', ctx(id))).outcome);
+    expect(outcomes).toEqual(['woke', 'woke', 'woke', 'woke']);
+    expect(blocked).toHaveLength(0);
+    // The same review delivered again is a duplicate, and says nothing.
+    expect(await svc.react('prLineComment', ctx('review:2'))).toMatchObject({
+      outcome: 'skipped',
+      reason: 'duplicate',
+    });
+    expect(attempts).toHaveLength(4);
+  });
+
+  it('records every key of a batch of reviews and treats the batch as seen', async () => {
+    const { store, attempts } = memoryStore();
+    const svc = createReactionService({
+      store,
+      waker: { wakeIssue: async () => started() },
+    });
+    const batch = { ...ctx('review:1'), dedupeKeys: ['review:2', 'review:3'] };
+    expect((await svc.react('prLineComment', batch)).outcome).toBe('woke');
+    expect(attempts.map((a) => a.headSha).sort()).toEqual([
+      'review:1',
+      'review:2',
+      'review:3',
+    ]);
+    expect((await svc.react('prLineComment', batch)).outcome).toBe('skipped');
+  });
+
+  it('does not count a review comment in the issue budget', async () => {
+    const { store, blocked } = memoryStore();
+    const svc = createReactionService({
+      store,
+      waker: { wakeIssue: async () => started() },
+    });
+    for (let i = 0; i < 5; i += 1)
+      await svc.react('prLineComment', ctx(`review:${i}`));
+    // Four CI attempts on four pushes still fit under the cap of five.
+    for (let i = 0; i < 4; i += 1)
+      expect((await svc.react('ciFailed', ctx(`s${i}`))).outcome).toBe('woke');
+    expect(blocked).toHaveLength(0);
+  });
+
+  it('reacts to an issue in review and puts it back to work', async () => {
+    const { store, resumed, setStatus } = memoryStore();
+    setStatus('in_review');
+    const svc = createReactionService({
+      store,
+      waker: { wakeIssue: async () => started() },
+    });
+    expect((await svc.react('conflicts', ctx())).outcome).toBe('woke');
+    expect(resumed).toEqual(['i1']);
+  });
+
+  it('leaves an issue in review where it is when the wake did not start', async () => {
+    const { store, resumed, setStatus } = memoryStore();
+    setStatus('in_review');
+    const svc = createReactionService({
+      store,
+      waker: {
+        wakeIssue: async () => ({
+          ...started(),
+          started: false,
+          skipped: 'limited',
+        }),
+      },
+    });
+    expect((await svc.react('conflicts', ctx())).outcome).toBe('skipped');
+    expect(resumed).toEqual([]);
+  });
+
+  it('caps the total of automatic reactions, not each kind', async () => {
+    const { store, blocked } = memoryStore();
+    const svc = createReactionService({
+      store,
+      waker: { wakeIssue: async () => started() },
+    });
+    const outcomes = [
+      await svc.react('ciFailed', ctx('a')),
+      await svc.react('ciFailed', ctx('b')),
+      await svc.react('conflicts', ctx('c')),
+      await svc.react('reviewChanges', ctx('d')),
+      await svc.react('reviewChanges', ctx('e')),
+      // Each kind is under its own count, but the issue has used its five.
+      await svc.react('reviewChanges', ctx('f')),
+    ].map((o) => o.outcome);
+    expect(outcomes).toEqual([
+      'woke',
+      'woke',
+      'woke',
+      'woke',
+      'woke',
+      'escalated',
+    ]);
+    expect(blocked[0].reason).toMatch(/5 lượt/u);
+  });
+
+  it('tells the log about a reaction that did not start, but not about a duplicate', async () => {
+    const { store } = memoryStore();
+    const logged: string[] = [];
+    const svc = createReactionService({
+      store,
+      waker: {
+        wakeIssue: async () => ({
+          ...started(),
+          started: false,
+          skipped: 'waitingOwner',
+        }),
+      },
+      onSkipped: async (_event, _context, reason) => {
+        logged.push(reason);
+      },
+    });
+    await svc.react('ciFailed', ctx());
+    expect(logged).toEqual(['waitingOwner']);
   });
 });
