@@ -9,6 +9,7 @@ import {
   createReviewsService,
   type ReviewsService,
 } from '../reviews/service.js';
+import { onReviewedReaction } from './reactions.js';
 import { gitServiceToken } from './git.js';
 
 export const reviewsServiceToken: ServiceToken<ReviewsService> =
@@ -23,6 +24,7 @@ export default class ReviewsProvider extends ServiceProvider<Application> {
       createReviewsService({
         database: container.resolve(databaseManagerToken),
         git: () => container.resolve(gitServiceToken),
+        onReviewed: (input) => onReviewedReaction(container, input),
       }),
     );
   }
