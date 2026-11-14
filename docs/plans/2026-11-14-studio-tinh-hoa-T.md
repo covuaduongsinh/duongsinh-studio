@@ -271,6 +271,13 @@ Harness; cho agent tự nạp plugin lúc chạy; computer use trên VPS; cấp 
 | Q10 | (mới, từ chỗ lệch) Cho T5 chạy `dist` ngay trong Actions với SQLite tạm thay vì dùng chỗ xem thử? | Có                                                                         |
 | Q11 | (mới) Tick thêm hai sự kiện review ở trang mỗi App GitHub sau T1.3?                               | Chủ dự án làm tay khi T1.3 merge, Studio hiện cảnh báo tới khi xong        |
 
+### Quyết định của chủ dự án (14/11/2026)
+
+Chủ dự án đồng ý Q1–Q11 theo đề xuất (mặc định ở bảng trên; Q10 = có, Q11 = chủ dự án tick tay ngay sau khi T1.3 merge) và
+ủy quyền cho agent quyết định tối ưu các việc còn lại **trong các luật cũ** (không đụng production, không SSH, không xin
+Administration, không đổi phiên bản `@nocobase/*`). Việc tick sự kiện trên trang App GitHub là thao tác trên tài khoản GitHub
+của chủ dự án nên vẫn nằm ở danh sách việc làm tay.
+
 ## 9. Ghi vào `docs/chenh-lech-upstream.md` khi làm
 
 `wake()` mở lối vào ngoài hook (T1.0); bảng `dsReactionRules`/`dsReactionAttempts` và sự kiện review mới (T1); cột
@@ -292,7 +299,7 @@ job `ds-ui-smoke` (T5); target `dsRoutine` của scheduler (T6); phần T11 plug
 ## 11. Tiến độ
 
 - [x] T0 — Dọn và đo trước: kế hoạch này, Tiến độ kế hoạch V đã sửa; bốn số nền **chưa đo được** (mục 3)
-- [ ] T2 — Kiểm chứng không tự báo
+- [x] T2 — Kiểm chứng không tự báo (PR `feat/t-2`; **không có lệnh `verify run`** vì CLI chỉ là route, thay bằng `verify plan` + từ chối phía server + `contradicted`; xem `chenh-lech-upstream.md` §59)
 - [ ] T1 — Phản ứng tự động (T1.0 nền → T1.1 bảng → T1.2 nguồn sự kiện → T1.3 `prLineComment` → T1.4 PM → T1.5 giao diện)
 - [ ] T10 — Mức việc
 - [ ] T3a — Hàng rào GitHub; [ ] T3b — Auto-merge

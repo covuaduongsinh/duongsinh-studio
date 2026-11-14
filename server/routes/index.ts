@@ -24,6 +24,7 @@ import { nb3JobRoutes } from './nb3-jobs.js';
 import { secretFindingsRoutes } from './secret-findings.js';
 import { playbookRoutes } from './playbooks.js';
 import { runnerRoutes } from './runner.js';
+import { verificationPlanRoutes } from './verification-plan.js';
 import { verificationRoutes } from './verifications.js';
 import { webhookRoutes } from './webhooks.js';
 
@@ -35,6 +36,7 @@ const routes: readonly AppRouteContribution<Application>[] = [
   hostLoadRoutes,
   reviewRoutes,
   verificationRoutes,
+  verificationPlanRoutes,
   benchRoutes,
   lessonRoutes,
   nb3JobRoutes,

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { DatabaseConnection, DatabaseManager } from '@nocobase/db';
 import type { GitService, GitPullRequestView } from '../git/service.js';
 import { str, strOrNull, num, bool, iso, type Row } from '../git/rows.js';
+import { verificationReviewProblem } from './verification-check.js';
 
 export const REVIEWS = 'dsReviews';
 export const REVIEW_CRITERIA_CHECKS = 'dsReviewCriteriaChecks';
@@ -325,6 +326,51 @@ export function createReviewsService(deps: {
           failedCount: String(failedCriteria.length),
         },
       );
+    }
+
+    // 5b. Approving means the verification output was read, and a verification CI contradicted never stands (plan T, T2).
+    if (input.verdict === 'approve' && pull.issueId) {
+      const latest = await conn()
+        .query.selectFrom('dsVerifications')
+        .select(['id', 'result'])
+        .where('issueId', '=', pull.issueId)
+        .where('headSha', '=', input.headSha)
+        .orderBy('createdAt', 'desc')
+        .executeTakeFirst();
+      if (latest) {
+        const items = await conn()
+          .query.selectFrom('dsVerificationItems as item')
+          .innerJoin(
+            'dsIssueCriteria as criterion',
+            'criterion.id',
+            'item.criterionId',
+          )
+          .select([
+            'criterion.checkKind as checkKind',
+            'item.exitCode as exitCode',
+          ])
+          .where('item.verificationId', '=', latest.id)
+          .execute();
+        const problem = verificationReviewProblem(
+          {
+            result: str(latest.result),
+            items: items.map((item) => ({
+              checkKind: str(item.checkKind),
+              exitCode: item.exitCode == null ? null : num(item.exitCode),
+            })),
+          },
+          input.verdict,
+          input.checklist,
+        );
+        if (problem)
+          throw new ReviewError(
+            'FAILED_PRECONDITION',
+            problem,
+            problem === 'VERIFICATION_CONTRADICTED'
+              ? "CI is red on the head this verification covers; the agent's claim is contradicted."
+              : 'Approve only after reading the output of the verified tests and commands: set checklist.verificationOutputReviewed to true.',
+          );
+      }
     }
 
     // 6. Insert review record

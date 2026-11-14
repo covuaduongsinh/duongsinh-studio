@@ -776,6 +776,7 @@ const zhCN: AppResource = {
     colTime: '时间',
     passed: '通过',
     failed: '失败',
+    contradicted: '被 CI 推翻',
   },
   settingsReviews: {
     title: '评审',

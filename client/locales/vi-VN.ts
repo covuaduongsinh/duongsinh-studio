@@ -793,6 +793,7 @@ const viVN: AppResource = {
     colTime: 'Thời gian',
     passed: 'Đạt',
     failed: 'Không đạt',
+    contradicted: 'Bị CI phủ định',
   },
   settingsReviews: {
     title: 'Phiếu review',

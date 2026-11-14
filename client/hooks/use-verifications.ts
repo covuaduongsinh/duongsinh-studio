@@ -19,7 +19,7 @@ export interface VerificationSummary {
   readonly agentId: string | null;
   readonly headSha: string;
   readonly attempt: number;
-  readonly result: 'passed' | 'failed';
+  readonly result: 'passed' | 'failed' | 'contradicted';
   readonly createdAt: string;
 }
 

@@ -44,7 +44,11 @@ const PERSON_OR_RUN: Record<string, string[]>[] = [
 ];
 
 export const VerificationItemResultEnum = z.enum(['pass', 'fail', 'pending']);
-export const VerificationResultEnum = z.enum(['passed', 'failed']);
+export const VerificationResultEnum = z.enum([
+  'passed',
+  'failed',
+  'contradicted',
+]);
 
 interface IssueView {
   readonly id: string;
@@ -243,6 +247,16 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
           .where('state', '=', 'open')
           .executeTakeFirst();
 
+        // A submission for another head than the open pull request's says nothing about it: refuse it, record nothing.
+        if (openPr && str(openPr.headSha) !== input.headSha) {
+          throw new ApiError({
+            status: 'FAILED_PRECONDITION',
+            reason: 'STALE_HEAD',
+            domain: DOMAIN,
+            message: `The open pull request is at ${str(openPr.headSha)}; verify that commit, not ${input.headSha}.`,
+          });
+        }
+
         const inputItemsMap = new Map(
           input.items.map((it) => [it.criterionId, it]),
         );
@@ -270,14 +284,17 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
 
           if (kind === 'test' || kind === 'command') {
             if (inputItem) {
-              if (inputItem.result) {
-                itemResult = inputItem.result;
-              } else if (inputItem.exitCode !== undefined) {
-                itemResult = inputItem.exitCode === 0 ? 'pass' : 'fail';
-              } else {
-                itemResult = 'fail';
+              // The result is what the exit code says; a result an agent claims is ignored (plan T, T2).
+              if (inputItem.exitCode == null) {
+                throw new ApiError({
+                  status: 'INVALID_ARGUMENT',
+                  reason: 'EXIT_CODE_REQUIRED',
+                  domain: DOMAIN,
+                  message: `Criterion ${critId} (${kind}) needs the exitCode of the command that was run; a claimed result is not accepted.`,
+                });
               }
-              itemExitCode = inputItem.exitCode ?? null;
+              itemResult = inputItem.exitCode === 0 ? 'pass' : 'fail';
+              itemExitCode = inputItem.exitCode;
               itemOutput = inputItem.output
                 ? inputItem.output.slice(-20000)
                 : null;
@@ -289,7 +306,8 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
             // Studio tự xác định từ dsPullRequests
             if (openPr && str(openPr.headSha) === input.headSha) {
               const ciState = str(openPr.ciState);
-              if (ciState === 'success') {
+              // Stored as `passed` (`ciStateOf`); `success` is what older rows and tests hold.
+              if (ciState === 'passed' || ciState === 'success') {
                 itemResult = 'pass';
               } else if (ciState === 'pending') {
                 itemResult = 'pending';
@@ -570,7 +588,7 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
             agentId: v.agentId ? str(v.agentId) : null,
             headSha: str(v.headSha),
             attempt: num(v.attempt),
-            result: str(v.result) as 'passed' | 'failed',
+            result: str(v.result) as 'passed' | 'failed' | 'contradicted',
             createdAt: new Date(
               v.createdAt as string | number | Date,
             ).toISOString(),
@@ -692,7 +710,7 @@ export const verificationRoutes: AppApiRouteContribution<Application> =
           agentId: v.agentId ? str(v.agentId) : null,
           headSha: str(v.headSha),
           attempt: num(v.attempt),
-          result: str(v.result) as 'passed' | 'failed',
+          result: str(v.result) as 'passed' | 'failed' | 'contradicted',
           createdAt: new Date(
             v.createdAt as string | number | Date,
           ).toISOString(),
