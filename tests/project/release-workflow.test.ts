@@ -151,7 +151,9 @@ describe('release.sh on the VPS', () => {
     }).stdout;
     writeFileSync(
       `${archive}.sha256`,
-      corrupt ? sum.replace(/^./u, 'f').replace(/^ff/u, 'f0') : sum,
+      // Change the first hex digit to a different one. The digest depends on the tarball's mtime, so any fixed
+      // replacement digit matches the real one in 1 of 16 runs and the "wrong checksum" case would flake.
+      corrupt ? sum.replace(/^./u, (c) => (c === '0' ? '1' : '0')) : sum,
     );
     fake(
       'gh',
