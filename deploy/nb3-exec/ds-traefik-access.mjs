@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global process, console, setInterval, setTimeout, clearInterval, clearTimeout */
 /**
  * ds-traefik-access: turns Traefik's access log into the small file the job daemon reads for `lastAccess` (plan V, V5.1b).
  *
