@@ -1901,6 +1901,22 @@ const zhCN: AppResource = {
     protected: '受保护',
     recordOnly: '仅记录',
   },
+  uiSmoke: {
+    title: '界面检查',
+    description:
+      '提议一个 GitHub Actions 工作流，在手机和桌面尺寸下打开主要页面，出现页面错误或空白页时失败。',
+    points: {
+      actions:
+        '在 GitHub Actions 上运行，不在 Studio 的运行器上运行，不使用任何密钥，最长 15 分钟。',
+      sizes: '以 390×844 和 1280×800 打开每个页面，并把截图作为运行产物上传。',
+      pages: '页面列表位于 .nb-studio/ui-smoke-pages.json（默认只有首页）。',
+    },
+    action: '提议 ds-ui-smoke 工作流',
+    opened: '已创建拉取请求 #{{number}}',
+    failed: '无法提议',
+    ownerNote:
+      '需要带 Workflows 权限的 GitHub 个人令牌；合并后，工作流会在之后的拉取请求上运行。',
+  },
   harnessExport: {
     title: '仓库中的规则集',
     description:

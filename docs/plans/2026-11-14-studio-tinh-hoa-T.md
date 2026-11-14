@@ -304,7 +304,7 @@ job `ds-ui-smoke` (T5); target `dsRoutine` của scheduler (T6); phần T11 plug
 - [x] T10 — Mức việc (PR `feat/t-10`: `dsIssueTiers` + `defaultTier`, `server/tiers/service.ts`, tự nâng khi chạm đường dẫn nhạy cảm và không tự hạ, evaluator đòi review bảo mật thêm cho việc Nhạy cảm, quy tắc mức trong brief của agent, `GET/PUT /issues/:id/tier`; **không thêm trường vào form tạo việc** vì form do plugin projects giữ — chọn mức ở thanh bên của việc và mức mặc định ở Cài đặt dự án; xem `chenh-lech-upstream.md` §61)
 - [x] T3a — Hàng rào GitHub (PR `feat/t-3a`: `server/git/protection.ts`, `GET /projects/:id/branchProtection`, mục "Hàng rào nhánh chính" với bốn bước và nút Kiểm lại; **chưa thử được trên repo thật**, phần đọc dùng quyền App đã có; App không đọc được thì báo "chưa đọc được", không đỏ không xanh; xem `chenh-lech-upstream.md` §62); [x] T3b — Auto-merge (cùng PR `feat/t-3a`: `autoMergeOnGithub`, GraphQL `enablePullRequestAutoMerge`, chỉ bật khi hàng rào xanh, điều kiện ở cả `evaluate` và `stageMergeAllowed`; **chủ dự án phải bật "Allow auto-merge" ở kho**; chưa thử với GitHub thật)
 - [x] T4 — Bộ quy tắc đi theo repo (PR `feat/t-4`: `server/harness-export/{build,service}.ts`, `GET/POST /projects/:id/harnessExport` (CLI `harness status`/`harness export`), mục "Bộ quy tắc trong kho mã" báo lệch; **không có nhập ngược bài học khi PR merge**, xem `chenh-lech-upstream.md` §63)
-- [ ] T5 — Kiểm giao diện
+- [x] T5 — Kiểm giao diện (PR `feat/t-5`: `server/setups/ui-smoke-workflow.ts`, `POST /projects/:id/uiSmoke`, nút đề xuất; **chưa chạy thử trên Actions**; phần "hiện ảnh trên trang việc" và `nb3AppWorkflow` chưa làm, xem `chenh-lech-upstream.md` §64)
 - [ ] T7 — Thẻ "Thay đổi"
 - [ ] T13 — Hạn mức và Cấu hình hiệu lực
 - [ ] T6 — Việc định kỳ
