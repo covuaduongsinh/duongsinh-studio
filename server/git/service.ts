@@ -28,6 +28,12 @@ import {
 import { contradictVerifications } from '../verifications/contradiction.js';
 import { recordCiFailed } from '../reactions/ci-failed.js';
 import {
+  evaluateProtection,
+  parseProtection,
+  type ProtectionRead,
+  type ProtectionVerdict,
+} from './protection.js';
+import {
   FORCEABLE_BLOCKERS,
   ciStateOf,
   issueKeysOf,
@@ -3013,6 +3019,61 @@ export function createGitService(deps: GitServiceDeps) {
     return client.pullFiles(repo.fullName, pull.number);
   }
 
+  /**
+   * How the project's primary repository protects its default branch (plan T, T3a), read with the App's own token. A token
+   * that cannot read it (403/404) is told apart from a branch that is unprotected: nothing is guessed.
+   */
+  async function readBranchProtection(projectId: string): Promise<
+    | {
+        readonly status: 'noRepository';
+      }
+    | {
+        readonly status: 'unreadable';
+        readonly repository: string;
+        readonly branch: string;
+        readonly httpStatus: number;
+      }
+    | ({
+        readonly status: 'read';
+        readonly repository: string;
+        readonly branch: string;
+        readonly rulesReadable: boolean;
+        readonly read: ProtectionRead;
+      } & ProtectionVerdict)
+  > {
+    const record = await primaryRepositoryOf(projectId);
+    if (!record) return { status: 'noRepository' };
+    const repo = await repositoryRecord(record.id);
+    const client = await clientForRepository(repo.id);
+    try {
+      const answer = await client.branchProtection(
+        repo.fullName,
+        repo.defaultBranch,
+      );
+      const read = parseProtection(answer.branch, answer.rules ?? []);
+      return {
+        status: 'read',
+        repository: repo.fullName,
+        branch: repo.defaultBranch,
+        rulesReadable: answer.rules !== null,
+        read,
+        ...evaluateProtection(read, 'ds-check'),
+      };
+    } catch (error) {
+      if (
+        error instanceof GitHubError &&
+        (error.status === 403 || error.status === 404)
+      )
+        return {
+          status: 'unreadable',
+          repository: repo.fullName,
+          branch: repo.defaultBranch,
+          httpStatus: error.status,
+        };
+      throw error;
+    }
+  }
+
   /** The inline comments of one review of a pull request. */
   async function pullReviewComments(
     id: string,
@@ -3271,6 +3332,7 @@ export function createGitService(deps: GitServiceDeps) {
     onWebhookEvent,
     onReviewEvent,
     pullReviewComments,
+    readBranchProtection,
     linkRepository,
     updateRepository,
     updateConnection,

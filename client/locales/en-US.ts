@@ -2001,6 +2001,39 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  branchProtection: {
+    title: 'Main branch guard',
+    description:
+      'Studio reads how GitHub protects the default branch of the primary repository. It never changes GitHub settings.',
+    loading: 'Reading from GitHub...',
+    error: 'Could not read the branch protection.',
+    noRepository: 'The project has no repository linked.',
+    unreadable:
+      'GitHub would not let Studio read the settings of {{repository}} (status {{status}}). It cannot say yes or no; check by hand with the steps below.',
+    verdict: {
+      ok: 'Branch {{branch}} of {{repository}} is protected as it should be.',
+      problem: 'Branch {{branch}} of {{repository}} has gaps.',
+      unknown:
+        'Branch {{branch}} of {{repository}}: nothing wrong is visible, but something cannot be read.',
+    },
+    problems: {
+      noRequiredCheck: 'The "ds-check" check is not required before merging.',
+      pushAllowed: 'Work can still be pushed straight to the branch.',
+      reviewRequired:
+        'An approving review is required. Studio’s App cannot approve, so no pull request would ever merge.',
+    },
+    unknowns: {
+      pullRequestUnknown:
+        'Whether a pull request is required could not be read (that needs the Administration permission, which Studio does not ask for).',
+    },
+    steps: {
+      1: 'On GitHub, open the repository’s Settings, then Rules, then Rulesets, and choose New branch ruleset.',
+      2: 'Target the default branch and turn on "Require a pull request before merging" with 0 approvals.',
+      3: 'Turn on "Require status checks to pass" and add the "ds-check" check.',
+      4: 'Save, then come back here and press "Check again".',
+    },
+    recheck: 'Check again',
+  },
   tier: {
     label: 'Issue tier',
     names: { small: 'Small', standard: 'Standard', sensitive: 'Sensitive' },
