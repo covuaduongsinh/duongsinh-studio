@@ -2001,6 +2001,28 @@ const enUS = {
     protected: 'Protected',
     recordOnly: 'Recorded only',
   },
+  issueChanges: {
+    title: 'Changes',
+    loading: 'Reading the changes...',
+    files_one: '{{count}} file',
+    files_other: '{{count}} files',
+    verification: {
+      passed: 'Verification passed',
+      failed: 'Verification failed',
+      contradicted: 'CI contradicted the verification',
+      stale: 'This verification is not of the current head commit.',
+      none: 'No verification yet.',
+    },
+    sensitive: 'Touches sensitive paths: {{files}}',
+    requestChanges: 'Request changes',
+    requestDescription:
+      'Say what to change. It is posted as a comment and wakes the agent that holds the issue.',
+    note: 'What to change',
+    send: 'Send',
+    sent: 'Request for changes sent',
+    failed: 'Could not send the request',
+    openGithub: 'Open on GitHub',
+  },
   uiSmoke: {
     title: 'Interface check',
     description:

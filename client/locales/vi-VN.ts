@@ -1984,6 +1984,28 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  issueChanges: {
+    title: 'Thay đổi',
+    loading: 'Đang đọc thay đổi...',
+    files_one: '{{count}} tệp',
+    files_other: '{{count}} tệp',
+    verification: {
+      passed: 'Kiểm chứng đạt',
+      failed: 'Kiểm chứng không đạt',
+      contradicted: 'CI phủ định kiểm chứng',
+      stale: 'Kiểm chứng này không phải của commit đầu hiện tại.',
+      none: 'Chưa có lượt kiểm chứng.',
+    },
+    sensitive: 'Chạm đường dẫn nhạy cảm: {{files}}',
+    requestChanges: 'Yêu cầu sửa',
+    requestDescription:
+      'Ghi điều cần sửa. Nội dung được đăng thành bình luận và đánh thức agent đang giữ việc.',
+    note: 'Điều cần sửa',
+    send: 'Gửi',
+    sent: 'Đã gửi yêu cầu sửa',
+    failed: 'Không gửi được yêu cầu sửa',
+    openGithub: 'Mở trên GitHub',
+  },
   uiSmoke: {
     title: 'Kiểm giao diện',
     description:

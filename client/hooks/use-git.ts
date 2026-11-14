@@ -117,6 +117,8 @@ export interface GitPullRequest {
   readonly draft: boolean;
   readonly headRef: string;
   readonly baseRef: string;
+  /** The head commit; a new one is a new set of changes. */
+  readonly headSha: string;
   readonly mergeability: 'clean' | 'conflicts' | 'blocked' | 'unknown';
   readonly ciState: 'pending' | 'success' | 'failure' | null;
   readonly checks: readonly GitCheck[];
