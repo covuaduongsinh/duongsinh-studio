@@ -29,6 +29,7 @@ import {
 } from '@nocobase/app-server/router';
 import { Hono, type Context } from 'hono';
 import { z } from 'zod';
+import { gitServiceToken } from '../providers/git.js';
 import {
   autopilotServiceToken,
   autopilotSchedulerToken,
@@ -60,6 +61,11 @@ const AutopilotSettingsSchema = z
     sensitivePaths: z.array(z.string()).nullable(),
     sensitivePolicy: z.enum(['extraReview', 'human']),
     defaultTier: z.enum(['small', 'standard', 'sensitive']),
+    autoMergeOnGithub: z
+      .boolean()
+      .describe(
+        'Whether GitHub merges once its checks pass; only while the branch protection reads green.',
+      ),
     pausedReason: z.string().nullable(),
     updatedAt: z.string(),
     updatedById: z.string().nullable(),
@@ -91,6 +97,7 @@ const UpdateAutopilotSettingsBody = z
       .optional(),
     sensitivePolicy: z.enum(['extraReview', 'human']).optional(),
     defaultTier: z.enum(['small', 'standard', 'sensitive']).optional(),
+    autoMergeOnGithub: z.boolean().optional(),
     pausedReason: z.string().nullable().optional(),
   })
   .strict();
@@ -300,6 +307,7 @@ export const autopilotRoutes: AppApiRouteContribution<Application> =
           sensitivePaths: null,
           sensitivePolicy: 'extraReview',
           defaultTier: 'standard',
+          autoMergeOnGithub: false,
           pausedReason: null,
           updatedAt: new Date().toISOString(),
           updatedById: null,
@@ -330,6 +338,20 @@ export const autopilotRoutes: AppApiRouteContribution<Application> =
           'manage',
         );
         const body = context.req.valid('json');
+        if (body.autoMergeOnGithub === true) {
+          // Only while the branch protection reads green (plan T, T3b); GitHub would otherwise merge on nothing.
+          const protection = await container
+            .resolve(gitServiceToken)
+            .readBranchProtection(projectId);
+          if (protection.status !== 'read' || protection.verdict !== 'ok')
+            throw new ApiError({
+              status: 'FAILED_PRECONDITION',
+              reason: 'BRANCH_PROTECTION_NOT_GREEN',
+              domain: DOMAIN,
+              message:
+                'GitHub auto-merge needs a branch protection that reads green: require the ds-check check and a pull request.',
+            });
+        }
         const updated = await autopilot().saveSettings(
           projectId,
           body,

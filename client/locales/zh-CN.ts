@@ -1932,6 +1932,12 @@ const zhCN: AppResource = {
       3: '开启 “Require status checks to pass”，并添加 “ds-check” 检查。',
       4: '保存后回到这里，点击“重新检查”。',
     },
+    autoMerge: {
+      title: '检查通过后由 GitHub 自动合并',
+      hint: 'Studio 会为符合条件的拉取请求开启 GitHub 自动合并。仓库需允许自动合并（由负责人设置）。',
+      needsGreen: '仅当分支防护通过后才能开启。',
+      error: '无法更改自动合并设置',
+    },
     recheck: '重新检查',
   },
   tier: {

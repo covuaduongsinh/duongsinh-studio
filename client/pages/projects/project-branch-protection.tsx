@@ -10,6 +10,12 @@ import type { ReactElement } from 'react';
 
 import { Button } from '#components/ui/button';
 import { ProjectSection } from '#extensions/nocobase-project-detail/project-detail';
+import { Switch } from '#components/ui/switch';
+import {
+  useProjectAutopilot,
+  useUpdateProjectAutopilot,
+} from '#hooks/use-autopilot';
+import { useToaster } from '@nocobase/app-client';
 import { useBranchProtection } from '#hooks/use-branch-protection';
 
 /** What the repository's default branch asks of a merge, and what to press on GitHub to fix it (plan T, T3a). */
@@ -22,7 +28,11 @@ export function ProjectBranchProtection({
 }): ReactElement | null {
   const { t } = useTranslation();
   const query = useBranchProtection(projectId, canManage);
+  const toaster = useToaster();
+  const settings = useProjectAutopilot(projectId);
+  const update = useUpdateProjectAutopilot(projectId);
   if (!canManage) return null;
+  const autoMergeOn = settings.data?.autoMergeOnGithub ?? false;
   const data = query.data;
   const tone =
     data?.verdict === 'ok'
@@ -97,6 +107,41 @@ export function ProjectBranchProtection({
             ))}
           </ol>
         ) : null}
+        <label className='flex items-start justify-between gap-3 rounded-lg border p-3 text-sm'>
+          <span className='min-w-0'>
+            <span className='block font-medium'>
+              {t('branchProtection.autoMerge.title')}
+            </span>
+            <span className='block text-muted-foreground'>
+              {data?.verdict === 'ok' || autoMergeOn
+                ? t('branchProtection.autoMerge.hint')
+                : t('branchProtection.autoMerge.needsGreen')}
+            </span>
+          </span>
+          <Switch
+            checked={autoMergeOn}
+            disabled={
+              !settings.data ||
+              update.isPending ||
+              (!autoMergeOn && data?.verdict !== 'ok')
+            }
+            aria-label={t('branchProtection.autoMerge.title')}
+            onCheckedChange={(on) =>
+              update.mutate(
+                { autoMergeOnGithub: on },
+                {
+                  onError: (error) =>
+                    toaster.show({
+                      type: 'error',
+                      title: t('branchProtection.autoMerge.error'),
+                      description:
+                        error instanceof Error ? error.message : String(error),
+                    }),
+                },
+              )
+            }
+          />
+        </label>
         <div>
           <Button
             variant='outline'

@@ -2015,6 +2015,12 @@ const viVN: AppResource = {
       3: 'Bật "Require status checks to pass" và thêm check "ds-check".',
       4: 'Lưu, rồi quay lại đây bấm "Kiểm lại".',
     },
+    autoMerge: {
+      title: 'Để GitHub tự merge khi check xanh',
+      hint: 'Studio bật auto-merge của GitHub cho PR đủ điều kiện. Kho phải bật "Allow auto-merge" (việc của chủ dự án).',
+      needsGreen: 'Chỉ bật được khi hàng rào nhánh đã đạt.',
+      error: 'Không đổi được cài đặt auto-merge',
+    },
     recheck: 'Kiểm lại',
   },
   tier: {
