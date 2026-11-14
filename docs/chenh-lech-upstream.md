@@ -1119,6 +1119,7 @@ identifier,title,reason}]` vào mỗi dòng, lấy từ `projects().subtasks.vis
 - **Script**: trước khi mở trang, `context.request.post(<base>/api/auth/sign-in/username)` (route như `signIn` của `@nocobase/app-plugin-authentication/testing`); cookie nằm lại trong context của Playwright. Đăng nhập không ok thì lỗi; trang bị chuyển về `/login` thì lỗi "sent back to the sign-in page".
 - **Ảnh trong thẻ "Thay đổi"**: route mới `GET /pullRequests/:id/uiSmoke` (CLI `pr ui-smoke`) tìm lượt chạy mới nhất của workflow `ds-ui-smoke` trên `headSha` (`GitHubClient.workflowRun`) và artifact `ui-smoke` chưa hết hạn (`runArtifacts` đã có). Artifact là một tệp zip nên **không nhúng được ảnh**: thẻ hiện nhãn trạng thái (đang chạy / đạt / không đạt) và liên kết tới trang artifact. Lỗi GitHub trả `unavailable`, không làm hỏng thẻ.
 - **CHƯA CHẠY THẬT TRÊN ACTIONS.** Các bước dựng và khởi động (`config init` trong `dist`, cổng 13000, đường dẫn `/main`, seed ở lần khởi động đầu, đường dẫn đăng nhập) chưa được xác nhận vì chưa có kho nháp (Q2). Tới khi chạy xanh với ảnh sau đăng nhập, S3 chưa được coi là xong.
+
 ## 73. S4 — Kiểm chứng chạy lại trên CI (cách A, tắt sẵn) (15/11/2026)
 
 - **Nguồn của bản nộp**: cột mới `dsVerifications.source` (`agent` khi nộp từ một lượt chạy, `ci` khi nộp bằng khoá CI của kho, `person` khi một người nộp; null của các dòng cũ đọc là `agent`) và cột `dsAutopilotSettings.verifyOnCi` (null = tắt). Migration `202611150001_ds_verify_on_ci`.
