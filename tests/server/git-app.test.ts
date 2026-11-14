@@ -240,7 +240,13 @@ test('GitHub App pieces: manifest, JWT, signatures and missing permissions', () 
     default_permissions: REQUIRED_APP_PERMISSIONS,
   });
   expect(manifest.default_events).toEqual(
-    expect.arrayContaining(['pull_request', 'check_run', 'workflow_run']),
+    expect.arrayContaining([
+      'pull_request',
+      'check_run',
+      'workflow_run',
+      'pull_request_review',
+      'pull_request_review_comment',
+    ]),
   );
 
   const jwt = appJwt('99', PRIVATE_KEY);
@@ -458,6 +464,23 @@ test('a GitHub App connection: manifest flow, installation, tokens, webhooks and
       })
     ).status,
   ).toBe(401);
+
+  // A review delivery reaches the review listeners (the reaction rules, plan T T1.3) and refreshes nothing.
+  const heard: string[] = [];
+  const stopListening = git.onReviewEvent(async (repositoryId, event, body) => {
+    heard.push(
+      `${repositoryId === repository.id}:${event}:${String(body.action)}`,
+    );
+  });
+  const reviewed = await deliver('pull_request_review', {
+    action: 'submitted',
+    review: { id: 1, state: 'changes_requested' },
+    pull_request: { number: 5 },
+    repository: { full_name: 'acme/sandbox' },
+  });
+  expect(reviewed.status).toBe(202);
+  expect(heard).toEqual(['true:pull_request_review:submitted']);
+  stopListening();
 
   // A signed delivery refreshes the pull request at once; the same delivery again is not handled twice.
   await connection.query

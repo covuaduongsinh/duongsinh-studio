@@ -22,6 +22,10 @@ import {
 import { agentWakerToken } from './agent-executor.js';
 import { autopilotServiceToken } from './autopilot.js';
 import { gitServiceToken } from './git.js';
+import {
+  reviewFromPayload,
+  reviewReactionText,
+} from '../reactions/review-comments.js';
 
 export const reactionServiceToken: ServiceToken<ReactionService> =
   createServiceToken<ReactionService>('app/reactions');
@@ -99,6 +103,7 @@ export async function onReviewedReaction(
  */
 export default class ReactionsProvider extends ServiceProvider<Application> {
   readonly name = 'app/reactions';
+  private releaseReview?: () => void;
 
   private async ownerIds(): Promise<string[]> {
     return (
@@ -230,7 +235,38 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
           .resolve(reactionServiceToken)
           .react(event, { issueId, projectId, pullRequestId, headSha, text }),
       );
-    container.resolve(gitServiceToken).setPullObserver({
+    const git = container.resolve(gitServiceToken);
+    this.releaseReview = git.onReviewEvent(
+      async (repositoryId, _event, payload) => {
+        const review = reviewFromPayload(payload);
+        if (!review.accept) return;
+        const conn = container.resolve(databaseManagerToken).connection();
+        const pull = await conn.query
+          .selectFrom('dsPullRequests')
+          .select(['id', 'issueId', 'state'])
+          .where('repositoryId', '=', repositoryId)
+          .where('number', '=', review.number)
+          .executeTakeFirst();
+        if (!pull?.issueId || str(pull.state) !== 'open') return;
+        const comments = await git.pullReviewComments(
+          str(pull.id),
+          review.reviewId,
+        );
+        await react(
+          'prLineComment',
+          str(pull.issueId),
+          review.headSha,
+          str(pull.id),
+          reviewReactionText({
+            number: review.number,
+            reviewer: review.reviewer,
+            body: review.body,
+            comments,
+          }),
+        );
+      },
+    );
+    git.setPullObserver({
       ciFailed: async (input) => {
         await react(
           'ciFailed',
@@ -256,5 +292,10 @@ export default class ReactionsProvider extends ServiceProvider<Application> {
         );
       },
     });
+  }
+
+  override async shutdown(): Promise<void> {
+    this.releaseReview?.();
+    this.releaseReview = undefined;
   }
 }

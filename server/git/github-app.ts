@@ -29,6 +29,9 @@ export const APP_EVENTS: readonly string[] = [
   'workflow_run',
   'status',
   'push',
+  // A person's review and its inline comments wake the pull request's author (plan T, T1.3).
+  'pull_request_review',
+  'pull_request_review_comment',
 ];
 
 /**

@@ -1984,6 +1984,55 @@ const viVN: AppResource = {
     protected: 'Được bảo vệ',
     recordOnly: 'Chỉ ghi nhận',
   },
+  reactions: {
+    section: {
+      title: 'Tự phản ứng',
+      description:
+        'Studio tự đánh thức agent giữ việc khi CI đỏ, nhánh xung đột, review xin sửa hoặc lượt chạy lỗi.',
+    },
+    loading: 'Đang tải quy tắc...',
+    error: 'Không tải được quy tắc tự phản ứng.',
+    overridden: 'Riêng của dự án',
+    attempts: 'Số lượt',
+    attemptsFor: 'Số lượt tự sửa cho "{{event}}"',
+    enabledFor: 'Bật tự phản ứng cho "{{event}}"',
+    limitNote:
+      'Mỗi việc tự sửa tối đa 5 lần; hết lượt thì việc chuyển sang Đang vướng kèm "Cần bạn".',
+    events: {
+      ciFailed: {
+        title: 'CI đỏ',
+        description: 'Một check lỗi trên pull request của việc.',
+      },
+      conflicts: {
+        title: 'Xung đột nhánh',
+        description: 'Nhánh không còn merge sạch với nhánh gốc.',
+      },
+      reviewChanges: {
+        title: 'Review xin sửa',
+        description: 'Một phiếu review không duyệt.',
+      },
+      runFailed: {
+        title: 'Lượt chạy lỗi',
+        description:
+          'Lượt chạy của agent kết thúc lỗi (trừ hết hạn mức và đầy ổ đĩa runner).',
+      },
+      prLineComment: {
+        title: 'Góp ý trên GitHub',
+        description: 'Một người review trên GitHub để lại bình luận theo dòng.',
+      },
+      greenAndApproved: {
+        title: 'Xanh và đã duyệt',
+        description:
+          'Tự lái xét merge ngay khi review duyệt, không chờ nhịp quét.',
+      },
+    },
+    toast: { saveError: 'Không lưu được quy tắc' },
+    issue: {
+      title: 'Studio tự làm',
+      reacted: 'Đã tự đánh thức agent: {{event}} (lượt {{attempt}})',
+      blocked: 'Đã dừng để chờ người: {{reason}}',
+    },
+  },
   autopilot: {
     section: {
       title: 'Tự lái',
