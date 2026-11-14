@@ -99,7 +99,7 @@ export async function saveRule(
 
 export interface IssueReaction {
   readonly id: string;
-  readonly kind: 'reacted' | 'blocked';
+  readonly kind: 'reacted' | 'blocked' | 'skipped';
   readonly event: ReactionEvent | null;
   readonly attempt: number | null;
   readonly reason: string | null;
@@ -115,7 +115,7 @@ export async function issueReactions(
     .selectFrom('dsAutopilotEvents')
     .selectAll()
     .where('issueId', '=', issueId)
-    .where('kind', 'in', ['reacted', 'blocked'])
+    .where('kind', 'in', ['reacted', 'blocked', 'reactionSkipped'])
     .orderBy('createdAt', 'desc')
     .limit(50)
     .execute();
@@ -133,10 +133,19 @@ export async function issueReactions(
     if (str(row.kind) === 'blocked' && !event) continue;
     items.push({
       id: str(row.id),
-      kind: str(row.kind) === 'blocked' ? 'blocked' : 'reacted',
+      kind:
+        str(row.kind) === 'blocked'
+          ? 'blocked'
+          : str(row.kind) === 'reactionSkipped'
+            ? 'skipped'
+            : 'reacted',
       event,
       attempt: typeof data.attempt === 'number' ? data.attempt : null,
-      reason: row.reason ? str(row.reason) : null,
+      reason: row.reason
+        ? str(row.reason)
+        : typeof data.reason === 'string'
+          ? data.reason
+          : null,
       createdAt: new Date(str(row.createdAt)).toISOString(),
     });
   }

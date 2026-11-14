@@ -2159,6 +2159,17 @@ const zhCN: AppResource = {
       title: 'Studio 自动做了什么',
       reacted: '已自动唤醒智能体：{{event}}（第 {{attempt}} 次）',
       blocked: '已停止并等待人工处理：{{reason}}',
+      skipped:
+        '未能唤醒智能体（{{event}}）：{{reason}}。若原因是暂时的，Studio 会再试一次。',
+      skipReasons: {
+        notInProgress: '任务已不在进行中或待验收',
+        noAgent: '任务未分配智能体',
+        limited: '触及限额或预算',
+        unavailable: '智能体尚未就绪',
+        waitingOwner: '等待任务负责人',
+        dormant: '任务处于休眠',
+        blocked: '任务在等待其他任务',
+      },
     },
   },
   autopilot: {

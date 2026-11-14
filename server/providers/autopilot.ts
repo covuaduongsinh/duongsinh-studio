@@ -1,3 +1,5 @@
+import { retrySkippedReactions } from '../reactions/retry.js';
+import { reactionServiceToken } from './reactions.js';
 import { runPriorityOf } from '../agents/run-priority.js';
 import { budgetServiceToken, outboundToken } from './outbound.js';
 import type { Application } from '@nocobase/app-server/application';
@@ -307,6 +309,16 @@ export default class AutopilotProvider extends ServiceProvider<Application> {
         try {
           // Before opening anything: which projects' runs wait on tool quota, and until when.
           await stallDetector.syncQuotaWaits();
+
+          // A reaction skipped for a reason that passes by itself (S1c): once more while the pull request is still red.
+          if (container.has(reactionServiceToken))
+            await retrySkippedReactions({
+              conn,
+              react: (event, context) =>
+                container.resolve(reactionServiceToken).react(event, context),
+            }).catch((error: unknown) =>
+              console.warn('Reaction retry error:', error),
+            );
 
           // Find active projects with autopilot enabled
           const activeSettings = await conn.query
