@@ -79,6 +79,8 @@ function validJwt(jwt: string): boolean {
 
 interface FakeGitHub {
   tokenLifetimeMs: number;
+  /** What the branch endpoints answer (T3a): a protected default branch, an open one, or a refusal. */
+  protection: 'protected' | 'open' | 'denied';
   minted: { repositories: string[] | null }[];
   calls: { method: string; path: string }[];
 }
@@ -87,6 +89,7 @@ interface FakeGitHub {
 function fakeGitHub(): FakeGitHub {
   const state: FakeGitHub = {
     tokenLifetimeMs: 60 * 60 * 1000,
+    protection: 'protected',
     minted: [],
     calls: [],
   };
@@ -189,6 +192,38 @@ function fakeGitHub(): FakeGitHub {
           clone_url: CLONE_URL,
           html_url: 'https://github.test/acme/sandbox',
         });
+      if (
+        method === 'GET' &&
+        (path === `${repo}/branches/main` ||
+          path === `${repo}/rules/branches/main`)
+      ) {
+        if (state.protection === 'denied')
+          return answer({ message: 'Resource not accessible' }, 403);
+        const isRules = path.includes('/rules/');
+        if (isRules)
+          return answer(
+            state.protection === 'protected'
+              ? [
+                  {
+                    type: 'required_status_checks',
+                    parameters: {
+                      required_status_checks: [{ context: 'ds-check' }],
+                    },
+                  },
+                  {
+                    type: 'pull_request',
+                    parameters: { required_approving_review_count: 0 },
+                  },
+                ]
+              : [],
+          );
+        return answer({
+          name: 'main',
+          commit: { sha: 'head-sha-1' },
+          protected: state.protection === 'protected',
+          protection: { enabled: state.protection === 'protected' },
+        });
+      }
       if (method === 'GET' && path === `${repo}/pulls`)
         return answer(url.searchParams.get('state') === 'open' ? [pull] : []);
       if (method === 'GET' && path === `${repo}/pulls/5`) return answer(pull);
@@ -569,6 +604,39 @@ test('a GitHub App connection: manifest flow, installation, tokens, webhooks and
       )
     ).status,
   ).toBe(201);
+  // Branch protection (T3a): green, red, and "GitHub would not say" are three different answers.
+  const protectionOf = async () =>
+    (
+      await (
+        await admin.fetch(`/projects/${project.id}/branchProtection`)
+      ).json()
+    ).data as {
+      status: string;
+      verdict: string | null;
+      problems: string[];
+      httpStatus: number | null;
+    };
+  expect(await protectionOf()).toMatchObject({
+    status: 'read',
+    verdict: 'ok',
+    problems: [],
+  });
+  github.protection = 'open';
+  expect(await protectionOf()).toMatchObject({
+    status: 'read',
+    verdict: 'problem',
+    problems: expect.arrayContaining(['noRequiredCheck', 'pushAllowed']),
+  });
+  github.protection = 'denied';
+  expect(await protectionOf()).toMatchObject({
+    status: 'unreadable',
+    verdict: null,
+    httpStatus: 403,
+  });
+  github.protection = 'protected';
+  expect(
+    (await request(`/projects/${project.id}/branchProtection`)).status,
+  ).toBe(401);
   const issue = (
     await (
       await admin.fetch(

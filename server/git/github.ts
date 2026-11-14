@@ -100,6 +100,15 @@ export interface GitHubClient {
   pull(fullName: string, number: number): Promise<GitHubPull>;
   /** The files changed by a pull request (relative file paths). */
   pullFiles(fullName: string, number: number): Promise<string[]>;
+  /**
+   * How a branch is protected, as far as a read-only token sees it (T3a): the branch (`protected`, its required checks)
+   * and the rules of active rulesets. Throws `GitHubError` when the branch cannot be read; `rules` is null when only the
+   * rules cannot.
+   */
+  branchProtection(
+    fullName: string,
+    branch: string,
+  ): Promise<{ readonly branch: unknown; readonly rules: unknown[] | null }>;
   /** The inline comments of one review of a pull request (T1.3). */
   reviewComments(
     fullName: string,
@@ -410,6 +419,22 @@ export function createGitHubClient(options: {
       return answer
         .map((entry) => text(record(entry).filename) ?? '')
         .filter((name) => name !== '');
+    },
+    async branchProtection(fullName, branch) {
+      const name = encodeURIComponent(branch);
+      const answer = await call(
+        'GET',
+        `${repoPath(fullName)}/branches/${name}`,
+      );
+      let rules: unknown[] | null = null;
+      try {
+        rules = items(
+          await call('GET', `${repoPath(fullName)}/rules/branches/${name}`),
+        );
+      } catch (error) {
+        if (!(error instanceof GitHubError)) throw error;
+      }
+      return { branch: answer, rules };
     },
     async reviewComments(fullName, number, reviewId) {
       const answer = items(
