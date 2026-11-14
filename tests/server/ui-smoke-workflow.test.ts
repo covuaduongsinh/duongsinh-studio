@@ -34,6 +34,22 @@ describe('ds-ui-smoke workflow', () => {
     expect(UI_SMOKE_WORKFLOW).not.toMatch(/ssh|docker\.sock|dokploy/iu);
   });
 
+  // S3 (plan S): the pages are behind the sign-in, so the job makes an account for the run and the script signs in first.
+  it('signs in as an account made in the job, with a random masked password and no repository secret', () => {
+    expect(UI_SMOKE_WORKFLOW).toContain('openssl rand -hex 16');
+    expect(UI_SMOKE_WORKFLOW).toContain('::add-mask::');
+    expect(UI_SMOKE_WORKFLOW).toContain('INITIAL_ADMIN_PASSWORD=');
+    expect(UI_SMOKE_WORKFLOW).toContain(
+      'APP_PUBLIC_ORIGIN=http://127.0.0.1:13000',
+    );
+    expect(UI_SMOKE_SCRIPT).toContain('/api/auth/sign-in/username');
+    expect(UI_SMOKE_SCRIPT.indexOf('sign-in/username')).toBeLessThan(
+      UI_SMOKE_SCRIPT.indexOf('page.goto'),
+    );
+    expect(UI_SMOKE_SCRIPT).toContain('sent back to the sign-in page');
+    expect(UI_SMOKE_WORKFLOW).not.toMatch(/secrets\./u);
+  });
+
   it('embeds the script whole, so one file is the whole proposal', () => {
     for (const line of UI_SMOKE_SCRIPT.split('\n').filter(Boolean))
       expect(UI_SMOKE_WORKFLOW).toContain(line);

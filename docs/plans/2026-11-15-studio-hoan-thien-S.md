@@ -59,7 +59,7 @@ S2 và S3 cần một kho nháp thật (Q2) nên phần thử thật chưa làm 
 - [x] KIỂM LẠI — bảng trên
 - [x] S1 — Phản ứng tự động (PR `feat/s-1`; `chenh-lech-upstream.md` §70)
 - [x] S2 — Auto-merge GitHub (PR `feat/s-2`; `chenh-lech-upstream.md` §71; **chưa thử với GitHub thật**)
-- [ ] S3 — Kiểm giao diện
+- [x] S3 (phần mã) — Kiểm giao diện (PR `feat/s-3`; `chenh-lech-upstream.md` §72; **chưa chạy thật trên Actions**, cần kho nháp Q2)
 - [ ] S4 — Kiểm chứng trên CI (cách A)
 - [ ] S5 — T4 gói xuất và nhập ngược
 - [ ] S6 + S7 — T11 ô tìm nhật ký; T6 khôi phục qua kênh job

@@ -3087,6 +3087,47 @@ export function createGitService(deps: GitServiceDeps) {
     ];
   }
 
+  /**
+   * The interface check of a pull request's head (S3): its run, and the link to the screenshots it uploaded. Anything
+   * GitHub does not answer is "unavailable", never an error of the page.
+   */
+  async function uiSmokeOf(id: string): Promise<{
+    readonly state: 'none' | 'running' | 'passed' | 'failed' | 'unavailable';
+    readonly runUrl: string | null;
+    readonly artifactUrl: string | null;
+  }> {
+    try {
+      const pull = await pullRecord(id);
+      const repo = await repositoryRecord(pull.repositoryId);
+      const client = await clientForRepository(repo.id);
+      const run = await client.workflowRun(
+        repo.fullName,
+        pull.headSha,
+        'ds-ui-smoke',
+      );
+      if (!run) return { state: 'none', runUrl: null, artifactUrl: null };
+      const artifact =
+        run.status === 'completed'
+          ? (await client.runArtifacts(repo.fullName, run.id)).find(
+              (item) => item.name === 'ui-smoke' && !item.expired,
+            )
+          : undefined;
+      return {
+        state:
+          run.status !== 'completed'
+            ? 'running'
+            : run.conclusion === 'success'
+              ? 'passed'
+              : 'failed',
+        runUrl: run.url || null,
+        artifactUrl:
+          artifact && run.url ? `${run.url}/artifacts/${artifact.id}` : null,
+      };
+    } catch {
+      return { state: 'unavailable', runUrl: null, artifactUrl: null };
+    }
+  }
+
   /** Relative file paths and diff patches changed by a pull request (read via GitHub client). */
   async function pullFileDetails(
     id: string,
@@ -3420,6 +3461,7 @@ export function createGitService(deps: GitServiceDeps) {
     refreshPullRequest,
     pullFiles,
     pullFileDetails,
+    uiSmokeOf,
     pullPatch,
     setPullObserver: (observer: NonNullable<typeof pullObserver>) => {
       pullObserver = observer;

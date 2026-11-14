@@ -1,7 +1,11 @@
 /**
  * The interface smoke test a project can add to its CI (plan T, T5): build the application, start `dist` on the runner with
- * a temporary SQLite database and no data, open the pages the project lists at a phone and a desktop width, and fail on a
- * `pageerror`, a `console.error` or a blank page. Screenshots are uploaded as an artifact of the run.
+ * a temporary SQLite database and no data, sign in as an account made for the run, open the pages the project lists at a
+ * phone and a desktop width, and fail on a `pageerror`, a `console.error`, a blank page or a redirect to the sign-in page.
+ * Screenshots are uploaded as an artifact of the run.
+ *
+ * The account is the application's initial administrator (`INITIAL_ADMIN_*`, seeded on the first start of an empty
+ * database), with a password generated in the job and masked in its log; no secret of the repository is used.
  *
  * It runs on GitHub Actions, never on Studio's runner (2.5 GiB), uses no secret, and runs only for pull requests that touch
  * the interface, with a 15 minute limit. Studio reads it as an ordinary check run. One file, so the proposal is one pull
@@ -20,6 +24,8 @@ export const UI_SMOKE_SCRIPT = `import { chromium } from '@playwright/test';
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 
 const base = process.env.UI_SMOKE_BASE;
+const user = process.env.UI_SMOKE_USER;
+const password = process.env.UI_SMOKE_PASSWORD;
 const pages = existsSync('${UI_SMOKE_PAGES_PATH}')
   ? JSON.parse(readFileSync('${UI_SMOKE_PAGES_PATH}', 'utf8'))
   : ['/'];
@@ -34,6 +40,16 @@ for (const size of sizes) {
   const context = await browser.newContext({
     viewport: { width: size.width, height: size.height },
   });
+  // The pages are behind the sign-in, so sign in first: the cookie the application sets stays with the context.
+  const signIn = await context.request.post(base + '/api/auth/sign-in/username', {
+    data: { username: user, password },
+    headers: { origin: new URL(base).origin },
+  });
+  if (!signIn.ok()) {
+    failures.push(size.name + ' sign-in: ' + signIn.status());
+    await context.close();
+    continue;
+  }
   for (const path of pages) {
     const page = await context.newPage();
     const problems = [];
@@ -45,6 +61,7 @@ for (const size of sizes) {
     });
     await page.goto(base + path, { waitUntil: 'networkidle', timeout: 60000 });
     if ((await page.innerText('body')).trim() === '') problems.push('blank page');
+    if (new URL(page.url()).pathname.includes('/login')) problems.push('sent back to the sign-in page');
     const slug = path.replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '') || 'home';
     await page.screenshot({ path: 'ui-smoke/' + size.name + '-' + slug + '.png', fullPage: true });
     for (const problem of problems) failures.push(size.name + ' ' + path + ': ' + problem);
@@ -95,6 +112,18 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      - name: Make an account for the run
+        run: |
+          password="$(openssl rand -hex 16)"
+          echo "::add-mask::$password"
+          {
+            echo "INITIAL_ADMIN_USERNAME=ui.smoke"
+            echo "INITIAL_ADMIN_EMAIL=ui-smoke@example.com"
+            echo "INITIAL_ADMIN_PASSWORD=$password"
+            echo "UI_SMOKE_USER=ui.smoke"
+            echo "UI_SMOKE_PASSWORD=$password"
+            echo "APP_PUBLIC_ORIGIN=http://127.0.0.1:13000"
+          } >> "$GITHUB_ENV"
       - name: Start the application with a temporary database
         run: |
           cd dist

@@ -126,6 +126,15 @@ test(
       404,
     );
 
+    // S3: the interface check of the head. 401 signed out; GitHub unreachable is "unavailable", not an error.
+    expect((await request(path('pr-ch-1', 'uiSmoke'))).status).toBe(401);
+    const smoke = await admin.fetch(path('pr-ch-1', 'uiSmoke'));
+    expect(smoke.status).toBe(200);
+    expect(
+      ((await smoke.json()) as { data: { state: string } }).data.state,
+    ).toBe('unavailable');
+    expect((await admin.fetch(path('pr-ch-2', 'uiSmoke'))).status).toBe(404);
+
     // 400: an empty note.
     expect(
       (
@@ -157,6 +166,9 @@ test(
     });
     expect([403, 404]).toContain(
       (await outsider.fetch(path('pr-ch-1', 'changeSummary'))).status,
+    );
+    expect([403, 404]).toContain(
+      (await outsider.fetch(path('pr-ch-1', 'uiSmoke'))).status,
     );
     expect([403, 404]).toContain(
       (

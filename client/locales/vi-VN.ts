@@ -2093,6 +2093,13 @@ const viVN: AppResource = {
     loading: 'Đang đọc thay đổi...',
     files_one: '{{count}} tệp',
     files_other: '{{count}} tệp',
+    uiSmoke: {
+      running: 'Kiểm giao diện đang chạy',
+      passed: 'Kiểm giao diện đạt',
+      failed: 'Kiểm giao diện không đạt',
+      screenshots: 'Xem ảnh chụp',
+      run: 'Xem lượt chạy',
+    },
     verification: {
       passed: 'Kiểm chứng đạt',
       failed: 'Kiểm chứng không đạt',

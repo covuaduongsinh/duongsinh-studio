@@ -83,3 +83,45 @@ describe('disableAutoMerge', () => {
     ).rejects.toMatchObject({ status: 422 });
   });
 });
+
+// S3 (plan S): Studio finds the interface check's run of a head, newest first, by the workflow's name.
+describe('workflowRun', () => {
+  it('returns the newest run of the named workflow on the commit, or null', async () => {
+    vi.stubGlobal('fetch', async (input: string | URL | Request) => {
+      calls.push({ method: 'GET', url: String(input), body: null });
+      return new Response(
+        JSON.stringify({
+          workflow_runs: [
+            { id: 9, name: 'ci', status: 'completed', conclusion: 'success' },
+            {
+              id: 8,
+              name: 'ds-ui-smoke',
+              status: 'completed',
+              conclusion: 'failure',
+              html_url: 'https://github.test/acme/sandbox/actions/runs/8',
+            },
+            {
+              id: 7,
+              name: 'ds-ui-smoke',
+              status: 'completed',
+              conclusion: 'success',
+            },
+          ],
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } },
+      );
+    });
+    expect(
+      await client().workflowRun('acme/sandbox', 'abc', 'ds-ui-smoke'),
+    ).toEqual({
+      id: 8,
+      url: 'https://github.test/acme/sandbox/actions/runs/8',
+      status: 'completed',
+      conclusion: 'failure',
+    });
+    expect(calls[0]!.url).toContain('head_sha=abc');
+    expect(
+      await client().workflowRun('acme/sandbox', 'abc', 'other'),
+    ).toBeNull();
+  });
+});

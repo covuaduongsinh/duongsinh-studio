@@ -58,6 +58,13 @@ export interface GitHubCheck {
   readonly url: string | null;
 }
 
+export interface GitHubWorkflowRun {
+  readonly id: number;
+  readonly url: string;
+  readonly status: string;
+  readonly conclusion: string | null;
+}
+
 export interface GitHubClient {
   viewer(): Promise<{ readonly login: string }>;
   repository(fullName: string): Promise<GitHubRepository>;
@@ -174,6 +181,12 @@ export interface GitHubClient {
   ): Promise<GitHubComparison>;
   /** When a commit was made (its committer date). */
   commitDate(fullName: string, sha: string): Promise<string | null>;
+  /** The newest run of the workflow named `name` on a commit, or null (S3: the interface check's run). */
+  workflowRun(
+    fullName: string,
+    sha: string,
+    name: string,
+  ): Promise<GitHubWorkflowRun | null>;
   /** The artifacts a workflow run uploaded (names, ids and the API URL their zip downloads from). */
   runArtifacts(fullName: string, runId: number): Promise<GitHubArtifact[]>;
 }
@@ -721,6 +734,25 @@ export function createGitHubClient(options: {
       return (
         text(record(commit.committer).date) ?? text(record(commit.author).date)
       );
+    },
+    async workflowRun(fullName, sha, name) {
+      const runs = items(
+        record(
+          await call(
+            'GET',
+            `${repoPath(fullName)}/actions/runs?head_sha=${encodeURIComponent(sha)}&per_page=100`,
+          ),
+        ).workflow_runs,
+      ).map(record);
+      // GitHub lists the newest first.
+      const run = runs.find((value) => text(value.name) === name);
+      if (!run || typeof run.id !== 'number') return null;
+      return {
+        id: run.id,
+        url: text(run.html_url) ?? '',
+        status: text(run.status) ?? '',
+        conclusion: text(run.conclusion) ?? null,
+      };
     },
     async runArtifacts(fullName, runId) {
       const answer = record(

@@ -2110,6 +2110,13 @@ const enUS = {
     loading: 'Reading the changes...',
     files_one: '{{count}} file',
     files_other: '{{count}} files',
+    uiSmoke: {
+      running: 'Interface check is running',
+      passed: 'Interface check passed',
+      failed: 'Interface check failed',
+      screenshots: 'See the screenshots',
+      run: 'See the run',
+    },
     verification: {
       passed: 'Verification passed',
       failed: 'Verification failed',
