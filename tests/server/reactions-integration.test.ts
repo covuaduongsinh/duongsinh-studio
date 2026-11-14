@@ -8,13 +8,9 @@ import {
 } from '@nocobase/app-plugin-authentication/testing';
 import { databaseManagerToken } from '@nocobase/db';
 import { agentsToken } from '@nocobase/app-plugin-agents/server/tokens';
-import {
-  IN_PROGRESS_STATUS,
-  DONE_STATUS,
-} from '@nocobase/app-plugin-projects/shared/statuses';
+import { IN_PROGRESS_STATUS } from '@nocobase/app-plugin-projects/shared/statuses';
 import { AGENT_KIND } from '../../server/agents/ids.js';
 import { createStandaloneServer } from '../../server/standalone.js';
-import { agentWakerToken } from '../../server/providers/agent-executor.js';
 import { reactionServiceToken } from '../../server/providers/reactions.js';
 
 // T1.0 (plan T): code outside the projects hooks (a webhook, the reaction rules) wakes an issue's agent through the same
