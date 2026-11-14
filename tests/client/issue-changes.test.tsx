@@ -16,6 +16,11 @@ import { stubMobileViewport } from './helpers/mobile-viewport.js';
 stubMobileViewport();
 
 let summary: Record<string, unknown>;
+let uiSmoke: Record<string, unknown> = {
+  state: 'none',
+  runUrl: null,
+  artifactUrl: null,
+};
 let calls: ApiCall[] = [];
 
 const render = (canComment = true) =>
@@ -31,6 +36,7 @@ const render = (canComment = true) =>
       fetch: answerApi((call: ApiCall) => {
         calls.push(call);
         if (call.method === 'POST') return { data: { commentId: 'c1' } };
+        if (String(call.path).endsWith('/uiSmoke')) return { data: uiSmoke };
         return { data: summary };
       }),
     },
@@ -38,6 +44,7 @@ const render = (canComment = true) =>
 
 beforeEach(() => {
   calls = [];
+  uiSmoke = { state: 'none', runUrl: null, artifactUrl: null };
   summary = {
     pullRequestId: 'pr1',
     number: 7,
@@ -66,6 +73,29 @@ describe('IssueChanges', () => {
     ).toBeTruthy();
     expect(screen.getByText('Verification passed')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Open on GitHub' })).toBeTruthy();
+  });
+
+  // S3 (plan S): the screenshots of the interface check are one link away from the card.
+  it('shows the interface check of the head with a link to its screenshots', async () => {
+    uiSmoke = {
+      state: 'passed',
+      runUrl: 'https://github.test/acme/sandbox/actions/runs/8',
+      artifactUrl:
+        'https://github.test/acme/sandbox/actions/runs/8/artifacts/3',
+    };
+    await render();
+    expect(await screen.findByText('Interface check passed')).toBeTruthy();
+    expect(
+      screen
+        .getByRole('link', { name: 'See the screenshots' })
+        .getAttribute('href'),
+    ).toBe('https://github.test/acme/sandbox/actions/runs/8/artifacts/3');
+  });
+
+  it('says nothing about the interface check when there is none', async () => {
+    await render();
+    await screen.findByText(/Changes · #7/u);
+    expect(screen.queryByText(/Interface check/u)).toBeNull();
   });
 
   it('says when the verification is not of the current head', async () => {

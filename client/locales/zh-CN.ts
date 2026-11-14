@@ -2004,6 +2004,13 @@ const zhCN: AppResource = {
     loading: '正在读取变更…',
     files_one: '{{count}} 个文件',
     files_other: '{{count}} 个文件',
+    uiSmoke: {
+      running: '界面检查运行中',
+      passed: '界面检查通过',
+      failed: '界面检查未通过',
+      screenshots: '查看截图',
+      run: '查看运行',
+    },
     verification: {
       passed: '验证通过',
       failed: '验证未通过',

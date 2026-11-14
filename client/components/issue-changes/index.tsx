@@ -19,7 +19,11 @@ import {
   DialogTitle,
 } from '#components/ui/dialog';
 import { Textarea } from '#components/ui/textarea';
-import { useChangeSummary, useRequestChanges } from '#hooks/use-change-summary';
+import {
+  useChangeSummary,
+  usePullUiSmoke,
+  useRequestChanges,
+} from '#hooks/use-change-summary';
 
 /**
  * "Thay đổi": what a pull request changes in a few numbers (files, lines, the directories, the files that match the
@@ -39,6 +43,7 @@ export function IssueChangeSummary({
   const toaster = useToaster();
   const summary = useChangeSummary(pullRequestId, headSha);
   const request = useRequestChanges(pullRequestId);
+  const uiSmoke = usePullUiSmoke(pullRequestId, headSha);
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
   if (summary.isPending)
@@ -104,6 +109,40 @@ export function IssueChangeSummary({
           {t('issueChanges.verification.none')}
         </p>
       )}
+      {uiSmoke.data &&
+      uiSmoke.data.state !== 'none' &&
+      uiSmoke.data.state !== 'unavailable' ? (
+        <div className='flex flex-wrap items-center gap-2 text-sm'>
+          <Badge
+            variant={
+              uiSmoke.data.state === 'failed' ? 'destructive' : 'secondary'
+            }
+          >
+            {t(`issueChanges.uiSmoke.${uiSmoke.data.state}`)}
+          </Badge>
+          {uiSmoke.data.artifactUrl ? (
+            <a
+              href={uiSmoke.data.artifactUrl}
+              target='_blank'
+              rel='noreferrer'
+              className='inline-flex items-center gap-1 underline'
+            >
+              <ExternalLinkIcon className='size-3.5' />
+              {t('issueChanges.uiSmoke.screenshots')}
+            </a>
+          ) : uiSmoke.data.runUrl ? (
+            <a
+              href={uiSmoke.data.runUrl}
+              target='_blank'
+              rel='noreferrer'
+              className='inline-flex items-center gap-1 underline'
+            >
+              <ExternalLinkIcon className='size-3.5' />
+              {t('issueChanges.uiSmoke.run')}
+            </a>
+          ) : null}
+        </div>
+      ) : null}
       {data.sensitive.length > 0 ? (
         <div className='flex items-start gap-2 text-sm'>
           <CircleAlertIcon className='mt-0.5 size-4 shrink-0 text-destructive' />

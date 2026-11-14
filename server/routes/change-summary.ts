@@ -72,6 +72,14 @@ const ChangeSummarySchema = z
   })
   .meta({ ref: 'StudioChangeSummary' });
 
+const UiSmokeSchema = z
+  .object({
+    state: z.enum(['none', 'running', 'passed', 'failed', 'unavailable']),
+    runUrl: z.string().nullable(),
+    artifactUrl: z.string().nullable(),
+  })
+  .meta({ ref: 'StudioPullUiSmoke' });
+
 const RequestChangesBody = z
   .object({ note: z.string().trim().min(1).max(4000) })
   .strict();
@@ -163,6 +171,11 @@ export const changeSummaryRoutes: AppApiRouteContribution<Application> =
       authz.middleware(),
     );
     routes.use(
+      '/pullRequests/:pullRequestId/uiSmoke',
+      auth.required({ scopedKeys: true }),
+      authz.middleware(),
+    );
+    routes.use(
       '/pullRequests/:pullRequestId/requestChanges',
       auth.required({ scopedKeys: true }),
       authz.middleware(),
@@ -245,6 +258,29 @@ export const changeSummaryRoutes: AppApiRouteContribution<Application> =
                 }
               : null,
           },
+        });
+      },
+    );
+
+    routes.get(
+      '/pullRequests/:pullRequestId/uiSmoke',
+      describeRoute({
+        tags: ['Studio Git'],
+        summary: 'The interface check of a pull request’s head',
+        description:
+          'The `ds-ui-smoke` run of the current head and the link to its screenshots (an artifact of the run). `none` when the project has no such workflow or it did not run on this head; `unavailable` when GitHub could not be asked.',
+        security: PERSON_ONLY,
+        ...cliRoute({ command: 'pr ui-smoke' }),
+        responses: { '200': dataResponse(UiSmokeSchema), ...apiErrorResponses },
+      }),
+      apiValidator('param', PullParams),
+      async (context) => {
+        const { pull } = await readable(
+          context,
+          context.req.valid('param').pullRequestId,
+        );
+        return context.json({
+          data: await container.resolve(gitServiceToken).uiSmokeOf(pull.id),
         });
       },
     );
