@@ -15,7 +15,7 @@ NoNewPrivileges=true
 ProtectHome=true
 PrivateTmp=true
 ProtectSystem=strict
-ReadWritePaths=/run/ds-nb3 /srv/duongsinh-studio/jobs
+ReadWritePaths=/run/ds-nb3 /srv/duongsinh-studio/jobs /srv/duongsinh-studio/backups/nb3
 RuntimeDirectory=ds-nb3
 RuntimeDirectoryMode=0750
 # Keep the directory across restarts: the Studio container bind-mounts it, and a recreated directory leaves the mount empty.
