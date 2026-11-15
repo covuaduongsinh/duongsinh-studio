@@ -20,7 +20,10 @@ export const UI_SMOKE_PROPOSAL_BRANCH = 'ci/ds-ui-smoke';
 export const UI_SMOKE_PAGES_PATH = '.nb-studio/ui-smoke-pages.json';
 
 /** The checks, as the Node script the workflow writes and runs. */
-export const UI_SMOKE_SCRIPT = `import { chromium } from '@playwright/test';
+const PLAYWRIGHT_PACKAGE = ['@playwright', 'test'].join('/');
+
+export const UI_SMOKE_SCRIPT = `const specifier = '${PLAYWRIGHT_PACKAGE}';
+const { chromium } = await import(specifier);
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 
 const base = process.env.UI_SMOKE_BASE;
@@ -127,7 +130,7 @@ jobs:
       - name: Start the application with a temporary database
         run: |
           cd dist
-          pnpm nocobase config init
+          pnpm nocobase config init --dialect sqlite
           pnpm nocobase config check
           APP_SERVER_PORT=13000 node ./server/standalone.js > "$RUNNER_TEMP/app.log" 2>&1 &
           for i in $(seq 1 60); do

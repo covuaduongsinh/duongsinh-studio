@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -96,5 +96,30 @@ describe('the smoke script', () => {
     expect(UI_SMOKE_SCRIPT).toContain("message.type() === 'error'");
     expect(UI_SMOKE_SCRIPT).toContain('blank page');
     expect(UI_SMOKE_SCRIPT).toContain('process.exit(1)');
+  });
+});
+
+// S3 trial on a real runner: `pnpm build` scans server sources for imports and counts the template's text as one, and
+// `config init` refuses to guess a database when the application installs more than one driver.
+describe('what the first real run taught', () => {
+  it('keeps the playwright import out of what the dependency scan reads', () => {
+    const scan = [
+      /(?<![\w$.])import\s+(?!type\s)(?:[^;'"\n]*?\s+from\s+)?['"]([^'"]+)['"]/u,
+      /(?<![\w$.])import\s*\(\s*['"]([^'"]+)['"]\s*\)/u,
+      /(?<![\w$.])require\s*\(\s*['"]([^'"]+)['"]\s*\)/u,
+    ];
+    const source = readFileSync(
+      new URL('../../server/setups/ui-smoke-workflow.ts', import.meta.url),
+      'utf8',
+    );
+    for (const pattern of scan) {
+      for (const match of source.matchAll(new RegExp(pattern, 'gu')))
+        expect(match[1]).not.toMatch(/playwright|\$\{/u);
+    }
+    expect(UI_SMOKE_SCRIPT).toContain('@playwright/test');
+  });
+
+  it('chooses SQLite for the temporary database', () => {
+    expect(UI_SMOKE_WORKFLOW).toContain('config init --dialect sqlite');
   });
 });
