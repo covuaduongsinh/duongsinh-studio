@@ -162,8 +162,63 @@ export function scanHarnessFiles(files: readonly HarnessFile[]): {
   return { count, paths };
 }
 
-const INDEX_ROW =
-  '| [.agents/rules/ds-harness.md](.agents/rules/ds-harness.md) | Trước khi làm việc: kỹ năng, bài học và playbook mà Dương Sinh Studio ghi cho dự án |';
+const INDEX_CELLS = [
+  '[.agents/rules/ds-harness.md](.agents/rules/ds-harness.md)',
+  'Trước khi làm việc: kỹ năng, bài học và playbook mà Dương Sinh Studio ghi cho dự án',
+];
+
+/** The width Prettier gives a string in a table cell: combining marks take none, East Asian wide characters take two. */
+function cellWidth(text: string): number {
+  let width = 0;
+  for (const char of text) {
+    if (/\p{M}/u.test(char)) continue;
+    const code = char.codePointAt(0) ?? 0;
+    const wide =
+      (code >= 0x1100 && code <= 0x115f) ||
+      (code >= 0x2e80 && code <= 0xa4cf) ||
+      (code >= 0xac00 && code <= 0xd7a3) ||
+      (code >= 0xf900 && code <= 0xfaff) ||
+      (code >= 0xfe30 && code <= 0xfe6f) ||
+      (code >= 0xff00 && code <= 0xff60) ||
+      (code >= 0xffe0 && code <= 0xffe6);
+    width += wide ? 2 : 1;
+  }
+  return width;
+}
+
+const splitRow = (line: string): string[] =>
+  line
+    .trim()
+    .replace(/^\|/u, '')
+    .replace(/\|$/u, '')
+    .split(/(?<!\\)\|/u)
+    .map((cell) => cell.trim());
+
+/**
+ * The table rows written the way Prettier writes them (every cell padded to the widest of its column, the separator row
+ * as wide), so a project that runs `prettier --check` does not fail on the row Studio added. Found on the first real
+ * export (S5): an unaligned row made the project's `pnpm check` fail.
+ */
+function alignTable(lines: readonly string[]): string[] {
+  const rows = lines.map(splitRow);
+  const columns = Math.max(...rows.map((row) => row.length));
+  const widths = Array.from({ length: columns }, (_, column) =>
+    Math.max(
+      3,
+      ...rows.map((row, index) =>
+        index === 1 ? 0 : cellWidth(row[column] ?? ''),
+      ),
+    ),
+  );
+  return rows.map((row, index) => {
+    const cells = widths.map((width, column) => {
+      const cell = row[column] ?? '';
+      if (index === 1) return '-'.repeat(width);
+      return cell + ' '.repeat(Math.max(0, width - cellWidth(cell)));
+    });
+    return `| ${cells.join(' | ')} |`;
+  });
+}
 
 /** `AGENTS.md` with one more row in its Index table, or null when it has none or already has the row. */
 export function addIndexRow(agentsMd: string): string | null {
@@ -171,14 +226,42 @@ export function addIndexRow(agentsMd: string): string | null {
   const lines = agentsMd.split('\n');
   const heading = lines.findIndex((line) => /^##\s+Index\b/u.test(line));
   if (heading < 0) return null;
+  let first = -1;
   let last = -1;
   for (let i = heading + 1; i < lines.length; i += 1) {
-    if (lines[i]?.trim().startsWith('|')) last = i;
-    else if (last >= 0) break;
+    if (lines[i]?.trim().startsWith('|')) {
+      if (first < 0) first = i;
+      last = i;
+    } else if (last >= 0) break;
   }
-  if (last < 0) return null;
-  lines.splice(last + 1, 0, INDEX_ROW);
+  // A table needs its header and its separator row before a row can be added.
+  if (last < 0 || last - first < 1) return null;
+  const table = alignTable([
+    ...lines.slice(first, last + 1),
+    `| ${INDEX_CELLS.join(' | ')} |`,
+  ]);
+  lines.splice(first, last - first + 1, ...table);
   return lines.join('\n');
+}
+
+/** The directory Prettier must leave alone: the files in it are written by Studio and are not formatted as the project is. */
+const PRETTIER_IGNORE_LINE = `${HARNESS_DIR}/`;
+
+/**
+ * `.prettierignore` with the harness directory added, or null when it already covers it (the directory or all of
+ * `.nb-studio`). Without it the project's `prettier --check` fails on the skills and lessons Studio wrote (S5).
+ */
+export function addPrettierIgnore(current: string | null): string | null {
+  const covered = (current ?? '')
+    .split('\n')
+    .map((line) => line.trim().replace(/^\//u, ''))
+    .some((line) =>
+      ['.nb-studio', '.nb-studio/', PRETTIER_IGNORE_LINE].includes(line),
+    );
+  if (covered) return null;
+  if (current === null || current.trim() === '')
+    return `# Written by Dương Sinh Studio: not formatted as the project is.\n${PRETTIER_IGNORE_LINE}\n`;
+  return `${current.replace(/\n*$/u, '\n')}${PRETTIER_IGNORE_LINE}\n`;
 }
 
 /** How the repository's copy differs from what Studio would write now. */

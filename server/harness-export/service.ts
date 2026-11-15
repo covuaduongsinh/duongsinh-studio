@@ -10,6 +10,7 @@ import { listPlaybookDefinitions } from '../playbooks/service.js';
 import {
   HARNESS_DIR,
   addIndexRow,
+  addPrettierIgnore,
   buildHarnessFiles,
   driftOf,
   lessonHash,
@@ -233,13 +234,16 @@ export function createHarnessExportService(deps: {
     const present = await readRepository(client, fullName, base, [
       ...files.map((f) => f.path),
       'AGENTS.md',
+      '.prettierignore',
     ]);
     const changed = files.filter(
       (f) => present.get(f.path)?.text !== f.content,
     );
     const agentsMd = present.get('AGENTS.md');
     const indexed = agentsMd ? addIndexRow(agentsMd.text) : null;
-    if (changed.length === 0 && !indexed)
+    const ignoreFile = present.get('.prettierignore');
+    const ignored = addPrettierIgnore(ignoreFile?.text ?? null);
+    if (changed.length === 0 && !indexed && !ignored)
       throw new HarnessExportError(
         'NOTHING_TO_EXPORT',
         'The repository already has what Studio would write.',
@@ -270,11 +274,20 @@ export function createHarnessExportService(deps: {
           branch,
           sha: agentsMd.sha,
         });
+      if (ignored)
+        await client.putFile(fullName, {
+          path: '.prettierignore',
+          content: ignored,
+          message:
+            'chore(harness): leave the harness files to Studio in Prettier',
+          branch,
+          ...(ignoreFile?.sha ? { sha: ignoreFile.sha } : {}),
+        });
       const pull = await client.createPull(fullName, {
         title: 'chore(harness): write the rules Studio keeps for this project',
         head: branch,
         base,
-        body: `Dương Sinh Studio writes ${changed.length} file(s) under \`${HARNESS_DIR}/\` and \`.agents/rules/ds-harness.md\`${indexed ? ', and adds one row to the Index of `AGENTS.md`' : ''}. Skills, lessons, playbooks and default criteria come from the project; review them like code. Nothing is written to \`.agents/skills/\`.`,
+        body: `Dương Sinh Studio writes ${changed.length} file(s) under \`${HARNESS_DIR}/\` and \`.agents/rules/ds-harness.md\`${indexed ? ', adds one row to the Index of `AGENTS.md`' : ''}${ignored ? ', and lists the harness directory in `.prettierignore` (Studio writes those files, they are not formatted as the project is)' : ''}. Skills, lessons, playbooks and default criteria come from the project; review them like code. Nothing is written to \`.agents/skills/\`.`,
         draft: false,
       });
       return { number: pull.number, url: pull.url, files: changed.length };

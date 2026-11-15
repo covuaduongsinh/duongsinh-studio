@@ -185,6 +185,7 @@ test(
       'Tests pass',
     );
     expect(written.get('AGENTS.md')).toContain('.agents/rules/ds-harness.md');
+    expect(written.get('.prettierignore')).toContain('.nb-studio/harness/');
     expect(
       [...written.keys()].some((p) => p.startsWith('.agents/skills/')),
     ).toBe(false);
