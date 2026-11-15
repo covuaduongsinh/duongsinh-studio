@@ -1,8 +1,10 @@
 // @vitest-environment node
+import { format } from 'prettier';
 import { describe, expect, it } from 'vitest';
 import {
   HARNESS_DIR,
   addIndexRow,
+  addPrettierIgnore,
   buildHarnessFiles,
   driftOf,
   lessonHash,
@@ -117,6 +119,30 @@ describe('addIndexRow', () => {
   });
   it('leaves a file with no index table alone', () => {
     expect(addIndexRow('# App\n')).toBeNull();
+  });
+  // S5 on a real project: the pull request failed the project's `prettier --check` because the new row was not aligned.
+  it('keeps the table as Prettier writes it, when the row fits and when it does not', async () => {
+    const aligned = await format(
+      '# App\n\n## Index\n\n| Read | When |\n| --- | --- |\n| [.agents/rules/workspace.md](.agents/rules/workspace.md) | Adding internal packages or changing workspace development and validation, and more words to be wide |\n| [b](b.md) | Short |\n',
+      { parser: 'markdown' },
+    );
+    const fits = addIndexRow(aligned)!;
+    expect(await format(fits, { parser: 'markdown' })).toBe(fits);
+    const narrow = await format(agentsMd, { parser: 'markdown' });
+    const grown = addIndexRow(narrow)!;
+    expect(await format(grown, { parser: 'markdown' })).toBe(grown);
+    expect(grown).toContain('.agents/rules/ds-harness.md');
+  });
+});
+
+describe('addPrettierIgnore', () => {
+  it('creates the file, or adds the harness directory once to an existing one', () => {
+    expect(addPrettierIgnore(null)).toContain('.nb-studio/harness/');
+    const existing = addPrettierIgnore('dist\nnode_modules');
+    expect(existing).toMatch(/^dist\nnode_modules\n/u);
+    expect(existing).toContain('.nb-studio/harness/');
+    expect(addPrettierIgnore(existing!)).toBeNull();
+    expect(addPrettierIgnore('.nb-studio/\n')).toBeNull();
   });
 });
 
