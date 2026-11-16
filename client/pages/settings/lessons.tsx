@@ -169,7 +169,8 @@ export default function LessonsSettingsPage(): ReactElement {
                         <TableCell>
                           <Badge variant='outline'>{lesson.tag}</Badge>
                         </TableCell>
-                        <TableCell>
+                        {/* The shared cell keeps text on one line; a long rule would widen the table and hide the actions column. */}
+                        <TableCell className='min-w-0 whitespace-normal'>
                           <div className='space-y-1'>
                             <div className='text-xs text-muted-foreground'>
                               <span className='font-semibold text-destructive/80'>

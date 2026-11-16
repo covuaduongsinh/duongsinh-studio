@@ -124,3 +124,18 @@ describe('Settings → Lessons Learned Page', () => {
     });
   });
 });
+
+// A cell of the shared Table keeps its text on one line (`whitespace-nowrap`). A long rule then widened the table past its
+// card and pushed the actions column out of sight, so the text cell must wrap and the actions stay in the table.
+describe('Settings → Lessons table width', () => {
+  it('lets the mistake and rule wrap, so the actions column is not pushed out of view', async () => {
+    await render(<LessonsSettingsPage />);
+    const rule = await screen.findByText(
+      'Never commit secrets, always use environment variables',
+    );
+    const cell = rule.closest('td');
+    expect(cell?.className).toContain('whitespace-normal');
+    expect(cell?.className).toContain('min-w-0');
+    expect(screen.getByTitle('Accept & Apply').closest('td')).toBeTruthy();
+  });
+});
