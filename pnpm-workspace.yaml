@@ -10,10 +10,10 @@ allowBuilds:
   node-liblzma: false
 
 # The application stays at the workspace root; reusable internal packages live below packages/.
-packages: ['packages/*']
+packages: [ 'packages/*' ]
 
 # Use msgpackr without its optional native accelerator or platform binary packages.
-ignoredOptionalDependencies: [msgpackr-extract]
+ignoredOptionalDependencies: [ msgpackr-extract ]
 
 # Install dependencies explicitly instead of during dev/build/start.
 # create-app installs them initially; run pnpm install after changing dependencies.
@@ -78,6 +78,19 @@ minimumReleaseAgeExclude:
   - prosemirror-view@1.42.9
   - react-resizable-panels@4.16.0
   - ws@8.22.1
+  - '@nocobase/agent-protocol@0.1.0-beta.20'
+  - '@nocobase/agent-runner@0.1.0-beta.30'
+  - '@nocobase/app-cli-client@0.1.0-beta.23'
+  - '@nocobase/app-client@4.0.0-beta.11'
+  - '@nocobase/app-host@0.1.0-beta.26'
+  - '@nocobase/app-plugin-agent-sessions@1.0.0-beta.22'
+  - '@nocobase/app-plugin-agents@2.0.0-beta.16'
+  - '@nocobase/app-plugin-knowledge@0.1.0-beta.22'
+  - '@nocobase/app-plugin-projects@0.1.0-beta.33'
+  - '@nocobase/app-plugin-releases@0.1.0-beta.26'
+  - '@nocobase/app-plugin-users@2.0.0-beta.21'
+  - '@nocobase/app-skills@0.1.0-beta.68'
+  - '@nocobase/logging@0.1.0-beta.8'
 
 # Dương Sinh: vite build of the client outgrew Node default ~2 GB heap ("JavaScript heap out of memory", SIGABRT),
 # with Rollup as WebAssembly on the non-AVX dev CPU. pnpm passes this to every script through NODE_OPTIONS.

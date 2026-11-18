@@ -20,7 +20,7 @@ const test = createAppTest({
 });
 
 const MODEL = 'claude-sonnet-4-5';
-const PROTOCOL_VERSION = 14;
+const PROTOCOL_VERSION = 16;
 // The runner refuses its whole claim on any other input type, so one bad run holds up everything on that runner.
 const RUNNER_INPUT_TYPES = [
   'comment',

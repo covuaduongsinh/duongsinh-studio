@@ -18,7 +18,7 @@ const test = createAppTest({
   },
 });
 
-const PROTOCOL_VERSION = 14;
+const PROTOCOL_VERSION = 16;
 const MODEL = 'claude-sonnet-4-5';
 const PASSWORD = 'Studio-test-123!';
 

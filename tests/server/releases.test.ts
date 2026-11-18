@@ -34,7 +34,7 @@ const API = 'https://github.test/api';
 const TOKEN = 'ghp_release_token_never_returned';
 const PASSWORD = 'Studio-test-123!';
 const MODEL = 'claude-sonnet-4-5';
-const PROTOCOL_VERSION = 14;
+const PROTOCOL_VERSION = 16;
 const DAY = 24 * 60 * 60 * 1000;
 
 const json = (body: unknown, method = 'POST') => ({

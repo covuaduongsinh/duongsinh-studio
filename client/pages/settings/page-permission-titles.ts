@@ -12,6 +12,8 @@ export const pagePermissionTitles: PagePermissionTitles = {
   'pm-project-new': 'pagePermissions.newProject',
   // Registering a NocoBase 3 App (plan V, V5.3): an owner's form opened from the Releases page.
   'releases-register': 'pagePermissions.registerApp',
+  // The template detail drawer shares the list page grant.
+  notificationTemplate: 'settings.notificationTemplates',
   // The agents plugin's overlays under /runtimes and /skills.
   'runtimes-connect': 'pagePermissions.addRuntime',
   'skills-new': 'pagePermissions.newSkill',

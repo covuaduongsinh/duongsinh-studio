@@ -51,3 +51,7 @@ Keep the identity-keyed `SessionPreparation` boundary: mounted private list cond
 - `client/extensions/nocobase-inbox/inbox-actions.ts` is a UI Library source changed on purpose: a decision whose notice has `source: 'studio'`
   and `kind: 'decision'` is read off an issue by `server/routes/inbox.ts` and has no in-app item behind it, so it offers no read/unread/delete.
   Keep that branch when reconciling a newer version of the extension.
+
+## Features and extensions
+
+Features and extensions belongs in System settings under the System category, alongside Database Explorer. Use the permission-filtered settings catalog rather than a separate sidebar footer entry. Its detail breadcrumb includes System settings and returns to the filtered catalog. The homepage retains its discovery link.

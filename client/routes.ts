@@ -14,7 +14,6 @@ import {
   KeyRound,
   UserCog,
   UserPlus,
-  CalendarClock,
   Wallet,
   Library,
   PackageIcon,
@@ -26,7 +25,6 @@ import {
   ShieldCheck,
   FileCheck,
   GraduationCap,
-  SearchIcon,
   Tags,
   type LucideIcon,
 } from 'lucide-react';
@@ -53,6 +51,7 @@ import {
 import { createAppClientConfig } from '@nocobase/app-client';
 import { readAppClientRuntimeConfig } from '@nocobase/app-client/runtime';
 
+import databaseExplorerRoutes from './pages/settings/database-explorer/routes.js';
 import { includeNotificationTemplateRoutes } from './pages/settings/notification-routes.js';
 import systemSettingsRoutes from './pages/settings/routes.js';
 import settingsShellRoutes from './pages/settings/shell-routes.js';
@@ -557,40 +556,6 @@ const projectSettingsRoutes: AppClientRouteContribution = defineAppRoutes([
     componentLoader: () => import('./pages/settings/budgets.js'),
   },
   {
-    // Work that comes back on a schedule, off until someone turns it on. The server checks `studio.routines` too.
-    name: 'settingsRoutines',
-    parent: 'settingsAi',
-    path: '/routines',
-    auth: 'required',
-    authz: {
-      resource: { type: 'settings', id: 'studio.routines' },
-      action: 'read',
-    },
-    navigation: {
-      title: 'navigation.routines',
-      description: 'navigation.routinesDescription',
-      icon: CalendarClock,
-    },
-    componentLoader: () => import('./pages/settings/routines.js'),
-  },
-  {
-    // The text of any run's events, for administrators only (the server answers only to unrestricted ones).
-    name: 'settingsRunLogs',
-    parent: 'settingsAi',
-    path: '/run-logs',
-    auth: 'required',
-    authz: {
-      resource: { type: 'settings', id: 'studio.runLogs' },
-      action: 'read',
-    },
-    navigation: {
-      title: 'navigation.runLogs',
-      description: 'navigation.runLogsDescription',
-      icon: SearchIcon,
-    },
-    componentLoader: () => import('./pages/settings/run-logs.js'),
-  },
-  {
     // The role a new member is given once when they accept an invitation, and who holds it (`/api/access/settings`).
     // The server checks `pm.members` read, and `define-roles` to change it.
     name: 'settingsNewMemberRole',
@@ -770,6 +735,7 @@ export function createApplicationRoutes(
       appRoutes,
       agentRoutes,
       settingsShellRoutes,
+      databaseExplorerRoutes,
       systemSettingsRoutes,
       projectSettingsRoutes,
       settingsShortcutRoutes,

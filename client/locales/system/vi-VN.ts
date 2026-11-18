@@ -1,4 +1,5 @@
 // Generated from the en-US structure and the reviewed Vietnamese wording (docs/thuat-ngu.md); edit the wording here.
+import databaseExplorer from '../../pages/settings/database-explorer/vi-VN.js';
 import settings from './settings-vi-VN.js';
 import type { SystemResource } from './en-US.js';
 import deviceApprovalViVN from '#extensions/nocobase-device-approval/locales/vi-VN';
@@ -6,6 +7,7 @@ import inboxViVN from '#extensions/nocobase-inbox/locales/vi-VN';
 
 /** The Vietnamese copy of what the template ships; see `./en-US.ts`. */
 const systemViVN: SystemResource = {
+  databaseExplorer,
   pendingFeedback: {
     working: 'Đang xử lý…',
     longWait: 'Mất nhiều thời gian hơn bình thường. Bạn có thể tiếp tục đợi.',
@@ -154,6 +156,11 @@ const systemViVN: SystemResource = {
   'navigation.brandHome': 'Trang chủ Dương Sinh Studio',
   'navigation.brandApps': 'Ứng dụng Dương Sinh',
   'routeOverlay.close': 'Đóng',
+  'routeOverlay.discardTitle': 'Bỏ các thay đổi?',
+  'routeOverlay.discardDescription':
+    'Các thay đổi chưa được lưu sẽ bị mất.',
+  'routeOverlay.keepEditing': 'Tiếp tục chỉnh sửa',
+  'routeOverlay.discard': 'Bỏ thay đổi',
   'status.deniedDescription': 'Bạn không có quyền truy cập {{label}}.',
   'status.routeFailedDescription':
     'Không tải được trang {{label}} của {{packageName}}.',
@@ -403,6 +410,7 @@ const systemViVN: SystemResource = {
     signingOut: 'Đang đăng xuất…',
   },
   navigation: {
+    resources: 'Tài nguyên',
     home: 'Trang chủ',
     open: 'Mở thanh điều hướng',
     close: 'Đóng thanh điều hướng',
@@ -420,6 +428,11 @@ const systemViVN: SystemResource = {
     noResults: 'Không có kết quả',
     sortAscending: 'Tăng dần',
     sortDescending: 'Giảm dần',
+    sort: 'Sắp xếp',
+    sortBy: 'Sắp xếp theo',
+    filters: 'Bộ lọc',
+    filtersApplied: 'Bộ lọc · {{count}}',
+    selectPage: 'Chọn tất cả trên trang này',
     hideColumn: 'Ẩn',
     view: 'Hiển thị',
     toggleColumns: 'Ẩn/hiện cột',
@@ -434,6 +447,7 @@ const systemViVN: SystemResource = {
   datePicker: {
     placeholder: 'Chọn ngày',
     rangePlaceholder: 'Chọn khoảng ngày',
+    clear: 'Xoá',
   },
   formFeedback: {
     field: 'Giá trị này không hợp lệ. Hãy kiểm tra rồi thử lại.',

@@ -22,7 +22,7 @@ const test = createAppTest({
 
 const MODEL = 'claude-sonnet-4-5';
 /** The runner protocol this agents plugin speaks (`PROTOCOL_VERSION` of `@nocobase/agent-protocol`). */
-const PROTOCOL_VERSION = 14;
+const PROTOCOL_VERSION = 16;
 
 const json = (body: unknown, method = 'POST') => ({
   method,

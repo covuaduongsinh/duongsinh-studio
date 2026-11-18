@@ -59,6 +59,7 @@ describe('app client routes', () => {
     expect(pagePaths(built.routes)).toEqual([
       '/settings/notifications/logs',
       '/settings/notifications/templates',
+      '/settings/notifications/templates/:templateId',
     ]);
     expect(built.routes[0].children[0].children).toHaveLength(1);
     const created = includeNotificationTemplateRoutes([shell], true);
@@ -135,10 +136,13 @@ describe('app client routes', () => {
     expect(pagePaths(built.routes)).toEqual([
       '/settings/notification-logs',
       '/settings/notifications/templates',
+      '/settings/notifications/templates/:templateId',
     ]);
     expect(pageAuthorizations(built.routes)).toEqual([
       { name: 'notificationLogs', authorizedAs: 'existing.notification.logs' },
       { name: 'notificationTemplates', authorizedAs: 'notification.templates' },
+      // A template's own address keeps the list page's grant.
+      { name: 'notificationTemplate', authorizedAs: 'notification.templates' },
     ]);
     expect(built.routes[0].children).toHaveLength(1);
   });
@@ -319,6 +323,7 @@ describe('app client routes', () => {
 
 /** The prepared Users and Roles settings, then the projects plugin's settings appended to the same group. */
 const settingsAuthorizations = [
+  { name: 'databaseExplorer', authorizedAs: 'database-explorer' },
   { name: 'settingsUsers', authorizedAs: 'user:*' },
   { name: 'settingsUserCreate', authorizedAs: 'user:*' },
   { name: 'settingsUser', authorizedAs: 'user:*' },
@@ -384,8 +389,6 @@ const settingsAuthorizations = [
     authorizedAs: 'settings:agents.agents',
   },
   { name: 'settingsBudgets', authorizedAs: 'settings:studio.budgets' },
-  { name: 'settingsRoutines', authorizedAs: 'settings:studio.routines' },
-  { name: 'settingsRunLogs', authorizedAs: 'settings:studio.runLogs' },
 ];
 
 /** This application's own contribution, registered the way the client runtime registers it. */

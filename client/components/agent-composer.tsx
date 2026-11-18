@@ -4,12 +4,13 @@ import {
   type ChatContextChip,
 } from '@nocobase/app-plugin-agents/client/chat';
 import {
-  CHAT_ATTACHMENT_SIZE_MAX,
   CHAT_ATTACHMENTS_PER_MESSAGE_MAX,
   MESSAGE_CONTENT_MAX,
   type MessageAttachment,
   type PageContext,
 } from '@nocobase/app-plugin-agents/shared/conversations';
+
+const CHAT_ATTACHMENT_SIZE_MAX = 20 * 1024 * 1024;
 import {
   ArrowUpIcon,
   FileIcon,

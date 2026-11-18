@@ -224,6 +224,7 @@ describe('System settings navigation', () => {
         ['notificationManagement', '/settings/notifications/templates'],
         ['settingsGit', '/settings/git'],
         ['settingsGoEnvironments', '/settings/go/environments'],
+        ['databaseExplorer', '/settings/database-explorer'],
       ],
     ]);
     expect(
@@ -231,5 +232,35 @@ describe('System settings navigation', () => {
         ({ route }) => route.name === 'settingsHome',
       ),
     ).toHaveLength(1);
+  });
+
+  it('places database browsing in System and hides its card when access is denied', () => {
+    const routes = resolveAppClientContributions([
+      {
+        packageName: app,
+        source: 'application',
+        routes: createApplicationRoutes({}),
+      },
+    ]).routes;
+    const page = find(routes, 'databaseExplorer');
+    expect(page.path).toBe('/settings/database-explorer');
+    expect(page.auth).toBe('required');
+    expect(page.authz).toEqual({
+      resource: { type: 'page', id: 'database-explorer' },
+      action: 'access',
+    });
+    expect(catalog(routes)).toContainEqual([
+      'settingsSystem',
+      [
+        ['settingsGit', '/settings/git'],
+        ['settingsGoEnvironments', '/settings/go/environments'],
+        ['databaseExplorer', '/settings/database-explorer'],
+      ],
+    ]);
+    expect(
+      catalog(routes, new Set([routeKey(page)]))
+        .find(([category]) => category === 'settingsSystem')?.[1]
+        .some(([name]) => name === 'databaseExplorer'),
+    ).toBe(false);
   });
 });

@@ -31,7 +31,7 @@ const TOKEN = 'ghp_test_token_never_returned';
 const PERSONAL = 'ghp_personal_never_returned';
 const PASSWORD = 'Studio-test-123!';
 const MODEL = 'claude-sonnet-4-5';
-const PROTOCOL_VERSION = 14;
+const PROTOCOL_VERSION = 16;
 const HEAD = 'abc1234def5678';
 
 const json = (body: unknown, method = 'POST') => ({

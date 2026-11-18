@@ -69,7 +69,8 @@ describe('default Foundation integration', () => {
         [
           ['settingsGit', '/settings/git'],
           ['settingsGoEnvironments', '/settings/go/environments'],
-          ['foundation', '/foundation'],
+          ['databaseExplorer', '/settings/database-explorer'],
+          ['capabilityGuide', '/settings/capabilities'],
         ],
       ],
       [
@@ -82,8 +83,6 @@ describe('default Foundation integration', () => {
           ['settingsPlaybooks', '/settings/playbooks'],
           ['settingsProjectManager', '/settings/project-manager'],
           ['settingsBudgets', '/settings/budgets'],
-          ['settingsRoutines', '/settings/routines'],
-          ['settingsRunLogs', '/settings/run-logs'],
           ['settingsGoAgents', '/settings/go/agents'],
           ['settingsGoRuntimes', '/settings/go/runtimes'],
           ['settingsGoSkills', '/settings/go/skills'],

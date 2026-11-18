@@ -25,3 +25,4 @@ coverage/
 *.log
 /test-results/
 /playwright-report/
+/.omc/

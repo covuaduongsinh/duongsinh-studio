@@ -31,7 +31,7 @@ const API = 'https://github.test/api';
 const TOKEN = 'ghp_test_token_never_returned';
 const CLONE_URL = 'https://github.test/acme/sandbox.git';
 const MODEL = 'claude-sonnet-4-5';
-const PROTOCOL_VERSION = 14;
+const PROTOCOL_VERSION = 16;
 
 const json = (body: unknown, method = 'POST') => ({
   method,
