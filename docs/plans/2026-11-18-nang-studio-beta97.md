@@ -167,7 +167,20 @@ Các migration mới phát sinh từ các gói plugin được nâng cấp:
 - Commit các thay đổi với thông điệp:
   `chore: upgrade template to 1.0.0-beta.97 and sync core plugins`
 - Đẩy nhánh lên GitHub: `git push origin template-upgrade-1.0.0-beta.97`.
-- Hợp nhất vào `main` và đẩy `main` lên GitHub (hoặc tạo PR tuỳ chọn).
+- Hợp nhất vào `main` và đẩy `main` lên GitHub (`0609c46`).
+
+### N8 — Triển khai lên VPS Production (`studio.dsc.edu.vn`)
+- Đóng gói phát hành chuẩn Linux x64 trên WSL: `deploy/dokploy/build-release.sh`.
+- Tải gói lên VPS `/srv/duongsinh-studio/incoming/studio-0609c46.tar.gz`.
+- Xác thực SHA-256 và giải nén vào `/srv/duongsinh-studio/releases/0609c46`.
+- Chụp ảnh sao lưu pre-deploy: `studio-before-0609c46-20261118-1134.dump` (14 MB).
+- Chuyển đổi bản phát hành bằng `switch-release.sh 0609c46`:
+  - Tạm dừng autopilot.
+  - Sửa `STUDIO_RELEASE="0609c46"` trong Dokploy compose env.
+  - Tái tạo container app `duongsinh-studio-tluxoy-app-1`.
+  - Chờ container healthy, di trú tự động chạy khi khởi động (`migrations.autoRun`).
+  - Kiểm tra endpoint công khai `https://studio.dsc.edu.vn/main/api/healthz` (trả về `{"ok":true,"app":{"name":"main","basePath":"/main"}}`).
+  - Phục hồi autopilot.
 
 ---
 
@@ -180,4 +193,5 @@ Các migration mới phát sinh từ các gói plugin được nâng cấp:
 - [x] **N4 — Hợp nhất mã nguồn (32 mới + 45 untouched + 18 customized)**
 - [x] **N5 — Di trú cơ sở dữ liệu (`pnpm nocobase db apply` & `db repair`)**
 - [x] **N6 — Kiểm tra chất lượng (`typecheck`, `eslint`, `vitest` pass 100%)**
-- [ ] **N7 — Commit và đồng bộ repo local & GitHub**
+- [x] **N7 — Commit và đồng bộ repo local & GitHub**
+- [x] **N8 — Triển khai lên VPS Production `studio.dsc.edu.vn` (Healthy, 200 OK)**
